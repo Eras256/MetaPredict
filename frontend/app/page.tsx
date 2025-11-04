@@ -196,7 +196,7 @@ export default function HomePage() {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 viewport={{ once: true }}
               >
-                <GlassCard hover glow className="p-6 h-full">
+                <GlassCard hover className="p-6 h-full">
                   <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center mb-4`}>
                     <feature.icon className="w-7 h-7 text-white" />
                   </div>

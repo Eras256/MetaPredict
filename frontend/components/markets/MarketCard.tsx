@@ -43,7 +43,7 @@ export function MarketCard({ market }: MarketCardProps) {
 
   return (
     <Link href={`/markets/${market.id}`}>
-      <GlassCard hover glow className="p-6 h-full transition-all duration-300 hover:scale-[1.02]">
+      <GlassCard hover className="p-6 h-full transition-all duration-300 hover:scale-[1.02]">
         <div className="flex flex-col h-full">
           <div className="flex items-start justify-between mb-4">
             <div className="flex items-center gap-2">
