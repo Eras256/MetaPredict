@@ -8,12 +8,8 @@ const withPWA = require("next-pwa")({
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
   images: {
     domains: ["localhost"],
-  },
-  experimental: {
-    appDir: true,
   },
   // Headers para permitir extensiones de wallet
   async headers() {
@@ -58,6 +54,9 @@ const nextConfig = {
         assert: false,
         os: false,
         path: false,
+        // Módulos opcionales de React Native y pino
+        '@react-native-async-storage/async-storage': false,
+        'pino-pretty': false,
       };
     }
     return config;

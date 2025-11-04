@@ -46,7 +46,7 @@ export function useMarkets() {
     return getContract({
       client,
       chain: opBNBTestnet,
-      address: CONTRACT_ADDRESSES.PREDICTION_MARKET as `0x${string}`,
+      address: CONTRACT_ADDRESSES.PREDICTION_MARKET,
       abi: PREDICTION_MARKET_ABI as any,
     });
   }, []);
@@ -114,7 +114,7 @@ export function useMarket(marketId: number) {
     return getContract({
       client,
       chain: opBNBTestnet,
-      address: CONTRACT_ADDRESSES.PREDICTION_MARKET as `0x${string}`,
+      address: CONTRACT_ADDRESSES.PREDICTION_MARKET,
       abi: PREDICTION_MARKET_ABI as any,
     });
   }, []);

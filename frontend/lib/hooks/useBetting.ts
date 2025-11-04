@@ -28,7 +28,7 @@ export function useBetting() {
     return getContract({
       client,
       chain: opBNBTestnet,
-      address: CONTRACT_ADDRESSES.PREDICTION_MARKET as `0x${string}`,
+      address: CONTRACT_ADDRESSES.PREDICTION_MARKET,
       abi: PREDICTION_MARKET_ABI as any,
     });
   }, []);
