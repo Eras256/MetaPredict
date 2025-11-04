@@ -1,17 +1,14 @@
 import { createConfig, http } from 'wagmi';
 import { opBNBTestnet } from 'wagmi/chains';
-import { injected, walletConnect } from 'wagmi/connectors';
+import { injected } from 'wagmi/connectors';
 
-// Wagmi config con connectors para wallets
+// Wagmi config - Thirdweb maneja las conexiones de wallet
+// Solo usamos wagmi para leer contratos y datos on-chain
 export const wagmiConfig = createConfig({
   chains: [opBNBTestnet],
   connectors: [
     injected({
       shimDisconnect: true,
-    }),
-    walletConnect({
-      projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || '',
-      showQrModal: true,
     }),
   ],
   transports: {
