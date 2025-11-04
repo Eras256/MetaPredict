@@ -12,8 +12,10 @@ import {
   PlusCircle, 
   Wallet,
   Shield,
+  Users,
 } from 'lucide-react';
-import { useAccount, useConnect, useDisconnect } from 'wagmi';
+import { ConnectButton, useActiveAccount } from 'thirdweb/react';
+import { client, chain } from '@/lib/config/thirdweb';
 import { Button } from '@/components/ui/button';
 import { GlassCard } from '@/components/effects/GlassCard';
 import { cn } from '@/lib/utils';
@@ -22,57 +24,16 @@ const navigation = [
   { name: 'Markets', href: '/markets', icon: TrendingUp },
   { name: 'Create', href: '/create', icon: PlusCircle },
   { name: 'Portfolio', href: '/portfolio', icon: Wallet },
+  { name: 'Reputation', href: '/reputation', icon: Users },
   { name: 'Insurance', href: '/insurance', icon: Shield },
+  { name: 'DAO', href: '/dao', icon: Brain },
 ];
-
-function ConnectWalletButton() {
-  const [mounted, setMounted] = useState(false);
-  const { address, isConnected } = useAccount();
-  const { connect, connectors } = useConnect();
-  const { disconnect } = useDisconnect();
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  // Durante SSR y el primer render del cliente, mostrar el botón de conectar
-  // para evitar el mismatch de hidratación
-  if (!mounted) {
-    return (
-      <Button
-        disabled
-        className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 opacity-50"
-      >
-        Connect Wallet
-      </Button>
-    );
-  }
-
-  if (isConnected) {
-    return (
-      <div className="flex items-center gap-2">
-        <span className="text-sm text-gray-300">{address?.slice(0, 6)}...{address?.slice(-4)}</span>
-        <Button variant="outline" onClick={() => disconnect()}>
-          Disconnect
-        </Button>
-      </div>
-    );
-  }
-
-  return (
-    <Button
-      onClick={() => connect({ connector: connectors[0] })}
-      className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
-    >
-      Connect Wallet
-    </Button>
-  );
-}
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
+  const account = useActiveAccount();
   
   useEffect(() => {
     const handleScroll = () => {
@@ -85,23 +46,21 @@ export function Navbar() {
   
   return (
     <>
-      <nav className="fixed top-0 left-0 right-0 z-50">
+      <nav className={cn("sticky top-0 z-50 transition-all duration-300", scrolled ? "backdrop-blur-xl" : "")}>
         <GlassCard className={cn(
-          "transition-all duration-300",
-          scrolled ? "border-purple-500/30 backdrop-blur-xl" : "border-purple-500/10 backdrop-blur-sm"
+          "m-4 transition-all duration-300",
+          scrolled ? "border-purple-500/30" : "border-purple-500/10"
         )}>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-16">
-              {/* Logo */}
-              <Link href="/" className="flex items-center space-x-2">
-                <Brain className="h-6 w-6 text-purple-400" />
-                <span className="text-xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                  TruthChain
-                </span>
+              <Link href="/" className="flex items-center space-x-3 group">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <Brain className="w-6 h-6 text-white" />
+                </div>
+                <span className="text-xl font-bold text-gradient">MetaPredict.ai</span>
               </Link>
               
-              {/* Desktop Navigation */}
-              <div className="hidden md:flex items-center space-x-2">
+              <div className="hidden md:flex items-center space-x-1">
                 {navigation.map((item) => {
                   const isActive = pathname === item.href;
                   return (
@@ -115,7 +74,7 @@ export function Navbar() {
                             : "text-gray-300 hover:bg-purple-500/10 hover:text-purple-300"
                         )}
                       >
-                        <item.icon className="h-4 w-4" />
+                        <item.icon className="w-4 h-4" />
                         {item.name}
                       </Button>
                     </Link>
@@ -123,66 +82,74 @@ export function Navbar() {
                 })}
               </div>
               
-              {/* Connect Wallet */}
-              <div className="hidden md:block">
-                <ConnectWalletButton />
+              <div className="hidden md:flex items-center space-x-4">
+                {account && (
+                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-purple-500/10 border border-purple-500/20">
+                    <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                    <span className="text-sm text-gray-300">Connected</span>
+                  </div>
+                )}
+                <ConnectButton
+                  client={client}
+                  chain={chain}
+                  theme="dark"
+                  connectButton={{
+                    label: "Connect Wallet",
+                    className: "!bg-gradient-to-r !from-purple-600 !to-pink-600 hover:!from-purple-700 hover:!to-pink-700 !text-white !font-semibold !px-6 !py-2.5 !rounded-lg !transition-all !duration-200 !shadow-lg hover:!shadow-xl"
+                  }}
+                />
               </div>
               
-              {/* Mobile menu button */}
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 className="md:hidden p-2 rounded-lg hover:bg-purple-500/10 transition-colors"
-                aria-label="Toggle menu"
               >
-                {mobileMenuOpen ? (
-                  <X className="h-6 w-6 text-white" />
-                ) : (
-                  <Menu className="h-6 w-6 text-white" />
-                )}
+                {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
               </button>
             </div>
           </div>
         </GlassCard>
       </nav>
       
-      {/* Mobile Menu */}
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="fixed top-16 left-0 right-0 z-40 md:hidden"
+            transition={{ duration: 0.2 }}
+            className="md:hidden fixed inset-x-0 top-24 z-40 mx-4"
           >
-            <GlassCard className="m-4 p-4">
-              <div className="space-y-2">
-                {navigation.map((item) => {
-                  const isActive = pathname === item.href;
-                  return (
-                    <Link
-                      key={item.name}
-                      href={item.href}
-                      onClick={() => setMobileMenuOpen(false)}
+            <GlassCard className="p-4 space-y-2">
+              {navigation.map((item) => {
+                const isActive = pathname === item.href;
+                return (
+                  <Link key={item.name} href={item.href} onClick={() => setMobileMenuOpen(false)}>
+                    <Button
+                      variant="ghost"
+                      className={cn(
+                        "w-full justify-start gap-3",
+                        isActive 
+                          ? "bg-purple-500/20 text-purple-300" 
+                          : "text-gray-300 hover:bg-purple-500/10"
+                      )}
                     >
-                      <Button
-                        variant="ghost"
-                        className={cn(
-                          "w-full justify-start gap-3",
-                          isActive 
-                            ? "bg-purple-500/20 text-purple-300" 
-                            : "text-gray-300 hover:bg-purple-500/10"
-                        )}
-                      >
-                        <item.icon className="h-5 w-5" />
-                        {item.name}
-                      </Button>
-                    </Link>
-                  );
-                })}
-                
-                <div className="pt-4">
-                  <ConnectWalletButton />
-                </div>
+                      <item.icon className="w-5 h-5" />
+                      {item.name}
+                    </Button>
+                  </Link>
+                );
+              })}
+              <div className="pt-2 border-t border-white/10">
+                <ConnectButton
+                  client={client}
+                  chain={chain}
+                  theme="dark"
+                  connectButton={{
+                    label: "Connect Wallet",
+                    className: "!w-full !bg-gradient-to-r !from-purple-600 !to-pink-600"
+                  }}
+                />
               </div>
             </GlassCard>
           </motion.div>

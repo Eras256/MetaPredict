@@ -6,6 +6,7 @@ import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { Toaster } from '@/components/ui/toaster';
 import { NeuralBackground } from '@/components/effects/NeuralBackground';
+import { AnimatedGradient } from '@/components/effects/AnimatedGradient';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 const jetbrainsMono = JetBrains_Mono({ 
@@ -14,18 +15,20 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'TruthChain | AI-Powered Prediction Markets',
-  description: 'Decentralized prediction markets with multi-AI oracle and insurance protection on opBNB',
-  keywords: ['prediction markets', 'AI oracle', 'opBNB', 'DeFi', 'insurance'],
+  title: 'MetaPredict.ai | AI-Powered Prediction Markets',
+  description: 'The first all-in-one prediction market platform with multi-AI oracle, cross-chain aggregation, and insurance protection on opBNB',
+  keywords: ['prediction markets', 'AI oracle', 'opBNB', 'DeFi', 'Web3', 'blockchain'],
   openGraph: {
-    title: 'TruthChain',
+    title: 'MetaPredict.ai',
     description: 'AI-Powered Prediction Markets with Insurance',
     images: ['/og-image.png'],
+    type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'TruthChain',
+    title: 'MetaPredict.ai',
     description: 'AI-Powered Prediction Markets',
+    images: ['/og-image.png'],
   },
 };
 
@@ -35,15 +38,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="es">
-      <body className={`${inter.variable} ${jetbrainsMono.variable} font-sans`}>
+    <html lang="en" className="dark">
+      <body className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased`}>
         <Providers>
-          <NeuralBackground />
-          <Navbar />
-          <main className="relative z-10">
-            {children}
-          </main>
-          <Footer />
+          <div className="relative min-h-screen flex flex-col">
+            <AnimatedGradient />
+            <NeuralBackground />
+            <Navbar />
+            <main className="flex-1">
+              {children}
+            </main>
+            <Footer />
+          </div>
           <Toaster />
         </Providers>
       </body>
