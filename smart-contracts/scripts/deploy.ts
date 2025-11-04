@@ -1,118 +1,178 @@
 import { ethers } from "hardhat";
 import * as dotenv from "dotenv";
+import * as fs from "fs";
+import * as path from "path";
 
 dotenv.config();
 
 async function main() {
-  console.log("🚀 Deploying MetaPredict.ai contracts to opBNB...\n");
+  console.log("🚀 Deploying MetaPredict.ai to opBNB...\n");
 
   const [deployer] = await ethers.getSigners();
-  console.log("Deploying contracts with account:", deployer.address);
-  console.log("Account balance:", (await ethers.provider.getBalance(deployer.address)).toString());
+  console.log("Deploying with account:", deployer.address);
+  console.log("Account balance:", (await deployer.getBalance()).toString(), "\n");
 
-  // Deploy InsurancePool first (needed by TruthChain)
-  console.log("\n📦 Deploying InsurancePool...");
-  const USDC_ADDRESS = process.env.USDC_ADDRESS || "0x0000000000000000000000000000000000000000"; // Replace with actual USDC address
+  // 1. Deploy USDC Mock (testnet only)
+  console.log("📝 Deploying Mock USDC...");
+  const MockUSDC = await ethers.getContractFactory("MockUSDC");
+  const usdc = await MockUSDC.deploy();
+  await usdc.deployed();
+  console.log("✅ Mock USDC deployed:", usdc.address, "\n");
+
+  // 2. Deploy Insurance Pool
+  console.log("📝 Deploying Insurance Pool...");
   const InsurancePool = await ethers.getContractFactory("InsurancePool");
   const insurancePool = await InsurancePool.deploy(
-    USDC_ADDRESS,
-    "MetaPredict Insurance Pool",
-    "MIP"
+    usdc.address,
+    process.env.VENUS_VTOKEN || ethers.constants.AddressZero, // Venus vUSDC
+    process.env.PANCAKE_ROUTER || ethers.constants.AddressZero,
+    "MetaPredict Insurance Shares",
+    "mpINS"
   );
-  await insurancePool.waitForDeployment();
-  const insurancePoolAddress = await insurancePool.getAddress();
-  console.log("✅ InsurancePool deployed to:", insurancePoolAddress);
+  await insurancePool.deployed();
+  console.log("✅ Insurance Pool deployed:", insurancePool.address, "\n");
 
-  // Deploy TruthChain
-  console.log("\n🧠 Deploying TruthChain...");
-  const FunctionsRouter = process.env.CHAINLINK_FUNCTIONS_ROUTER || "0x0000000000000000000000000000000000000000";
-  const LinkToken = process.env.LINK_TOKEN_ADDRESS || "0x0000000000000000000000000000000000000000";
-  const TruthChain = await ethers.getContractFactory("TruthChain");
-  const truthChain = await TruthChain.deploy(
-    insurancePoolAddress,
-    FunctionsRouter,
-    LinkToken
+  // 3. Deploy Reputation Staking
+  console.log("📝 Deploying Reputation Staking...");
+  const ReputationStaking = await ethers.getContractFactory("ReputationStaking");
+  const reputationStaking = await ReputationStaking.deploy(usdc.address);
+  await reputationStaking.deployed();
+  console.log("✅ Reputation Staking deployed:", reputationStaking.address, "\n");
+
+  // 4. Deploy AI Oracle
+  console.log("📝 Deploying AI Oracle...");
+  const AIOracle = await ethers.getContractFactory("AIOracle");
+  const aiOracle = await AIOracle.deploy(
+    process.env.CHAINLINK_FUNCTIONS_ROUTER || ethers.constants.AddressZero,
+    process.env.CHAINLINK_DON_ID || ethers.constants.HashZero,
+    process.env.CHAINLINK_SUBSCRIPTION_ID || 0
   );
-  await truthChain.waitForDeployment();
-  const truthChainAddress = await truthChain.getAddress();
-  console.log("✅ TruthChain deployed to:", truthChainAddress);
+  await aiOracle.deployed();
+  console.log("✅ AI Oracle deployed:", aiOracle.address, "\n");
 
-  // Grant CLAIMER_ROLE to TruthChain
-  console.log("\n🔐 Granting CLAIMER_ROLE to TruthChain...");
-  await insurancePool.grantRole(
-    await insurancePool.CLAIMER_ROLE(),
-    truthChainAddress
+  // 5. Deploy DAO Governance
+  console.log("📝 Deploying DAO Governance...");
+  const DAOGovernance = await ethers.getContractFactory("DAOGovernance");
+  const daoGovernance = await DAOGovernance.deploy(
+    usdc.address, // Using USDC as governance token for MVP
+    reputationStaking.address
   );
-  console.log("✅ Role granted");
+  await daoGovernance.deployed();
+  console.log("✅ DAO Governance deployed:", daoGovernance.address, "\n");
 
-  // Deploy ReputationDAO
-  console.log("\n💎 Deploying ReputationDAO...");
-  const CCIPRouter = process.env.CHAINLINK_CCIP_ROUTER || "0x0000000000000000000000000000000000000000";
-  const ReputationDAO = await ethers.getContractFactory("ReputationDAO");
-  const reputationDAO = await ReputationDAO.deploy(CCIPRouter);
-  await reputationDAO.waitForDeployment();
-  const reputationDAOAddress = await reputationDAO.getAddress();
-  console.log("✅ ReputationDAO deployed to:", reputationDAOAddress);
+  // 6. Deploy Cross-Chain Router
+  console.log("📝 Deploying Cross-Chain Router...");
+  const CrossChainRouter = await ethers.getContractFactory("CrossChainRouter");
+  const crossChainRouter = await CrossChainRouter.deploy(
+    usdc.address,
+    process.env.CHAINLINK_CCIP_ROUTER || ethers.constants.AddressZero,
+    process.env.LAYERZERO_ENDPOINT || ethers.constants.AddressZero
+  );
+  await crossChainRouter.deployed();
+  console.log("✅ Cross-Chain Router deployed:", crossChainRouter.address, "\n");
 
-  // Deploy ConditionalMarket
-  console.log("\n🔄 Deploying ConditionalMarket...");
+  // 7. Deploy Core Contract
+  console.log("📝 Deploying Prediction Market Core...");
+  const PredictionMarketCore = await ethers.getContractFactory("PredictionMarketCore");
+  const core = await PredictionMarketCore.deploy(
+    usdc.address,
+    aiOracle.address,
+    reputationStaking.address,
+    insurancePool.address,
+    crossChainRouter.address,
+    daoGovernance.address
+  );
+  await core.deployed();
+  console.log("✅ Prediction Market Core deployed:", core.address, "\n");
+
+  // 8. Deploy Market Contracts
+  console.log("📝 Deploying Binary Market...");
+  const BinaryMarket = await ethers.getContractFactory("BinaryMarket");
+  const binaryMarket = await BinaryMarket.deploy(
+    usdc.address,
+    core.address
+  );
+  await binaryMarket.deployed();
+  console.log("✅ Binary Market deployed:", binaryMarket.address, "\n");
+
+  console.log("📝 Deploying Conditional Market...");
   const ConditionalMarket = await ethers.getContractFactory("ConditionalMarket");
-  const conditionalMarket = await ConditionalMarket.deploy();
-  await conditionalMarket.waitForDeployment();
-  const conditionalMarketAddress = await conditionalMarket.getAddress();
-  console.log("✅ ConditionalMarket deployed to:", conditionalMarketAddress);
+  const conditionalMarket = await ConditionalMarket.deploy(
+    usdc.address,
+    core.address
+  );
+  await conditionalMarket.deployed();
+  console.log("✅ Conditional Market deployed:", conditionalMarket.address, "\n");
 
-  // Deploy SubjectiveMarket
-  console.log("\n📊 Deploying SubjectiveMarket...");
+  console.log("📝 Deploying Subjective Market...");
   const SubjectiveMarket = await ethers.getContractFactory("SubjectiveMarket");
-  const subjectiveMarket = await SubjectiveMarket.deploy();
-  await subjectiveMarket.waitForDeployment();
-  const subjectiveMarketAddress = await subjectiveMarket.getAddress();
-  console.log("✅ SubjectiveMarket deployed to:", subjectiveMarketAddress);
+  const subjectiveMarket = await SubjectiveMarket.deploy(
+    usdc.address,
+    core.address,
+    daoGovernance.address
+  );
+  await subjectiveMarket.deployed();
+  console.log("✅ Subjective Market deployed:", subjectiveMarket.address, "\n");
 
-  // Deploy OmniRouter
-  console.log("\n🌉 Deploying OmniRouter...");
-  const OmniRouter = await ethers.getContractFactory("OmniRouter");
-  const omniRouter = await OmniRouter.deploy(CCIPRouter);
-  await omniRouter.waitForDeployment();
-  const omniRouterAddress = await omniRouter.getAddress();
-  console.log("✅ OmniRouter deployed to:", omniRouterAddress);
+  // 9. Configure Contracts
+  console.log("⚙️  Configuring contracts...\n");
 
-  // Summary
-  console.log("\n" + "=".repeat(60));
-  console.log("📋 DEPLOYMENT SUMMARY");
-  console.log("=".repeat(60));
-  console.log("InsurancePool:", insurancePoolAddress);
-  console.log("TruthChain:", truthChainAddress);
-  console.log("ReputationDAO:", reputationDAOAddress);
-  console.log("ConditionalMarket:", conditionalMarketAddress);
-  console.log("SubjectiveMarket:", subjectiveMarketAddress);
-  console.log("OmniRouter:", omniRouterAddress);
-  console.log("=".repeat(60));
+  console.log("Setting core contract in all modules...");
+  await insurancePool.setCoreContract(core.address);
+  await reputationStaking.setCoreContract(core.address);
+  await aiOracle.setCoreContract(core.address);
+  await daoGovernance.setCoreContract(core.address);
+  await crossChainRouter.setCoreContract(core.address);
 
-  // Save addresses to file
+  console.log("Registering market types in core...");
+  await core.registerMarketContract(0, binaryMarket.address); // Binary
+  await core.registerMarketContract(1, conditionalMarket.address); // Conditional
+  await core.registerMarketContract(2, subjectiveMarket.address); // Subjective
+
+  console.log("✅ Configuration complete\n");
+
+  // 10. Export Addresses
   const addresses = {
-    network: process.env.NETWORK || "opbnb-testnet",
-    deployedAt: new Date().toISOString(),
-    deployer: deployer.address,
+    network: "opBNB Testnet",
+    chainId: 5611,
     contracts: {
-      InsurancePool: insurancePoolAddress,
-      TruthChain: truthChainAddress,
-      ReputationDAO: reputationDAOAddress,
-      ConditionalMarket: conditionalMarketAddress,
-      SubjectiveMarket: subjectiveMarketAddress,
-      OmniRouter: omniRouterAddress,
+      usdc: usdc.address,
+      core: core.address,
+      insurancePool: insurancePool.address,
+      reputationStaking: reputationStaking.address,
+      aiOracle: aiOracle.address,
+      daoGovernance: daoGovernance.address,
+      markets: {
+        binary: binaryMarket.address,
+        conditional: conditionalMarket.address,
+        subjective: subjectiveMarket.address,
+      },
+      crossChainRouter: crossChainRouter.address,
     },
+    deployer: deployer.address,
+    timestamp: new Date().toISOString(),
   };
 
-  const fs = require("fs");
+  console.log("\n📋 DEPLOYMENT SUMMARY:");
+  console.log(JSON.stringify(addresses, null, 2));
+
+  // Save to file
+  const deploymentsDir = path.join(__dirname, "../deployments");
+  if (!fs.existsSync(deploymentsDir)) {
+    fs.mkdirSync(deploymentsDir, { recursive: true });
+  }
+
   fs.writeFileSync(
-    "./deployment-addresses.json",
+    path.join(deploymentsDir, "opbnb-testnet.json"),
     JSON.stringify(addresses, null, 2)
   );
-  console.log("\n✅ Addresses saved to deployment-addresses.json");
 
-  console.log("\n🎉 Deployment complete! 🏆");
+  console.log("\n✅ Deployment complete! Addresses saved to deployments/opbnb-testnet.json");
+  console.log("\n🔗 Next steps:");
+  console.log("1. Verify contracts on opBNBScan");
+  console.log("2. Setup Chainlink Functions subscription");
+  console.log("3. Fund contracts with test tokens");
+  console.log("4. Update frontend .env with contract addresses");
 }
 
 main()
@@ -121,4 +181,3 @@ main()
     console.error(error);
     process.exit(1);
   });
-

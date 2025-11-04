@@ -7,10 +7,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { MarketCard } from '@/components/markets/MarketCard';
 import { useMarkets } from '@/lib/hooks/markets/useMarkets';
+import { MarketFilters } from '@/components/markets/MarketFilters';
 import { Search, Filter, TrendingUp, Clock, Users } from 'lucide-react';
 import { GlassCard } from '@/components/effects/GlassCard';
 import { MARKET_STATUS, MARKET_TYPES } from '@/lib/config/constants';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
 
 export default function MarketsPage() {
   const { markets, isLoading } = useMarkets();
@@ -131,26 +133,40 @@ export default function MarketsPage() {
         </div>
 
         {/* Markets Grid */}
-        {isLoading ? (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, i) => (
-              <Skeleton key={i} className="h-80 w-full" />
-            ))}
-          </div>
-        ) : filteredMarkets && filteredMarkets.length > 0 ? (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredMarkets.map((market: any) => (
-              <MarketCard key={market.id} market={market} />
-            ))}
-          </div>
-        ) : (
-          <GlassCard className="p-12 text-center">
-            <TrendingUp className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-white mb-2">No markets found</h3>
-            <p className="text-gray-400 mb-6">Try adjusting your filters or create a new market</p>
-            <Button>Create Market</Button>
-          </GlassCard>
-        )}
+        <Tabs defaultValue="all" className="mb-8">
+          <TabsList>
+            <TabsTrigger value="all">All Markets</TabsTrigger>
+            <TabsTrigger value="trending">Trending</TabsTrigger>
+            <TabsTrigger value="new">New</TabsTrigger>
+            <TabsTrigger value="ending">Ending Soon</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="all" className="mt-6">
+            {isLoading ? (
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[...Array(6)].map((_, i) => (
+                  <Skeleton key={i} className="h-80 w-full" />
+                ))}
+              </div>
+            ) : filteredMarkets && filteredMarkets.length > 0 ? (
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredMarkets.map((market: any) => (
+                  <MarketCard key={market.id} market={market} />
+                ))}
+              </div>
+            ) : (
+              <GlassCard className="p-12 text-center">
+                <p className="text-gray-400 mb-4">No markets found matching your filters</p>
+                <Button onClick={() => {
+                  setSearchQuery('');
+                  setFilterType('all');
+                }}>
+                  Clear Filters
+                </Button>
+              </GlassCard>
+            )}
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
