@@ -1,141 +1,250 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.20;
+pragma solidity ^0.8.24;
 
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 /**
  * @title SubjectiveMarket
- * @notice Subjective prediction markets with DAO voting
- * @dev Uses quadratic voting: influence = sqrt(stake)
+ * @notice Mercados subjetivos resueltos por expertos via DAO voting
+ * @dev Requiere expertise verification y quadratic voting
  */
-contract SubjectiveMarket is Ownable {
-    struct SubjectiveMarketData {
+contract SubjectiveMarket is Ownable, ReentrancyGuard {
+    IERC20 public immutable bettingToken;
+    address public immutable coreContract;
+    address public immutable daoGovernance;
+    
+    struct Market {
+        string question;
         string description;
-        uint256 deadline;
-        mapping(address => bool) hasVoted;
-        mapping(address => uint256) votes; // 0-100 score
-        mapping(address => uint256) stakes;
-        uint256 medianOutcome;
+        uint256 resolutionTime;
+        string expertiseRequired; // "film critics", "economists", etc.
+        uint256 totalYesShares;
+        uint256 totalNoShares;
+        uint256 yesPool;
+        uint256 noPool;
+        bool votingStarted;
         bool resolved;
+        uint8 outcome;
     }
-
-    mapping(uint256 => SubjectiveMarketData) public subjectiveMarkets;
-    mapping(uint256 => address[]) public voters;
-    mapping(uint256 => uint256[]) public voteValues;
-
-    uint256 public marketCounter;
-
+    
+    struct Position {
+        uint256 yesShares;
+        uint256 noShares;
+        uint256 avgYesPrice;
+        uint256 avgNoPrice;
+        bool claimed;
+    }
+    
+    mapping(uint256 => Market) public markets;
+    mapping(uint256 => mapping(address => Position)) public positions;
+    
     event SubjectiveMarketCreated(
         uint256 indexed marketId,
-        string description,
-        uint256 deadline
+        string expertiseRequired
     );
-    event VoteSubmitted(
+    
+    event VotingStarted(
         uint256 indexed marketId,
-        address indexed voter,
-        uint256 score,
-        uint256 stake
+        uint256 startTime
     );
-    event SubjectiveResolved(
+    
+    event BetPlaced(
         uint256 indexed marketId,
-        uint256 medianOutcome
+        address indexed user,
+        bool isYes,
+        uint256 amount,
+        uint256 shares
     );
-
-    constructor() Ownable(msg.sender) {}
-
-    /**
-     * @notice Create subjective market
-     */
-    function createSubjectiveMarket(
-        string memory _description,
-        uint256 _deadline
-    ) external returns (uint256) {
-        uint256 marketId = marketCounter++;
-        SubjectiveMarketData storage market = subjectiveMarkets[marketId];
-
-        market.description = _description;
-        market.deadline = _deadline;
-        market.resolved = false;
-
-        emit SubjectiveMarketCreated(marketId, _description, _deadline);
-        return marketId;
+    
+    event MarketResolved(
+        uint256 indexed marketId,
+        uint8 outcome
+    );
+    
+    constructor(
+        address _bettingToken,
+        address _coreContract,
+        address _daoGovernance
+    ) Ownable(msg.sender) {
+        bettingToken = IERC20(_bettingToken);
+        coreContract = _coreContract;
+        daoGovernance = _daoGovernance;
     }
-
-    /**
-     * @notice Submit vote with stake (quadratic voting)
-     */
-    function submitVote(
+    
+    modifier onlyCore() {
+        require(msg.sender == coreContract, "Only core");
+        _;
+    }
+    
+    modifier onlyDAO() {
+        require(msg.sender == daoGovernance, "Only DAO");
+        _;
+    }
+    
+    function createMarket(
         uint256 _marketId,
-        uint256 _score, // 0-100
-        uint256 _stake
-    ) external {
-        SubjectiveMarketData storage market = subjectiveMarkets[_marketId];
-        require(block.timestamp < market.deadline, "Voting closed");
-        require(!market.hasVoted[msg.sender], "Already voted");
-        require(_score <= 100, "Invalid score");
-
-        // Quadratic voting: influence = sqrt(stake)
-        market.hasVoted[msg.sender] = true;
-        market.votes[msg.sender] = _score;
-        market.stakes[msg.sender] = _stake;
-
-        voters[_marketId].push(msg.sender);
-        voteValues[_marketId].push(_score);
-
-        emit VoteSubmitted(_marketId, msg.sender, _score, _stake);
+        string calldata _question,
+        string calldata _description,
+        uint256 _resolutionTime,
+        string calldata _expertiseRequired,
+        string calldata // _metadata
+    ) external onlyCore {
+        markets[_marketId] = Market({
+            question: _question,
+            description: _description,
+            resolutionTime: _resolutionTime,
+            expertiseRequired: _expertiseRequired,
+            totalYesShares: 0,
+            totalNoShares: 0,
+            yesPool: 0,
+            noPool: 0,
+            votingStarted: false,
+            resolved: false,
+            outcome: 0
+        });
+        
+        emit SubjectiveMarketCreated(_marketId, _expertiseRequired);
     }
-
-    /**
-     * @notice Resolve subjective market (calculate median)
-     */
-    function resolveSubjective(uint256 _marketId) external onlyOwner {
-        SubjectiveMarketData storage market = subjectiveMarkets[_marketId];
-        require(block.timestamp >= market.deadline, "Not expired");
+    
+    function placeBet(
+        uint256 _marketId,
+        address _user,
+        bool _isYes,
+        uint256 _amount
+    ) external onlyCore nonReentrant {
+        Market storage market = markets[_marketId];
         require(!market.resolved, "Already resolved");
-
-        uint256[] memory votes = voteValues[_marketId];
-        require(votes.length > 0, "No votes");
-
-        // Calculate median
-        uint256[] memory sortedVotes = _sortArray(votes);
-        uint256 median;
-
-        if (sortedVotes.length % 2 == 0) {
-            median =
-                (sortedVotes[sortedVotes.length / 2 - 1] +
-                    sortedVotes[sortedVotes.length / 2]) /
-                2;
+        require(!market.votingStarted, "Voting started");
+        
+        require(
+            bettingToken.transferFrom(msg.sender, address(this), _amount),
+            "Transfer failed"
+        );
+        
+        uint256 shares = _calculateShares(market, _isYes, _amount);
+        uint256 avgPrice = (_amount * 1e18) / shares;
+        
+        if (_isYes) {
+            market.yesPool += _amount;
+            market.totalYesShares += shares;
+            positions[_marketId][_user].yesShares += shares;
+            positions[_marketId][_user].avgYesPrice = _calculateAvgPrice(
+                positions[_marketId][_user].avgYesPrice,
+                positions[_marketId][_user].yesShares - shares,
+                avgPrice,
+                shares
+            );
         } else {
-            median = sortedVotes[sortedVotes.length / 2];
+            market.noPool += _amount;
+            market.totalNoShares += shares;
+            positions[_marketId][_user].noShares += shares;
+            positions[_marketId][_user].avgNoPrice = _calculateAvgPrice(
+                positions[_marketId][_user].avgNoPrice,
+                positions[_marketId][_user].noShares - shares,
+                avgPrice,
+                shares
+            );
         }
-
-        market.medianOutcome = median;
-        market.resolved = true;
-
-        emit SubjectiveResolved(_marketId, median);
+        
+        emit BetPlaced(_marketId, _user, _isYes, _amount, shares);
     }
-
-    /**
-     * @notice Internal: Sort array for median calculation
-     */
-    function _sortArray(
-        uint256[] memory arr
-    ) internal pure returns (uint256[] memory) {
-        uint256[] memory sorted = new uint256[](arr.length);
-        for (uint256 i = 0; i < arr.length; i++) {
-            sorted[i] = arr[i];
+    
+    function startVoting(uint256 _marketId) external onlyDAO {
+        Market storage market = markets[_marketId];
+        require(!market.votingStarted, "Already started");
+        require(block.timestamp >= market.resolutionTime, "Not ready");
+        
+        market.votingStarted = true;
+        
+        emit VotingStarted(_marketId, block.timestamp);
+    }
+    
+    function resolveMarket(uint256 _marketId, uint8 _outcome) 
+        external 
+        onlyDAO 
+    {
+        Market storage market = markets[_marketId];
+        require(market.votingStarted, "Voting not started");
+        require(!market.resolved, "Already resolved");
+        
+        market.resolved = true;
+        market.outcome = _outcome;
+        
+        emit MarketResolved(_marketId, _outcome);
+    }
+    
+    function claimWinnings(uint256 _marketId) 
+        external 
+        nonReentrant 
+    {
+        Market storage market = markets[_marketId];
+        require(market.resolved, "Not resolved");
+        
+        Position storage position = positions[_marketId][msg.sender];
+        require(!position.claimed, "Already claimed");
+        
+        uint256 payout = 0;
+        
+        if (market.outcome == 1 && position.yesShares > 0) {
+            payout = (position.yesShares * (market.yesPool + market.noPool)) / 
+                     market.totalYesShares;
+        } else if (market.outcome == 2 && position.noShares > 0) {
+            payout = (position.noShares * (market.yesPool + market.noPool)) / 
+                     market.totalNoShares;
+        } else if (market.outcome == 3) {
+            uint256 yesInvested = (position.yesShares * position.avgYesPrice) / 1e18;
+            uint256 noInvested = (position.noShares * position.avgNoPrice) / 1e18;
+            payout = yesInvested + noInvested;
         }
-
-        // Bubble sort (simplified for MVP)
-        for (uint256 i = 0; i < sorted.length; i++) {
-            for (uint256 j = 0; j < sorted.length - i - 1; j++) {
-                if (sorted[j] > sorted[j + 1]) {
-                    (sorted[j], sorted[j + 1]) = (sorted[j + 1], sorted[j]);
-                }
-            }
-        }
-
-        return sorted;
+        
+        require(payout > 0, "No winnings");
+        
+        position.claimed = true;
+        
+        require(
+            bettingToken.transfer(msg.sender, payout),
+            "Transfer failed"
+        );
+    }
+    
+    function _calculateShares(
+        Market storage market,
+        bool _isYes,
+        uint256 _amount
+    ) internal view returns (uint256) {
+        uint256 pool = _isYes ? market.yesPool : market.noPool;
+        uint256 totalShares = _isYes ? market.totalYesShares : market.totalNoShares;
+        
+        if (totalShares == 0) return _amount;
+        return (_amount * totalShares) / pool;
+    }
+    
+    function _calculateAvgPrice(
+        uint256 _oldAvg,
+        uint256 _oldShares,
+        uint256 _newPrice,
+        uint256 _newShares
+    ) internal pure returns (uint256) {
+        if (_oldShares == 0) return _newPrice;
+        return ((_oldAvg * _oldShares) + (_newPrice * _newShares)) / 
+               (_oldShares + _newShares);
+    }
+    
+    function getMarket(uint256 _marketId) 
+        external 
+        view 
+        returns (Market memory) 
+    {
+        return markets[_marketId];
+    }
+    
+    function getPosition(uint256 _marketId, address _user) 
+        external 
+        view 
+        returns (Position memory) 
+    {
+        return positions[_marketId][_user];
     }
 }
-
