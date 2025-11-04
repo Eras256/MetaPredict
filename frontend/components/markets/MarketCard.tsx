@@ -107,7 +107,7 @@ export function MarketCard({ market }: MarketCardProps) {
             </div>
           )}
 
-          <Button className="w-full mt-4" variant="glass">
+          <Button className="w-full mt-4" variant="outline">
             View Market
           </Button>
         </div>
