@@ -1,21 +1,21 @@
 "use client";
 
-import { useWallet, useConnectionStatus } from "@thirdweb-dev/react";
+import { useActiveAccount, useConnectionStatus } from "thirdweb/react";
 import { useState, useEffect } from "react";
 
 export function useWeb3() {
-  const wallet = useWallet();
+  const account = useActiveAccount();
   const connectionStatus = useConnectionStatus();
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
-    setIsConnected(connectionStatus === "connected");
-  }, [connectionStatus]);
+    setIsConnected(connectionStatus === "connected" && !!account);
+  }, [connectionStatus, account]);
 
   return {
-    wallet,
+    account,
     isConnected,
-    address: wallet?.getAddress() || null,
+    address: account?.address || null,
     connectionStatus,
   };
 }
