@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useWriteContract, useReadContract, useWaitForTransactionReceipt } from 'wagmi';
-import { InsurancePoolABI } from '@/lib/contracts/abi/InsurancePool.json';
+import InsurancePoolABI from '@/lib/contracts/abi/InsurancePool.json';
 import { CONTRACT_ADDRESSES } from '@/lib/contracts/addresses';
 import { toast } from 'sonner';
 

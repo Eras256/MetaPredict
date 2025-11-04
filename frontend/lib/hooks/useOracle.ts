@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useReadContract } from 'wagmi';
-import { AIOracleABI } from '@/lib/contracts/abi/AIOracle.json';
+import AIOracleABI from '@/lib/contracts/abi/AIOracle.json';
 import { CONTRACT_ADDRESSES } from '@/lib/contracts/addresses';
 
 export interface OracleResult {
