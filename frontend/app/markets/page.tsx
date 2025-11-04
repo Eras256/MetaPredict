@@ -40,8 +40,8 @@ export default function MarketsPage() {
     <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2">Markets</h1>
-          <p className="text-gray-400">Browse and bet on active prediction markets</p>
+          <h1 className="text-4xl font-bold text-white mb-2 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Explore Markets</h1>
+          <p className="text-gray-400">Discover and trade on prediction markets powered by AI oracles</p>
         </div>
 
         {/* Stats and Filters */}
