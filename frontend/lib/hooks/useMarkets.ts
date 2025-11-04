@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
-import { useContract, useContractRead } from 'thirdweb/react';
+import { useState, useEffect, useMemo } from 'react';
 import { readContract } from 'thirdweb';
 import { defineChain } from 'thirdweb/chains';
-import { PREDICTION_MARKET_ADDRESS } from '@/lib/contracts/addresses';
-import { PREDICTION_MARKET_ABI } from '@/lib/contracts/abi/PredictionMarket.json';
+import { getContract } from 'thirdweb';
+import { CONTRACT_ADDRESSES } from '@/lib/contracts/addresses';
+import PREDICTION_MARKET_ABI from '@/lib/contracts/abi/PredictionMarket.json';
 import { client } from '@/lib/config/thirdweb';
 
 // ✅ FIX #7: Configurar opBNB testnet para Thirdweb
@@ -36,33 +36,50 @@ export interface Market {
   pythPriceId: bigint;
 }
 
-// ✅ FIX #7: Usar Thirdweb useContract en lugar de wagmi directo
+// ✅ FIX #7: Usar Thirdweb v5 API
 export function useMarkets() {
   const [markets, setMarkets] = useState<Market[]>([]);
   const [loading, setLoading] = useState(true);
+  const [marketCounter, setMarketCounter] = useState<bigint | null>(null);
 
-  const { contract } = useContract({
-    client,
-    chain: opBNBTestnet,
-    address: PREDICTION_MARKET_ADDRESS,
-    abi: PREDICTION_MARKET_ABI,
-  });
-
-  const { data: marketCounter, isLoading: counterLoading } = useContractRead({
-    contract,
-    method: 'marketCounter',
-    params: [],
-  });
+  const contract = useMemo(() => {
+    return getContract({
+      client,
+      chain: opBNBTestnet,
+      address: CONTRACT_ADDRESSES.PREDICTION_MARKET as `0x${string}`,
+      abi: PREDICTION_MARKET_ABI as any,
+    });
+  }, []);
 
   useEffect(() => {
-    if (marketCounter && !counterLoading && contract) {
+    if (contract) {
+      const fetchCounter = async () => {
+        try {
+          const counter = await readContract({
+            contract,
+            method: 'marketCounter',
+            params: [],
+          });
+          setMarketCounter(counter as bigint);
+        } catch (error) {
+          console.error('Error fetching market counter:', error);
+          setLoading(false);
+        }
+      };
+      
+      fetchCounter();
+    }
+  }, [contract]);
+
+  useEffect(() => {
+    if (marketCounter !== null && contract) {
       const fetchMarkets = async () => {
         setLoading(true);
         const marketPromises = [];
         const count = Number(marketCounter);
         
         for (let i = 1; i <= count; i++) {
-          // ✅ FIX #7: Usar readContract directamente en lugar de hooks
+          // ✅ FIX #7: Usar readContract directamente
           marketPromises.push(
             readContract({
               contract,
@@ -84,7 +101,7 @@ export function useMarkets() {
       
       fetchMarkets();
     }
-  }, [marketCounter, counterLoading, contract]);
+  }, [marketCounter, contract]);
 
   return { markets, loading };
 }
@@ -93,25 +110,37 @@ export function useMarket(marketId: number) {
   const [market, setMarket] = useState<Market | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const { contract } = useContract({
-    client,
-    chain: opBNBTestnet,
-    address: PREDICTION_MARKET_ADDRESS,
-    abi: PREDICTION_MARKET_ABI,
-  });
-
-  const { data: marketData, isLoading } = useContractRead({
-    contract,
-    method: 'getMarket',
-    params: [BigInt(marketId)],
-  });
+  const contract = useMemo(() => {
+    return getContract({
+      client,
+      chain: opBNBTestnet,
+      address: CONTRACT_ADDRESSES.PREDICTION_MARKET as `0x${string}`,
+      abi: PREDICTION_MARKET_ABI as any,
+    });
+  }, []);
 
   useEffect(() => {
-    if (marketData) {
-      setMarket(marketData as Market);
-      setLoading(false);
+    if (contract) {
+      const fetchMarket = async () => {
+        try {
+          setLoading(true);
+          const marketData = await readContract({
+            contract,
+            method: 'getMarket',
+            params: [BigInt(marketId)],
+          });
+          setMarket(marketData as Market);
+        } catch (error) {
+          console.error('Error fetching market:', error);
+          setMarket(null);
+        } finally {
+          setLoading(false);
+        }
+      };
+      
+      fetchMarket();
     }
-  }, [marketData, isLoading]);
+  }, [contract, marketId]);
 
   return { market, loading };
 }

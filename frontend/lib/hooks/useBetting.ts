@@ -1,9 +1,9 @@
-import { useState } from 'react';
-import { useContract, useContractWrite } from 'thirdweb/react';
+import { useState, useMemo } from 'react';
+import { useSendTransaction, useActiveAccount } from 'thirdweb/react';
 import { defineChain } from 'thirdweb/chains';
-import { prepareContractCall } from 'thirdweb';
-import { PREDICTION_MARKET_ADDRESS } from '@/lib/contracts/addresses';
-import { PREDICTION_MARKET_ABI } from '@/lib/contracts/abi/PredictionMarket.json';
+import { getContract, prepareContractCall } from 'thirdweb';
+import { CONTRACT_ADDRESSES } from '@/lib/contracts/addresses';
+import PREDICTION_MARKET_ABI from '@/lib/contracts/abi/PredictionMarket.json';
 import { client } from '@/lib/config/thirdweb';
 import { toast } from 'sonner';
 
@@ -19,22 +19,27 @@ const opBNBTestnet = defineChain({
   rpc: 'https://opbnb-testnet-rpc.bnbchain.org',
 });
 
-// ✅ FIX #7: Hook mejorado con Thirdweb useContract y gasless
+// ✅ FIX #7: Hook mejorado con Thirdweb v5 API
 export function useBetting() {
   const [loading, setLoading] = useState(false);
+  const account = useActiveAccount();
   
-  const { contract } = useContract({
-    client,
-    chain: opBNBTestnet,
-    address: PREDICTION_MARKET_ADDRESS,
-    abi: PREDICTION_MARKET_ABI,
-  });
+  const contract = useMemo(() => {
+    return getContract({
+      client,
+      chain: opBNBTestnet,
+      address: CONTRACT_ADDRESSES.PREDICTION_MARKET as `0x${string}`,
+      abi: PREDICTION_MARKET_ABI as any,
+    });
+  }, []);
 
-  const { mutateAsync: placeBetWrite, isPending: isPlacing } = useContractWrite();
-  
-  const { mutateAsync: claimWinningsWrite, isPending: isClaiming } = useContractWrite();
+  const { mutateAsync: sendTransaction, isPending: isSending } = useSendTransaction();
 
   const placeBet = async (marketId: number, isYes: boolean, amount: bigint) => {
+    if (!account) {
+      throw new Error('No account connected');
+    }
+    
     try {
       setLoading(true);
       
@@ -45,8 +50,8 @@ export function useBetting() {
         params: [BigInt(marketId), isYes, amount],
       });
 
-      // ✅ FIX #7: Enviar transacción (gasless si está configurado)
-      const result = await placeBetWrite(tx);
+      // ✅ FIX #7: Enviar transacción con Thirdweb v5
+      const result = await sendTransaction(tx);
       
       toast.success('Apuesta colocada exitosamente!');
       return result;
@@ -60,6 +65,10 @@ export function useBetting() {
   };
 
   const claimWinnings = async (marketId: number) => {
+    if (!account) {
+      throw new Error('No account connected');
+    }
+    
     try {
       setLoading(true);
       
@@ -69,7 +78,7 @@ export function useBetting() {
         params: [BigInt(marketId)],
       });
 
-      const result = await claimWinningsWrite(tx);
+      const result = await sendTransaction(tx);
       
       toast.success('Ganancias reclamadas exitosamente!');
       return result;
@@ -85,6 +94,6 @@ export function useBetting() {
   return {
     placeBet,
     claimWinnings,
-    loading: loading || isPlacing || isClaiming,
+    loading: loading || isSending,
   };
 }
