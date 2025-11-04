@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TrendingUp, TrendingDown, Info, Shield } from 'lucide-react';
-import { usePlaceBet, useApproveUSDC } from '@/lib/hooks/betting/usePlaceBet';
+import { usePlaceBet, useApproveUSDC } from '@/lib/hooks/betting/useBetting';
 import { toast } from 'sonner';
 
 interface BettingPanelProps {

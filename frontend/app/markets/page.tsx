@@ -1,114 +1,154 @@
 'use client';
 
 import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Search, Filter } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { MarketCard } from '@/components/markets/MarketCard';
-import { GlassCard } from '@/components/effects/GlassCard';
-import { useMarkets } from '@/lib/hooks/markets/useMarkets';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { MARKET_TYPES, MARKET_STATUS } from '@/lib/config/constants';
+import { MarketCard } from '@/components/markets/MarketCard';
+import { useMarkets } from '@/lib/hooks/markets/useMarkets';
+import { Search, Filter, TrendingUp, Clock, Users } from 'lucide-react';
+import { GlassCard } from '@/components/effects/GlassCard';
+import { MARKET_STATUS, MARKET_TYPES } from '@/lib/config/constants';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function MarketsPage() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filterType, setFilterType] = useState<'all' | 'binary' | 'conditional' | 'subjective'>('all');
-  const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'resolved' | 'disputed'>('all');
-  
   const { markets, isLoading } = useMarkets();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterType, setFilterType] = useState('all');
+  const [sortBy, setSortBy] = useState('newest');
 
-  const filteredMarkets = markets.filter((market: any) => {
-    const matchesSearch = !searchQuery || 
-      market.question?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      market.description?.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    const matchesType = filterType === 'all' || 
-      (filterType === 'binary' && market.marketType === MARKET_TYPES.BINARY) ||
-      (filterType === 'conditional' && market.marketType === MARKET_TYPES.CONDITIONAL) ||
-      (filterType === 'subjective' && market.marketType === MARKET_TYPES.SUBJECTIVE);
-    
-    const matchesStatus = filterStatus === 'all' ||
-      (filterStatus === 'active' && market.status === MARKET_STATUS.ACTIVE) ||
-      (filterStatus === 'resolved' && market.status === MARKET_STATUS.RESOLVED) ||
-      (filterStatus === 'disputed' && market.status === MARKET_STATUS.DISPUTED);
-    
-    return matchesSearch && matchesType && matchesStatus;
-  });
+  const filteredMarkets = markets
+    ?.filter((market: any) => {
+      if (filterType === 'all') return true;
+      if (filterType === 'active') return market.status === MARKET_STATUS.ACTIVE;
+      if (filterType === 'binary') return market.marketType === MARKET_TYPES.BINARY;
+      if (filterType === 'conditional') return market.marketType === MARKET_TYPES.CONDITIONAL;
+      if (filterType === 'subjective') return market.marketType === MARKET_TYPES.SUBJECTIVE;
+      return true;
+    })
+    .filter((market: any) => {
+      if (!searchQuery) return true;
+      return market.question?.toLowerCase().includes(searchQuery.toLowerCase());
+    })
+    .sort((a: any, b: any) => {
+      if (sortBy === 'newest') return b.createdAt - a.createdAt;
+      if (sortBy === 'ending-soon') return a.resolutionTime - b.resolutionTime;
+      if (sortBy === 'volume') return (b.totalVolume || 0) - (a.totalVolume || 0);
+      return 0;
+    });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-950 text-white pt-32 pb-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
+    <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-            Prediction Markets
-          </h1>
-          <p className="text-gray-400 text-lg">
-            Browse and participate in prediction markets powered by multi-AI oracle
-          </p>
+          <h1 className="text-4xl font-bold text-white mb-2">Markets</h1>
+          <p className="text-gray-400">Browse and bet on active prediction markets</p>
         </div>
 
-        {/* Search and Filters */}
+        {/* Filters */}
         <GlassCard className="p-6 mb-8">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+          <div className="flex flex-col lg:flex-row gap-4">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
               <Input
-                type="text"
                 placeholder="Search markets..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-12 bg-white/5 border-white/10 text-white placeholder:text-gray-500"
+                className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-gray-500"
               />
             </div>
-            
-            <div className="flex gap-2">
-              <Tabs value={filterType} onValueChange={(v) => setFilterType(v as any)}>
-                <TabsList>
-                  <TabsTrigger value="all">All Types</TabsTrigger>
-                  <TabsTrigger value="binary">Binary</TabsTrigger>
-                  <TabsTrigger value="conditional">Conditional</TabsTrigger>
-                  <TabsTrigger value="subjective">Subjective</TabsTrigger>
-                </TabsList>
-              </Tabs>
-              
-              <Tabs value={filterStatus} onValueChange={(v) => setFilterStatus(v as any)}>
-                <TabsList>
-                  <TabsTrigger value="all">All Status</TabsTrigger>
-                  <TabsTrigger value="active">Active</TabsTrigger>
-                  <TabsTrigger value="resolved">Resolved</TabsTrigger>
-                  <TabsTrigger value="disputed">Disputed</TabsTrigger>
-                </TabsList>
-              </Tabs>
+
+            <div className="flex gap-3">
+              <Select value={filterType} onValueChange={setFilterType}>
+                <SelectTrigger className="w-[180px] bg-white/5 border-white/10 text-white">
+                  <Filter className="w-4 h-4 mr-2" />
+                  <SelectValue placeholder="Filter" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Markets</SelectItem>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="binary">Binary</SelectItem>
+                  <SelectItem value="conditional">Conditional</SelectItem>
+                  <SelectItem value="subjective">Subjective</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger className="w-[180px] bg-white/5 border-white/10 text-white">
+                  <TrendingUp className="w-4 h-4 mr-2" />
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="newest">Newest</SelectItem>
+                  <SelectItem value="ending-soon">Ending Soon</SelectItem>
+                  <SelectItem value="volume">Highest Volume</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </GlassCard>
 
+        {/* Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <GlassCard className="p-6">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center">
+                <TrendingUp className="w-6 h-6 text-purple-400" />
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-white">{markets?.length || 0}</div>
+                <div className="text-sm text-gray-400">Total Markets</div>
+              </div>
+            </div>
+          </GlassCard>
+
+          <GlassCard className="p-6">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center">
+                <Clock className="w-6 h-6 text-green-400" />
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-white">
+                  {markets?.filter((m: any) => m.status === MARKET_STATUS.ACTIVE).length || 0}
+                </div>
+                <div className="text-sm text-gray-400">Active Markets</div>
+              </div>
+            </div>
+          </GlassCard>
+
+          <GlassCard className="p-6">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center">
+                <Users className="w-6 h-6 text-blue-400" />
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-white">0</div>
+                <div className="text-sm text-gray-400">Total Participants</div>
+              </div>
+            </div>
+          </GlassCard>
+        </div>
+
         {/* Markets Grid */}
         {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(6)].map((_, i) => (
-              <Skeleton key={i} className="h-64 w-full" />
+              <Skeleton key={i} className="h-80 w-full" />
             ))}
           </div>
-        ) : filteredMarkets.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredMarkets.map((market: any, index: number) => (
-              <motion.div
-                key={market.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-              >
-                <MarketCard market={market} />
-              </motion.div>
+        ) : filteredMarkets && filteredMarkets.length > 0 ? (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredMarkets.map((market: any) => (
+              <MarketCard key={market.id} market={market} />
             ))}
           </div>
         ) : (
           <GlassCard className="p-12 text-center">
-            <p className="text-gray-400 text-lg">No markets found. Be the first to create one!</p>
+            <TrendingUp className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-white mb-2">No markets found</h3>
+            <p className="text-gray-400 mb-6">Try adjusting your filters or create a new market</p>
+            <Button>Create Market</Button>
           </GlassCard>
         )}
       </div>
