@@ -1,0 +1,54 @@
+[
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_marketId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getResult",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "bool",
+            "name": "resolved",
+            "type": "bool"
+          },
+          {
+            "internalType": "uint8",
+            "name": "yesVotes",
+            "type": "uint8"
+          },
+          {
+            "internalType": "uint8",
+            "name": "noVotes",
+            "type": "uint8"
+          },
+          {
+            "internalType": "uint8",
+            "name": "invalidVotes",
+            "type": "uint8"
+          },
+          {
+            "internalType": "uint8",
+            "name": "confidence",
+            "type": "uint8"
+          },
+          {
+            "internalType": "uint256",
+            "name": "timestamp",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct AIOracle.OracleResult",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]
+

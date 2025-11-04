@@ -1,0 +1,5 @@
+packages:
+  - 'smart-contracts'
+  - 'backend'
+  - 'frontend'
+

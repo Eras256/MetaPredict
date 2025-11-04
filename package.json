@@ -1,0 +1,35 @@
+{
+  "name": "metapredict-ai",
+  "version": "1.0.0",
+  "description": "MetaPredict.ai - All-in-One Prediction Markets Platform",
+  "private": true,
+  "workspaces": [
+    "smart-contracts",
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "dev": "concurrently \"pnpm run dev:backend\" \"pnpm run dev:frontend\"",
+    "dev:backend": "cd backend && pnpm run dev",
+    "dev:frontend": "cd frontend && pnpm run dev",
+    "build": "pnpm run build:contracts && pnpm run build:backend && pnpm run build:frontend",
+    "build:contracts": "cd smart-contracts && pnpm run compile",
+    "build:backend": "cd backend && pnpm run build",
+    "build:frontend": "cd frontend && pnpm run build",
+    "test": "pnpm run test:contracts && pnpm run test:backend && pnpm run test:frontend",
+    "test:contracts": "cd smart-contracts && pnpm run test",
+    "test:backend": "cd backend && pnpm run test",
+    "test:frontend": "cd frontend && pnpm run test",
+    "deploy:testnet": "cd smart-contracts && pnpm run deploy:testnet",
+    "deploy:mainnet": "cd smart-contracts && pnpm run deploy:mainnet"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "packageManager": "pnpm@8.15.0"
+}
+
