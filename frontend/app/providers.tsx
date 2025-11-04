@@ -3,11 +3,12 @@
 import { ThirdwebProvider } from 'thirdweb/react';
 import { WagmiProvider } from 'wagmi';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { client } from '@/lib/config/thirdweb';
 import { wagmiConfig } from '@/lib/config/wagmi';
 import { Toaster } from '@/components/ui/toaster';
 import { ErrorHandler } from './error-handler';
 import { useState } from 'react';
+
+const clientId = process.env.NEXT_PUBLIC_THIRDWEB_CLIENT_ID || '';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(() => new QueryClient({
@@ -20,7 +21,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   }));
 
   return (
-    <ThirdwebProvider client={client}>
+    <ThirdwebProvider clientId={clientId}>
       <WagmiProvider config={wagmiConfig}>
         <QueryClientProvider client={queryClient}>
           <ErrorHandler />
