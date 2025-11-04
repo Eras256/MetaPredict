@@ -8,8 +8,6 @@ import { Toaster } from '@/components/ui/toaster';
 import { ErrorHandler } from './error-handler';
 import { useState } from 'react';
 
-const clientId = process.env.NEXT_PUBLIC_THIRDWEB_CLIENT_ID || '';
-
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(() => new QueryClient({
     defaultOptions: {
@@ -21,7 +19,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   }));
 
   return (
-    <ThirdwebProvider clientId={clientId}>
+    <ThirdwebProvider>
       <WagmiProvider config={wagmiConfig}>
         <QueryClientProvider client={queryClient}>
           <ErrorHandler />
