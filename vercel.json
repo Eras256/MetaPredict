@@ -1,6 +1,0 @@
-{
-  "buildCommand": "cd frontend && pnpm run build",
-  "installCommand": "pnpm install --ignore-scripts",
-  "framework": "nextjs"
-}
-
