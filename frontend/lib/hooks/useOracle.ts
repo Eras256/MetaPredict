@@ -24,14 +24,14 @@ export function useOracle(marketId: number) {
   });
 
   useEffect(() => {
-    if (oracleResult) {
+    if (oracleResult && Array.isArray(oracleResult)) {
       setResult({
-        resolved: oracleResult[0],
+        resolved: oracleResult[0] as boolean,
         yesVotes: Number(oracleResult[1]),
         noVotes: Number(oracleResult[2]),
         invalidVotes: Number(oracleResult[3]),
         confidence: Number(oracleResult[4]),
-        timestamp: oracleResult[5],
+        timestamp: oracleResult[5] as bigint,
       });
       setLoading(false);
     }
