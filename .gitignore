@@ -52,3 +52,4 @@ typechain-types/
 *.key
 .secrets/
 
+.vercel
