@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { TrendingUp, TrendingDown, Info, Shield } from 'lucide-react';
+import { TrendingUp, TrendingDown, Info, Shield, Brain } from 'lucide-react';
 import { usePlaceBet, useApproveUSDC } from '@/lib/hooks/betting/useBetting';
 import { toast } from 'sonner';
 
@@ -49,9 +49,15 @@ export function BettingPanel({ marketId, yesOdds, noOdds, userBalance }: Betting
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          Place Your Bet
-          <Shield className="w-5 h-5 text-purple-400" />
+        <CardTitle className="flex items-center justify-between">
+          <span className="flex items-center gap-2">
+            Place Your Bet
+            <Shield className="w-5 h-5 text-purple-400" />
+          </span>
+          <div className="flex items-center gap-1 px-2 py-1 rounded bg-purple-500/10 border border-purple-500/20">
+            <Brain className="w-4 h-4 text-purple-400" />
+            <span className="text-xs text-purple-300">AI Oracle</span>
+          </div>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -103,9 +109,15 @@ export function BettingPanel({ marketId, yesOdds, noOdds, userBalance }: Betting
 
             <div className="flex items-start gap-2 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
               <Info className="w-4 h-4 text-blue-400 mt-0.5 flex-shrink-0" />
-              <p className="text-xs text-blue-300">
-                0.1% of your bet goes to insurance pool. If oracle fails, you'll get 100% refund.
-              </p>
+              <div className="flex-1">
+                <p className="text-xs text-blue-300 mb-1">
+                  0.1% of your bet goes to insurance pool. If Gemini AI oracle fails, you'll get 100% refund.
+                </p>
+                <p className="text-xs text-purple-300 flex items-center gap-1">
+                  <Brain className="w-3 h-3" />
+                  Powered by Gemini 2.5 Flash with automatic fallback
+                </p>
+              </div>
             </div>
 
             <Button onClick={handleBet} disabled={isPlacingBet || isApproving} className="w-full" size="lg">
@@ -149,9 +161,15 @@ export function BettingPanel({ marketId, yesOdds, noOdds, userBalance }: Betting
 
             <div className="flex items-start gap-2 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
               <Info className="w-4 h-4 text-blue-400 mt-0.5 flex-shrink-0" />
-              <p className="text-xs text-blue-300">
-                0.1% of your bet goes to insurance pool. If oracle fails, you'll get 100% refund.
-              </p>
+              <div className="flex-1">
+                <p className="text-xs text-blue-300 mb-1">
+                  0.1% of your bet goes to insurance pool. If Gemini AI oracle fails, you'll get 100% refund.
+                </p>
+                <p className="text-xs text-purple-300 flex items-center gap-1">
+                  <Brain className="w-3 h-3" />
+                  Powered by Gemini 2.5 Flash with automatic fallback
+                </p>
+              </div>
             </div>
 
             <Button onClick={handleBet} disabled={isPlacingBet || isApproving} className="w-full" size="lg" variant="destructive">

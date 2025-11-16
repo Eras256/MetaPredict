@@ -2,16 +2,77 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Calendar, FileText } from 'lucide-react';
+import { Plus, Calendar, FileText, Sparkles, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { GlassCard } from '@/components/effects/GlassCard';
+import { suggestMarketCreation, analyzeMarket } from '@/lib/services/ai/gemini';
+import { toast } from 'sonner';
 
 export default function CreateMarketPage() {
   const [question, setQuestion] = useState('');
   const [description, setDescription] = useState('');
   const [resolutionTime, setResolutionTime] = useState('');
   const [metadata, setMetadata] = useState('');
+  const [suggestions, setSuggestions] = useState<Array<{ question: string; description: string; category: string }>>([]);
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
+  const [validating, setValidating] = useState(false);
+
+  const handleGetSuggestions = async () => {
+    if (!question.trim()) {
+      toast.error('Ingresa un tema primero para generar sugerencias');
+      return;
+    }
+
+    setLoadingSuggestions(true);
+    try {
+      const result = await suggestMarketCreation(question);
+      if (result.success && result.data) {
+        setSuggestions(result.data.suggestions);
+        toast.success(`Generadas ${result.data.suggestions.length} sugerencias con ${result.modelUsed}`);
+      } else {
+        toast.error(result.error || 'Error al generar sugerencias');
+      }
+    } catch (error: any) {
+      toast.error('Error al generar sugerencias');
+      console.error(error);
+    } finally {
+      setLoadingSuggestions(false);
+    }
+  };
+
+  const handleValidateQuestion = async () => {
+    if (!question.trim()) {
+      toast.error('Ingresa una pregunta primero');
+      return;
+    }
+
+    setValidating(true);
+    try {
+      const result = await analyzeMarket(question, description);
+      if (result.success && result.data) {
+        if (result.data.answer === 'INVALID') {
+          toast.warning(`Pregunta inválida: ${result.data.reasoning}`);
+        } else {
+          toast.success(`Pregunta válida (Confianza: ${result.data.confidence}%)`);
+        }
+      } else {
+        toast.error(result.error || 'Error al validar pregunta');
+      }
+    } catch (error: any) {
+      toast.error('Error al validar pregunta');
+      console.error(error);
+    } finally {
+      setValidating(false);
+    }
+  };
+
+  const handleUseSuggestion = (suggestion: { question: string; description: string }) => {
+    setQuestion(suggestion.question);
+    setDescription(suggestion.description);
+    setSuggestions([]);
+    toast.success('Sugerencia aplicada');
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,9 +99,48 @@ export default function CreateMarketPage() {
         <GlassCard className="p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label htmlFor="question" className="block text-sm font-medium text-gray-300 mb-2">
-                Question *
-              </label>
+              <div className="flex items-center justify-between mb-2">
+                <label htmlFor="question" className="block text-sm font-medium text-gray-300">
+                  Question *
+                </label>
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleValidateQuestion}
+                    disabled={validating || !question.trim()}
+                  >
+                    {validating ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Validando...
+                      </>
+                    ) : (
+                      'Validar con AI'
+                    )}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleGetSuggestions}
+                    disabled={loadingSuggestions || !question.trim()}
+                  >
+                    {loadingSuggestions ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Generando...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="mr-2 h-4 w-4" />
+                        Sugerencias AI
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
               <Input
                 id="question"
                 type="text"
@@ -52,6 +152,45 @@ export default function CreateMarketPage() {
               />
               <p className="mt-1 text-sm text-gray-500">Minimum 10 characters</p>
             </div>
+
+            {suggestions.length > 0 && (
+              <GlassCard className="p-4 border-purple-500/20">
+                <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
+                  <Sparkles className="h-4 w-4 text-purple-400" />
+                  Sugerencias de AI
+                </h4>
+                <div className="space-y-2">
+                  {suggestions.map((suggestion, idx) => (
+                    <div
+                      key={idx}
+                      className="p-3 rounded-lg bg-white/5 border border-white/10 hover:border-purple-500/30 transition-colors cursor-pointer"
+                      onClick={() => handleUseSuggestion(suggestion)}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-white mb-1">{suggestion.question}</p>
+                          <p className="text-xs text-gray-400 line-clamp-2">{suggestion.description}</p>
+                          <span className="inline-block mt-2 px-2 py-0.5 text-xs rounded bg-purple-500/20 text-purple-300">
+                            {suggestion.category}
+                          </span>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleUseSuggestion(suggestion);
+                          }}
+                        >
+                          Usar
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </GlassCard>
+            )}
 
             <div>
               <label htmlFor="description" className="block text-sm font-medium text-gray-300 mb-2">

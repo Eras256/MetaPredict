@@ -7,9 +7,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useReputation, useStakeReputation } from '@/lib/hooks/reputation/useReputation';
 import { useLeaderboard } from '@/lib/hooks/reputation/useReputation';
-import { Trophy, Shield, TrendingUp, Award, Users, Star } from 'lucide-react';
+import { Trophy, Shield, TrendingUp, Award, Users, Star, Brain, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { analyzeReputation } from '@/lib/services/ai/gemini';
+import { toast } from 'sonner';
 
 const tierLabels = {
   0: 'None',
@@ -34,11 +36,44 @@ export default function ReputationPage() {
   const { stakedAmount, reputationScore, tier, correctVotes, totalVotes, isLoading } = useReputation();
   const { leaderboard, isLoading: leaderboardLoading } = useLeaderboard();
   const { stake, isPending: isStaking } = useStakeReputation();
+  const [analyzing, setAnalyzing] = useState(false);
+  const [analysisResult, setAnalysisResult] = useState<any>(null);
 
   const handleStake = async () => {
     if (!stakeAmount || parseFloat(stakeAmount) <= 0) return;
     await stake(stakeAmount);
     setStakeAmount('');
+  };
+
+  const handleAnalyzeReputation = async () => {
+    if (totalVotes === 0) {
+      toast.error('No hay datos suficientes para analizar');
+      return;
+    }
+
+    setAnalyzing(true);
+    try {
+      const userData = {
+        accuracy: reputationScore,
+        totalVotes,
+        correctVotes,
+        slashes: 0, // TODO: obtener del contrato
+        stakes: stakedAmount,
+      };
+
+      const result = await analyzeReputation(userData);
+      if (result.success && result.data) {
+        setAnalysisResult(result.data);
+        toast.success(`Análisis completado con ${result.modelUsed}`);
+      } else {
+        toast.error(result.error || 'Error al analizar reputación');
+      }
+    } catch (error: any) {
+      toast.error('Error al analizar reputación');
+      console.error(error);
+    } finally {
+      setAnalyzing(false);
+    }
   };
 
   const winRate = totalVotes > 0 ? (correctVotes / totalVotes) * 100 : 0;
@@ -58,10 +93,32 @@ export default function ReputationPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Reputation Stats */}
           <GlassCard className="p-8">
-            <h2 className="text-2xl font-semibold mb-6 flex items-center gap-2">
-              <Award className="w-6 h-6 text-purple-400" />
-              Your Reputation
-            </h2>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-semibold flex items-center gap-2">
+                <Award className="w-6 h-6 text-purple-400" />
+                Your Reputation
+              </h2>
+              {totalVotes > 0 && (
+                <Button
+                  onClick={handleAnalyzeReputation}
+                  disabled={analyzing}
+                  size="sm"
+                  variant="outline"
+                >
+                  {analyzing ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Analizando...
+                    </>
+                  ) : (
+                    <>
+                      <Brain className="mr-2 h-4 w-4" />
+                      Analizar con AI
+                    </>
+                  )}
+                </Button>
+              )}
+            </div>
             
             {isLoading ? (
               <Skeleton className="h-32 w-full" />
@@ -102,6 +159,38 @@ export default function ReputationPage() {
                     <p className="text-lg font-semibold">{totalVotes}</p>
                   </div>
                 </div>
+              </div>
+            )}
+
+            {/* AI Analysis Results */}
+            {analysisResult && (
+              <div className="mt-6 pt-6 border-t border-white/10">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-sm font-semibold flex items-center gap-2 text-purple-400">
+                    <Brain className="h-4 w-4" />
+                    Análisis AI
+                  </h3>
+                  <span className={`px-2 py-1 rounded text-xs font-medium ${
+                    analysisResult.riskLevel === 'low' ? 'bg-green-500/20 text-green-400' :
+                    analysisResult.riskLevel === 'medium' ? 'bg-yellow-500/20 text-yellow-400' :
+                    'bg-red-500/20 text-red-400'
+                  }`}>
+                    {analysisResult.riskLevel}
+                  </span>
+                </div>
+                <p className="text-xs text-gray-400 mb-3">
+                  Score de Reputación AI: <span className="text-white font-semibold">{analysisResult.reputationScore}/100</span>
+                </p>
+                {analysisResult.recommendations && analysisResult.recommendations.length > 0 && (
+                  <div>
+                    <p className="text-xs text-gray-400 mb-2">Recomendaciones:</p>
+                    <ul className="list-disc list-inside space-y-1 text-xs text-gray-300">
+                      {analysisResult.recommendations.map((rec: string, idx: number) => (
+                        <li key={idx}>{rec}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
             )}
           </GlassCard>

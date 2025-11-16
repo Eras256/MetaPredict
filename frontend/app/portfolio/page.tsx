@@ -2,17 +2,22 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Wallet, TrendingUp, Clock, CheckCircle } from 'lucide-react';
+import { Wallet, TrendingUp, Clock, CheckCircle, Brain, Loader2, TrendingDown } from 'lucide-react';
 import { GlassCard } from '@/components/effects/GlassCard';
 import { Button } from '@/components/ui/button';
+import { analyzePortfolioRebalance } from '@/lib/services/ai/gemini';
+import { toast } from 'sonner';
 
 export default function PortfolioPage() {
   const [activeTab, setActiveTab] = useState<'positions' | 'history' | 'claims'>('positions');
+  const [analyzing, setAnalyzing] = useState(false);
+  const [analysisResult, setAnalysisResult] = useState<any>(null);
 
   // Mock data - replace with real data from contract
   const positions = [
     {
       id: 1,
+      marketId: 1,
       question: 'Will Bitcoin reach $100K by end of 2025?',
       yesShares: 100,
       noShares: 0,
@@ -21,6 +26,37 @@ export default function PortfolioPage() {
     },
     // Add more positions...
   ];
+
+  const handleAnalyzePortfolio = async () => {
+    if (positions.length === 0) {
+      toast.error('No hay posiciones para analizar');
+      return;
+    }
+
+    setAnalyzing(true);
+    try {
+      const positionsData = positions.map(p => ({
+        marketId: p.marketId || p.id,
+        question: p.question,
+        yesShares: p.yesShares,
+        noShares: p.noShares,
+        totalValue: p.totalValue,
+      }));
+
+      const result = await analyzePortfolioRebalance(positionsData);
+      if (result.success && result.data) {
+        setAnalysisResult(result.data);
+        toast.success(`Análisis completado con ${result.modelUsed}`);
+      } else {
+        toast.error(result.error || 'Error al analizar portfolio');
+      }
+    } catch (error: any) {
+      toast.error('Error al analizar portfolio');
+      console.error(error);
+    } finally {
+      setAnalyzing(false);
+    }
+  };
 
   const stats = {
     totalValue: 150,
@@ -69,6 +105,72 @@ export default function PortfolioPage() {
             </motion.div>
           ))}
         </div>
+
+        {/* AI Analysis Button */}
+        {positions.length > 0 && (
+          <div className="mb-6">
+            <Button
+              onClick={handleAnalyzePortfolio}
+              disabled={analyzing}
+              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+            >
+              {analyzing ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Analizando...
+                </>
+              ) : (
+                <>
+                  <Brain className="mr-2 h-4 w-4" />
+                  Analizar Portfolio con AI
+                </>
+              )}
+            </Button>
+          </div>
+        )}
+
+        {/* Analysis Results */}
+        {analysisResult && (
+          <GlassCard className="p-6 mb-6 border-purple-500/30">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold flex items-center gap-2">
+                <Brain className="h-5 w-5 text-purple-400" />
+                Análisis de Portfolio
+              </h3>
+              <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                analysisResult.riskScore < 30 ? 'bg-green-500/20 text-green-400' :
+                analysisResult.riskScore < 70 ? 'bg-yellow-500/20 text-yellow-400' :
+                'bg-red-500/20 text-red-400'
+              }`}>
+                Riesgo: {analysisResult.riskScore}/100
+              </span>
+            </div>
+            <p className="text-sm text-gray-300 mb-4">{analysisResult.overallRecommendation}</p>
+            {analysisResult.allocations && analysisResult.allocations.length > 0 && (
+              <div className="space-y-2">
+                <h4 className="text-sm font-medium text-gray-400 mb-2">Recomendaciones:</h4>
+                {analysisResult.allocations.map((allocation: any, idx: number) => (
+                  <div key={idx} className="p-3 rounded-lg bg-white/5 border border-white/10">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-white">Mercado #{allocation.marketId}</span>
+                      <span className={`px-2 py-1 rounded text-xs font-medium ${
+                        allocation.recommendedAction === 'increase' ? 'bg-green-500/20 text-green-400' :
+                        allocation.recommendedAction === 'decrease' ? 'bg-red-500/20 text-red-400' :
+                        'bg-gray-500/20 text-gray-400'
+                      }`}>
+                        {allocation.recommendedAction === 'increase' ? 'Aumentar' :
+                         allocation.recommendedAction === 'decrease' ? 'Reducir' : 'Mantener'}
+                        {allocation.recommendedAction === 'increase' && <TrendingUp className="inline ml-1 h-3 w-3" />}
+                        {allocation.recommendedAction === 'decrease' && <TrendingDown className="inline ml-1 h-3 w-3" />}
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-400 mt-1">{allocation.reasoning}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </GlassCard>
+        )}
 
         {/* Tabs */}
         <div className="flex gap-2 mb-6">

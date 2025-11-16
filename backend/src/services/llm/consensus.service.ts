@@ -26,7 +26,9 @@ export class ConsensusService {
   ) {
     this.openAI = new OpenAIService(openAIKey);
     this.anthropic = new AnthropicService(anthropicKey);
-    this.google = new GoogleService(googleKey);
+    // Usa GEMINI_API_KEY si está disponible, sino usa GOOGLE_API_KEY como fallback
+    const geminiKey = process.env.GEMINI_API_KEY || googleKey;
+    this.google = new GoogleService(geminiKey);
   }
 
   async getConsensus(

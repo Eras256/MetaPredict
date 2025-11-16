@@ -22,7 +22,7 @@ router.post('/resolve', async (req: Request, res: Response) => {
     const consensusService = new ConsensusService(
       process.env.OPENAI_API_KEY || '',
       process.env.ANTHROPIC_API_KEY || '',
-      process.env.GOOGLE_API_KEY || ''
+      process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || ''
     );
 
     // Obtener consenso de múltiples LLMs

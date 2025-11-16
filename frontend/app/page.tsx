@@ -9,8 +9,8 @@ import { GlassCard } from '@/components/effects/GlassCard';
 const features = [
   {
     icon: Brain,
-    title: 'Multi-AI Oracle',
-    description: '5 LLMs (GPT-4, Claude, Gemini, Llama, Mistral) consensus-based resolution with 95%+ accuracy',
+    title: 'Gemini 2.5 Flash AI Oracle',
+    description: 'Powered by Gemini 2.5 Flash with automatic fallback to 2.5-pro, 2.0-flash, 1.5-flash, and 1.5-pro. Multi-model consensus ensures 95%+ accuracy',
     gradient: 'from-purple-500 to-pink-500'
   },
   {
@@ -67,9 +67,9 @@ const howItWorks = [
   },
   {
     step: '03',
-    title: 'AI Oracle Resolves',
-    description: 'At resolution time, 5 AI models vote. 80%+ consensus required. If disputed, insurance activates automatically.',
-    items: ['GPT-4, Claude, Gemini, Llama, Mistral', '<1 hour resolution', '100% refund if oracle fails', 'Transparent on-chain']
+    title: 'Gemini AI Oracle Resolves',
+    description: 'At resolution time, Gemini 2.5 Flash analyzes the market. Automatic fallback ensures reliability. 80%+ consensus required. If disputed, insurance activates automatically.',
+    items: ['Gemini 2.5 Flash (primary)', 'Automatic fallback to 4 backup models', '<1 hour resolution', '100% refund if oracle fails', 'Transparent on-chain']
   }
 ];
 

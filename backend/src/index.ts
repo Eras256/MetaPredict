@@ -9,6 +9,7 @@ import oracleRouter from "./routes/oracle";
 import reputationRouter from "./routes/reputation";
 import aggregationRouter from "./routes/aggregation";
 import usersRouter from "./routes/users";
+import aiRouter from "./routes/ai";
 
 dotenv.config();
 
@@ -37,6 +38,7 @@ app.use("/api/oracle", oracleRouter);
 app.use("/api/reputation", reputationRouter);
 app.use("/api/aggregation", aggregationRouter);
 app.use("/api/users", usersRouter);
+app.use("/api/ai", aiRouter);
 
 // Error handling
 app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {

@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { GlassCard } from '@/components/effects/GlassCard';
-import { ArrowLeft, Clock, Users, TrendingUp, Shield, Brain, ExternalLink } from 'lucide-react';
+import { ArrowLeft, Clock, Users, TrendingUp, Shield, Brain, ExternalLink, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { formatDistanceToNow, format } from 'date-fns';
 import { MARKET_STATUS, MARKET_TYPES } from '@/lib/config/constants';
@@ -16,6 +16,9 @@ import { useReadContract } from 'wagmi';
 import { useActiveAccount } from 'thirdweb/react';
 import { CONTRACTS } from '@/lib/config/constants';
 import { formatUnits } from 'viem';
+import { analyzeMarket } from '@/lib/services/ai/gemini';
+import { toast } from 'sonner';
+import { useState } from 'react';
 
 // USDC ABI placeholder
 const USDCABI = [
@@ -33,6 +36,8 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
   const marketId = parseInt(id);
   const { marketInfo, marketData, odds, isLoading } = useMarketDetails(marketId);
   const account = useActiveAccount();
+  const [analyzingMarket, setAnalyzingMarket] = useState(false);
+  const [marketAnalysis, setMarketAnalysis] = useState<any>(null);
   
   const { data: balance } = useReadContract({
     address: CONTRACTS.USDC as `0x${string}`,
@@ -43,6 +48,29 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
   });
 
   const userBalance = balance ? Number(formatUnits(balance, 6)) : 0;
+
+  const handleAnalyzeMarket = async () => {
+    if (!marketData?.question) {
+      toast.error('No hay información del mercado para analizar');
+      return;
+    }
+
+    setAnalyzingMarket(true);
+    try {
+      const result = await analyzeMarket(marketData.question, marketData.description);
+      if (result.success && result.data) {
+        setMarketAnalysis(result.data);
+        toast.success(`Análisis completado con ${result.modelUsed}`);
+      } else {
+        toast.error(result.error || 'Error al analizar mercado');
+      }
+    } catch (error: any) {
+      toast.error('Error al analizar mercado');
+      console.error(error);
+    } finally {
+      setAnalyzingMarket(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -132,6 +160,52 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                   <p className="text-gray-300">{marketData.description}</p>
                 </div>
               )}
+
+              {/* AI Analysis Button */}
+              <div className="mt-6 pt-6 border-t border-white/10">
+                <Button
+                  onClick={handleAnalyzeMarket}
+                  disabled={analyzingMarket || !marketData?.question}
+                  className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                >
+                  {analyzingMarket ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Analizando con AI...
+                    </>
+                  ) : (
+                    <>
+                      <Brain className="mr-2 h-4 w-4" />
+                      Analizar Mercado con AI
+                    </>
+                  )}
+                </Button>
+              </div>
+
+              {/* AI Analysis Results */}
+              {marketAnalysis && (
+                <div className="mt-6 p-4 rounded-lg bg-purple-500/10 border border-purple-500/20">
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="text-sm font-semibold flex items-center gap-2 text-purple-400">
+                      <Brain className="h-4 w-4" />
+                      Análisis AI
+                    </h4>
+                    <div className="flex items-center gap-2">
+                      <span className={`px-2 py-1 rounded text-xs font-medium ${
+                        marketAnalysis.answer === 'YES' ? 'bg-green-500/20 text-green-400' :
+                        marketAnalysis.answer === 'NO' ? 'bg-red-500/20 text-red-400' :
+                        'bg-yellow-500/20 text-yellow-400'
+                      }`}>
+                        {marketAnalysis.answer}
+                      </span>
+                      <span className="text-xs text-gray-400">
+                        {marketAnalysis.confidence}% confianza
+                      </span>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-300">{marketAnalysis.reasoning}</p>
+                </div>
+              )}
             </GlassCard>
 
             {/* Tabs */}
@@ -163,11 +237,26 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                     </div>
 
                     <div className="p-4 rounded-lg bg-blue-500/5 border border-blue-500/10">
-                      <div className="text-sm text-gray-400 mb-2">Oracle Method</div>
-                      <div className="text-white font-semibold mb-2">Multi-AI Consensus (5 LLMs)</div>
-                      <div className="text-sm text-gray-300">
-                        This market will be resolved by querying 5 different AI models: GPT-4, Claude, Gemini, Llama, and Mistral. 
-                        80%+ consensus required for resolution.
+                      <div className="flex items-center justify-between mb-2">
+                        <div>
+                          <div className="text-sm text-gray-400 mb-1">Oracle Method</div>
+                          <div className="text-white font-semibold mb-2">Multi-AI Consensus (Gemini 2.5 Flash + Fallbacks)</div>
+                        </div>
+                        <Brain className="w-6 h-6 text-purple-400" />
+                      </div>
+                      <div className="text-sm text-gray-300 space-y-2">
+                        <p>
+                          Este mercado será resuelto usando Gemini 2.5 Flash como modelo principal, con fallback automático a:
+                        </p>
+                        <ul className="list-disc list-inside ml-2 space-y-1">
+                          <li>gemini-2.5-pro (fallback 1)</li>
+                          <li>gemini-2.0-flash (fallback 2)</li>
+                          <li>gemini-1.5-flash (fallback 3)</li>
+                          <li>gemini-1.5-pro (fallback 4)</li>
+                        </ul>
+                        <p className="mt-2">
+                          Se requiere 80%+ de consenso para la resolución. Si el consenso falla, el pool de insurance activa automáticamente.
+                        </p>
                       </div>
                     </div>
 
