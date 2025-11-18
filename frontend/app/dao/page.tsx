@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useProposal, useVoteOnProposal, useUserProposals, useExecuteProposal } from '@/lib/hooks/dao/useDAO';
+import { useProposal, useVoteOnProposal, useUserProposals, useExecuteProposal, useAllProposals } from '@/lib/hooks/dao/useDAO';
 import { Vote, CheckCircle, XCircle, Clock, TrendingUp, Users, Brain, Loader2 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { analyzeDAOProposal } from '@/lib/services/ai/gemini';
@@ -18,28 +18,17 @@ import { toast } from 'sonner';
 export default function DAOPage() {
   const [selectedProposal, setSelectedProposal] = useState<number | null>(null);
   const [voteSupport, setVoteSupport] = useState<0 | 1 | 2>(1);
-  const { proposalIds, isLoading: proposalsLoading } = useUserProposals();
+  const { proposalIds, isLoading: userProposalsLoading } = useUserProposals();
+  const { proposals: allProposals, isLoading: allProposalsLoading } = useAllProposals();
   const { vote, isPending: isVoting } = useVoteOnProposal();
   const { execute, isPending: isExecuting } = useExecuteProposal();
   const [analyzing, setAnalyzing] = useState<number | null>(null);
   const [analysisResults, setAnalysisResults] = useState<Record<number, any>>({});
 
-  // Mock proposals - in production, fetch from contract
-  // NOTA: Estas son propuestas de ejemplo. Para votar, la propuesta debe existir
-  // en el contrato y estar en estado Active (1)
-  const proposals = [
-    {
-      id: 1,
-      title: 'Resolve Market #123: Will Bitcoin reach $100K?',
-      description: 'Vote on the resolution of market #123',
-      type: 'MarketResolution',
-      forVotes: 1500,
-      againstVotes: 800,
-      abstainVotes: 200,
-      status: 'Active',
-      endTime: Date.now() + 2 * 24 * 60 * 60 * 1000,
-    },
-  ];
+  // Filtrar propuestas activas y resueltas
+  const activeProposals = allProposals.filter((p) => p.status === 1); // Active = 1
+  const resolvedProposals = allProposals.filter((p) => p.status !== 1); // Todas las demás
+  const proposalsLoading = allProposalsLoading;
 
   const handleVote = async (proposalId: number) => {
     try {
@@ -102,8 +91,8 @@ export default function DAOPage() {
           <TabsContent value="active" className="space-y-6">
             {proposalsLoading ? (
               <Skeleton className="h-64 w-full" />
-            ) : proposals.length > 0 ? (
-              proposals.map((proposal) => {
+            ) : activeProposals.length > 0 ? (
+              activeProposals.map((proposal) => {
                 const totalVotes = proposal.forVotes + proposal.againstVotes + proposal.abstainVotes;
                 const forPercentage = totalVotes > 0 ? (proposal.forVotes / totalVotes) * 100 : 0;
                 const againstPercentage = totalVotes > 0 ? (proposal.againstVotes / totalVotes) * 100 : 0;
@@ -116,8 +105,13 @@ export default function DAOPage() {
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-3">
                           <Badge variant="outline">{proposal.type}</Badge>
-                          <Badge className="bg-green-500/20 text-green-300 border-green-500/30">
-                            {proposal.status}
+                          <Badge className={
+                            proposal.status === 1 ? 'bg-green-500/20 text-green-300 border-green-500/30' :
+                            proposal.status === 2 ? 'bg-blue-500/20 text-blue-300 border-blue-500/30' :
+                            proposal.status === 3 ? 'bg-red-500/20 text-red-300 border-red-500/30' :
+                            'bg-gray-500/20 text-gray-300 border-gray-500/30'
+                          }>
+                            {proposal.statusLabel}
                           </Badge>
                           <Button
                             onClick={() => handleAnalyzeProposal(proposal)}
@@ -228,7 +222,7 @@ export default function DAOPage() {
                         <XCircle className="w-4 h-4 mr-2" />
                         Vote Against
                       </Button>
-                      {proposal.status === 'Succeeded' && (
+                      {proposal.status === 2 && !proposal.executed && (
                         <Button
                           onClick={() => handleExecute(proposal.id)}
                           disabled={isExecuting}
@@ -243,15 +237,79 @@ export default function DAOPage() {
               })
             ) : (
               <GlassCard className="p-12 text-center">
-                <p className="text-gray-400 text-lg">No active proposals</p>
+                <p className="text-gray-400 text-lg">No hay propuestas activas</p>
+                <p className="text-gray-500 text-sm mt-2">Las propuestas activas aparecerán aquí cuando estén disponibles para votación</p>
               </GlassCard>
             )}
           </TabsContent>
 
           <TabsContent value="resolved">
-            <GlassCard className="p-12 text-center">
-              <p className="text-gray-400 text-lg">Resolved proposals will appear here</p>
-            </GlassCard>
+            {proposalsLoading ? (
+              <Skeleton className="h-64 w-full" />
+            ) : resolvedProposals.length > 0 ? (
+              resolvedProposals.map((proposal) => {
+                const totalVotes = proposal.forVotes + proposal.againstVotes + proposal.abstainVotes;
+                const forPercentage = totalVotes > 0 ? (proposal.forVotes / totalVotes) * 100 : 0;
+                const againstPercentage = totalVotes > 0 ? (proposal.againstVotes / totalVotes) * 100 : 0;
+
+                return (
+                  <GlassCard key={proposal.id} className="p-8 mb-6">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-3">
+                          <Badge variant="outline">{proposal.type}</Badge>
+                          <Badge className={
+                            proposal.status === 2 ? 'bg-blue-500/20 text-blue-300 border-blue-500/30' :
+                            proposal.status === 3 ? 'bg-red-500/20 text-red-300 border-red-500/30' :
+                            'bg-gray-500/20 text-gray-300 border-gray-500/30'
+                          }>
+                            {proposal.statusLabel}
+                          </Badge>
+                        </div>
+                        <h3 className="text-2xl font-semibold mb-2">{proposal.title}</h3>
+                        <p className="text-gray-400 mb-4">{proposal.description}</p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-4 mb-6">
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm text-gray-400">For</span>
+                          <span className="text-sm font-semibold">{proposal.forVotes.toLocaleString()} votes</span>
+                        </div>
+                        <Progress value={forPercentage} className="h-2" />
+                      </div>
+
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm text-gray-400">Against</span>
+                          <span className="text-sm font-semibold">{proposal.againstVotes.toLocaleString()} votes</span>
+                        </div>
+                        <Progress value={againstPercentage} className="h-2" />
+                      </div>
+
+                      <div className="text-sm text-gray-400">
+                        Abstain: {proposal.abstainVotes.toLocaleString()} votes
+                      </div>
+                    </div>
+
+                    {proposal.status === 2 && !proposal.executed && (
+                      <Button
+                        onClick={() => handleExecute(proposal.id)}
+                        disabled={isExecuting}
+                        variant="outline"
+                      >
+                        Execute
+                      </Button>
+                    )}
+                  </GlassCard>
+                );
+              })
+            ) : (
+              <GlassCard className="p-12 text-center">
+                <p className="text-gray-400 text-lg">No hay propuestas resueltas</p>
+              </GlassCard>
+            )}
           </TabsContent>
 
           <TabsContent value="create">

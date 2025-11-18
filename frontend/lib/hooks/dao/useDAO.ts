@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useSendTransaction, useActiveAccount, useReadContract } from 'thirdweb/react';
 import { defineChain } from 'thirdweb/chains';
 import { getContract, prepareContractCall, readContract } from 'thirdweb';
@@ -40,8 +40,23 @@ const opBNBTestnet = defineChain({
   rpc: 'https://opbnb-testnet-rpc.bnbchain.org',
 });
 
+// ProposalType enum values
+const ProposalTypeLabels: Record<number, string> = {
+  0: 'MarketResolution',
+  1: 'ParameterChange',
+  2: 'TreasurySpend',
+  3: 'EmergencyAction',
+};
+
 // ABI simplificado - debería importarse del archivo ABI real
 const DAOGovernanceABI = [
+  {
+    name: 'proposalCounter',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint256' }],
+  },
   {
     name: 'getProposal',
     type: 'function',
@@ -394,5 +409,106 @@ export function useExpertise(userAddress: string, domain: string) {
         }
       : null,
     isLoading,
+  };
+}
+
+export function useAllProposals() {
+  const [proposals, setProposals] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [totalProposals, setTotalProposals] = useState(0);
+
+  const contract = useMemo(() => {
+    if (!CONTRACT_ADDRESSES.DAO_GOVERNANCE) return null;
+    return getContract({
+      client,
+      chain: opBNBTestnet,
+      address: CONTRACT_ADDRESSES.DAO_GOVERNANCE,
+      abi: DAOGovernanceABI as any,
+    });
+  }, []);
+
+  // Obtener el contador de propuestas
+  const { data: proposalCounter, isLoading: counterLoading } = useReadContract({
+    contract: contract!,
+    method: 'proposalCounter',
+    queryOptions: { enabled: !!contract },
+  });
+
+  useEffect(() => {
+    if (!contract || !proposalCounter) {
+      setIsLoading(counterLoading);
+      return;
+    }
+
+    const total = Number(proposalCounter);
+    setTotalProposals(total);
+
+    if (total === 0) {
+      setProposals([]);
+      setIsLoading(false);
+      return;
+    }
+
+    setIsLoading(true);
+
+    // Obtener todas las propuestas en paralelo
+    const fetchProposals = async () => {
+      try {
+        const proposalIds = Array.from({ length: total }, (_, i) => i + 1);
+        
+        const proposalPromises = proposalIds.map(async (id) => {
+          try {
+            const data = await readContract({
+              contract,
+              method: 'getProposal',
+              params: [BigInt(id)],
+            }) as any;
+
+            const proposalId = Number(data[0]);
+            
+            // Si el ID es 0, la propuesta no existe
+            if (proposalId === 0) return null;
+
+            return {
+              id: proposalId,
+              proposalType: Number(data[1]),
+              proposer: data[2],
+              title: data[3] || '',
+              description: data[4] || '',
+              forVotes: Number(data[5]),
+              againstVotes: Number(data[6]),
+              abstainVotes: Number(data[7]),
+              status: Number(data[8]),
+              executed: data[9],
+              type: ProposalTypeLabels[Number(data[1])] || 'Unknown',
+              statusLabel: ProposalStatusLabels[Number(data[8])] || 'Unknown',
+            };
+          } catch (error) {
+            console.error(`Error fetching proposal ${id}:`, error);
+            return null;
+          }
+        });
+
+        const results = await Promise.all(proposalPromises);
+        const validProposals = results
+          .filter((p): p is NonNullable<typeof p> => p !== null)
+          .reverse(); // Mostrar las más recientes primero
+
+        setProposals(validProposals);
+      } catch (error) {
+        console.error('Error fetching proposals:', error);
+        setProposals([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProposals();
+  }, [contract, proposalCounter, counterLoading]);
+
+  return {
+    proposals,
+    isLoading: isLoading || counterLoading,
+    totalProposals,
   };
 }
