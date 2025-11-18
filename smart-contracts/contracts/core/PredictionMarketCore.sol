@@ -3,7 +3,7 @@ pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/Pausable.sol";
 import "../markets/BinaryMarket.sol";
 import "../markets/ConditionalMarket.sol";
@@ -13,6 +13,7 @@ import "../reputation/ReputationStaking.sol";
 import "../oracle/InsurancePool.sol";
 import "../aggregation/OmniRouter.sol";
 import "../reputation/ReputationDAO.sol";
+import "../governance/DAOGovernance.sol";
 
 /**
  * @title PredictionMarketCore
@@ -40,7 +41,7 @@ contract PredictionMarketCore is Ownable, ReentrancyGuard, Pausable {
     ReputationStaking public reputationStaking;
     InsurancePool public insurancePool;
     OmniRouter public crossChainRouter;
-    ReputationDAO public daoGovernance;
+    DAOGovernance public daoGovernance;
     
     // Market registry
     uint256 public marketCounter;
@@ -108,7 +109,7 @@ contract PredictionMarketCore is Ownable, ReentrancyGuard, Pausable {
         reputationStaking = ReputationStaking(_reputationStaking);
         insurancePool = InsurancePool(_insurancePool);
         crossChainRouter = OmniRouter(_crossChainRouter);
-        daoGovernance = ReputationDAO(_daoGovernance);
+        daoGovernance = DAOGovernance(_daoGovernance);
     }
     
     // ============ Market Creation ============
@@ -312,9 +313,11 @@ contract PredictionMarketCore is Ownable, ReentrancyGuard, Pausable {
             daoGovernance.initiateVoting(_marketId);
         } else {
             // AI oracle para binary y conditional
+            // TODO: Store question and pythPriceId in MarketInfo struct
             aiOracle.requestResolution(
                 _marketId,
-                marketTypeContract[_marketId]
+                "", // question - TODO: retrieve from market contract
+                0   // pythPriceId - TODO: retrieve from market contract
             );
         }
     }
@@ -423,7 +426,7 @@ contract PredictionMarketCore is Ownable, ReentrancyGuard, Pausable {
             crossChainRouter = OmniRouter(_newAddress);
         } else if (keccak256(bytes(_moduleName)) == keccak256("daoGovernance")) {
             oldAddress = address(daoGovernance);
-            daoGovernance = ReputationDAO(_newAddress);
+            daoGovernance = DAOGovernance(_newAddress);
         } else {
             revert("Invalid module");
         }

@@ -48,5 +48,8 @@ library Errors {
     error PythPriceNotFound();
     error PythPriceStale();
     error InvalidPriceId();
+    
+    // Chainlink Data Streams Errors
+    error InvalidPriceReport();
 }
 

@@ -105,7 +105,8 @@ contract PythIntegration is Ownable {
             bool isStale
         ) 
     {
-        (price, confidence, , uint256 publishTime) = pythOracle.getPrice(_priceId);
+        uint256 publishTime;
+        (price, confidence, , publishTime) = pythOracle.getPrice(_priceId);
         
         isStale = block.timestamp - publishTime > PRICE_STALENESS_THRESHOLD;
         
@@ -117,7 +118,8 @@ contract PythIntegration is Ownable {
      * @param _updateData Datos de actualización de Pyth
      */
     function updatePriceFeeds(bytes[] calldata _updateData) external payable {
-        uint256 fee = pythOracle.updatePriceFeeds.selector;
+        // Pyth requires payment for price updates
+        // Fee amount should be calculated based on number of price feeds
         pythOracle.updatePriceFeeds{value: msg.value}(_updateData);
     }
 }

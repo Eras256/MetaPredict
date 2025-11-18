@@ -149,7 +149,9 @@ async function main() {
   console.log("📝 Deploying Cross-Chain Router (OmniRouter)...");
   const OmniRouter = await ethers.getContractFactory("OmniRouter");
   const crossChainRouter = await OmniRouter.deploy(
-    usdcAddress
+    usdcAddress,
+    process.env.CHAINLINK_CCIP_ROUTER || ethers.ZeroAddress,
+    process.env.LAYERZERO_ENDPOINT || ethers.ZeroAddress
   );
   await crossChainRouter.waitForDeployment();
   const crossChainRouterAddress = await getAddress(crossChainRouter);
@@ -224,34 +226,15 @@ async function main() {
   await daoGovernance.setCoreContract(coreAddress);
   await crossChainRouter.setCoreContract(coreAddress);
 
+  console.log("Registering market types in core...");
+  await core.registerMarketContract(0, binaryMarketAddress); // Binary
+  await core.registerMarketContract(1, conditionalMarketAddress); // Conditional
+  await core.registerMarketContract(2, subjectiveMarketAddress); // Subjective
+
   console.log("✅ Configuration complete\n");
-  console.log("ℹ️  Note: Market contracts are already registered in Core constructor\n");
 
-  // 11. Deploy Chainlink Data Streams Integration (Optional)
-  console.log("📝 Deploying Chainlink Data Streams Integration...");
-  let dataStreamsIntegrationAddress = ethers.ZeroAddress;
-  
-  if (process.env.CHAINLINK_DATA_STREAMS_VERIFIER_PROXY && 
-      process.env.CHAINLINK_DATA_STREAMS_VERIFIER_PROXY !== ethers.ZeroAddress &&
-      process.env.CHAINLINK_DATA_STREAMS_VERIFIER_PROXY !== "0x0000000000000000000000000000000000000000") {
-    try {
-      const ChainlinkDataStreamsIntegration = await ethers.getContractFactory("ChainlinkDataStreamsIntegration");
-      const dataStreamsIntegration = await ChainlinkDataStreamsIntegration.deploy(
-        process.env.CHAINLINK_DATA_STREAMS_VERIFIER_PROXY
-      );
-      await dataStreamsIntegration.waitForDeployment();
-      dataStreamsIntegrationAddress = await getAddress(dataStreamsIntegration);
-      console.log("✅ Chainlink Data Streams Integration deployed:", dataStreamsIntegrationAddress, "\n");
-    } catch (error: any) {
-      console.log("⚠️  Chainlink Data Streams Integration deployment failed:", error.message);
-      console.log("   Continuing without Data Streams integration...\n");
-    }
-  } else {
-    console.log("⚠️  Chainlink Data Streams Integration skipped (no VERIFIER_PROXY configured)\n");
-  }
-
-  // 12. Export Addresses
-  const addresses: any = {
+  // 11. Export Addresses
+  const addresses = {
     network: "opBNB Testnet",
     chainId: 5611,
     contracts: {
@@ -271,18 +254,6 @@ async function main() {
     deployer: deployer.address,
     timestamp: new Date().toISOString(),
   };
-
-  // Add Data Streams Integration if deployed
-  if (dataStreamsIntegrationAddress !== ethers.ZeroAddress) {
-    addresses.contracts.dataStreamsIntegration = dataStreamsIntegrationAddress;
-    
-    // Transfer Data Streams Integration ownership to Core
-    console.log("Transferring Data Streams Integration ownership to Core...");
-    const ChainlinkDataStreamsIntegration = await ethers.getContractFactory("ChainlinkDataStreamsIntegration");
-    const dataStreamsIntegration = ChainlinkDataStreamsIntegration.attach(dataStreamsIntegrationAddress);
-    await dataStreamsIntegration.transferOwnership(coreAddress);
-    console.log("✅ Data Streams Integration ownership transferred to Core\n");
-  }
 
   console.log("\n📋 DEPLOYMENT SUMMARY:");
   console.log(JSON.stringify(addresses, null, 2));
