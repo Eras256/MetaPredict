@@ -251,6 +251,13 @@ export function useVoteOnProposal() {
       await waitForReceipt({ client, chain: opBNBTestnet, transactionHash: txHash });
       
       const txUrl = getTransactionUrl(txHash);
+      
+      // Disparar evento personalizado para refrescar propuestas
+      // Esperar un poco para que el bloque se confirme antes de refrescar
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent('proposal-voted', { detail: { proposalId } }));
+      }, 3000);
+      
       toast.success(
         `Voto emitido exitosamente! Ver transacción: ${formatTxHash(txHash)}`,
         {
@@ -416,6 +423,7 @@ export function useAllProposals() {
   const [proposals, setProposals] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [totalProposals, setTotalProposals] = useState(0);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const contract = useMemo(() => {
     if (!CONTRACT_ADDRESSES.DAO_GOVERNANCE) return null;
@@ -428,32 +436,51 @@ export function useAllProposals() {
   }, []);
 
   // Obtener el contador de propuestas
-  const { data: proposalCounter, isLoading: counterLoading } = useReadContract({
+  const { data: proposalCounter, isLoading: counterLoading, refetch: refetchCounter } = useReadContract({
     contract: contract!,
     method: 'proposalCounter',
     queryOptions: { enabled: !!contract },
   });
 
+  // Función para refrescar las propuestas
+  const refetch = async () => {
+    setRefreshKey(prev => prev + 1);
+    await refetchCounter?.();
+  };
+
   useEffect(() => {
-    if (!contract || !proposalCounter) {
+    if (!contract) {
       setIsLoading(counterLoading);
       return;
     }
 
-    const total = Number(proposalCounter);
-    setTotalProposals(total);
-
-    if (total === 0) {
-      setProposals([]);
-      setIsLoading(false);
-      return;
-    }
-
-    setIsLoading(true);
-
-    // Obtener todas las propuestas en paralelo
+    // Obtener el contador actualizado si no está disponible
     const fetchProposals = async () => {
       try {
+        let total = totalProposals;
+        
+        // Si no tenemos proposalCounter, obtenerlo
+        if (!proposalCounter) {
+          const counter = await readContract({
+            contract,
+            method: 'proposalCounter',
+          }) as any;
+          total = Number(counter);
+        } else {
+          total = Number(proposalCounter);
+        }
+
+        setTotalProposals(total);
+
+        if (total === 0) {
+          setProposals([]);
+          setIsLoading(false);
+          return;
+        }
+
+        setIsLoading(true);
+
+        // Obtener todas las propuestas en paralelo
         const proposalIds = Array.from({ length: total }, (_, i) => i + 1);
         
         const proposalPromises = proposalIds.map(async (id) => {
@@ -469,7 +496,7 @@ export function useAllProposals() {
             // Si el ID es 0, la propuesta no existe
             if (proposalId === 0) return null;
 
-            return {
+            const proposal = {
               id: proposalId,
               proposalType: Number(data[1]),
               proposer: data[2],
@@ -483,6 +510,18 @@ export function useAllProposals() {
               type: ProposalTypeLabels[Number(data[1])] || 'Unknown',
               statusLabel: ProposalStatusLabels[Number(data[8])] || 'Unknown',
             };
+
+            // Debug: Log para verificar que los votos se están leyendo correctamente
+            if (proposalId <= 3) {
+              console.log(`Proposal ${proposalId} votes:`, {
+                forVotes: proposal.forVotes,
+                againstVotes: proposal.againstVotes,
+                abstainVotes: proposal.abstainVotes,
+                raw: data
+              });
+            }
+
+            return proposal;
           } catch (error) {
             console.error(`Error fetching proposal ${id}:`, error);
             return null;
@@ -504,11 +543,12 @@ export function useAllProposals() {
     };
 
     fetchProposals();
-  }, [contract, proposalCounter, counterLoading]);
+  }, [contract, proposalCounter, counterLoading, refreshKey]);
 
   return {
     proposals,
     isLoading: isLoading || counterLoading,
     totalProposals,
+    refetch,
   };
 }
