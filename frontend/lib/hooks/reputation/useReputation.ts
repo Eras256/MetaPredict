@@ -230,7 +230,19 @@ export function useUnstakeReputation() {
       return { transactionHash: txHash, receipt: result };
     } catch (error: any) {
       console.error('Error unstaking:', error);
-      toast.error(error?.message || 'Error unstaking');
+      
+      // Mejorar mensajes de error
+      let errorMessage = error?.message || 'Error unstaking';
+      
+      if (errorMessage.includes('Cooldown period') || errorMessage.includes('cooldown')) {
+        errorMessage = 'Debes esperar 7 días desde tu último stake antes de poder hacer unstake. Este es un período de seguridad para proteger el sistema de reputación.';
+      } else if (errorMessage.includes('Insufficient stake')) {
+        errorMessage = 'No tienes suficiente stake para retirar esa cantidad';
+      } else if (errorMessage.includes('Transfer failed')) {
+        errorMessage = 'Error al transferir los fondos. Por favor, intenta de nuevo.';
+      }
+      
+      toast.error(errorMessage);
       throw error;
     } finally {
       setLoading(false);
