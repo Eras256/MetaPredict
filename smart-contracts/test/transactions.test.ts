@@ -30,9 +30,9 @@ const DEPLOYED_CONTRACTS = {
   USDC: "0xB3Fd473A31dE87527cE289Ba6A04869fD3d6C16A", // MockUSDC desplegado
 };
 
-// Cantidad mínima verificable (1 USDC = 1e6)
-const MIN_AMOUNT = ethers.parseUnits("1", 6); // 1 USDC
-const MIN_STAKE = ethers.parseUnits("100", 6); // 100 USDC (mínimo para staking)
+// Cantidad mínima verificable (BNB nativo - 18 decimales)
+const MIN_AMOUNT = ethers.parseEther("0.001"); // 0.001 BNB (mínimo de apuesta)
+const MIN_STAKE = ethers.parseEther("0.1"); // 0.1 BNB (mínimo para staking)
 
 describe("Transaction Tests - Smart Contracts Integration", function () {
   let deployer: any;
@@ -67,19 +67,19 @@ describe("Transaction Tests - Smart Contracts Integration", function () {
     const coreAbi = [
       "function createBinaryMarket(string, string, uint256, string) returns (uint256)",
       "function createSubjectiveMarket(string, string, uint256, string, string) returns (uint256)",
-      "function placeBet(uint256, bool, uint256)",
+      "function placeBet(uint256, bool) payable",
       "function initiateResolution(uint256)",
-      "function stakeReputation(uint256)",
+      "function stakeReputation() payable",
       "function voteOnDispute(uint256, uint8)",
       "event MarketCreated(uint256 indexed, uint8, address indexed, uint256)",
       "event FeeCollected(uint256 indexed, address indexed, uint256, uint256)",
     ];
 
     const insuranceAbi = [
-      "function deposit(uint256, address) returns (uint256)",
+      "function deposit(address) payable returns (uint256)",
       "function withdraw(uint256, address, address) returns (uint256)",
       "function claimYield()",
-      "function receiveInsurancePremium(uint256, uint256)",
+      "function receiveInsurancePremium(uint256, uint256) payable",
       "event Deposited(address indexed, uint256, uint256)",
     ];
 
@@ -186,18 +186,11 @@ describe("Transaction Tests - Smart Contracts Integration", function () {
         this.skip();
       }
 
-      // Aprobar USDC primero
-      const approveTx = await usdc.approve(
-        DEPLOYED_CONTRACTS.PREDICTION_MARKET_CORE,
-        MIN_AMOUNT
-      );
-      await approveTx.wait();
-
-      // Colocar apuesta
+      // Colocar apuesta con BNB nativo (no requiere aprobación)
       const tx = await predictionMarketCore.placeBet(
         marketId,
         true, // YES
-        MIN_AMOUNT
+        { value: MIN_AMOUNT } // Enviar BNB nativo como msg.value
       );
 
       const receipt = await tx.wait();
@@ -206,7 +199,7 @@ describe("Transaction Tests - Smart Contracts Integration", function () {
       console.log("\n✅ Transacción 2 - Colocar apuesta YES:");
       console.log("  Hash:", receipt.hash);
       console.log("  Explorer:", `https://testnet.opbnbscan.com/tx/${receipt.hash}`);
-      console.log("  Amount:", ethers.formatUnits(MIN_AMOUNT, 6), "USDC");
+      console.log("  Amount:", ethers.formatEther(MIN_AMOUNT), "BNB");
 
       expect(receipt.status).to.equal(1);
     });
@@ -216,18 +209,11 @@ describe("Transaction Tests - Smart Contracts Integration", function () {
         this.skip();
       }
 
-      // Aprobar más USDC
-      const approveTx = await usdc.approve(
-        DEPLOYED_CONTRACTS.PREDICTION_MARKET_CORE,
-        MIN_AMOUNT * 2n
-      );
-      await approveTx.wait();
-
-      // Colocar apuesta NO
+      // Colocar apuesta NO con BNB nativo (no requiere aprobación)
       const tx = await predictionMarketCore.placeBet(
         marketId,
         false, // NO
-        MIN_AMOUNT
+        { value: MIN_AMOUNT } // Enviar BNB nativo como msg.value
       );
 
       const receipt = await tx.wait();
@@ -236,7 +222,7 @@ describe("Transaction Tests - Smart Contracts Integration", function () {
       console.log("\n✅ Transacción 3 - Colocar apuesta NO:");
       console.log("  Hash:", receipt.hash);
       console.log("  Explorer:", `https://testnet.opbnbscan.com/tx/${receipt.hash}`);
-      console.log("  Amount:", ethers.formatUnits(MIN_AMOUNT, 6), "USDC");
+      console.log("  Amount:", ethers.formatEther(MIN_AMOUNT), "BNB");
 
       expect(receipt.status).to.equal(1);
     });
@@ -244,33 +230,19 @@ describe("Transaction Tests - Smart Contracts Integration", function () {
 
   describe("2. InsurancePool - Deposit and Withdraw Transactions", function () {
     it("Transacción 1: Depositar en Insurance Pool", async function () {
-      const depositAmount = MIN_AMOUNT * 10n; // 10 USDC (mínimo es 10 USDC según contrato)
+      const depositAmount = MIN_AMOUNT * 10n; // 0.01 BNB
 
-      // Verificar balance
-      const balance = await usdc.balanceOf(deployer.address);
+      // Verificar balance de BNB nativo
+      const balance = await ethers.provider.getBalance(deployer.address);
       if (balance < depositAmount) {
-        throw new Error(`Balance insuficiente: ${ethers.formatUnits(balance, 6)} USDC, necesita ${ethers.formatUnits(depositAmount, 6)} USDC`);
+        throw new Error(`Balance insuficiente: ${ethers.formatEther(balance)} BNB, necesita ${ethers.formatEther(depositAmount)} BNB`);
       }
 
-      // Aprobar USDC (usar un valor mayor para evitar problemas)
-      const approveAmount = depositAmount * 2n;
-      const approveTx = await usdc.approve(
-        DEPLOYED_CONTRACTS.INSURANCE_POOL,
-        approveAmount
-      );
-      await approveTx.wait();
-
-      // Verificar approval
-      const allowance = await usdc.allowance(deployer.address, DEPLOYED_CONTRACTS.INSURANCE_POOL);
-      if (allowance < depositAmount) {
-        throw new Error(`Approval insuficiente: ${ethers.formatUnits(allowance, 6)} USDC`);
-      }
-
-      // Depositar
+      // Depositar BNB nativo (no requiere aprobación)
       try {
         const tx = await insurancePool.deposit(
-          depositAmount,
-          deployer.address
+          deployer.address,
+          { value: depositAmount } // Enviar BNB nativo como msg.value
         );
 
         const receipt = await tx.wait();
@@ -279,7 +251,7 @@ describe("Transaction Tests - Smart Contracts Integration", function () {
         console.log("\n✅ Transacción 1 - Depositar en Insurance Pool:");
         console.log("  Hash:", receipt.hash);
         console.log("  Explorer:", `https://testnet.opbnbscan.com/tx/${receipt.hash}`);
-        console.log("  Amount:", ethers.formatUnits(depositAmount, 6), "USDC");
+        console.log("  Amount:", ethers.formatEther(depositAmount), "BNB");
 
         expect(receipt.status).to.equal(1);
       } catch (error: any) {
@@ -307,7 +279,7 @@ describe("Transaction Tests - Smart Contracts Integration", function () {
     });
 
     it("Transacción 3: Retirar parcialmente del Insurance Pool", async function () {
-      const withdrawAmount = MIN_AMOUNT * 5n; // 5 USDC
+      const withdrawAmount = MIN_AMOUNT * 5n; // 0.005 BNB
 
       try {
         const tx = await insurancePool.withdraw(
@@ -322,7 +294,7 @@ describe("Transaction Tests - Smart Contracts Integration", function () {
         console.log("\n✅ Transacción 3 - Retirar del Insurance Pool:");
         console.log("  Hash:", receipt.hash);
         console.log("  Explorer:", `https://testnet.opbnbscan.com/tx/${receipt.hash}`);
-        console.log("  Amount:", ethers.formatUnits(withdrawAmount, 6), "USDC");
+        console.log("  Amount:", ethers.formatEther(withdrawAmount), "BNB");
 
         expect(receipt.status).to.equal(1);
       } catch (error: any) {
@@ -334,44 +306,31 @@ describe("Transaction Tests - Smart Contracts Integration", function () {
 
   describe("3. ReputationStaking - Staking Transactions", function () {
     it("Transacción 1: Stake tokens para reputación", async function () {
-      const stakeAmount = MIN_STAKE; // 100 USDC (mínimo según contrato)
+      const stakeAmount = MIN_STAKE; // 0.1 BNB
 
-      // Verificar balance
-      const balance = await usdc.balanceOf(deployer.address);
+      // Verificar balance de BNB nativo
+      const balance = await ethers.provider.getBalance(deployer.address);
       if (balance < stakeAmount) {
-        throw new Error(`Balance insuficiente: ${ethers.formatUnits(balance, 6)} USDC, necesita ${ethers.formatUnits(stakeAmount, 6)} USDC`);
+        throw new Error(`Balance insuficiente: ${ethers.formatEther(balance)} BNB, necesita ${ethers.formatEther(stakeAmount)} BNB`);
       }
 
-      // Aprobar USDC (usar un valor mayor para evitar problemas)
-      const approveAmount = stakeAmount * 2n;
-      const approveTx = await usdc.approve(
-        DEPLOYED_CONTRACTS.PREDICTION_MARKET_CORE,
-        approveAmount
-      );
-      await approveTx.wait();
-
-      // Verificar approval
-      const allowance = await usdc.allowance(deployer.address, DEPLOYED_CONTRACTS.PREDICTION_MARKET_CORE);
-      if (allowance < stakeAmount) {
-        throw new Error(`Approval insuficiente: ${ethers.formatUnits(allowance, 6)} USDC`);
-      }
-
-      // Stake a través del core contract
+      // Stake BNB nativo a través del core contract (no requiere aprobación)
       try {
-        const tx = await predictionMarketCore.stakeReputation(stakeAmount);
+        const tx = await predictionMarketCore.stakeReputation({
+          value: stakeAmount // Enviar BNB nativo
+        });
         const receipt = await tx.wait();
         transactionHashes.push(receipt.hash);
 
         console.log("\n✅ Transacción 1 - Stake para reputación:");
         console.log("  Hash:", receipt.hash);
         console.log("  Explorer:", `https://testnet.opbnbscan.com/tx/${receipt.hash}`);
-        console.log("  Amount:", ethers.formatUnits(stakeAmount, 6), "USDC");
+        console.log("  Amount:", ethers.formatEther(stakeAmount), "BNB");
 
         expect(receipt.status).to.equal(1);
       } catch (error: any) {
         if (error.message.includes("transfer amount exceeds balance")) {
-          console.log("\n⚠️  Error: El Core Contract no puede transferir USDC");
-          console.log("  Esto requiere que el Core Contract tenga approval del usuario");
+          console.log("\n⚠️  Error: Balance insuficiente");
           this.skip();
         } else {
           throw error;
@@ -443,43 +402,31 @@ describe("Transaction Tests - Smart Contracts Integration", function () {
     });
 
     it("Transacción 3: Stake adicional para aumentar reputación", async function () {
-      const additionalStake = MIN_AMOUNT * 50n; // 50 USDC adicionales
+      const additionalStake = MIN_AMOUNT * 50n; // 0.05 BNB adicionales
 
-      // Verificar balance
-      const balance = await usdc.balanceOf(deployer.address);
+      // Verificar balance de BNB nativo
+      const balance = await ethers.provider.getBalance(deployer.address);
       if (balance < additionalStake) {
-        throw new Error(`Balance insuficiente: ${ethers.formatUnits(balance, 6)} USDC, necesita ${ethers.formatUnits(additionalStake, 6)} USDC`);
+        throw new Error(`Balance insuficiente: ${ethers.formatEther(balance)} BNB, necesita ${ethers.formatEther(additionalStake)} BNB`);
       }
 
-      // Aprobar USDC (usar un valor mayor para evitar problemas)
-      const approveAmount = additionalStake * 2n;
-      const approveTx = await usdc.approve(
-        DEPLOYED_CONTRACTS.PREDICTION_MARKET_CORE,
-        approveAmount
-      );
-      await approveTx.wait();
-
-      // Verificar approval
-      const allowance = await usdc.allowance(deployer.address, DEPLOYED_CONTRACTS.PREDICTION_MARKET_CORE);
-      if (allowance < additionalStake) {
-        throw new Error(`Approval insuficiente: ${ethers.formatUnits(allowance, 6)} USDC`);
-      }
-
-      // Stake adicional
+      // Stake adicional BNB nativo (no requiere aprobación)
       try {
-        const tx = await predictionMarketCore.stakeReputation(additionalStake);
+        const tx = await predictionMarketCore.stakeReputation({
+          value: additionalStake // Enviar BNB nativo
+        });
         const receipt = await tx.wait();
         transactionHashes.push(receipt.hash);
 
         console.log("\n✅ Transacción 3 - Stake adicional:");
         console.log("  Hash:", receipt.hash);
         console.log("  Explorer:", `https://testnet.opbnbscan.com/tx/${receipt.hash}`);
-        console.log("  Amount:", ethers.formatUnits(additionalStake, 6), "USDC");
+        console.log("  Amount:", ethers.formatEther(additionalStake), "BNB");
 
         expect(receipt.status).to.equal(1);
       } catch (error: any) {
         if (error.message.includes("transfer amount exceeds balance")) {
-          console.log("\n⚠️  Error: El Core Contract no puede transferir USDC");
+          console.log("\n⚠️  Error: Balance insuficiente");
           this.skip();
         } else {
           throw error;
@@ -614,7 +561,7 @@ describe("Transaction Tests - Smart Contracts Integration", function () {
       const chainId = 5611; // opBNB Testnet
       const yesPrice = ethers.parseUnits("0.5", 18); // 0.5 (50% probabilidad)
       const noPrice = ethers.parseUnits("0.5", 18); // 0.5
-      const liquidity = MIN_AMOUNT * 1000n; // 1000 USDC
+      const liquidity = MIN_AMOUNT * 1000n; // 1 BNB
       const marketAddress = DEPLOYED_CONTRACTS.BINARY_MARKET;
 
       try {
@@ -648,7 +595,7 @@ describe("Transaction Tests - Smart Contracts Integration", function () {
       const chainId = 5611;
       const yesPrice = ethers.parseUnits("0.7", 18); // 70% probabilidad
       const noPrice = ethers.parseUnits("0.3", 18); // 30% probabilidad
-      const liquidity = MIN_AMOUNT * 2000n;
+      const liquidity = MIN_AMOUNT * 2000n; // 2 BNB
       const marketAddress = DEPLOYED_CONTRACTS.BINARY_MARKET;
 
       try {
@@ -715,24 +662,11 @@ describe("Transaction Tests - Smart Contracts Integration", function () {
         testMarketId = parsed?.args[0];
       }
 
-      // Verificar balance
-      const balance = await usdc.balanceOf(deployer.address);
-      if (balance < MIN_AMOUNT) {
-        throw new Error(`Balance insuficiente: ${ethers.formatUnits(balance, 6)} USDC`);
-      }
-
-      // Aprobar USDC (usar un valor mayor)
-      const approveAmount = MIN_AMOUNT * 2n;
-      const approveTx = await usdc.approve(
-        DEPLOYED_CONTRACTS.OMNI_ROUTER,
-        approveAmount
-      );
-      await approveTx.wait();
-
-      // Verificar approval
-      const allowance = await usdc.allowance(deployer.address, DEPLOYED_CONTRACTS.OMNI_ROUTER);
-      if (allowance < MIN_AMOUNT) {
-        throw new Error(`Approval insuficiente: ${ethers.formatUnits(allowance, 6)} USDC`);
+      // Verificar balance de BNB nativo
+      const balance = await ethers.provider.getBalance(deployer.address);
+      const totalNeeded = MIN_AMOUNT + ethers.parseEther("0.001"); // Bet amount + gas fee
+      if (balance < totalNeeded) {
+        throw new Error(`Balance insuficiente: ${ethers.formatEther(balance)} BNB, necesita ${ethers.formatEther(totalNeeded)} BNB`);
       }
 
       try {
@@ -745,7 +679,7 @@ describe("Transaction Tests - Smart Contracts Integration", function () {
           true, // YES
           MIN_AMOUNT,
           targetChainId,
-          { value: gasFee }
+          { value: MIN_AMOUNT + gasFee } // Enviar BNB nativo (bet + gas)
         );
         const receipt = await tx.wait();
         transactionHashes.push(receipt.hash);
@@ -755,7 +689,7 @@ describe("Transaction Tests - Smart Contracts Integration", function () {
         console.log("  Explorer:", `https://testnet.opbnbscan.com/tx/${receipt.hash}`);
         console.log("  Market ID:", testMarketId.toString());
         console.log("  Target Chain:", targetChainId);
-        console.log("  Amount:", ethers.formatUnits(MIN_AMOUNT, 6), "USDC");
+        console.log("  Amount:", ethers.formatEther(MIN_AMOUNT), "BNB");
 
         expect(receipt.status).to.equal(1);
       } catch (error: any) {
@@ -822,17 +756,11 @@ describe("Transaction Tests - Smart Contracts Integration", function () {
         this.skip();
       }
 
-      // Primera apuesta
-      const approve1 = await usdc.approve(
-        DEPLOYED_CONTRACTS.PREDICTION_MARKET_CORE,
-        MIN_AMOUNT * 3n
-      );
-      await approve1.wait();
-
+      // Primera apuesta con BNB nativo
       const tx1 = await predictionMarketCore.placeBet(
         marketId,
         true,
-        MIN_AMOUNT
+        { value: MIN_AMOUNT } // Enviar BNB nativo como msg.value
       );
       const receipt1 = await tx1.wait();
       transactionHashes.push(receipt1.hash);
@@ -840,12 +768,13 @@ describe("Transaction Tests - Smart Contracts Integration", function () {
       console.log("\n✅ Transacción 2a - Primera apuesta:");
       console.log("  Hash:", receipt1.hash);
       console.log("  Explorer:", `https://testnet.opbnbscan.com/tx/${receipt1.hash}`);
+      console.log("  Amount:", ethers.formatEther(MIN_AMOUNT), "BNB");
 
-      // Segunda apuesta
+      // Segunda apuesta con BNB nativo
       const tx2 = await predictionMarketCore.placeBet(
         marketId,
         true,
-        MIN_AMOUNT
+        { value: MIN_AMOUNT } // Enviar BNB nativo como msg.value
       );
       const receipt2 = await tx2.wait();
       transactionHashes.push(receipt2.hash);
@@ -853,6 +782,7 @@ describe("Transaction Tests - Smart Contracts Integration", function () {
       console.log("\n✅ Transacción 2b - Segunda apuesta:");
       console.log("  Hash:", receipt2.hash);
       console.log("  Explorer:", `https://testnet.opbnbscan.com/tx/${receipt2.hash}`);
+      console.log("  Amount:", ethers.formatEther(MIN_AMOUNT), "BNB");
 
       expect(receipt1.status).to.equal(1);
       expect(receipt2.status).to.equal(1);

@@ -109,6 +109,12 @@ export function useCreateBinaryMarket() {
       await waitForReceipt({ client, chain: opBNBTestnet, transactionHash: txHash });
 
       const txUrl = getTransactionUrl(txHash);
+      
+      // Emitir evento personalizado para refrescar la lista de mercados
+      window.dispatchEvent(new CustomEvent('marketCreated', { 
+        detail: { type: 'binary', transactionHash: txHash } 
+      }));
+      
       toast.success(`Binary market created! View transaction: ${formatTxHash(txHash)}`, {
         duration: 10000,
         action: {
@@ -176,6 +182,12 @@ export function useCreateConditionalMarket() {
       await waitForReceipt({ client, chain: opBNBTestnet, transactionHash: txHash });
 
       const txUrl = getTransactionUrl(txHash);
+      
+      // Emitir evento personalizado para refrescar la lista de mercados
+      window.dispatchEvent(new CustomEvent('marketCreated', { 
+        detail: { type: 'conditional', transactionHash: txHash } 
+      }));
+      
       toast.success(`Conditional market created! View transaction: ${formatTxHash(txHash)}`, {
         duration: 10000,
         action: {
@@ -237,6 +249,12 @@ export function useCreateSubjectiveMarket() {
       await waitForReceipt({ client, chain: opBNBTestnet, transactionHash: txHash });
 
       const txUrl = getTransactionUrl(txHash);
+      
+      // Emitir evento personalizado para refrescar la lista de mercados
+      window.dispatchEvent(new CustomEvent('marketCreated', { 
+        detail: { type: 'subjective', transactionHash: txHash } 
+      }));
+      
       toast.success(`Subjective market created! View transaction: ${formatTxHash(txHash)}`, {
         duration: 10000,
         action: {

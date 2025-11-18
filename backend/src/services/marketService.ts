@@ -1,6 +1,13 @@
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+// Prisma Client - solo inicializar si está disponible
+let prisma: any = null;
+try {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { PrismaClient } = require("@prisma/client");
+  prisma = new PrismaClient();
+} catch (error) {
+  // Prisma no disponible en entorno de tests
+  console.warn("PrismaClient not available, using mock data");
+}
 
 export const marketService = {
   async getAllMarkets() {

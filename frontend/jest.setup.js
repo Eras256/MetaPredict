@@ -1,6 +1,13 @@
 // Learn more: https://github.com/testing-library/jest-dom
 import '@testing-library/jest-dom'
 
+// Polyfill para TextEncoder/TextDecoder (necesario para thirdweb)
+if (typeof global.TextEncoder === 'undefined') {
+  const { TextEncoder, TextDecoder } = require('util');
+  global.TextEncoder = TextEncoder;
+  global.TextDecoder = TextDecoder;
+}
+
 // Mock environment variables
 process.env.GEMINI_API_KEY = process.env.GEMINI_API_KEY || 'test-api-key'
 
