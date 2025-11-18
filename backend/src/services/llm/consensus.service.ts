@@ -1,6 +1,9 @@
-import { OpenAIService, LLMResponse } from './openai.service';
-import { AnthropicService } from './anthropic.service';
 import { GoogleService } from './google.service';
+import { GroqLlamaService } from './groq-llama.service';
+import { OpenRouterMistralService } from './openrouter-mistral.service';
+import { OpenRouterLlamaService } from './openrouter-llama.service';
+import { OpenRouterService } from './openrouter.service';
+import { LLMResponse } from './groq.service';
 
 export interface ConsensusResult {
   outcome: 1 | 2 | 3; // 1=Yes, 2=No, 3=Invalid
@@ -15,20 +18,34 @@ export interface ConsensusResult {
 }
 
 export class ConsensusService {
-  private openAI: OpenAIService;
-  private anthropic: AnthropicService;
-  private google: GoogleService;
+  private google?: GoogleService;
+  private groqLlama?: GroqLlamaService;
+  private openRouterMistral?: OpenRouterMistralService;
+  private openRouterLlama?: OpenRouterLlamaService;
+  private openRouter?: OpenRouterService; // Fallback genérico
 
   constructor(
-    openAIKey: string,
-    anthropicKey: string,
-    googleKey: string
+    googleKey: string,
+    groqKey?: string,
+    openRouterKey?: string
   ) {
-    this.openAI = new OpenAIService(openAIKey);
-    this.anthropic = new AnthropicService(anthropicKey);
     // Usa GEMINI_API_KEY si está disponible, sino usa GOOGLE_API_KEY como fallback
     const geminiKey = process.env.GEMINI_API_KEY || googleKey;
-    this.google = new GoogleService(geminiKey);
+    if (geminiKey && !geminiKey.includes('your_')) {
+      this.google = new GoogleService(geminiKey);
+    }
+    
+    // Inicializar servicio de Groq (Standard)
+    if (groqKey && !groqKey.includes('your_')) {
+      this.groqLlama = new GroqLlamaService(groqKey);
+    }
+
+    // Inicializar servicios específicos de OpenRouter con diferentes modelos
+    if (openRouterKey && !openRouterKey.includes('your_')) {
+      this.openRouterMistral = new OpenRouterMistralService(openRouterKey);
+      this.openRouterLlama = new OpenRouterLlamaService(openRouterKey);
+      this.openRouter = new OpenRouterService(openRouterKey); // Fallback genérico
+    }
   }
 
   async getConsensus(
@@ -36,14 +53,85 @@ export class ConsensusService {
     context?: string,
     requiredAgreement: number = 0.8
   ): Promise<ConsensusResult> {
-    // ✅ FIX #6: Consultar 3 LLMs en paralelo
-    const [openAIResult, anthropicResult, googleResult] = await Promise.all([
-      this.openAI.analyzeMarket(question, context),
-      this.anthropic.analyzeMarket(question, context),
-      this.google.analyzeMarket(question, context),
-    ]);
+    // Orden de prioridad: Gemini -> Groq Llama 3.1 -> OpenRouter Mistral -> OpenRouter Llama -> OpenRouter genérico
+    // Consultar LLMs en orden de prioridad con fallback si una falla
+    const responses: LLMResponse[] = [];
+    const errors: string[] = [];
 
-    const responses = [openAIResult, anthropicResult, googleResult];
+    // 1. PRIORIDAD 1: Google Gemini 2.5 Flash
+    if (this.google) {
+      try {
+        const response = await this.google.analyzeMarket(question, context);
+        responses.push(response);
+        console.log('[ConsensusService] ✅ Gemini respondió:', response.answer);
+      } catch (error: any) {
+        errors.push(`Gemini: ${error.message}`);
+        console.warn('[ConsensusService] ⚠️ Gemini falló:', error.message);
+      }
+    }
+
+    // 2. PRIORIDAD 2: Groq Llama 3.1 (Standard)
+    if (this.groqLlama) {
+      try {
+        const response = await this.groqLlama.analyzeMarket(question, context);
+        responses.push(response);
+        console.log('[ConsensusService] ✅ Groq Llama 3.1 respondió:', response.answer);
+      } catch (error: any) {
+        errors.push(`Groq Llama: ${error.message}`);
+        console.warn('[ConsensusService] ⚠️ Groq Llama falló:', error.message);
+      }
+    }
+
+    // 3. PRIORIDAD 3: OpenRouter Mistral 7B (gratuito)
+    if (this.openRouterMistral) {
+      try {
+        const response = await this.openRouterMistral.analyzeMarket(question, context);
+        // Solo agregar si no es INVALID por error de modelo
+        if (response.confidence > 0) {
+          responses.push(response);
+          console.log('[ConsensusService] ✅ OpenRouter Mistral respondió:', response.answer);
+        } else {
+          console.warn('[ConsensusService] ⚠️ OpenRouter Mistral no disponible');
+        }
+      } catch (error: any) {
+        errors.push(`OpenRouter Mistral: ${error.message}`);
+        console.warn('[ConsensusService] ⚠️ OpenRouter Mistral falló:', error.message);
+      }
+    }
+
+    // 4. PRIORIDAD 4: OpenRouter Llama 3.2 3B (gratuito) - Si está disponible
+    if (this.openRouterLlama) {
+      try {
+        const response = await this.openRouterLlama.analyzeMarket(question, context);
+        // Solo agregar si no es INVALID por error de modelo
+        if (response.confidence > 0) {
+          responses.push(response);
+          console.log('[ConsensusService] ✅ OpenRouter Llama respondió:', response.answer);
+        } else {
+          console.warn('[ConsensusService] ⚠️ OpenRouter Llama no disponible');
+        }
+      } catch (error: any) {
+        errors.push(`OpenRouter Llama: ${error.message}`);
+        console.warn('[ConsensusService] ⚠️ OpenRouter Llama falló:', error.message);
+      }
+    }
+
+    // 5. PRIORIDAD 5: OpenRouter genérico (fallback con múltiples modelos) - Solo si necesitamos más
+    if (this.openRouter && responses.length < 3) {
+      try {
+        const response = await this.openRouter.analyzeMarket(question, context);
+        responses.push(response);
+        console.log('[ConsensusService] ✅ OpenRouter (genérico) respondió:', response.answer);
+      } catch (error: any) {
+        errors.push(`OpenRouter genérico: ${error.message}`);
+        console.warn('[ConsensusService] ⚠️ OpenRouter genérico falló:', error.message);
+      }
+    }
+
+    // Si no hay respuestas válidas, retornar error
+    if (responses.length === 0) {
+      throw new Error(`Todas las IAs fallaron: ${errors.join('; ')}`);
+    }
 
     // Contar votos
     let yesVotes = 0;
