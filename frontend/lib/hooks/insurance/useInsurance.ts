@@ -12,6 +12,31 @@ import { client } from '@/lib/config/thirdweb';
 import { toast } from 'sonner';
 import { getTransactionUrl, formatTxHash } from '@/lib/utils/blockchain';
 
+// ABI extendido para InsurancePool que incluye withdraw y claimYield
+const InsurancePoolExtendedABI = [
+  ...InsurancePoolABI,
+  {
+    name: 'withdraw',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { name: 'assets', type: 'uint256', internalType: 'uint256' },
+      { name: 'receiver', type: 'address', internalType: 'address' },
+      { name: 'owner', type: 'address', internalType: 'address' },
+    ],
+    outputs: [
+      { name: 'userShares', type: 'uint256', internalType: 'uint256' },
+    ],
+  },
+  {
+    name: 'claimYield',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [],
+    outputs: [],
+  },
+] as const;
+
 // ✅ Configurar opBNB testnet
 const opBNBTestnet = defineChain({
   id: 5611,
@@ -33,7 +58,7 @@ export function useInsurance() {
       client,
       chain: opBNBTestnet,
       address: CONTRACT_ADDRESSES.INSURANCE_POOL,
-      abi: InsurancePoolABI as any,
+      abi: InsurancePoolExtendedABI as any,
     });
   }, []);
 
