@@ -3,7 +3,8 @@ import { readContract } from 'thirdweb';
 import { defineChain } from 'thirdweb/chains';
 import { getContract } from 'thirdweb';
 import { CONTRACT_ADDRESSES } from '@/lib/contracts/addresses';
-import PREDICTION_MARKET_ABI from '@/lib/contracts/abi/PredictionMarket.json';
+import PREDICTION_MARKET_CORE_ABI from '@/lib/contracts/abi/PredictionMarketCore.json';
+import BINARY_MARKET_ABI from '@/lib/contracts/abi/BinaryMarket.json';
 import { client } from '@/lib/config/thirdweb';
 
 // ✅ FIX #7: Configurar opBNB testnet para Thirdweb
@@ -47,63 +48,201 @@ export function useMarkets() {
       client,
       chain: opBNBTestnet,
       address: CONTRACT_ADDRESSES.PREDICTION_MARKET,
-      abi: PREDICTION_MARKET_ABI as any,
+      abi: PREDICTION_MARKET_CORE_ABI as any,
     });
   }, []);
 
+  const fetchCounter = async () => {
+    if (!contract) return;
+    try {
+      const counter = await readContract({
+        contract,
+        method: 'marketCounter',
+        params: [],
+      });
+      console.log('📊 Market counter:', Number(counter));
+      setMarketCounter(counter as bigint);
+      return counter as bigint;
+    } catch (error) {
+      console.error('❌ Error fetching market counter:', error);
+      setLoading(false);
+      return null;
+    }
+  };
+
+  const fetchMarkets = async (counter?: bigint) => {
+    if (!contract) return;
+    const count = counter !== undefined ? Number(counter) : (marketCounter !== null ? Number(marketCounter) : 0);
+    
+    if (count === 0) {
+      setMarkets([]);
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    const marketPromises = [];
+    
+    for (let i = 1; i <= count; i++) {
+      // ✅ FIX #7: Usar readContract directamente
+      marketPromises.push(
+        readContract({
+          contract,
+          method: 'getMarket',
+          params: [BigInt(i)],
+        }).then(async (result: any) => {
+          if (result && result.marketType !== undefined) {
+            // MarketInfo del Core contract
+            const marketInfo = {
+              id: i,
+              marketType: Number(result.marketType),
+              creator: result.creator,
+              createdAt: Number(result.createdAt),
+              resolutionTime: Number(result.resolutionTime),
+              status: Number(result.status),
+              metadata: result.metadata,
+            };
+            
+            console.log(`📋 Market ${i} info from Core:`, marketInfo);
+            
+            // Obtener el contrato del mercado específico y sus datos
+            try {
+              const marketContractAddress = await readContract({
+                contract,
+                method: 'getMarketContract',
+                params: [BigInt(i)],
+              });
+              
+              console.log(`🔗 Market ${i} contract address:`, marketContractAddress);
+              
+              // Obtener datos del contrato específico del mercado
+              const marketContract = getContract({
+                client,
+                chain: opBNBTestnet,
+                address: marketContractAddress as `0x${string}`,
+                abi: BINARY_MARKET_ABI as any,
+              });
+              
+              try {
+                const marketData = await readContract({
+                  contract: marketContract,
+                  method: 'getMarket',
+                  params: [BigInt(i)],
+                });
+                
+                console.log(`✅ Market ${i} data from contract:`, marketData);
+                
+                const fullMarket = {
+                  ...marketInfo,
+                  question: marketData.question || result.metadata || `Market ${i}`,
+                  description: marketData.description || '',
+                  totalYesShares: marketData.totalYesShares || BigInt(0),
+                  totalNoShares: marketData.totalNoShares || BigInt(0),
+                  yesPool: marketData.yesPool || BigInt(0),
+                  noPool: marketData.noPool || BigInt(0),
+                  insuranceReserve: BigInt(0),
+                  outcome: marketData.outcome || 0,
+                  pythPriceId: BigInt(0),
+                };
+                
+                console.log(`✅ Market ${i} completo:`, fullMarket);
+                return fullMarket;
+              } catch (error) {
+                console.warn(`⚠️ Error obteniendo datos del contrato para market ${i}:`, error);
+                // Si no se puede obtener datos del contrato, usar metadata
+                return {
+                  ...marketInfo,
+                  question: result.metadata || `Market ${i}`,
+                  description: '',
+                  totalYesShares: BigInt(0),
+                  totalNoShares: BigInt(0),
+                  yesPool: BigInt(0),
+                  noPool: BigInt(0),
+                  insuranceReserve: BigInt(0),
+                  outcome: 0,
+                  pythPriceId: BigInt(0),
+                };
+              }
+            } catch (error) {
+              console.warn(`⚠️ Error obteniendo contrato para market ${i}:`, error);
+              // Si no se puede obtener el contrato, retornar info básica
+              return {
+                ...marketInfo,
+                question: result.metadata || `Market ${i}`,
+                description: '',
+                totalYesShares: BigInt(0),
+                totalNoShares: BigInt(0),
+                yesPool: BigInt(0),
+                noPool: BigInt(0),
+                insuranceReserve: BigInt(0),
+                outcome: 0,
+                pythPriceId: BigInt(0),
+              };
+            }
+          }
+          console.warn(`⚠️ Market ${i} no tiene marketType`);
+          return null;
+        }).catch((error) => {
+          console.error(`❌ Error obteniendo market ${i}:`, error);
+          return null;
+        })
+      );
+    }
+    
+    try {
+      const results = await Promise.all(marketPromises);
+      console.log('📦 Todos los resultados:', results);
+      const validMarkets = results.filter((m: any) => m !== null && m.question) as Market[];
+      console.log('✅ Mercados válidos:', validMarkets.length, validMarkets);
+      setMarkets(validMarkets);
+    } catch (error) {
+      console.error('❌ Error fetching markets:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (contract) {
-      const fetchCounter = async () => {
-        try {
-          const counter = await readContract({
-            contract,
-            method: 'marketCounter',
-            params: [],
-          });
-          setMarketCounter(counter as bigint);
-        } catch (error) {
-          console.error('Error fetching market counter:', error);
-          setLoading(false);
-        }
-      };
-      
       fetchCounter();
     }
   }, [contract]);
 
   useEffect(() => {
     if (marketCounter !== null && contract) {
-      const fetchMarkets = async () => {
-        setLoading(true);
-        const marketPromises = [];
-        const count = Number(marketCounter);
-        
-        for (let i = 1; i <= count; i++) {
-          // ✅ FIX #7: Usar readContract directamente
-          marketPromises.push(
-            readContract({
-              contract,
-              method: 'getMarket',
-              params: [BigInt(i)],
-            }).then((result: any) => {
-              if (result) {
-                return result;
-              }
-              return null;
-            }).catch(() => null)
-          );
-        }
-        
-        const results = await Promise.all(marketPromises);
-        setMarkets(results.filter((m: any) => m !== null));
-        setLoading(false);
-      };
-      
       fetchMarkets();
     }
   }, [marketCounter, contract]);
 
-  return { markets, loading };
+  // Escuchar eventos de creación de mercados
+  useEffect(() => {
+    if (!contract) return;
+    
+    const handleMarketCreated = async () => {
+      // Esperar un poco para que la transacción se confirme en la blockchain
+      setTimeout(async () => {
+        const counter = await fetchCounter();
+        if (counter !== null) {
+          await fetchMarkets(counter);
+        }
+      }, 2000); // Esperar 2 segundos para que el bloque se confirme
+    };
+
+    window.addEventListener('marketCreated', handleMarketCreated);
+    return () => {
+      window.removeEventListener('marketCreated', handleMarketCreated);
+    };
+  }, [contract, marketCounter]);
+
+  // Función para refrescar manualmente
+  const refresh = async () => {
+    const counter = await fetchCounter();
+    if (counter !== null) {
+      await fetchMarkets(counter);
+    }
+  };
+
+  return { markets, loading, refresh };
 }
 
 export function useMarket(marketId: number) {
@@ -115,7 +254,7 @@ export function useMarket(marketId: number) {
       client,
       chain: opBNBTestnet,
       address: CONTRACT_ADDRESSES.PREDICTION_MARKET,
-      abi: PREDICTION_MARKET_ABI as any,
+      abi: PREDICTION_MARKET_CORE_ABI as any,
     });
   }, []);
 

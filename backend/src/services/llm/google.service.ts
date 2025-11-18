@@ -1,4 +1,4 @@
-import { analyzeMarketWithGemini } from '@/lib/ai/gemini-advanced';
+import { analyzeMarketWithGemini } from '../../lib/ai/gemini-advanced';
 
 export interface LLMResponse {
   answer: 'YES' | 'NO' | 'INVALID';

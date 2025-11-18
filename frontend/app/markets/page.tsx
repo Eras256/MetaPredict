@@ -14,7 +14,7 @@ import { callGemini } from '@/lib/services/ai/gemini';
 import { toast } from 'sonner';
 
 export default function MarketsPage() {
-  const { markets, loading: isLoading } = useMarkets();
+  const { markets, loading: isLoading, refresh } = useMarkets();
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState('all');
   const [sortBy, setSortBy] = useState('newest');

@@ -121,15 +121,15 @@ export class ConsensusService {
       try {
         const response = await this.openRouterGemini.analyzeMarket(question, context);
         // Solo agregar si no es INVALID por error de modelo
-        if (response.confidence > 0) {
+        if (response && response.confidence > 0) {
           responses.push(response);
           console.log('[ConsensusService] ✅ OpenRouter Gemini respondió:', response.answer);
         } else {
           console.warn('[ConsensusService] ⚠️ OpenRouter Gemini no disponible');
         }
       } catch (error: any) {
-        errors.push(`OpenRouter Gemini: ${error.message}`);
-        console.warn('[ConsensusService] ⚠️ OpenRouter Gemini falló:', error.message);
+        errors.push(`OpenRouter Gemini: ${error?.message || 'Unknown error'}`);
+        console.warn('[ConsensusService] ⚠️ OpenRouter Gemini falló:', error?.message || 'Unknown error');
       }
     }
 

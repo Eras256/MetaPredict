@@ -75,7 +75,14 @@ export function usePlaceBet() {
       return { transactionHash: betHash, receipt: betResult };
     } catch (error: any) {
       console.error('Error placing bet:', error);
-      toast.error(error?.message || 'Error placing bet');
+      
+      // Mensaje de error más descriptivo para "Only core"
+      let errorMessage = error?.message || 'Error placing bet';
+      if (errorMessage.includes('Only core') || errorMessage.includes('onlyCore')) {
+        errorMessage = 'Error de configuración: Los contratos no están correctamente vinculados. Verifica que el contrato core esté configurado en los contratos secundarios.';
+      }
+      
+      toast.error(errorMessage);
       throw error;
     } finally {
       setLoading(false);

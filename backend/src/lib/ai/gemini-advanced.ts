@@ -172,7 +172,8 @@ export async function callGeminiJSON<T = any>(
 
   // Estrategia 1: Intentar parsear directamente
   try {
-    parsed = JSON.parse(cleanedText);
+    const parsedJson = JSON.parse(cleanedText);
+    parsed = parsedJson as T;
     return { data: parsed, modelUsed };
   } catch (e) {
     lastError = e as Error;
@@ -182,7 +183,8 @@ export async function callGeminiJSON<T = any>(
   const jsonMatch = cleanedText.match(/\{[\s\S]*\}/);
   if (jsonMatch) {
     try {
-      parsed = JSON.parse(jsonMatch[0]);
+      const parsedJson = JSON.parse(jsonMatch[0]);
+      parsed = parsedJson as T;
       return { data: parsed, modelUsed };
     } catch (e) {
       lastError = e as Error;
@@ -201,7 +203,8 @@ export async function callGeminiJSON<T = any>(
       if (braceCount === 0 && startIdx !== -1) {
         try {
           const jsonStr = cleanedText.substring(startIdx, i + 1);
-          parsed = JSON.parse(jsonStr);
+          const parsedJson = JSON.parse(jsonStr);
+          parsed = parsedJson as T;
           return { data: parsed, modelUsed };
         } catch (e) {
           lastError = e as Error;
