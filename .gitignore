@@ -1,55 +1,234 @@
+# ============================================
 # Dependencies
+# ============================================
 node_modules/
 .pnp
 .pnp.js
+.pnp.*
+.yarn/
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
 
-# Testing
-coverage/
-.nyc_output
-
-# Production
-build/
-dist/
-.next/
-out/
-
-# Environment variables
+# ============================================
+# Environment Variables (CRITICAL - NEVER COMMIT!)
+# ============================================
 .env
+.env.*
+!.env.example
+env.example
+.env.example
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+.env*.local
 
+# ============================================
+# Build & Production
+# ============================================
+build/
+dist/
+.next/
+out/
+.vercel/
+.vercel/*
+*.tsbuildinfo
+
+# ============================================
 # Logs
+# ============================================
+logs/
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 .pnpm-debug.log*
+pnpm-debug.log*
 
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
+# ============================================
+# Testing & Coverage
+# ============================================
+coverage/
+.nyc_output/
+*.lcov
+.jest/
+test-results/
+playwright-report/
+playwright/.cache/
 
-# OS
-.DS_Store
-Thumbs.db
-
+# ============================================
+# Smart Contracts (Hardhat & Foundry)
+# ============================================
 # Hardhat
 cache/
 artifacts/
 typechain-types/
+typechain/
+.openzeppelin/
+# Foundry
+forge-cache/
+forge-out/
+out/
+broadcast/
+cache/
+lib/
 
+# ============================================
 # Database
+# ============================================
 *.db
 *.sqlite
+*.sqlite3
+*.db-shm
+*.db-wal
+prisma/migrations/
+*.db-journal
 
-# Misc
+# ============================================
+# PWA & Service Workers
+# ============================================
+public/sw.js
+public/workbox-*.js
+public/worker-*.js
+public/sw.js.map
+public/workbox-*.js.map
+.next/cache/
+
+# ============================================
+# TypeScript
+# ============================================
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+*.d.ts.map
+
+# ============================================
+# IDE & Editors
+# ============================================
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+*.sublime-project
+*.sublime-workspace
+
+# ============================================
+# OS Files
+# ============================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# ============================================
+# Security & Secrets
+# ============================================
 *.pem
 *.key
+*.cert
+*.crt
 .secrets/
+secrets/
+*.secret
+*.private
+.env.backup
+.env.save
 
+# ============================================
+# Deployment & CI/CD
+# ============================================
 .vercel
+.vercel/*
+.netlify
+.netlify/*
+.railway
+.railway/*
+.github/workflows/*.yml
+!.github/workflows/ci.yml
+deployments/
+deploy/
+
+# ============================================
+# Temporary Files
+# ============================================
+*.tmp
+*.temp
+*.bak
+*.backup
+*.old
+*.orig
+*.rej
+*.swp
+*.swo
+*~
+.cache/
+.temp/
+tmp/
+temp/
+
+# ============================================
+# Package Managers
+# ============================================
+# Note: pnpm-lock.yaml SHOULD be committed (kept for consistency)
+package-lock.json
+yarn.lock
+# pnpm-lock.yaml - KEEP THIS FILE (do not ignore)
+
+# ============================================
+# Docker
+# ============================================
+docker-compose.override.yml
+.dockerignore
+docker-compose.*.yml
+!docker-compose.yml
+
+# ============================================
+# IPFS & Storage
+# ============================================
+.ipfs/
+.ipfs-data/
+uploads/
+storage/
+
+# ============================================
+# Monitoring & Analytics
+# ============================================
+.sentryclirc
+.sentry/
+monitoring/
+
+# ============================================
+# Misc
+# ============================================
+*.pid
+*.seed
+*.pid.lock
+.eslintcache
+.stylelintcache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+.npm/
+.node_repl_history
+.yarn-integrity
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*

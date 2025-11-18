@@ -18,11 +18,11 @@ router.post('/resolve', async (req: Request, res: Response) => {
       });
     }
 
-    // ✅ FIX #6: Inicializar servicio de consenso
+    // ✅ Inicializar servicio de consenso: Gemini + Groq + OpenRouter
     const consensusService = new ConsensusService(
-      process.env.OPENAI_API_KEY || '',
-      process.env.ANTHROPIC_API_KEY || '',
-      process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || ''
+      process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || '',
+      process.env.GROQ_API_KEY, // Groq API key (opcional)
+      process.env.OPENROUTER_API_KEY // OpenRouter API key (opcional)
     );
 
     // Obtener consenso de múltiples LLMs

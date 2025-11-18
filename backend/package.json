@@ -9,7 +9,14 @@
     "start": "node dist/index.js",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "test:gemini": "node test-gemini.js",
+    "test:groq": "node test-groq.js",
+    "test:xai": "node test-xai.js",
+    "test:openai": "node test-openai.js",
+    "test:anthropic": "node test-anthropic.js",
+    "test:all-ai": "node test-all-ai.js",
+    "test:consensus": "node test-consensus-simple.js"
   },
   "dependencies": {
     "@chainlink/contracts": "^0.8.0",

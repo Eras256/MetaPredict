@@ -34,8 +34,13 @@ export default function CreateMarketPage() {
         toast.error(result.error || 'Error al generar sugerencias');
       }
     } catch (error: any) {
-      toast.error('Error al generar sugerencias');
-      console.error(error);
+      const errorMessage = error.message || 'Error al generar sugerencias';
+      if (errorMessage.includes('GEMINI_API_KEY')) {
+        toast.error('⚠️ API Key de Gemini no configurada. Verifica tu archivo .env.local');
+      } else {
+        toast.error(errorMessage);
+      }
+      console.error('[Create Market] Error:', error);
     } finally {
       setLoadingSuggestions(false);
     }
@@ -60,8 +65,13 @@ export default function CreateMarketPage() {
         toast.error(result.error || 'Error al validar pregunta');
       }
     } catch (error: any) {
-      toast.error('Error al validar pregunta');
-      console.error(error);
+      const errorMessage = error.message || 'Error al validar pregunta';
+      if (errorMessage.includes('GEMINI_API_KEY')) {
+        toast.error('⚠️ API Key de Gemini no configurada. Verifica tu archivo .env.local');
+      } else {
+        toast.error(errorMessage);
+      }
+      console.error('[Create Market] Error:', error);
     } finally {
       setValidating(false);
     }

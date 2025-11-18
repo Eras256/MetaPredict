@@ -1,6 +1,8 @@
 import axios from "axios";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
+// Use relative path for Next.js API Routes
+// In production, this will automatically use the same domain
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "/api";
 
 export const apiService = axios.create({
   baseURL: API_URL,

@@ -1,3 +1,6 @@
+// Load .env from root directory before Next.js processes it
+require('dotenv').config({ path: require('path').resolve(__dirname, '../.env') });
+
 const withPWA = require("next-pwa")({
   dest: "public",
   register: true,
@@ -54,10 +57,16 @@ const nextConfig = {
         assert: false,
         os: false,
         path: false,
-        // Módulos opcionales de React Native y pino
+        // Módulos opcionales de React Native y pino (warnings normales, ignorar)
         '@react-native-async-storage/async-storage': false,
         'pino-pretty': false,
       };
+      
+      // Ignorar warnings de módulos opcionales
+      config.ignoreWarnings = [
+        { module: /@react-native-async-storage\/async-storage/ },
+        { module: /pino-pretty/ },
+      ];
     }
     return config;
   },

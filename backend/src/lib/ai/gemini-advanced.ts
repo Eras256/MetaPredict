@@ -1,11 +1,16 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-if (!process.env.GEMINI_API_KEY) {
-  console.error('[AI] GEMINI_API_KEY is not set');
+// Verificar que la API key esté configurada
+// Backend puede usar GEMINI_API_KEY o GOOGLE_API_KEY (son lo mismo)
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+
+if (!GEMINI_API_KEY) {
+  console.error('[AI] ⚠️ GEMINI_API_KEY is not set in environment variables');
+  console.error('[AI] Please set GEMINI_API_KEY or GOOGLE_API_KEY in your .env file');
 }
 
-const genAI = process.env.GEMINI_API_KEY
-  ? new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
+const genAI = GEMINI_API_KEY
+  ? new GoogleGenerativeAI(GEMINI_API_KEY)
   : null;
 
 // Modelos en orden de preferencia con fallback
@@ -47,7 +52,7 @@ export async function callGemini(
   config: GeminiConfig = {}
 ): Promise<GeminiResponse<string>> {
   if (!genAI) {
-    throw new Error('Gemini API key not configured');
+    throw new Error('GEMINI_API_KEY no está configurada. Por favor, configura GEMINI_API_KEY o GOOGLE_API_KEY en tu archivo .env');
   }
 
   const generationConfig = { ...defaultConfig, ...config };
@@ -77,7 +82,61 @@ export async function callGemini(
     throw new Error(`All Gemini models failed: ${lastError?.message || 'Unknown error'}`);
   }
 
-  const responseText = result.response.text();
+  // Extraer texto de la respuesta de manera segura
+  // Según la documentación actualizada de Gemini API (2025), text() devuelve un string directamente
+  let responseText: string;
+  try {
+    // Verificar que result.response existe y tiene el método text
+    if (!result || !result.response) {
+      console.error('[AI] Invalid response structure:', result);
+      throw new Error('Invalid Gemini response structure');
+    }
+
+    // Obtener el texto de la respuesta
+    // En algunas versiones, text() puede devolver directamente un string o necesitar await
+    const textResult = result.response.text();
+    
+    // Manejar tanto string directo como Promise
+    if (typeof textResult === 'string') {
+      responseText = textResult;
+    } else if (textResult && typeof textResult.then === 'function') {
+      // Es una Promise
+      responseText = await textResult;
+    } else {
+      // Intentar acceder a candidatos directamente (nueva API de Gemini 2.5)
+      const candidates = result.response.candidates;
+      if (candidates && candidates.length > 0 && candidates[0].content) {
+        const parts = candidates[0].content.parts;
+        if (parts && parts.length > 0 && parts[0].text) {
+          responseText = parts[0].text;
+        } else {
+          throw new Error('Unable to extract text from Gemini response candidates');
+        }
+      } else {
+        console.error('[AI] Unexpected response structure:', {
+          textResult,
+          response: result.response,
+          candidates: result.response?.candidates
+        });
+        throw new Error(`Gemini returned unexpected response type: ${typeof textResult}`);
+      }
+    }
+    
+    // Verificar que sea un string válido
+    if (typeof responseText !== 'string') {
+      console.error('[AI] Unexpected response type:', typeof responseText, responseText);
+      throw new Error(`Gemini returned non-string response: ${typeof responseText}`);
+    }
+  } catch (error: any) {
+    console.error('[AI] Error extracting text from Gemini response:', error);
+    console.error('[AI] Response object structure:', {
+      hasResponse: !!result?.response,
+      hasCandidates: !!result?.response?.candidates,
+      responseType: typeof result?.response
+    });
+    throw new Error(`Failed to extract text from Gemini response: ${error.message}`);
+  }
+
   return { data: responseText, modelUsed };
 }
 
@@ -93,18 +152,73 @@ export async function callGeminiJSON<T = any>(
 ): Promise<GeminiResponse<T>> {
   const { data: responseText, modelUsed } = await callGemini(prompt, config);
 
-  // Extraer JSON de la respuesta (puede venir envuelto en markdown)
-  const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) {
-    throw new Error('No valid JSON found in Gemini response');
+  if (!responseText || typeof responseText !== 'string') {
+    throw new Error('Invalid response from Gemini: response is not a string');
   }
 
+  // Limpiar la respuesta: remover markdown code blocks si existen
+  let cleanedText = responseText.trim();
+  
+  // Remover markdown code blocks (```json ... ```)
+  cleanedText = cleanedText.replace(/```json\s*/g, '').replace(/```\s*/g, '');
+  
+  // Remover markdown code blocks genéricos (``` ... ```)
+  cleanedText = cleanedText.replace(/```[\s\S]*?```/g, '');
+  
+  // Buscar el primer objeto JSON válido
+  // Intentar múltiples estrategias de extracción
+  let parsed: T | null = null;
+  let lastError: Error | null = null;
+
+  // Estrategia 1: Intentar parsear directamente
   try {
-    const parsed = JSON.parse(jsonMatch[0]);
+    parsed = JSON.parse(cleanedText);
     return { data: parsed, modelUsed };
-  } catch (error: any) {
-    throw new Error(`Failed to parse JSON from Gemini response: ${error.message}`);
+  } catch (e) {
+    lastError = e as Error;
   }
+
+  // Estrategia 2: Buscar el primer objeto JSON con regex mejorado
+  const jsonMatch = cleanedText.match(/\{[\s\S]*\}/);
+  if (jsonMatch) {
+    try {
+      parsed = JSON.parse(jsonMatch[0]);
+      return { data: parsed, modelUsed };
+    } catch (e) {
+      lastError = e as Error;
+    }
+  }
+
+  // Estrategia 3: Buscar entre llaves balanceadas
+  let braceCount = 0;
+  let startIdx = -1;
+  for (let i = 0; i < cleanedText.length; i++) {
+    if (cleanedText[i] === '{') {
+      if (startIdx === -1) startIdx = i;
+      braceCount++;
+    } else if (cleanedText[i] === '}') {
+      braceCount--;
+      if (braceCount === 0 && startIdx !== -1) {
+        try {
+          const jsonStr = cleanedText.substring(startIdx, i + 1);
+          parsed = JSON.parse(jsonStr);
+          return { data: parsed, modelUsed };
+        } catch (e) {
+          lastError = e as Error;
+        }
+        startIdx = -1;
+      }
+    }
+  }
+
+  // Si todas las estrategias fallan, lanzar error con contexto
+  console.error('[Gemini] Raw response:', responseText);
+  console.error('[Gemini] Cleaned response:', cleanedText);
+  throw new Error(
+    `No valid JSON found in Gemini response. ` +
+    `Response preview: ${responseText.substring(0, 200)}... ` +
+    `Parse error: ${lastError?.message || 'Unknown error'}`
+  );
 }
 
 /**

@@ -1,7 +1,9 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import path from "path";
 import { logger } from "./utils/logger";
+import { oracleBot } from "./bots/oracleBot";
 
 // Routes
 import marketsRouter from "./routes/markets";
@@ -10,8 +12,11 @@ import reputationRouter from "./routes/reputation";
 import aggregationRouter from "./routes/aggregation";
 import usersRouter from "./routes/users";
 import aiRouter from "./routes/ai";
+import venusRouter from "./routes/venus";
+import gelatoRouter from "./routes/gelato";
 
-dotenv.config();
+// Load .env from root directory (2 levels up from src/)
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -39,6 +44,8 @@ app.use("/api/reputation", reputationRouter);
 app.use("/api/aggregation", aggregationRouter);
 app.use("/api/users", usersRouter);
 app.use("/api/ai", aiRouter);
+app.use("/api/venus", venusRouter);
+app.use("/api/gelato", gelatoRouter);
 
 // Error handling
 app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -47,9 +54,31 @@ app.use((err: Error, req: express.Request, res: express.Response, next: express.
 });
 
 // Start server
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   logger.info(`🚀 MetaPredict.ai Backend running on port ${PORT}`);
   logger.info(`📡 API available at http://localhost:${PORT}/api`);
+  
+  // Start Oracle Bot
+  try {
+    await oracleBot.start();
+    logger.info(`🤖 Oracle Bot started successfully`);
+  } catch (error: any) {
+    logger.error(`❌ Failed to start Oracle Bot: ${error.message}`);
+    // No lanzar error para que el servidor siga funcionando
+  }
+});
+
+// Graceful shutdown
+process.on("SIGTERM", () => {
+  logger.info("SIGTERM received, shutting down gracefully...");
+  oracleBot.stop();
+  process.exit(0);
+});
+
+process.on("SIGINT", () => {
+  logger.info("SIGINT received, shutting down gracefully...");
+  oracleBot.stop();
+  process.exit(0);
 });
 
 export default app;

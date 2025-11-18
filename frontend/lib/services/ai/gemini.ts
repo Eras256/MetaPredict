@@ -14,7 +14,7 @@ export interface ApiResponse<T> {
 }
 
 /**
- * Helper genérico para llamadas fetch con timeout
+ * Helper genérico para llamadas fetch con timeout y mejor manejo de errores
  */
 async function fetchWithTimeout(
   url: string,
@@ -28,13 +28,20 @@ async function fetchWithTimeout(
     const response = await fetch(url, {
       ...options,
       signal: controller.signal,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers,
+      },
     });
     clearTimeout(timeoutId);
     return response;
   } catch (error: any) {
     clearTimeout(timeoutId);
     if (error.name === 'AbortError') {
-      throw new Error('Request timeout');
+      throw new Error('Request timeout after 30 seconds');
+    }
+    if (error.message?.includes('fetch')) {
+      throw new Error('Network error: Unable to reach the server. Please check your connection.');
     }
     throw error;
   }
@@ -72,12 +79,48 @@ export async function analyzeMarket(
       body: JSON.stringify({ question, context }),
     });
 
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ 
+        error: `HTTP ${response.status}: ${response.statusText}`,
+        details: 'Unable to parse error response'
+      }));
+      
+      let errorMessage = errorData.error || `Error ${response.status}`;
+      
+      // Verificar si details es un string antes de usar includes
+      const detailsStr = typeof errorData.details === 'string' 
+        ? errorData.details 
+        : errorData.details?.originalError || errorData.details?.message || '';
+      
+      if (response.status === 500 && (detailsStr.includes('API key') || errorMessage.includes('API key'))) {
+        errorMessage = 'Gemini API key not configured. Please set GEMINI_API_KEY in your .env file.';
+      }
+      
+      throw new Error(errorMessage);
+    }
+
     const data = await response.json();
+    
+    if (!data || typeof data !== 'object') {
+      throw new Error('Invalid response format from server');
+    }
+    
     return data;
   } catch (error: any) {
+    console.error('[Gemini Client] Error en analyzeMarket:', error);
+    
+    let userMessage = error.message || 'Error al analizar mercado';
+    if (userMessage.includes('timeout')) {
+      userMessage = 'La solicitud tardó demasiado. Por favor, intenta de nuevo.';
+    } else if (userMessage.includes('Network error')) {
+      userMessage = 'Error de conexión. Verifica tu conexión a internet.';
+    } else if (userMessage.includes('API key')) {
+      userMessage = '⚠️ API Key de Gemini no configurada. Verifica tu archivo .env';
+    }
+    
     return {
       success: false,
-      error: error.message || 'Error al analizar mercado',
+      error: userMessage,
     };
   }
 }
@@ -89,20 +132,64 @@ export async function suggestMarketCreation(
   topic: string
 ): Promise<ApiResponse<{ suggestions: Array<{ question: string; description: string; category: string }> }>> {
   try {
+    // Generar sugerencias puede tardar más, usar timeout de 60 segundos
     const response = await fetchWithTimeout('/api/ai/suggest-market', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ topic }),
-    });
+    }, 60000); // 60 segundos para generación de sugerencias
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ 
+        error: `HTTP ${response.status}: ${response.statusText}`,
+        details: 'Unable to parse error response'
+      }));
+      
+      // Mensajes de error más descriptivos
+      let errorMessage = errorData.error || `Error ${response.status}`;
+      
+      // Verificar si details es un string antes de usar includes
+      const detailsStr = typeof errorData.details === 'string' 
+        ? errorData.details 
+        : errorData.details?.originalError || errorData.details?.message || '';
+      
+      if (response.status === 500 && (detailsStr.includes('API key') || errorMessage.includes('API key'))) {
+        errorMessage = 'Gemini API key not configured. Please set GEMINI_API_KEY in your .env file.';
+      } else if (response.status === 500 && (errorMessage.includes('JSON') || errorMessage.includes('parse'))) {
+        errorMessage = 'Error parsing AI response. Please try again.';
+      } else if (response.status === 500 && (errorMessage.includes('empty') || errorMessage.includes('Empty'))) {
+        errorMessage = 'The AI did not generate a response. Please try again with a different topic.';
+      }
+      
+      throw new Error(errorMessage);
+    }
 
     const data = await response.json();
+    
+    // Validar que la respuesta tenga el formato esperado
+    if (!data || typeof data !== 'object') {
+      throw new Error('Invalid response format from server');
+    }
+    
     return data;
   } catch (error: any) {
+    console.error('[Gemini Client] Error en suggestMarketCreation:', error);
+    
+    // Mensajes de error más amigables para el usuario
+    let userMessage = error.message || 'Error al generar sugerencias';
+    if (userMessage.includes('timeout')) {
+      userMessage = 'La solicitud tardó demasiado. Por favor, intenta de nuevo.';
+    } else if (userMessage.includes('Network error')) {
+      userMessage = 'Error de conexión. Verifica tu conexión a internet.';
+    } else if (userMessage.includes('API key')) {
+      userMessage = '⚠️ API Key de Gemini no configurada. Verifica tu archivo .env';
+    }
+    
     return {
       success: false,
-      error: error.message || 'Error al generar sugerencias',
+      error: userMessage,
     };
   }
 }
@@ -120,20 +207,59 @@ export async function analyzePortfolioRebalance(
   confidence: number;
 }>> {
   try {
+    // Análisis de portfolio puede tardar más, usar timeout de 60 segundos
     const response = await fetchWithTimeout('/api/ai/portfolio-analysis', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ positions, constraints }),
-    });
+    }, 60000); // 60 segundos para análisis complejos
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ 
+        error: `HTTP ${response.status}: ${response.statusText}`,
+        details: 'Unable to parse error response'
+      }));
+      
+      let errorMessage = errorData.error || `Error ${response.status}`;
+      
+      // Verificar si details es un string antes de usar includes
+      const detailsStr = typeof errorData.details === 'string' 
+        ? errorData.details 
+        : errorData.details?.originalError || errorData.details?.message || '';
+      
+      if (response.status === 500 && (detailsStr.includes('API key') || errorMessage.includes('API key'))) {
+        errorMessage = 'Gemini API key not configured. Please set GEMINI_API_KEY in your .env file.';
+      } else if (response.status === 500 && (errorMessage.includes('JSON') || errorMessage.includes('parse'))) {
+        errorMessage = 'Error parsing AI response. Please try again.';
+      }
+      
+      throw new Error(errorMessage);
+    }
 
     const data = await response.json();
+    
+    if (!data || typeof data !== 'object') {
+      throw new Error('Invalid response format from server');
+    }
+    
     return data;
   } catch (error: any) {
+    console.error('[Gemini Client] Error en analyzePortfolioRebalance:', error);
+    
+    let userMessage = error.message || 'Error al analizar portfolio';
+    if (userMessage.includes('timeout')) {
+      userMessage = 'La solicitud tardó demasiado. Por favor, intenta de nuevo.';
+    } else if (userMessage.includes('Network error')) {
+      userMessage = 'Error de conexión. Verifica tu conexión a internet.';
+    } else if (userMessage.includes('API key')) {
+      userMessage = '⚠️ API Key de Gemini no configurada. Verifica tu archivo .env';
+    }
+    
     return {
       success: false,
-      error: error.message || 'Error al analizar portfolio',
+      error: userMessage,
     };
   }
 }

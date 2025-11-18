@@ -25,7 +25,7 @@ Respond with ONLY one word: YES, NO, or INVALID`;
       const response = await axios.post(
         this.baseUrl,
         {
-          model: 'gpt-4',
+          model: 'gpt-3.5-turbo', // Usando tier gratuito para hackathon
           messages: [
             {
               role: 'system',
@@ -55,7 +55,7 @@ Respond with ONLY one word: YES, NO, or INVALID`;
 
       return {
         answer: result,
-        confidence: 85, // GPT-4 confidence
+        confidence: 80, // GPT-3.5 Turbo confidence
         reasoning: answer,
       };
     } catch (error) {

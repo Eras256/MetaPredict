@@ -14,22 +14,71 @@ const router = Router();
 
 /**
  * Test endpoint para validar conectividad con Gemini
+ * GET /api/ai/test - Prueba básica de conectividad
+ * POST /api/ai/test - Prueba con prompt personalizado
  */
 router.get('/test', async (req: Request, res: Response) => {
   try {
-    const { data, modelUsed } = await callGemini(
-      'Responde con un JSON: {"status": "ok", "message": "Gemini está funcionando correctamente"}'
-    );
+    const testPrompt = 'Responde con un JSON: {"status": "ok", "message": "Gemini está funcionando correctamente", "timestamp": "' + new Date().toISOString() + '"}';
+    const { data, modelUsed } = await callGemini(testPrompt);
+
+    // Intentar parsear JSON de la respuesta
+    let parsedData;
+    try {
+      const jsonMatch = data.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        parsedData = JSON.parse(jsonMatch[0]);
+      } else {
+        parsedData = { rawResponse: data };
+      }
+    } catch (e) {
+      parsedData = { rawResponse: data };
+    }
 
     return res.json({
       success: true,
-      data: { response: data, modelUsed },
+      data: {
+        response: parsedData,
+        rawResponse: data,
+        modelUsed,
+      },
       message: 'Gemini AI está conectado correctamente',
+      timestamp: new Date().toISOString(),
     });
   } catch (error: any) {
+    console.error('[AI] Test endpoint error:', error);
     return res.status(500).json({
       success: false,
       error: error.message || 'Error al conectar con Gemini',
+      details: process.env.GEMINI_API_KEY ? 'API key configurada' : 'API key NO configurada',
+    });
+  }
+});
+
+router.post('/test', async (req: Request, res: Response) => {
+  try {
+    const { prompt, returnJSON } = req.body;
+    const testPrompt = prompt || 'Responde con un JSON: {"status": "ok", "message": "Test exitoso"}';
+
+    let result;
+    if (returnJSON) {
+      result = await callGeminiJSON(testPrompt);
+    } else {
+      result = await callGemini(testPrompt);
+    }
+
+    return res.json({
+      success: true,
+      data: result.data,
+      modelUsed: result.modelUsed,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error('[AI] Test POST endpoint error:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Error al conectar con Gemini',
+      details: process.env.GEMINI_API_KEY ? 'API key configurada' : 'API key NO configurada',
     });
   }
 });
