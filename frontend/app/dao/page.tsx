@@ -1,5 +1,8 @@
 'use client';
 
+// Force dynamic rendering to avoid SSG issues with contract addresses
+export const dynamic = 'force-dynamic';
+
 import { useState } from 'react';
 import { GlassCard } from '@/components/effects/GlassCard';
 import { Badge } from '@/components/ui/badge';

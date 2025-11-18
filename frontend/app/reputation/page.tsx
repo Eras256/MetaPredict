@@ -35,13 +35,14 @@ export default function ReputationPage() {
   const [stakeAmount, setStakeAmount] = useState('');
   const { stakedAmount, reputationScore, tier, correctVotes, totalVotes, isLoading } = useReputation();
   const { leaderboard, isLoading: leaderboardLoading } = useLeaderboard();
-  const { stake, isPending: isStaking } = useStakeReputation();
+  const { stake, loading: isStaking } = useStakeReputation();
   const [analyzing, setAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<any>(null);
 
   const handleStake = async () => {
     if (!stakeAmount || parseFloat(stakeAmount) <= 0) return;
-    await stake(stakeAmount);
+    const amountBigInt = BigInt(Math.floor(parseFloat(stakeAmount) * 1e18));
+    await stake(amountBigInt);
     setStakeAmount('');
   };
 

@@ -92,12 +92,23 @@ const DAOGovernanceABI = [
 export function useProposal(proposalId: number) {
   const contract = useMemo(() => {
     if (!CONTRACT_ADDRESSES.DAO_GOVERNANCE) return null;
-    return getContract({
-      client,
-      chain: opBNBTestnet,
-      address: CONTRACT_ADDRESSES.DAO_GOVERNANCE,
-      abi: DAOGovernanceABI as any,
-    });
+    try {
+      // Validar que la dirección tenga el formato correcto
+      const addr = CONTRACT_ADDRESSES.DAO_GOVERNANCE;
+      if (!addr || addr.length !== 42 || !/^0x[a-fA-F0-9]{40}$/.test(addr)) {
+        console.warn('Invalid DAO_GOVERNANCE address:', addr);
+        return null;
+      }
+      return getContract({
+        client,
+        chain: opBNBTestnet,
+        address: addr,
+        abi: DAOGovernanceABI as any,
+      });
+    } catch (error) {
+      console.error('Error creating DAO contract:', error);
+      return null;
+    }
   }, []);
 
   const { data, isLoading } = useReadContract({
