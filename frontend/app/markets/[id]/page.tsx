@@ -240,22 +240,23 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                       <div className="flex items-center justify-between mb-2">
                         <div>
                           <div className="text-sm text-gray-400 mb-1">Oracle Method</div>
-                          <div className="text-white font-semibold mb-2">Multi-AI Consensus (4 Models from 3 Providers)</div>
+                          <div className="text-white font-semibold mb-2">Multi-AI Consensus (5 Models from 3 Providers)</div>
                         </div>
                         <Brain className="w-6 h-6 text-purple-400" />
                       </div>
                       <div className="text-sm text-gray-300 space-y-2">
                         <p>
-                          This market will be resolved using our multi-AI consensus system, querying 4 AI models from 3 providers in priority order:
+                          This market will be resolved using our multi-AI consensus system, querying 5 AI models from 3 providers in priority order:
                         </p>
                         <ul className="list-disc list-inside ml-2 space-y-1">
                           <li>Google Gemini 2.5 Flash (Priority 1)</li>
                           <li>Groq Llama 3.1 Standard (Priority 2)</li>
                           <li>OpenRouter Mistral 7B (Priority 3)</li>
                           <li>OpenRouter Llama 3.2 3B (Priority 4)</li>
+                          <li>OpenRouter Gemini (Priority 5)</li>
                         </ul>
                         <p className="mt-2">
-                          Automatic fallback to additional models if needed. 80%+ consensus required for resolution. If consensus fails, the insurance pool activates automatically.
+                          Sequential query with automatic fallback if a model fails. 80%+ consensus required for resolution. If consensus fails, the insurance pool activates automatically.
                         </p>
                       </div>
                     </div>

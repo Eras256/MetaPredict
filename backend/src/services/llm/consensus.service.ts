@@ -2,7 +2,7 @@ import { GoogleService } from './google.service';
 import { GroqLlamaService } from './groq-llama.service';
 import { OpenRouterMistralService } from './openrouter-mistral.service';
 import { OpenRouterLlamaService } from './openrouter-llama.service';
-import { OpenRouterService } from './openrouter.service';
+import { OpenRouterGeminiService } from './openrouter-gemini.service';
 import { LLMResponse } from './groq.service';
 
 export interface ConsensusResult {
@@ -22,7 +22,7 @@ export class ConsensusService {
   private groqLlama?: GroqLlamaService;
   private openRouterMistral?: OpenRouterMistralService;
   private openRouterLlama?: OpenRouterLlamaService;
-  private openRouter?: OpenRouterService; // Fallback genérico
+  private openRouterGemini?: OpenRouterGeminiService;
 
   constructor(
     googleKey: string,
@@ -44,7 +44,7 @@ export class ConsensusService {
     if (openRouterKey && !openRouterKey.includes('your_')) {
       this.openRouterMistral = new OpenRouterMistralService(openRouterKey);
       this.openRouterLlama = new OpenRouterLlamaService(openRouterKey);
-      this.openRouter = new OpenRouterService(openRouterKey); // Fallback genérico
+      this.openRouterGemini = new OpenRouterGeminiService(openRouterKey);
     }
   }
 
@@ -116,15 +116,20 @@ export class ConsensusService {
       }
     }
 
-    // 5. PRIORIDAD 5: OpenRouter genérico (fallback con múltiples modelos) - Solo si necesitamos más
-    if (this.openRouter && responses.length < 3) {
+    // 5. PRIORIDAD 5: OpenRouter Gemini (gratuito) - Modelos Gemini de OpenRouter
+    if (this.openRouterGemini) {
       try {
-        const response = await this.openRouter.analyzeMarket(question, context);
-        responses.push(response);
-        console.log('[ConsensusService] ✅ OpenRouter (genérico) respondió:', response.answer);
+        const response = await this.openRouterGemini.analyzeMarket(question, context);
+        // Solo agregar si no es INVALID por error de modelo
+        if (response.confidence > 0) {
+          responses.push(response);
+          console.log('[ConsensusService] ✅ OpenRouter Gemini respondió:', response.answer);
+        } else {
+          console.warn('[ConsensusService] ⚠️ OpenRouter Gemini no disponible');
+        }
       } catch (error: any) {
-        errors.push(`OpenRouter genérico: ${error.message}`);
-        console.warn('[ConsensusService] ⚠️ OpenRouter genérico falló:', error.message);
+        errors.push(`OpenRouter Gemini: ${error.message}`);
+        console.warn('[ConsensusService] ⚠️ OpenRouter Gemini falló:', error.message);
       }
     }
 
