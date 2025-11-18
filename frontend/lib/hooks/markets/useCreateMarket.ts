@@ -109,12 +109,6 @@ export function useCreateBinaryMarket() {
       await waitForReceipt({ client, chain: opBNBTestnet, transactionHash: txHash });
 
       const txUrl = getTransactionUrl(txHash);
-      
-      // Emitir evento personalizado para refrescar la lista de mercados
-      window.dispatchEvent(new CustomEvent('marketCreated', { 
-        detail: { type: 'binary', transactionHash: txHash } 
-      }));
-      
       toast.success(`Binary market created! View transaction: ${formatTxHash(txHash)}`, {
         duration: 10000,
         action: {
@@ -126,7 +120,14 @@ export function useCreateBinaryMarket() {
       return { transactionHash: txHash, receipt: result };
     } catch (error: any) {
       console.error('Error creating binary market:', error);
-      toast.error(error?.message || 'Error creating binary market');
+      
+      // Mensaje de error más descriptivo para "Only core"
+      let errorMessage = error?.message || 'Error creating binary market';
+      if (errorMessage.includes('Only core') || errorMessage.includes('onlyCore')) {
+        errorMessage = 'Error de configuración: El contrato BinaryMarket no tiene configurado correctamente el coreContract. El contrato necesita ser redesplegado con la dirección correcta del Core Contract.';
+      }
+      
+      toast.error(errorMessage);
       throw error;
     } finally {
       setLoading(false);
@@ -182,12 +183,6 @@ export function useCreateConditionalMarket() {
       await waitForReceipt({ client, chain: opBNBTestnet, transactionHash: txHash });
 
       const txUrl = getTransactionUrl(txHash);
-      
-      // Emitir evento personalizado para refrescar la lista de mercados
-      window.dispatchEvent(new CustomEvent('marketCreated', { 
-        detail: { type: 'conditional', transactionHash: txHash } 
-      }));
-      
       toast.success(`Conditional market created! View transaction: ${formatTxHash(txHash)}`, {
         duration: 10000,
         action: {
@@ -199,7 +194,14 @@ export function useCreateConditionalMarket() {
       return { transactionHash: txHash, receipt: result };
     } catch (error: any) {
       console.error('Error creating conditional market:', error);
-      toast.error(error?.message || 'Error creating conditional market');
+      
+      // Mensaje de error más descriptivo para "Only core"
+      let errorMessage = error?.message || 'Error creating conditional market';
+      if (errorMessage.includes('Only core') || errorMessage.includes('onlyCore')) {
+        errorMessage = 'Error de configuración: El contrato ConditionalMarket no tiene configurado correctamente el coreContract. El contrato necesita ser redesplegado con la dirección correcta del Core Contract.';
+      }
+      
+      toast.error(errorMessage);
       throw error;
     } finally {
       setLoading(false);
@@ -249,12 +251,6 @@ export function useCreateSubjectiveMarket() {
       await waitForReceipt({ client, chain: opBNBTestnet, transactionHash: txHash });
 
       const txUrl = getTransactionUrl(txHash);
-      
-      // Emitir evento personalizado para refrescar la lista de mercados
-      window.dispatchEvent(new CustomEvent('marketCreated', { 
-        detail: { type: 'subjective', transactionHash: txHash } 
-      }));
-      
       toast.success(`Subjective market created! View transaction: ${formatTxHash(txHash)}`, {
         duration: 10000,
         action: {
@@ -266,7 +262,14 @@ export function useCreateSubjectiveMarket() {
       return { transactionHash: txHash, receipt: result };
     } catch (error: any) {
       console.error('Error creating subjective market:', error);
-      toast.error(error?.message || 'Error creating subjective market');
+      
+      // Mensaje de error más descriptivo para "Only core"
+      let errorMessage = error?.message || 'Error creating subjective market';
+      if (errorMessage.includes('Only core') || errorMessage.includes('onlyCore')) {
+        errorMessage = 'Error de configuración: El contrato SubjectiveMarket no tiene configurado correctamente el coreContract. El contrato necesita ser redesplegado con la dirección correcta del Core Contract.';
+      }
+      
+      toast.error(errorMessage);
       throw error;
     } finally {
       setLoading(false);
