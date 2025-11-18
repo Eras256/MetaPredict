@@ -221,6 +221,70 @@ async function testOpenRouterLlama(question, context) {
   }
 }
 
+async function testOpenRouterGemini(question, context) {
+  console.log('\n5️⃣  Probando OpenRouter Gemini...');
+  try {
+    const apiKey = process.env.OPENROUTER_API_KEY;
+    if (!apiKey || apiKey.includes('your_') || apiKey.trim() === '') {
+      return { passed: false, skipped: true };
+    }
+
+    // Intentar con modelos Gemini gratuitos de OpenRouter
+    const models = [
+      'google/gemini-2.0-flash-exp:free',
+      'google/gemini-flash-1.5:free',
+    ];
+
+    for (const model of models) {
+      try {
+        const response = await axios.post(
+          'https://openrouter.ai/api/v1/chat/completions',
+          {
+            model: model,
+            messages: [
+              {
+                role: 'system',
+                content: 'You are a prediction market oracle. Analyze questions and provide clear YES/NO/INVALID answers.',
+              },
+              {
+                role: 'user',
+                content: `Analyze this prediction market question and answer ONLY 'YES', 'NO', or 'INVALID':\n${question}\n${context ? `Context: ${context}` : ''}\n\nRespond with ONLY one word: YES, NO, or INVALID`,
+              },
+            ],
+            temperature: 0.1,
+            max_tokens: 10,
+          },
+          {
+            headers: {
+              'Authorization': `Bearer ${apiKey}`,
+              'Content-Type': 'application/json',
+              'HTTP-Referer': 'https://metapredict.vercel.app',
+              'X-Title': 'MetaPredict',
+            },
+            timeout: 30000,
+          }
+        );
+
+        const answer = response.data.choices[0].message.content.trim().toUpperCase();
+        let result = 'INVALID';
+        if (answer.includes('YES')) result = 'YES';
+        else if (answer.includes('NO')) result = 'NO';
+
+        console.log(`   ✅ OpenRouter Gemini (${model}) respondió: ${result}`);
+        return { passed: true, answer: result };
+      } catch (error) {
+        continue; // Intentar siguiente modelo
+      }
+    }
+
+    throw new Error('Todos los modelos Gemini de OpenRouter fallaron');
+  } catch (error) {
+    const errorMsg = error.response?.data?.error?.message || error.message;
+    console.log(`   ⚠️  OpenRouter Gemini no disponible: ${errorMsg}`);
+    return { passed: false, skipped: true, error: errorMsg };
+  }
+}
+
 async function testOpenRouterGeneric(question, context) {
   console.log('\n5️⃣  Probando OpenRouter (genérico - fallback)...');
   try {
@@ -338,14 +402,15 @@ async function testConsensus(question, context) {
     }
   }
 
-  // 5. OpenRouter genérico (Prioridad 5 - Fallback, solo si necesitamos más)
-  if (responses.length < 3) {
-    const openRouterGenericResult = await testOpenRouterGeneric(question, context);
-    if (openRouterGenericResult.passed && !openRouterGenericResult.skipped) {
-      responses.push(openRouterGenericResult.answer);
-      console.log('   ✅ OpenRouter (genérico) agregado al consenso');
-    } else if (!openRouterGenericResult.skipped) {
-      errors.push(`OpenRouter genérico: ${openRouterGenericResult.error}`);
+  // 5. OpenRouter Gemini (Prioridad 5)
+  const openRouterGeminiResult = await testOpenRouterGemini(question, context);
+  if (openRouterGeminiResult.passed && !openRouterGeminiResult.skipped) {
+    responses.push(openRouterGeminiResult.answer);
+    console.log('   ✅ OpenRouter Gemini agregado al consenso');
+  } else if (!openRouterGeminiResult.skipped && !openRouterGeminiResult.skipped) {
+    // No agregar error si fue skipped (modelo no disponible)
+    if (!openRouterGeminiResult.skipped) {
+      errors.push(`OpenRouter Gemini: ${openRouterGeminiResult.error}`);
     }
   }
 
@@ -387,7 +452,7 @@ async function testConsensus(question, context) {
   console.log('      INVALID:', invalidVotes);
   console.log('\n   📋 Respuestas individuales:');
   // Los nombres se determinan dinámicamente según qué respuestas se agregaron
-  const aiNames = ['Gemini', 'Groq Llama 3.1', 'OpenRouter Mistral', 'OpenRouter Llama', 'OpenRouter (genérico)'];
+  const aiNames = ['Gemini', 'Groq Llama 3.1', 'OpenRouter Mistral', 'OpenRouter Llama', 'OpenRouter Gemini'];
   responses.forEach((answer, index) => {
     console.log(`      ${aiNames[index] || `IA ${index + 1}`}: ${answer}`);
   });
@@ -419,14 +484,14 @@ async function main() {
   const groqLlamaResult = await testGroqLlama(testQuestion.question, testQuestion.context);
   const openRouterMistralResult = await testOpenRouterMistral(testQuestion.question, testQuestion.context);
   const openRouterLlamaResult = await testOpenRouterLlama(testQuestion.question, testQuestion.context);
-  const openRouterGenericResult = await testOpenRouterGeneric(testQuestion.question, testQuestion.context);
+  const openRouterGeminiResult = await testOpenRouterGemini(testQuestion.question, testQuestion.context);
 
   const individualResults = {
     gemini: geminiResult,
     groqLlama: groqLlamaResult,
     openRouterMistral: openRouterMistralResult,
     openRouterLlama: openRouterLlamaResult,
-    openRouterGeneric: openRouterGenericResult,
+    openRouterGemini: openRouterGeminiResult,
   };
 
   // Test 2: Consenso con pregunta simple

@@ -10,7 +10,7 @@ const features = [
   {
     icon: Brain,
     title: 'Multi-AI Oracle Consensus',
-    description: 'Powered by 4 AI models from 3 providers in priority order: Gemini 2.5 Flash → Groq Llama 3.1 → OpenRouter Mistral 7B → OpenRouter Llama 3.2 3B. Multiple perspectives ensure 95%+ accuracy and reliability',
+    description: 'Powered by 5 AI models from 3 providers in priority order: Gemini 2.5 Flash → Groq Llama 3.1 → OpenRouter Mistral 7B → OpenRouter Llama 3.2 3B → OpenRouter Gemini. Multiple perspectives ensure 95%+ accuracy and reliability',
     gradient: 'from-purple-500 to-pink-500'
   },
   {
@@ -68,8 +68,8 @@ const howItWorks = [
   {
     step: '03',
     title: 'Multi-AI Oracle Consensus Resolves',
-    description: 'At resolution time, our system queries 4 AI models from 3 providers in priority order: Gemini 2.5 Flash → Groq Llama 3.1 → OpenRouter Mistral 7B → OpenRouter Llama 3.2 3B. Multiple perspectives from different AI providers ensure reliability. 80%+ consensus required. If disputed, insurance activates automatically.',
-    items: ['4 AI models from 3 providers', 'Multiple perspectives approach', 'Google Gemini 2.5 Flash (Priority 1)', 'Groq Llama 3.1 Standard (Priority 2)', 'OpenRouter Mistral 7B (Priority 3)', 'OpenRouter Llama 3.2 3B (Priority 4)', 'Automatic fallback to additional models', '<1 hour resolution', '100% refund if oracle fails', 'Transparent on-chain']
+    description: 'At resolution time, our system queries 5 AI models from 3 providers in priority order: Gemini 2.5 Flash → Groq Llama 3.1 → OpenRouter Mistral 7B → OpenRouter Llama 3.2 3B → OpenRouter Gemini. Multiple perspectives from different AI providers ensure reliability. 80%+ consensus required. If disputed, insurance activates automatically.',
+    items: ['5 AI models from 3 providers', 'Multiple perspectives approach', 'Google Gemini 2.5 Flash (Priority 1)', 'Groq Llama 3.1 Standard (Priority 2)', 'OpenRouter Mistral 7B (Priority 3)', 'OpenRouter Llama 3.2 3B (Priority 4)', 'OpenRouter Gemini (Priority 5)', '<1 hour resolution', '100% refund if oracle fails', 'Transparent on-chain']
   }
 ];
 
@@ -116,7 +116,7 @@ export default function HomePage() {
             </h1>
             
             <p className="text-xl sm:text-2xl text-gray-300 mb-4 max-w-3xl mx-auto">
-              The first prediction market platform with multi-AI consensus oracle (4 models from 3 providers), insurance protection, and cross-chain aggregation
+              The first prediction market platform with multi-AI consensus oracle (5 models from 3 providers), insurance protection, and cross-chain aggregation
             </p>
             
             <p className="text-lg text-gray-400 mb-8 max-w-2xl mx-auto">
@@ -183,7 +183,7 @@ export default function HomePage() {
               Why MetaPredict.ai?
             </h2>
             <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-              Solving the $7M+ oracle manipulation problem with multi-AI consensus (4 models from 3 providers), sequential fallback, and insurance protection
+              Solving the $7M+ oracle manipulation problem with multi-AI consensus (5 models from 3 providers), sequential fallback, and insurance protection
             </p>
           </div>
           
@@ -327,7 +327,7 @@ export default function HomePage() {
               </h2>
               
               <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-                Join the most advanced prediction market platform. Protected by multi-AI consensus (4 models from 3 providers), secured by insurance.
+                Join the most advanced prediction market platform. Protected by multi-AI consensus (5 models from 3 providers), secured by insurance.
               </p>
               
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
