@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Brain, Shield, Zap, TrendingUp, Lock, Users, ArrowRight, CheckCircle, BarChart3, Globe, Award } from 'lucide-react';
+import { Brain, Shield, Zap, TrendingUp, Lock, Users, ArrowRight, CheckCircle, BarChart3, Globe, Award, Link2, Code, ExternalLink, FileCode, Activity } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { GlassCard } from '@/components/effects/GlassCard';
 
@@ -10,66 +10,112 @@ const features = [
   {
     icon: Brain,
     title: 'Multi-AI Oracle Consensus',
-    description: 'Powered by 5 AI models from 3 providers in priority order: Gemini 2.5 Flash → Groq Llama 3.1 → OpenRouter Mistral 7B → OpenRouter Llama 3.2 3B → OpenRouter Gemini. Multiple perspectives ensure 95%+ accuracy and reliability',
-    gradient: 'from-purple-500 to-pink-500'
+    description: '5 AI models from 3 providers (Gemini 2.5 Flash, Groq Llama 3.1, OpenRouter Mistral/Llama/Gemini) working in sequential priority. 80%+ consensus required. Automatic fallback ensures 95%+ accuracy.',
+    gradient: 'from-purple-500 to-pink-500',
+    link: 'https://testnet.opbnbscan.com/address/0xB937f6a00bE40500B3Da15795Dc72783b05c1D18#code'
   },
   {
     icon: Shield,
-    title: 'Insurance Protected',
-    description: 'First prediction market with financial guarantee against oracle manipulation. 100% refund if oracle fails',
-    gradient: 'from-blue-500 to-cyan-500'
+    title: 'Insurance Protected (ERC-4626)',
+    description: 'First prediction market with financial guarantee. 100% refund if oracle fails. Yield-generating vault via Venus Protocol. All deposits and yields transparent on-chain.',
+    gradient: 'from-blue-500 to-cyan-500',
+    link: 'https://testnet.opbnbscan.com/address/0x4fec42A17F54870d104bEf233688dc9904Bbd58d#code'
   },
   {
     icon: Zap,
-    title: 'Lightning Fast',
-    description: 'Resolution in <1 hour on opBNB, gas costs <$0.001 per transaction. Gasless UX with Thirdweb',
-    gradient: 'from-yellow-500 to-orange-500'
+    title: 'Lightning Fast on opBNB',
+    description: 'Resolution in <1 hour. Gas costs <$0.001 per transaction. Built on opBNB Testnet (Chain ID: 5611). Gasless UX with Thirdweb Embedded Wallets.',
+    gradient: 'from-yellow-500 to-orange-500',
+    link: 'https://testnet.opbnbscan.com/'
   },
   {
-    icon: Globe,
-    title: 'Cross-Chain Aggregation',
-    description: 'Compare prices across multiple chains and get best execution via Chainlink CCIP',
-    gradient: 'from-green-500 to-emerald-500'
+    icon: Activity,
+    title: 'Chainlink Data Streams',
+    description: 'Sub-second price feeds (up to 100ms) for 8 trading pairs (BTC, ETH, USDT, BNB, SOL, XRP, USDC, DOGE). Real-time updates for price-based predictions.',
+    gradient: 'from-green-500 to-emerald-500',
+    link: 'https://testnet.opbnbscan.com/address/0xe1a2ac2d4269400904A7240B2B3Cef20DBE7939F#code'
   },
   {
     icon: Award,
     title: 'Reputation System',
-    description: 'Stake to earn, vote in disputes, climb tiers, earn NFT badges. Economic incentives for honesty',
-    gradient: 'from-red-500 to-rose-500'
+    description: 'Stake to earn, vote in disputes, climb tiers, earn NFT badges. Economic incentives for honesty. On-chain reputation as tradeable assets.',
+    gradient: 'from-red-500 to-rose-500',
+    link: 'https://testnet.opbnbscan.com/address/0xa62ba5700E24554D342133e326D7b5496F999108#code'
   },
   {
     icon: Users,
     title: 'DAO Governance',
-    description: 'Quadratic voting with expertise weighting. Community-driven resolution for subjective markets',
-    gradient: 'from-indigo-500 to-purple-500'
+    description: 'Quadratic voting with expertise weighting. Community-driven resolution for subjective markets. Transparent on-chain governance.',
+    gradient: 'from-indigo-500 to-purple-500',
+    link: 'https://testnet.opbnbscan.com/address/0x6B6a0Ad18f8E13299673d960f7dCeAaBfd64d82c#code'
   }
 ];
 
 const stats = [
-  { label: 'Total Volume', value: '$0', prefix: '', suffix: '', description: 'Across all markets' },
-  { label: 'Active Markets', value: '0', prefix: '', suffix: '', description: 'Live predictions' },
-  { label: 'Oracle Accuracy', value: '95', prefix: '', suffix: '%', description: 'AI consensus rate' },
-  { label: 'Avg Resolution', value: '<1', prefix: '', suffix: 'h', description: 'Lightning fast' },
+  { label: 'Verified Contracts', value: '10', prefix: '', suffix: '/10', description: 'All contracts verified on opBNBScan' },
+  { label: 'AI Models', value: '5', prefix: '', suffix: '', description: 'From 3 providers' },
+  { label: 'Oracle Accuracy', value: '95', prefix: '', suffix: '%+', description: 'Multi-AI consensus rate' },
+  { label: 'Price Feeds', value: '8', prefix: '', suffix: '', description: 'Chainlink Data Streams' },
+];
+
+const contracts = [
+  {
+    name: 'Prediction Market Core',
+    address: '0x8BD96cfd4E9B9ad672698D6C18cece8248Fd34F8',
+    explorer: 'https://testnet.opbnbscan.com/address/0x8BD96cfd4E9B9ad672698D6C18cece8248Fd34F8#code',
+    status: 'Verified'
+  },
+  {
+    name: 'AI Oracle',
+    address: '0xB937f6a00bE40500B3Da15795Dc72783b05c1D18',
+    explorer: 'https://testnet.opbnbscan.com/address/0xB937f6a00bE40500B3Da15795Dc72783b05c1D18#code',
+    status: 'Verified'
+  },
+  {
+    name: 'Insurance Pool',
+    address: '0x4fec42A17F54870d104bEf233688dc9904Bbd58d',
+    explorer: 'https://testnet.opbnbscan.com/address/0x4fec42A17F54870d104bEf233688dc9904Bbd58d#code',
+    status: 'Verified'
+  },
+  {
+    name: 'Chainlink Data Streams',
+    address: '0xe1a2ac2d4269400904A7240B2B3Cef20DBE7939F',
+    explorer: 'https://testnet.opbnbscan.com/address/0xe1a2ac2d4269400904A7240B2B3Cef20DBE7939F#code',
+    status: 'Verified'
+  }
+];
+
+const technologies = [
+  { name: 'opBNB', description: 'Ultra-low gas Layer 2', icon: '⚡' },
+  { name: 'Chainlink', description: 'Data Streams & CCIP', icon: '🔗' },
+  { name: 'Google Gemini', description: 'AI Model Priority 1', icon: '🧠' },
+  { name: 'Groq', description: 'AI Model Priority 2', icon: '⚡' },
+  { name: 'OpenRouter', description: 'AI Models Priority 3-5', icon: '🌐' },
+  { name: 'Gelato', description: 'Automation & Relay', icon: '🤖' },
+  { name: 'Venus Protocol', description: 'Yield Farming', icon: '💰' },
+  { name: 'Thirdweb', description: 'Gasless Wallets', icon: '🔐' },
+  { name: 'Next.js', description: 'Full-stack Framework', icon: '⚛️' },
+  { name: 'Hardhat', description: 'Smart Contract Dev', icon: '🛠️' },
 ];
 
 const howItWorks = [
   {
     step: '01',
     title: 'Create or Browse Markets',
-    description: 'Anyone can create a prediction market on any future event. Browse active markets and find opportunities.',
-    items: ['Permissionless creation', 'Binary, conditional, or subjective', 'IPFS metadata storage', 'Customizable resolution time']
+    description: 'Anyone can create a prediction market on any future event. Browse active markets and find opportunities. Three market types: Binary, Conditional, and Subjective.',
+    items: ['Permissionless creation', 'Binary, conditional, or subjective markets', 'IPFS metadata storage', 'Customizable resolution time']
   },
   {
     step: '02',
     title: 'Place Your Bets',
-    description: 'Buy YES or NO shares with USDC. Our AMM ensures always-available liquidity at fair prices.',
+    description: 'Buy YES or NO shares with USDC. Our AMM ensures always-available liquidity at fair prices. Ultra-low gas costs on opBNB.',
     items: ['Ultra-low gas (<$0.001)', '0.5% trading fee', '0.1% insurance premium', 'Instant execution']
   },
   {
     step: '03',
     title: 'Multi-AI Oracle Consensus Resolves',
-    description: 'At resolution time, our system queries 5 AI models from 3 providers in priority order: Gemini 2.5 Flash → Groq Llama 3.1 → OpenRouter Mistral 7B → OpenRouter Llama 3.2 3B → OpenRouter Gemini. Multiple perspectives from different AI providers ensure reliability. 80%+ consensus required. If disputed, insurance activates automatically.',
-    items: ['5 AI models from 3 providers', 'Multiple perspectives approach', 'Google Gemini 2.5 Flash (Priority 1)', 'Groq Llama 3.1 Standard (Priority 2)', 'OpenRouter Mistral 7B (Priority 3)', 'OpenRouter Llama 3.2 3B (Priority 4)', 'OpenRouter Gemini (Priority 5)', '<1 hour resolution', '100% refund if oracle fails', 'Transparent on-chain']
+    description: 'At resolution time, our Oracle Bot detects the event and queries 5 AI models sequentially: Gemini 2.5 Flash → Groq Llama 3.1 → OpenRouter Mistral 7B → OpenRouter Llama 3.2 3B → OpenRouter Gemini. 80%+ consensus required. Gelato Relay executes resolution on-chain.',
+    items: ['5 AI models from 3 providers', 'Sequential priority system', '80%+ consensus required', '<1 hour resolution', '100% refund if oracle fails', 'Transparent on-chain']
   }
 ];
 
@@ -77,16 +123,19 @@ const marketTypes = [
   {
     title: 'Binary Markets',
     description: 'Simple YES/NO predictions on any future event',
+    contract: '0x4755014b4b34359c27B8A289046524E0987833F9',
     examples: ['Will Bitcoin reach $100K by EOY?', 'Will there be snow in NYC on Christmas?', 'Will SpaceX launch Starship in Q1?']
   },
   {
     title: 'Conditional Markets',
     description: 'If-then predictions that depend on parent market outcomes',
+    contract: '0x7597bdb2A69FA1D42b4fE8d3F08BF23688DA908a',
     examples: ['IF Bitcoin hits $100K, THEN will Ethereum reach $5K?', 'IF Fed cuts rates, THEN will S&P 500 rally 10%?', 'IF Trump wins, THEN will crypto regulation ease?']
   },
   {
     title: 'Subjective Markets',
     description: 'Opinion-based predictions resolved by expert DAO voting',
+    contract: '0x3973A4471D1CB66274E33dD7f9802b19D7bF6CDc',
     examples: ['Was Oppenheimer better than Barbie?', 'Is GPT-5 a significant improvement over GPT-4?', 'Will 2025 be the year of AI agents?']
   }
 ];
@@ -106,21 +155,21 @@ export default function HomePage() {
           >
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-500/10 border border-purple-500/20 mb-6 backdrop-blur-sm">
               <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-              <span className="text-sm text-purple-300">Live on opBNB Testnet</span>
+              <span className="text-sm text-purple-300">Live on opBNB Testnet (Chain ID: 5611)</span>
             </div>
             
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
-              <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-clip-text text-transparent">Prediction Markets</span>
+              <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-clip-text text-transparent">MetaPredict.ai</span>
               <br />
-              <span className="text-white">Powered by AI</span>
+              <span className="text-white">AI-Powered Prediction Markets</span>
             </h1>
             
             <p className="text-xl sm:text-2xl text-gray-300 mb-4 max-w-3xl mx-auto">
-              The first prediction market platform with multi-AI consensus oracle (5 models from 3 providers), insurance protection, and cross-chain aggregation
+              The first prediction market platform with <strong>5-AI consensus oracle</strong> (Gemini, Groq, OpenRouter), <strong>insurance protection</strong>, and <strong>Chainlink Data Streams</strong>
             </p>
             
             <p className="text-lg text-gray-400 mb-8 max-w-2xl mx-auto">
-              Bet on anything. Trust multi-AI consensus. Get protected. Built on opBNB for ultra-low fees.
+              Bet on anything. Trust multi-AI consensus. Get protected. Built on opBNB for ultra-low fees. <strong>10/10 contracts verified</strong> on opBNBScan.
             </p>
             
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
@@ -136,6 +185,13 @@ export default function HomePage() {
                   Create Market
                 </Button>
               </Link>
+
+              <a href="https://testnet.opbnbscan.com/address/0x8BD96cfd4E9B9ad672698D6C18cece8248Fd34F8#code" target="_blank" rel="noopener noreferrer">
+                <Button size="lg" variant="outline" className="border-blue-500/50 text-blue-300 hover:bg-blue-500/10 gap-2">
+                  <ExternalLink className="w-4 h-4" />
+                  View Contracts
+                </Button>
+              </a>
             </div>
           </motion.div>
           
@@ -183,7 +239,7 @@ export default function HomePage() {
               Why MetaPredict.ai?
             </h2>
             <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-              Solving the $7M+ oracle manipulation problem with multi-AI consensus (5 models from 3 providers), sequential fallback, and insurance protection
+              Solving the oracle manipulation problem with multi-AI consensus (5 models from 3 providers), sequential fallback, and insurance protection
             </p>
           </div>
           
@@ -196,7 +252,7 @@ export default function HomePage() {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 viewport={{ once: true }}
               >
-                <GlassCard hover className="p-6 h-full">
+                <GlassCard hover className="p-6 h-full group">
                   <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center mb-4`}>
                     <feature.icon className="w-7 h-7 text-white" />
                   </div>
@@ -205,9 +261,51 @@ export default function HomePage() {
                     {feature.title}
                   </h3>
                   
-                  <p className="text-gray-400">
+                  <p className="text-gray-400 mb-4">
                     {feature.description}
                   </p>
+
+                  <a 
+                    href={feature.link} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-sm text-purple-400 hover:text-purple-300 transition-colors"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                    View Contract
+                  </a>
+                </GlassCard>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Technologies Section */}
+      <section className="py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-purple-900/10 to-transparent">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-white mb-4">
+              Built With Best-in-Class Tech
+            </h2>
+            <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+              Powered by industry-leading protocols and AI providers
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            {technologies.map((tech, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.3, delay: index * 0.05 }}
+                viewport={{ once: true }}
+              >
+                <GlassCard className="p-6 text-center">
+                  <div className="text-4xl mb-3">{tech.icon}</div>
+                  <div className="font-semibold text-white mb-1">{tech.name}</div>
+                  <div className="text-xs text-gray-400">{tech.description}</div>
                 </GlassCard>
               </motion.div>
             ))}
@@ -216,7 +314,7 @@ export default function HomePage() {
       </section>
       
       {/* How It Works */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-purple-900/10 to-transparent">
+      <section className="py-24 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-white mb-4">
@@ -271,7 +369,7 @@ export default function HomePage() {
       </section>
       
       {/* Market Types */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8">
+      <section className="py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-purple-900/10 to-transparent">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-white mb-4">
@@ -296,9 +394,20 @@ export default function HomePage() {
                     {type.title}
                   </h3>
                   
-                  <p className="text-gray-400 mb-6">
+                  <p className="text-gray-400 mb-4">
                     {type.description}
                   </p>
+
+                  <a 
+                    href={`https://testnet.opbnbscan.com/address/${type.contract}#code`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-xs text-purple-400 hover:text-purple-300 mb-4 transition-colors"
+                  >
+                    <Code className="w-3 h-3" />
+                    {type.contract.slice(0, 6)}...{type.contract.slice(-4)}
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
                   
                   <div className="space-y-3">
                     <div className="text-sm font-semibold text-purple-300 mb-2">Examples:</div>
@@ -311,6 +420,71 @@ export default function HomePage() {
                 </GlassCard>
               </motion.div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Contracts Section */}
+      <section className="py-24 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-white mb-4">
+              Verified Smart Contracts
+            </h2>
+            <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+              All contracts verified and auditable on opBNBScan
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-2 gap-4">
+            {contracts.map((contract, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: index * 0.1 }}
+                viewport={{ once: true }}
+              >
+                <GlassCard hover className="p-6">
+                  <div className="flex items-start justify-between mb-4">
+                    <div>
+                      <h3 className="text-lg font-semibold text-white mb-2">
+                        {contract.name}
+                      </h3>
+                      <div className="flex items-center gap-2 text-sm text-gray-400 font-mono">
+                        <FileCode className="w-4 h-4" />
+                        {contract.address.slice(0, 6)}...{contract.address.slice(-4)}
+                      </div>
+                    </div>
+                    <div className="px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20">
+                      <span className="text-xs text-green-400 font-semibold">{contract.status}</span>
+                    </div>
+                  </div>
+                  <a 
+                    href={contract.explorer}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-sm text-purple-400 hover:text-purple-300 transition-colors"
+                  >
+                    View on opBNBScan
+                    <ExternalLink className="w-4 h-4" />
+                  </a>
+                </GlassCard>
+              </motion.div>
+            ))}
+          </div>
+
+          <div className="mt-8 text-center">
+            <a 
+              href="https://testnet.opbnbscan.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Button variant="outline" className="border-purple-500/50 text-purple-300 hover:bg-purple-500/10 gap-2">
+                View All Contracts on opBNBScan
+                <ExternalLink className="w-4 h-4" />
+              </Button>
+            </a>
           </div>
         </div>
       </section>
@@ -327,7 +501,7 @@ export default function HomePage() {
               </h2>
               
               <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-                Join the most advanced prediction market platform. Protected by multi-AI consensus (5 models from 3 providers), secured by insurance.
+                Join the most advanced prediction market platform. Protected by 5-AI consensus, secured by insurance, powered by Chainlink Data Streams.
               </p>
               
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -337,11 +511,12 @@ export default function HomePage() {
                   </Button>
                 </Link>
                 
-                <Link href="https://docs.metapredict.ai" target="_blank">
-                  <Button size="lg" variant="outline" className="border-purple-500/50 text-purple-300 hover:bg-purple-500/10">
-                    Read Docs
+                <a href="https://github.com/vaiosx01/MetaPredict" target="_blank" rel="noopener noreferrer">
+                  <Button size="lg" variant="outline" className="border-purple-500/50 text-purple-300 hover:bg-purple-500/10 gap-2">
+                    <ExternalLink className="w-4 h-4" />
+                    View on GitHub
                   </Button>
-                </Link>
+                </a>
               </div>
             </div>
           </GlassCard>

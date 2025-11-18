@@ -13,6 +13,7 @@ import {
   Wallet,
   Shield,
   Users,
+  ExternalLink,
 } from 'lucide-react';
 import { ConnectButton, useActiveAccount } from 'thirdweb/react';
 import { client, chain } from '@/lib/config/thirdweb';
@@ -57,7 +58,12 @@ export function Navbar() {
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center group-hover:scale-110 transition-transform">
                   <Brain className="w-6 h-6 text-white" />
                 </div>
-                <span className="text-xl font-bold text-gradient">MetaPredict.ai</span>
+                <div className="flex flex-col">
+                  <span className="text-xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                    MetaPredict.ai
+                  </span>
+                  <span className="text-[10px] text-gray-400 -mt-1">opBNB Testnet</span>
+                </div>
               </Link>
               
               <div className="hidden md:flex items-center space-x-1">
@@ -89,6 +95,20 @@ export function Navbar() {
                     <span className="text-sm text-gray-300">Connected</span>
                   </div>
                 )}
+                <a 
+                  href="https://testnet.opbnbscan.com/address/0x8BD96cfd4E9B9ad672698D6C18cece8248Fd34F8#code" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="hidden lg:flex"
+                >
+                  <Button
+                    variant="ghost"
+                    className="text-gray-300 hover:bg-purple-500/10 hover:text-purple-300 gap-2"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                    Contracts
+                  </Button>
+                </a>
                 <ConnectButton
                   client={client}
                   chain={chain}
@@ -140,6 +160,20 @@ export function Navbar() {
                   </Link>
                 );
               })}
+              <a 
+                href="https://testnet.opbnbscan.com/address/0x8BD96cfd4E9B9ad672698D6C18cece8248Fd34F8#code" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start gap-3 text-gray-300 hover:bg-purple-500/10"
+                >
+                  <ExternalLink className="w-5 h-5" />
+                  View Contracts
+                </Button>
+              </a>
               <div className="pt-2 border-t border-white/10">
                 <ConnectButton
                   client={client}
