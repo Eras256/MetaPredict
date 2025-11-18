@@ -30,8 +30,9 @@ import { toast } from 'sonner';
 import { useBNBBalance } from '@/lib/hooks/useBNBBalance';
 import { usePlaceBet, useClaimWinnings } from '@/lib/hooks/betting/usePlaceBet';
 import { useInsurance } from '@/lib/hooks/insurance/useInsurance';
+import { ClaimPanel } from '@/components/insurance/ClaimPanel';
 import { useReputation, useStakeReputation, useUnstakeReputation } from '@/lib/hooks/reputation/useReputation';
-import { useVoteOnProposal, useExecuteProposal, useProposal } from '@/lib/hooks/dao/useDAO';
+import { useVoteOnProposal, useExecuteProposal, useProposal, useAllProposals } from '@/lib/hooks/dao/useDAO';
 import { useOracle } from '@/lib/hooks/useOracle';
 import { usePriceComparison, useMarketPrices, useSupportedChains } from '@/lib/hooks/aggregator/useAggregator';
 import {
@@ -394,6 +395,7 @@ function InsuranceOperations() {
   const { deposit, withdraw, claimYield, loading } = useInsurance();
   const [depositAmount, setDepositAmount] = useState('');
   const [withdrawAmount, setWithdrawAmount] = useState('');
+  const [showClaims, setShowClaims] = useState(false);
 
   const handleDeposit = async () => {
     if (!account) {
@@ -444,17 +446,47 @@ function InsuranceOperations() {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <GlassCard className="p-6">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Shield className="w-5 h-5 text-blue-400" />
-            Deposit
-          </CardTitle>
-          <CardDescription>
-            Deposit BNB into the insurance pool
-          </CardDescription>
-        </CardHeader>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h3 className="text-xl font-semibold text-white">Insurance Pool Operations</h3>
+        <Button
+          variant="outline"
+          onClick={() => setShowClaims(!showClaims)}
+          className="gap-2"
+        >
+          <Shield className="w-4 h-4" />
+          {showClaims ? 'Hide Claims' : 'Show Claims'}
+        </Button>
+      </div>
+
+      {showClaims && (
+        <GlassCard className="p-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Shield className="w-5 h-5 text-yellow-400" />
+              Insurance Claims
+            </CardTitle>
+            <CardDescription>
+              Claim insurance for markets in Disputed state
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ClaimPanel />
+          </CardContent>
+        </GlassCard>
+      )}
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <GlassCard className="p-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Shield className="w-5 h-5 text-blue-400" />
+              Deposit
+            </CardTitle>
+            <CardDescription>
+              Deposit BNB into the insurance pool
+            </CardDescription>
+          </CardHeader>
         <CardContent>
           <div className="space-y-4">
             <div>
@@ -586,6 +618,7 @@ function InsuranceOperations() {
           </div>
         </CardContent>
       </GlassCard>
+      </div>
     </div>
   );
 }
@@ -796,11 +829,15 @@ function DAOOperations() {
   const account = useActiveAccount();
   const { vote, isPending: isVoting } = useVoteOnProposal();
   const { execute, isPending: isExecuting } = useExecuteProposal();
+  const { proposals: allProposals, isLoading: proposalsLoading, refetch: refetchProposals } = useAllProposals();
   const [proposalId, setProposalId] = useState('');
   const [voteSupport, setVoteSupport] = useState<0 | 1 | 2>(1);
   const [executeProposalId, setExecuteProposalId] = useState('');
   const [checkProposalId, setCheckProposalId] = useState('');
   const { proposal, isLoading: proposalLoading } = useProposal(parseInt(checkProposalId) || 0);
+  
+  // Filtrar propuestas activas
+  const activeProposals = allProposals.filter((p) => p.status === 1);
 
   const handleVote = async () => {
     if (!account) {
@@ -813,6 +850,10 @@ function DAOOperations() {
     }
     try {
       await vote(parseInt(proposalId), voteSupport, '');
+      // Refrescar propuestas después de votar
+      setTimeout(() => {
+        refetchProposals();
+      }, 3000);
     } catch (error) {
       // Error already handled
     }
@@ -835,29 +876,83 @@ function DAOOperations() {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <GlassCard className="p-6">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Brain className="w-5 h-5 text-purple-400" />
-            Vote on Proposal
-          </CardTitle>
-          <CardDescription>
-            Cast your vote on a DAO proposal
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div>
-              <label className="text-sm text-gray-400 mb-2 block">Proposal ID</label>
-              <Input
-                type="number"
-                placeholder="1"
-                value={proposalId}
-                onChange={(e) => setProposalId(e.target.value)}
-                disabled={isVoting || !account}
-              />
+    <div className="space-y-6">
+      {/* Active Proposals List */}
+      {activeProposals.length > 0 && (
+        <GlassCard className="p-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Brain className="w-5 h-5 text-purple-400" />
+              Active Proposals ({activeProposals.length})
+            </CardTitle>
+            <CardDescription>
+              Real proposals from the DAO Governance contract
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {proposalsLoading ? (
+                <div className="flex justify-center py-4">
+                  <Loader2 className="w-6 h-6 animate-spin text-purple-400" />
+                </div>
+              ) : (
+                activeProposals.map((p) => (
+                  <div
+                    key={p.id}
+                    className="p-4 bg-purple-500/10 rounded-lg border border-purple-500/20 cursor-pointer hover:bg-purple-500/20 transition-colors"
+                    onClick={() => {
+                      setProposalId(p.id.toString());
+                      setCheckProposalId(p.id.toString());
+                    }}
+                  >
+                    <div className="flex items-start justify-between mb-2">
+                      <h4 className="font-semibold text-white text-sm">{p.title}</h4>
+                      <Badge variant="outline" className="text-green-400 border-green-500/30">
+                        Active
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-gray-400 mb-2 line-clamp-2">{p.description}</p>
+                    <div className="flex items-center gap-4 text-xs">
+                      <span className="text-green-400">For: {p.forVotes}</span>
+                      <span className="text-red-400">Against: {p.againstVotes}</span>
+                      <span className="text-gray-400">Abstain: {p.abstainVotes}</span>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
+          </CardContent>
+        </GlassCard>
+      )}
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <GlassCard className="p-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Brain className="w-5 h-5 text-purple-400" />
+              Vote on Proposal
+            </CardTitle>
+            <CardDescription>
+              Cast your vote on a DAO proposal
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm text-gray-400 mb-2 block">Proposal ID</label>
+                <Input
+                  type="number"
+                  placeholder="1"
+                  value={proposalId}
+                  onChange={(e) => setProposalId(e.target.value)}
+                  disabled={isVoting || !account}
+                />
+                {activeProposals.length > 0 && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    Click on a proposal above to select it
+                  </p>
+                )}
+              </div>
             <div>
               <label className="text-sm text-gray-400 mb-2 block">Vote</label>
               <div className="flex gap-2">
@@ -1005,6 +1100,7 @@ function DAOOperations() {
           </div>
         </CardContent>
       </GlassCard>
+      </div>
     </div>
   );
 }

@@ -95,12 +95,19 @@ export function usePlaceBet() {
 // Ya no se necesita approval para BNB nativo - función eliminada
 
 // ABI simplificado para BinaryMarket.claimWinnings
+// Formato compatible con thirdweb y estándar de Solidity
 const BinaryMarketABI = [
   {
     name: 'claimWinnings',
     type: 'function',
     stateMutability: 'nonpayable',
-    inputs: [{ name: '_marketId', type: 'uint256' }],
+    inputs: [
+      {
+        name: '_marketId',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+    ],
     outputs: [],
   },
 ] as const;
@@ -134,13 +141,68 @@ export function useClaimWinnings(marketId: number, marketType: 'binary' | 'condi
 
   const { mutateAsync: sendTransaction, isPending: isSending } = useSendTransaction();
 
+  // Función helper para parsear errores de contratos
+  const parseContractError = (error: any): string => {
+    if (!error) return 'Error desconocido al reclamar ganancias';
+    
+    const errorString = error.toString?.() || error.message || String(error);
+    
+    // Errores comunes del contrato BinaryMarket
+    if (errorString.includes('Not resolved') || errorString.includes('not resolved')) {
+      return 'El mercado no está resuelto. Debes esperar a que el mercado se resuelva antes de reclamar ganancias.';
+    }
+    if (errorString.includes('Already claimed') || errorString.includes('already claimed')) {
+      return 'Ya has reclamado las ganancias de este mercado.';
+    }
+    if (errorString.includes('No position') || errorString.includes('no position')) {
+      return 'No tienes una posición en este mercado.';
+    }
+    if (errorString.includes('No winnings') || errorString.includes('no winnings')) {
+      return 'No tienes ganancias para reclamar en este mercado.';
+    }
+    if (errorString.includes('Transfer failed') || errorString.includes('transfer failed')) {
+      return 'Error al transferir las ganancias. Por favor, intenta de nuevo.';
+    }
+    if (errorString.includes('user rejected') || errorString.includes('User rejected')) {
+      return 'Transacción cancelada por el usuario.';
+    }
+    if (errorString.includes('insufficient funds') || errorString.includes('Insufficient funds')) {
+      return 'Fondos insuficientes para pagar la tarifa de gas.';
+    }
+    
+    // Intentar extraer el mensaje de error del objeto
+    if (error.message) {
+      return error.message;
+    }
+    
+    // Si es un string, devolverlo directamente (limitado a 200 caracteres)
+    if (typeof errorString === 'string') {
+      return errorString.length > 200 ? errorString.substring(0, 200) + '...' : errorString;
+    }
+    
+    return 'Error desconocido al reclamar ganancias';
+  };
+
   const claim = async () => {
     if (!account) {
       throw new Error('No account connected');
     }
     
+    if (!marketId || marketId <= 0) {
+      const errorMsg = 'Por favor, ingresa un ID de mercado válido';
+      toast.error(errorMsg);
+      throw new Error(errorMsg);
+    }
+    
     try {
       setLoading(true);
+      
+      console.log('[ClaimWinnings] Iniciando claim:', {
+        marketId,
+        marketType,
+        contractAddress,
+        userAddress: account.address,
+      });
       
       const tx = prepareContractCall({
         contract,
@@ -148,13 +210,18 @@ export function useClaimWinnings(marketId: number, marketType: 'binary' | 'condi
         params: [BigInt(marketId)],
       });
 
+      console.log('[ClaimWinnings] Transacción preparada, enviando...');
       const result = await sendTransaction(tx);
       const txHash = result.transactionHash;
+      console.log('[ClaimWinnings] Transacción enviada:', txHash);
+      
+      console.log('[ClaimWinnings] Esperando confirmación...');
       await waitForReceipt({ client, chain: opBNBTestnet, transactionHash: txHash });
+      console.log('[ClaimWinnings] Transacción confirmada');
       
       const txUrl = getTransactionUrl(txHash);
       toast.success(
-        `Ganancias reclamadas! Ver transacción: ${formatTxHash(txHash)}`,
+        `Ganancias reclamadas exitosamente! Ver transacción: ${formatTxHash(txHash)}`,
         {
           duration: 10000,
           action: {
@@ -166,8 +233,19 @@ export function useClaimWinnings(marketId: number, marketType: 'binary' | 'condi
       
       return { transactionHash: txHash, receipt: result };
     } catch (error: any) {
-      console.error('Error claiming winnings:', error);
-      toast.error(error?.message || 'Error claiming winnings');
+      console.error('[ClaimWinnings] Error completo:', {
+        error,
+        message: error?.message,
+        code: error?.code,
+        data: error?.data,
+        reason: error?.reason,
+        marketId,
+        marketType,
+        contractAddress,
+      });
+      
+      const errorMessage = parseContractError(error);
+      toast.error(errorMessage);
       throw error;
     } finally {
       setLoading(false);

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { MarketCard } from '@/components/markets/MarketCard';
@@ -21,6 +21,39 @@ export default function MarketsPage() {
   const [analyzingTrends, setAnalyzingTrends] = useState(false);
   const [trendAnalysis, setTrendAnalysis] = useState<any>(null);
 
+  // Calcular volumen total de todos los mercados
+  const totalVolume = useMemo(() => {
+    if (!markets || markets.length === 0) return 0;
+    
+    const volume = markets.reduce((sum: bigint, market: any) => {
+      const yesPool = market.yesPool || BigInt(0);
+      const noPool = market.noPool || BigInt(0);
+      return sum + yesPool + noPool;
+    }, BigInt(0));
+    
+    // Convertir de wei a BNB (18 decimales)
+    return Number(volume) / 1e18;
+  }, [markets]);
+
+  // Formatear volumen como moneda
+  const formattedVolume = useMemo(() => {
+    if (totalVolume === 0) return '$0';
+    if (totalVolume < 0.01) return `$${totalVolume.toFixed(4)}`;
+    if (totalVolume < 1) return `$${totalVolume.toFixed(2)}`;
+    return `$${totalVolume.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+  }, [totalVolume]);
+
+  // Calcular mercados resolviendo pronto (en las próximas 24 horas)
+  const resolvingSoon = useMemo(() => {
+    if (!markets || markets.length === 0) return 0;
+    const now = Math.floor(Date.now() / 1000);
+    const oneDay = 24 * 60 * 60;
+    return markets.filter((market: any) => {
+      const timeUntilResolution = market.resolutionTime - now;
+      return timeUntilResolution > 0 && timeUntilResolution <= oneDay && market.status === MARKET_STATUS.ACTIVE;
+    }).length;
+  }, [markets]);
+
   const filteredMarkets = markets
     ?.filter((market: any) => {
       if (filterType === 'all') return true;
@@ -37,7 +70,11 @@ export default function MarketsPage() {
     .sort((a: any, b: any) => {
       if (sortBy === 'newest') return b.createdAt - a.createdAt;
       if (sortBy === 'ending-soon') return a.resolutionTime - b.resolutionTime;
-      if (sortBy === 'volume') return (b.totalVolume || 0) - (a.totalVolume || 0);
+      if (sortBy === 'volume') {
+        const volumeA = Number(a.yesPool || BigInt(0)) + Number(a.noPool || BigInt(0));
+        const volumeB = Number(b.yesPool || BigInt(0)) + Number(b.noPool || BigInt(0));
+        return volumeB - volumeA;
+      }
       return 0;
     });
 
@@ -164,8 +201,8 @@ Respond with a JSON in this format:
           onSortByChange={setSortBy}
           stats={{
             activeMarkets: markets?.length || 0,
-            volume24h: '$0',
-            resolvingSoon: 0,
+            volume24h: formattedVolume,
+            resolvingSoon: resolvingSoon,
             insuredMarkets: '98%',
           }}
         />

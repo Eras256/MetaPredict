@@ -16,22 +16,22 @@ const footerLinks = {
   contracts: [
     { 
       name: 'Prediction Market Core', 
-      href: 'https://testnet.opbnbscan.com/address/0x8BD96cfd4E9B9ad672698D6C18cece8248Fd34F8#code',
+      href: 'https://testnet.opbnbscan.com/address/0x5eaa77CC135b82c254F1144c48f4d179964fA0b1#code',
       external: true 
     },
     { 
       name: 'AI Oracle', 
-      href: 'https://testnet.opbnbscan.com/address/0xB937f6a00bE40500B3Da15795Dc72783b05c1D18#code',
+      href: 'https://testnet.opbnbscan.com/address/0xcc10a98Aa285E7bD16be1Ef8420315725C3dB66c#code',
       external: true 
     },
     { 
       name: 'Insurance Pool', 
-      href: 'https://testnet.opbnbscan.com/address/0x4fec42A17F54870d104bEf233688dc9904Bbd58d#code',
+      href: 'https://testnet.opbnbscan.com/address/0xD30B71e1Af743cD93b3b1d7d314822Bc4cd860dA#code',
       external: true 
     },
     { 
       name: 'Chainlink Data Streams', 
-      href: 'https://testnet.opbnbscan.com/address/0xe1a2ac2d4269400904A7240B2B3Cef20DBE7939F#code',
+      href: 'https://testnet.opbnbscan.com/address/0x1758d4da0bAd4DB90Dfd56Be259C19cabDcF03fd#code',
       external: true 
     },
     { 

@@ -16,6 +16,12 @@ import {
   useCreateConditionalMarket,
   useCreateSubjectiveMarket,
 } from '@/lib/hooks/markets/useCreateMarket';
+import { readContract } from 'thirdweb';
+import { getContract } from 'thirdweb';
+import { defineChain } from 'thirdweb/chains';
+import { CONTRACT_ADDRESSES } from '@/lib/contracts/addresses';
+import PREDICTION_MARKET_CORE_ABI from '@/lib/contracts/abi/PredictionMarketCore.json';
+import { client } from '@/lib/config/thirdweb';
 
 export default function CreateMarketPage() {
   const account = useActiveAccount();
@@ -155,10 +161,65 @@ export default function CreateMarketPage() {
       toast.error('Please complete all required fields');
       return;
     }
+
+    const parentId = parseInt(conditionalParentId);
+    if (isNaN(parentId) || parentId <= 0) {
+      toast.error('El ID del mercado padre debe ser un número válido mayor a 0');
+      return;
+    }
+
+    // Verificar que el mercado padre existe
+    try {
+      const opBNBTestnet = defineChain({
+        id: 5611,
+        name: 'opBNB Testnet',
+        nativeCurrency: {
+          name: 'tBNB',
+          symbol: 'tBNB',
+          decimals: 18,
+        },
+        rpc: 'https://opbnb-testnet-rpc.bnbchain.org',
+      });
+
+      const contract = getContract({
+        client,
+        chain: opBNBTestnet,
+        address: CONTRACT_ADDRESSES.PREDICTION_MARKET,
+        abi: PREDICTION_MARKET_CORE_ABI as any,
+      });
+
+      const parentMarket = await readContract({
+        contract,
+        method: 'getMarket',
+        params: [BigInt(parentId)],
+      });
+
+      // Verificar que el mercado existe (id != 0)
+      if (!parentMarket || Number(parentMarket.id) === 0) {
+        toast.error(`El mercado padre (ID: ${parentId}) no existe. Por favor, verifica que el ID sea correcto.`);
+        return;
+      }
+
+      // Verificar que el tiempo de resolución es posterior al del mercado padre
+      const parentResolutionTime = Number(parentMarket.resolutionTime);
+      const resolutionTimestamp = Math.floor(new Date(conditionalResolutionTime).getTime() / 1000);
+      
+      if (resolutionTimestamp <= parentResolutionTime) {
+        toast.error(`El tiempo de resolución debe ser posterior al del mercado padre (${new Date(parentResolutionTime * 1000).toLocaleString()}).`);
+        return;
+      }
+
+    } catch (error: any) {
+      console.error('Error verificando mercado padre:', error);
+      // Si hay error al leer el mercado, probablemente no existe
+      toast.error(`No se pudo verificar el mercado padre (ID: ${parentId}). Asegúrate de que el ID sea correcto y que el mercado exista.`);
+      return;
+    }
+
     try {
       const resolutionTimestamp = Math.floor(new Date(conditionalResolutionTime).getTime() / 1000);
       await createConditional(
-        parseInt(conditionalParentId),
+        parentId,
         conditionalCondition,
         conditionalQuestion,
         resolutionTimestamp,

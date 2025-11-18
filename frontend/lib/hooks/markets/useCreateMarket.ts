@@ -195,12 +195,43 @@ export function useCreateConditionalMarket() {
     } catch (error: any) {
       console.error('Error creating conditional market:', error);
       
-      // Mensaje de error más descriptivo para "Only core"
-      let errorMessage = error?.message || 'Error creating conditional market';
-      if (errorMessage.includes('Only core') || errorMessage.includes('onlyCore')) {
-        errorMessage = 'Error de configuración: El contrato ConditionalMarket no tiene configurado correctamente el coreContract. El contrato necesita ser redesplegado con la dirección correcta del Core Contract.';
-      }
+      // Función helper para parsear errores de contratos
+      const parseContractError = (error: any): string => {
+        if (!error) return 'Error desconocido al crear mercado condicional';
+        
+        const errorString = error.toString?.() || error.message || String(error);
+        
+        // Errores comunes del contrato
+        if (errorString.includes('Invalid parent') || errorString.includes('invalid parent')) {
+          return `El mercado padre (ID: ${parentMarketId}) no existe. Por favor, verifica que el ID del mercado padre sea válido y que el mercado exista en el sistema.`;
+        }
+        if (errorString.includes('Invalid time') || errorString.includes('invalid time')) {
+          return 'El tiempo de resolución debe ser posterior al tiempo de resolución del mercado padre.';
+        }
+        if (errorString.includes('Only core') || errorString.includes('onlyCore')) {
+          return 'Error de configuración: El contrato ConditionalMarket no tiene configurado correctamente el coreContract. El contrato necesita ser redesplegado con la dirección correcta del Core Contract.';
+        }
+        if (errorString.includes('user rejected') || errorString.includes('User rejected')) {
+          return 'Transacción cancelada por el usuario.';
+        }
+        if (errorString.includes('insufficient funds') || errorString.includes('Insufficient funds')) {
+          return 'Fondos insuficientes para pagar la tarifa de gas.';
+        }
+        
+        // Intentar extraer el mensaje de error del objeto
+        if (error.message) {
+          return error.message;
+        }
+        
+        // Si es un string, devolverlo directamente (limitado a 200 caracteres)
+        if (typeof errorString === 'string') {
+          return errorString.length > 200 ? errorString.substring(0, 200) + '...' : errorString;
+        }
+        
+        return 'Error desconocido al crear mercado condicional';
+      };
       
+      const errorMessage = parseContractError(error);
       toast.error(errorMessage);
       throw error;
     } finally {
