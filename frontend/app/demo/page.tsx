@@ -47,18 +47,18 @@ export default function DemoPage() {
   const { balance: bnbBalance, isLoading: balanceLoading } = useBNBBalance();
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-7xl">
-      <div className="mb-8 text-center">
-        <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+    <div className="container mx-auto px-3 sm:px-4 md:px-6 py-6 sm:py-8 max-w-7xl">
+      <div className="mb-6 sm:mb-8 text-center">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent px-2">
           🎮 Demo - On-Chain Features
         </h1>
-        <p className="text-gray-400 text-lg">
+        <p className="text-gray-400 text-sm sm:text-base md:text-lg px-2">
           Test all available features on MetaPredict.ai
         </p>
         {account && (
-          <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/10 border border-purple-500/20">
-            <Wallet className="w-4 h-4 text-purple-400" />
-            <span className="text-sm text-gray-300">
+          <div className="mt-3 sm:mt-4 inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg bg-purple-500/10 border border-purple-500/20">
+            <Wallet className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-purple-400" />
+            <span className="text-xs sm:text-sm text-gray-300">
               Balance: {balanceLoading ? '...' : `${bnbBalance.toFixed(4)} BNB`}
             </span>
           </div>
@@ -66,44 +66,51 @@ export default function DemoPage() {
       </div>
 
       {!account && (
-        <GlassCard className="p-8 text-center mb-8">
-          <XCircle className="w-16 h-16 text-yellow-400 mx-auto mb-4" />
-          <h2 className="text-2xl font-semibold mb-2">Connect Your Wallet</h2>
-          <p className="text-gray-400">
+        <GlassCard className="p-6 sm:p-8 text-center mb-6 sm:mb-8">
+          <XCircle className="w-12 h-12 sm:w-16 sm:h-16 text-yellow-400 mx-auto mb-3 sm:mb-4" />
+          <h2 className="text-xl sm:text-2xl font-semibold mb-2">Connect Your Wallet</h2>
+          <p className="text-sm sm:text-base text-gray-400">
             Please connect your wallet to use on-chain features
           </p>
         </GlassCard>
       )}
 
-      <Tabs defaultValue="tokens" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-7">
-          <TabsTrigger value="tokens" className="gap-2">
-            <Wallet className="w-4 h-4" />
-            Tokens
+      <Tabs defaultValue="tokens" className="space-y-4 sm:space-y-6">
+        <TabsList className="grid w-full grid-cols-3 sm:grid-cols-4 md:grid-cols-7 gap-1 sm:gap-2 h-auto overflow-x-auto">
+          <TabsTrigger value="tokens" className="gap-1 sm:gap-2 text-xs sm:text-sm py-1.5 sm:py-2">
+            <Wallet className="w-3 h-3 sm:w-4 sm:h-4" />
+            <span className="hidden sm:inline">Tokens</span>
+            <span className="sm:hidden">Tokens</span>
           </TabsTrigger>
-          <TabsTrigger value="betting" className="gap-2">
-            <TrendingUp className="w-4 h-4" />
-            Betting
+          <TabsTrigger value="betting" className="gap-1 sm:gap-2 text-xs sm:text-sm py-1.5 sm:py-2">
+            <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4" />
+            <span className="hidden sm:inline">Betting</span>
+            <span className="sm:hidden">Bet</span>
           </TabsTrigger>
-          <TabsTrigger value="insurance" className="gap-2">
-            <Shield className="w-4 h-4" />
-            Insurance
+          <TabsTrigger value="insurance" className="gap-1 sm:gap-2 text-xs sm:text-sm py-1.5 sm:py-2">
+            <Shield className="w-3 h-3 sm:w-4 sm:h-4" />
+            <span className="hidden sm:inline">Insurance</span>
+            <span className="sm:hidden">Ins</span>
           </TabsTrigger>
-          <TabsTrigger value="reputation" className="gap-2">
-            <Users className="w-4 h-4" />
-            Reputation
+          <TabsTrigger value="reputation" className="gap-1 sm:gap-2 text-xs sm:text-sm py-1.5 sm:py-2">
+            <Users className="w-3 h-3 sm:w-4 sm:h-4" />
+            <span className="hidden sm:inline">Reputation</span>
+            <span className="sm:hidden">Rep</span>
           </TabsTrigger>
-          <TabsTrigger value="dao" className="gap-2">
-            <Brain className="w-4 h-4" />
-            DAO
+          <TabsTrigger value="dao" className="gap-1 sm:gap-2 text-xs sm:text-sm py-1.5 sm:py-2">
+            <Brain className="w-3 h-3 sm:w-4 sm:h-4" />
+            <span className="hidden sm:inline">DAO</span>
+            <span className="sm:hidden">DAO</span>
           </TabsTrigger>
-          <TabsTrigger value="oracle" className="gap-2">
-            <Zap className="w-4 h-4" />
-            Oracle
+          <TabsTrigger value="oracle" className="gap-1 sm:gap-2 text-xs sm:text-sm py-1.5 sm:py-2">
+            <Zap className="w-3 h-3 sm:w-4 sm:h-4" />
+            <span className="hidden sm:inline">Oracle</span>
+            <span className="sm:hidden">Oracle</span>
           </TabsTrigger>
-          <TabsTrigger value="markets" className="gap-2">
-            <TrendingUp className="w-4 h-4" />
-            Markets
+          <TabsTrigger value="markets" className="gap-1 sm:gap-2 text-xs sm:text-sm py-1.5 sm:py-2">
+            <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4" />
+            <span className="hidden sm:inline">Markets</span>
+            <span className="sm:hidden">Markets</span>
           </TabsTrigger>
         </TabsList>
 
@@ -1144,7 +1151,9 @@ function OracleOperations() {
                 disabled={oracleLoading}
               />
             </div>
-            {result && (
+            {marketId && parseInt(marketId) > 0 ? (
+              <>
+                {result ? (
               <div className="p-4 bg-yellow-500/10 rounded-lg border border-yellow-500/20 space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-400">Resolved</span>
@@ -1160,15 +1169,42 @@ function OracleOperations() {
                   <span className="text-sm text-gray-400">NO Votes</span>
                   <span className="text-sm text-red-400">{result.noVotes}</span>
                 </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-400">Invalid Votes</span>
+                      <span className="text-sm text-gray-400">{result.invalidVotes}</span>
+                </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-400">Confidence</span>
                   <span className="text-sm text-white font-semibold">{result.confidence}%</span>
                 </div>
+                    {result.timestamp && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-400">Timestamp</span>
+                        <span className="text-sm text-gray-400">
+                          {new Date(Number(result.timestamp) * 1000).toLocaleString()}
+                        </span>
               </div>
             )}
+                  </div>
+                ) : !oracleLoading ? (
+                  <div className="p-4 bg-gray-500/10 rounded-lg border border-gray-500/20 text-center">
+                    <p className="text-sm text-gray-400">
+                      No results found for Market ID {marketId}
+                    </p>
+                  </div>
+                ) : null}
             {oracleLoading && (
               <div className="flex justify-center py-4">
                 <Loader2 className="w-6 h-6 animate-spin text-yellow-400" />
+                    <span className="ml-2 text-sm text-gray-400">Querying oracle...</span>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="p-4 bg-gray-500/10 rounded-lg border border-gray-500/20 text-center">
+                <p className="text-sm text-gray-400">
+                  Enter a valid Market ID to query the oracle result
+                </p>
               </div>
             )}
           </div>

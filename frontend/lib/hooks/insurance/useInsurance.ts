@@ -244,15 +244,15 @@ export function useInsurance() {
     } catch (error: any) {
       console.error('Error claiming insurance:', error);
       
-      // Mejorar mensajes de error
+      // Improve error messages
       let errorMessage = error?.message || 'Error claiming insurance';
       
       if (errorMessage.includes('MarketNotActive') || errorMessage.includes('Not active')) {
-        errorMessage = 'El mercado no está en estado Disputed. Solo puedes reclamar seguro cuando el oracle falla.';
+        errorMessage = 'Market is not in Disputed state. You can only claim insurance when the oracle fails.';
       } else if (errorMessage.includes('AlreadyClaimed')) {
-        errorMessage = 'Ya has reclamado el seguro para este mercado.';
+        errorMessage = 'You have already claimed insurance for this market.';
       } else if (errorMessage.includes('InsufficientBalance')) {
-        errorMessage = 'No tienes inversión en este mercado para reclamar.';
+        errorMessage = 'You do not have an investment in this market to claim.';
       }
       
       toast.error(errorMessage);

@@ -77,9 +77,9 @@ export function Footer() {
   return (
     <footer className="relative mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <GlassCard className="p-8 md:p-12">
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8 mb-8">
-            <div className="col-span-2">
+        <GlassCard className="p-4 sm:p-6 md:p-8 lg:p-12">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 md:gap-8 mb-6 md:mb-8">
+            <div className="col-span-1 sm:col-span-2 md:col-span-3 lg:col-span-2">
               <Link href="/" className="flex items-center space-x-3 mb-4 group">
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center group-hover:scale-110 transition-transform">
                   <Brain className="w-6 h-6 text-white" />
@@ -94,21 +94,21 @@ export function Footer() {
               <p className="text-sm text-gray-400 mb-4 max-w-xs">
                 The first all-in-one prediction market platform with 5-AI consensus oracle, Chainlink Data Streams, and insurance protection. Built on opBNB Testnet.
               </p>
-              <div className="flex items-center gap-2 mb-4">
+              <div className="flex items-center gap-2 mb-3 md:mb-4">
                 {socials.map((social) => (
                   <a 
                     key={social.label} 
                     href={social.href} 
                     target="_blank" 
                     rel="noopener noreferrer" 
-                    className="w-10 h-10 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 flex items-center justify-center transition-colors group" 
+                    className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 flex items-center justify-center transition-colors group" 
                     aria-label={social.label}
                   >
-                    <social.icon className="w-5 h-5 text-gray-400 group-hover:text-purple-400 transition-colors" />
+                    <social.icon className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 group-hover:text-purple-400 transition-colors" />
                   </a>
                 ))}
               </div>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-1.5 sm:gap-2">
                 {techStack.map((tech) => (
                   <div key={tech.name} className="flex items-center gap-1 px-2 py-1 rounded bg-purple-500/5 border border-purple-500/10">
                     <tech.icon className={`w-3 h-3 ${tech.color}`} />
@@ -119,8 +119,8 @@ export function Footer() {
             </div>
 
             <div>
-              <h3 className="font-semibold text-white mb-4">Product</h3>
-              <ul className="space-y-2">
+              <h3 className="font-semibold text-white mb-3 sm:mb-4 text-sm sm:text-base">Product</h3>
+              <ul className="space-y-1.5 sm:space-y-2">
                 {footerLinks.product.map((link) => (
                   <li key={link.name}>
                     <Link href={link.href} className="text-sm text-gray-400 hover:text-purple-400 transition-colors">
@@ -132,8 +132,8 @@ export function Footer() {
             </div>
 
             <div>
-              <h3 className="font-semibold text-white mb-4">Contracts</h3>
-              <ul className="space-y-2">
+              <h3 className="font-semibold text-white mb-3 sm:mb-4 text-sm sm:text-base">Contracts</h3>
+              <ul className="space-y-1.5 sm:space-y-2">
                 {footerLinks.contracts.map((link) => (
                   <li key={link.name}>
                     <a 
@@ -151,8 +151,8 @@ export function Footer() {
             </div>
 
             <div>
-              <h3 className="font-semibold text-white mb-4">Resources</h3>
-              <ul className="space-y-2">
+              <h3 className="font-semibold text-white mb-3 sm:mb-4 text-sm sm:text-base">Resources</h3>
+              <ul className="space-y-1.5 sm:space-y-2">
                 {footerLinks.resources.map((link) => (
                   <li key={link.name}>
                     <a 
@@ -170,8 +170,8 @@ export function Footer() {
             </div>
 
             <div>
-              <h3 className="font-semibold text-white mb-4">Community</h3>
-              <ul className="space-y-2">
+              <h3 className="font-semibold text-white mb-3 sm:mb-4 text-sm sm:text-base">Community</h3>
+              <ul className="space-y-1.5 sm:space-y-2">
                 {footerLinks.community.map((link) => (
                   <li key={link.name}>
                     <a 
@@ -189,8 +189,8 @@ export function Footer() {
             </div>
 
             <div>
-              <h3 className="font-semibold text-white mb-4">Legal</h3>
-              <ul className="space-y-2">
+              <h3 className="font-semibold text-white mb-3 sm:mb-4 text-sm sm:text-base">Legal</h3>
+              <ul className="space-y-1.5 sm:space-y-2">
                 {footerLinks.legal.map((link) => (
                   <li key={link.name}>
                     <Link href={link.href} className="text-sm text-gray-400 hover:text-purple-400 transition-colors">
@@ -202,43 +202,43 @@ export function Footer() {
             </div>
           </div>
 
-          <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="flex flex-col gap-2">
-              <p className="text-sm text-gray-400">© 2025 MetaPredict.ai. All rights reserved.</p>
-              <div className="flex items-center gap-4 text-xs text-gray-500">
+          <div className="pt-6 md:pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="flex flex-col gap-2 text-center md:text-left">
+              <p className="text-xs sm:text-sm text-gray-400">© 2025 MetaPredict.ai. All rights reserved.</p>
+              <div className="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-2 sm:gap-4 text-xs text-gray-500">
                 <span>Network: opBNB Testnet (5611)</span>
-                <span>•</span>
+                <span className="hidden sm:inline">•</span>
                 <span>10/10 Contracts Verified</span>
               </div>
             </div>
-            <div className="flex items-center gap-4 text-sm text-gray-400">
+            <div className="flex flex-wrap items-center justify-center md:justify-end gap-2 sm:gap-4 text-xs sm:text-sm text-gray-400">
               <span className="flex items-center gap-1">
-                <Zap className="w-4 h-4 text-yellow-400" />
+                <Zap className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-400" />
                 opBNB
               </span>
-              <span>•</span>
+              <span className="hidden sm:inline">•</span>
               <span className="flex items-center gap-1">
-                <Brain className="w-4 h-4 text-purple-400" />
+                <Brain className="w-3 h-3 sm:w-4 sm:h-4 text-purple-400" />
                 5-AI Consensus
               </span>
-              <span>•</span>
+              <span className="hidden sm:inline">•</span>
               <span className="flex items-center gap-1">
-                <Shield className="w-4 h-4 text-blue-400" />
+                <Shield className="w-3 h-3 sm:w-4 sm:h-4 text-blue-400" />
                 Insurance Protected
               </span>
             </div>
           </div>
 
-          <div className="mt-6 p-4 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
-            <p className="text-xs text-yellow-200/80 text-center">
+          <div className="mt-4 md:mt-6 p-3 sm:p-4 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
+            <p className="text-xs sm:text-sm text-yellow-200/80 text-center leading-relaxed">
               <strong>Disclaimer:</strong> MetaPredict.ai is a decentralized prediction market protocol running on opBNB Testnet. 
               This is experimental software. Participation may not be legal in your jurisdiction. Users are responsible for compliance with local laws. 
               This is not financial advice. Never bet more than you can afford to lose.
             </p>
           </div>
 
-          <div className="mt-4 p-3 rounded-lg bg-green-500/10 border border-green-500/20">
-            <p className="text-xs text-green-200/80 text-center">
+          <div className="mt-3 md:mt-4 p-3 rounded-lg bg-green-500/10 border border-green-500/20">
+            <p className="text-xs sm:text-sm text-green-200/80 text-center leading-relaxed">
               <strong>✅ All Contracts Verified:</strong> All 10 smart contracts are verified and auditable on{' '}
               <a 
                 href="https://testnet.opbnbscan.com/" 

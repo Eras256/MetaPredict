@@ -121,10 +121,10 @@ export function useCreateBinaryMarket() {
     } catch (error: any) {
       console.error('Error creating binary market:', error);
       
-      // Mensaje de error más descriptivo para "Only core"
+      // More descriptive error message for "Only core"
       let errorMessage = error?.message || 'Error creating binary market';
       if (errorMessage.includes('Only core') || errorMessage.includes('onlyCore')) {
-        errorMessage = 'Error de configuración: El contrato BinaryMarket no tiene configurado correctamente el coreContract. El contrato necesita ser redesplegado con la dirección correcta del Core Contract.';
+        errorMessage = 'Configuration error: The BinaryMarket contract does not have the coreContract correctly configured. The contract needs to be redeployed with the correct Core Contract address.';
       }
       
       toast.error(errorMessage);
@@ -195,40 +195,40 @@ export function useCreateConditionalMarket() {
     } catch (error: any) {
       console.error('Error creating conditional market:', error);
       
-      // Función helper para parsear errores de contratos
+      // Helper function to parse contract errors
       const parseContractError = (error: any): string => {
-        if (!error) return 'Error desconocido al crear mercado condicional';
+        if (!error) return 'Unknown error creating conditional market';
         
         const errorString = error.toString?.() || error.message || String(error);
         
-        // Errores comunes del contrato
+        // Common contract errors
         if (errorString.includes('Invalid parent') || errorString.includes('invalid parent')) {
-          return `El mercado padre (ID: ${parentMarketId}) no existe. Por favor, verifica que el ID del mercado padre sea válido y que el mercado exista en el sistema.`;
+          return `Parent market (ID: ${parentMarketId}) does not exist. Please verify that the parent market ID is valid and that the market exists in the system.`;
         }
         if (errorString.includes('Invalid time') || errorString.includes('invalid time')) {
-          return 'El tiempo de resolución debe ser posterior al tiempo de resolución del mercado padre.';
+          return 'Resolution time must be after the parent market\'s resolution time.';
         }
         if (errorString.includes('Only core') || errorString.includes('onlyCore')) {
-          return 'Error de configuración: El contrato ConditionalMarket no tiene configurado correctamente el coreContract. El contrato necesita ser redesplegado con la dirección correcta del Core Contract.';
-        }
+          return 'Configuration error: The ConditionalMarket contract does not have the coreContract correctly configured. The contract needs to be redeployed with the correct Core Contract address.';
+      }
         if (errorString.includes('user rejected') || errorString.includes('User rejected')) {
-          return 'Transacción cancelada por el usuario.';
+          return 'Transaction cancelled by user.';
         }
         if (errorString.includes('insufficient funds') || errorString.includes('Insufficient funds')) {
-          return 'Fondos insuficientes para pagar la tarifa de gas.';
+          return 'Insufficient funds to pay gas fee.';
         }
         
-        // Intentar extraer el mensaje de error del objeto
+        // Try to extract error message from object
         if (error.message) {
           return error.message;
         }
         
-        // Si es un string, devolverlo directamente (limitado a 200 caracteres)
+        // If it's a string, return it directly (limited to 200 characters)
         if (typeof errorString === 'string') {
           return errorString.length > 200 ? errorString.substring(0, 200) + '...' : errorString;
         }
         
-        return 'Error desconocido al crear mercado condicional';
+        return 'Unknown error creating conditional market';
       };
       
       const errorMessage = parseContractError(error);
@@ -294,10 +294,10 @@ export function useCreateSubjectiveMarket() {
     } catch (error: any) {
       console.error('Error creating subjective market:', error);
       
-      // Mensaje de error más descriptivo para "Only core"
+      // More descriptive error message for "Only core"
       let errorMessage = error?.message || 'Error creating subjective market';
       if (errorMessage.includes('Only core') || errorMessage.includes('onlyCore')) {
-        errorMessage = 'Error de configuración: El contrato SubjectiveMarket no tiene configurado correctamente el coreContract. El contrato necesita ser redesplegado con la dirección correcta del Core Contract.';
+        errorMessage = 'Configuration error: The SubjectiveMarket contract does not have the coreContract correctly configured. The contract needs to be redeployed with the correct Core Contract address.';
       }
       
       toast.error(errorMessage);

@@ -158,21 +158,21 @@ export default function HomePage() {
               <span className="text-sm text-purple-300">Live on opBNB Testnet (Chain ID: 5611)</span>
             </div>
             
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-4 sm:mb-6 leading-tight px-2">
               <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-clip-text text-transparent">MetaPredict.ai</span>
               <br />
               <span className="text-white">AI-Powered Prediction Markets</span>
             </h1>
             
-            <p className="text-xl sm:text-2xl text-gray-300 mb-4 max-w-3xl mx-auto">
+            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-300 mb-3 sm:mb-4 max-w-3xl mx-auto px-4">
               The first prediction market platform with <strong>5-AI consensus oracle</strong> (Gemini, Groq, OpenRouter), <strong>insurance protection</strong>, and <strong>Chainlink Data Streams</strong>
             </p>
             
-            <p className="text-lg text-gray-400 mb-8 max-w-2xl mx-auto">
+            <p className="text-sm sm:text-base md:text-lg text-gray-400 mb-6 sm:mb-8 max-w-2xl mx-auto px-4">
               Bet on anything. Trust multi-AI consensus. Get protected. Built on opBNB for ultra-low fees. <strong>10/10 contracts verified</strong> on opBNBScan.
             </p>
             
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-8 sm:mb-12 px-4">
               <Link href="/markets">
                 <Button size="lg" className="gap-2 group bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
                   Explore Markets
@@ -200,7 +200,7 @@ export default function HomePage() {
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="grid grid-cols-2 lg:grid-cols-4 gap-4 max-w-4xl mx-auto"
+            className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 max-w-4xl mx-auto px-4"
           >
             {stats.map((stat, index) => (
               <GlassCard key={index} className="p-6 text-center">
@@ -243,7 +243,7 @@ export default function HomePage() {
             </p>
           </div>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {features.map((feature, index) => (
               <motion.div
                 key={index}
@@ -293,7 +293,7 @@ export default function HomePage() {
             </p>
           </div>
           
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
             {technologies.map((tech, index) => (
               <motion.div
                 key={index}
@@ -380,7 +380,7 @@ export default function HomePage() {
             </p>
           </div>
           
-          <div className="grid lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {marketTypes.map((type, index) => (
               <motion.div
                 key={index}
@@ -436,7 +436,7 @@ export default function HomePage() {
             </p>
           </div>
           
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-4">
             {contracts.map((contract, index) => (
               <motion.div
                 key={index}
@@ -504,7 +504,7 @@ export default function HomePage() {
                 Join the most advanced prediction market platform. Protected by 5-AI consensus, secured by insurance, powered by Chainlink Data Streams.
               </p>
               
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
                 <Link href="/markets">
                   <Button size="lg" className="gap-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
                     Explore Markets

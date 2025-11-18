@@ -46,35 +46,39 @@ export function BettingPanel({ marketId, yesOdds, noOdds, userBalance }: Betting
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center justify-between">
-          <span className="flex items-center gap-2">
-            Place Your Bet
-            <Shield className="w-5 h-5 text-purple-400" />
+    <Card className="w-full">
+      <CardHeader className="p-4 sm:p-6">
+        <CardTitle className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
+          <span className="flex items-center gap-1.5 sm:gap-2">
+            <span className="text-base sm:text-lg">Place Your Bet</span>
+            <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-purple-400" />
           </span>
-          <div className="flex items-center gap-1 px-2 py-1 rounded bg-purple-500/10 border border-purple-500/20">
-            <Brain className="w-4 h-4 text-purple-400" />
+          <div className="flex items-center gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded bg-purple-500/10 border border-purple-500/20">
+            <Brain className="w-3 h-3 sm:w-4 sm:h-4 text-purple-400" />
             <span className="text-xs text-purple-300">AI Oracle</span>
           </div>
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-4 sm:space-y-6 p-4 sm:p-6">
         <Tabs value={side} onValueChange={(v) => setSide(v as 'yes' | 'no')}>
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="yes" className="flex items-center gap-2">
-              <TrendingUp className="w-4 h-4" />
-              YES {yesOdds}%
+            <TabsTrigger value="yes" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
+              <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline">YES</span>
+              <span className="sm:hidden">Y</span>
+              <span className="font-semibold">{yesOdds}%</span>
             </TabsTrigger>
-            <TabsTrigger value="no" className="flex items-center gap-2">
-              <TrendingDown className="w-4 h-4" />
-              NO {noOdds}%
+            <TabsTrigger value="no" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
+              <TrendingDown className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline">NO</span>
+              <span className="sm:hidden">N</span>
+              <span className="font-semibold">{noOdds}%</span>
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="yes" className="space-y-4 mt-6">
+          <TabsContent value="yes" className="space-y-3 sm:space-y-4 mt-4 sm:mt-6">
             <div>
-              <label className="text-sm text-gray-400 mb-2 block">Amount (BNB)</label>
+              <label className="text-xs sm:text-sm text-gray-400 mb-1.5 sm:mb-2 block">Amount (BNB)</label>
               <Input
                 type="number"
                 placeholder="0.00"
@@ -82,51 +86,52 @@ export function BettingPanel({ marketId, yesOdds, noOdds, userBalance }: Betting
                 onChange={(e) => setAmount(e.target.value)}
                 min="1"
                 step="0.01"
+                className="text-sm sm:text-base"
               />
-              <div className="flex items-center justify-between mt-2 text-xs text-gray-500">
-                <span>Balance: {userBalance.toFixed(4)} BNB</span>
-                <button onClick={() => setAmount(userBalance.toString())} className="text-purple-400 hover:underline">
+              <div className="flex items-center justify-between mt-1.5 sm:mt-2 text-xs text-gray-500">
+                <span className="truncate mr-2">Balance: {userBalance.toFixed(4)} BNB</span>
+                <button onClick={() => setAmount(userBalance.toString())} className="text-purple-400 hover:underline flex-shrink-0">
                   Max
                 </button>
               </div>
             </div>
 
-            <div className="space-y-2 p-4 rounded-lg bg-green-500/10 border border-green-500/20">
-              <div className="flex justify-between text-sm">
+            <div className="space-y-1.5 sm:space-y-2 p-3 sm:p-4 rounded-lg bg-green-500/10 border border-green-500/20">
+              <div className="flex justify-between text-xs sm:text-sm">
                 <span className="text-gray-400">Estimated Shares</span>
-                <span className="text-white font-semibold">{estimatedShares}</span>
+                <span className="text-white font-semibold truncate ml-2">{estimatedShares}</span>
               </div>
-              <div className="flex justify-between text-sm">
+              <div className="flex justify-between text-xs sm:text-sm">
                 <span className="text-gray-400">Potential Return</span>
-                <span className="text-green-400 font-semibold">${potentialReturn}</span>
+                <span className="text-green-400 font-semibold truncate ml-2">${potentialReturn}</span>
               </div>
-              <div className="flex justify-between text-sm">
+              <div className="flex justify-between text-xs sm:text-sm">
                 <span className="text-gray-400">Profit</span>
-                <span className="text-green-400 font-semibold">+${(parseFloat(potentialReturn) - parseFloat(amount || '0')).toFixed(2)}</span>
+                <span className="text-green-400 font-semibold truncate ml-2">+${(parseFloat(potentialReturn) - parseFloat(amount || '0')).toFixed(2)}</span>
               </div>
             </div>
 
-            <div className="flex items-start gap-2 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
-              <Info className="w-4 h-4 text-blue-400 mt-0.5 flex-shrink-0" />
-              <div className="flex-1">
-                <p className="text-xs text-blue-300 mb-1">
+            <div className="flex items-start gap-2 p-2.5 sm:p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
+              <Info className="w-3 h-3 sm:w-4 sm:h-4 text-blue-400 mt-0.5 flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="text-xs text-blue-300 mb-1 leading-relaxed">
                   0.1% of your bet goes to insurance pool. If Gemini AI oracle fails, you'll get 100% refund.
                 </p>
                 <p className="text-xs text-purple-300 flex items-center gap-1">
-                  <Brain className="w-3 h-3" />
-                  Powered by Gemini 2.5 Flash with automatic fallback
+                  <Brain className="w-3 h-3 flex-shrink-0" />
+                  <span className="truncate">Powered by Gemini 2.5 Flash with automatic fallback</span>
                 </p>
               </div>
             </div>
 
-            <Button onClick={handleBet} disabled={isPlacingBet} className="w-full" size="lg">
+            <Button onClick={handleBet} disabled={isPlacingBet} className="w-full text-sm sm:text-base" size="lg">
               {isPlacingBet ? 'Placing Bet...' : 'Bet YES'}
             </Button>
           </TabsContent>
 
-          <TabsContent value="no" className="space-y-4 mt-6">
+          <TabsContent value="no" className="space-y-3 sm:space-y-4 mt-4 sm:mt-6">
             <div>
-              <label className="text-sm text-gray-400 mb-2 block">Amount (BNB)</label>
+              <label className="text-xs sm:text-sm text-gray-400 mb-1.5 sm:mb-2 block">Amount (BNB)</label>
               <Input
                 type="number"
                 placeholder="0.00"
@@ -134,44 +139,45 @@ export function BettingPanel({ marketId, yesOdds, noOdds, userBalance }: Betting
                 onChange={(e) => setAmount(e.target.value)}
                 min="1"
                 step="0.01"
+                className="text-sm sm:text-base"
               />
-              <div className="flex items-center justify-between mt-2 text-xs text-gray-500">
-                <span>Balance: {userBalance.toFixed(4)} BNB</span>
-                <button onClick={() => setAmount(userBalance.toString())} className="text-purple-400 hover:underline">
+              <div className="flex items-center justify-between mt-1.5 sm:mt-2 text-xs text-gray-500">
+                <span className="truncate mr-2">Balance: {userBalance.toFixed(4)} BNB</span>
+                <button onClick={() => setAmount(userBalance.toString())} className="text-purple-400 hover:underline flex-shrink-0">
                   Max
                 </button>
               </div>
             </div>
 
-            <div className="space-y-2 p-4 rounded-lg bg-red-500/10 border border-red-500/20">
-              <div className="flex justify-between text-sm">
+            <div className="space-y-1.5 sm:space-y-2 p-3 sm:p-4 rounded-lg bg-red-500/10 border border-red-500/20">
+              <div className="flex justify-between text-xs sm:text-sm">
                 <span className="text-gray-400">Estimated Shares</span>
-                <span className="text-white font-semibold">{estimatedShares}</span>
+                <span className="text-white font-semibold truncate ml-2">{estimatedShares}</span>
               </div>
-              <div className="flex justify-between text-sm">
+              <div className="flex justify-between text-xs sm:text-sm">
                 <span className="text-gray-400">Potential Return</span>
-                <span className="text-red-400 font-semibold">${potentialReturn}</span>
+                <span className="text-red-400 font-semibold truncate ml-2">${potentialReturn}</span>
               </div>
-              <div className="flex justify-between text-sm">
+              <div className="flex justify-between text-xs sm:text-sm">
                 <span className="text-gray-400">Profit</span>
-                <span className="text-red-400 font-semibold">+${(parseFloat(potentialReturn) - parseFloat(amount || '0')).toFixed(2)}</span>
+                <span className="text-red-400 font-semibold truncate ml-2">+${(parseFloat(potentialReturn) - parseFloat(amount || '0')).toFixed(2)}</span>
               </div>
             </div>
 
-            <div className="flex items-start gap-2 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
-              <Info className="w-4 h-4 text-blue-400 mt-0.5 flex-shrink-0" />
-              <div className="flex-1">
-                <p className="text-xs text-blue-300 mb-1">
+            <div className="flex items-start gap-2 p-2.5 sm:p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
+              <Info className="w-3 h-3 sm:w-4 sm:h-4 text-blue-400 mt-0.5 flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="text-xs text-blue-300 mb-1 leading-relaxed">
                   0.1% of your bet goes to insurance pool. If Gemini AI oracle fails, you'll get 100% refund.
                 </p>
                 <p className="text-xs text-purple-300 flex items-center gap-1">
-                  <Brain className="w-3 h-3" />
-                  Powered by Gemini 2.5 Flash with automatic fallback
+                  <Brain className="w-3 h-3 flex-shrink-0" />
+                  <span className="truncate">Powered by Gemini 2.5 Flash with automatic fallback</span>
                 </p>
               </div>
             </div>
 
-            <Button onClick={handleBet} disabled={isPlacingBet} className="w-full" size="lg" variant="destructive">
+            <Button onClick={handleBet} disabled={isPlacingBet} className="w-full text-sm sm:text-base" size="lg" variant="destructive">
               {isPlacingBet ? 'Placing Bet...' : 'Bet NO'}
             </Button>
           </TabsContent>

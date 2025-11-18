@@ -36,11 +36,14 @@ export function useOracle(marketId: number) {
     });
   }, []);
 
+  // Solo habilitar la query si marketId es válido y mayor a 0
+  const isValidMarketId = marketId > 0 && Number.isInteger(marketId);
+
   const { data: oracleResult, isLoading } = useReadContract({
     contract,
     method: 'getResult',
     params: [BigInt(marketId)],
-    queryOptions: { enabled: marketId > 0 },
+    queryOptions: { enabled: isValidMarketId && !!contract },
   });
 
   const [result, setResult] = useState<OracleResult | null>(null);
