@@ -3,12 +3,31 @@
 import { useState, useMemo } from 'react';
 import { useSendTransaction, useActiveAccount, useReadContract } from 'thirdweb/react';
 import { defineChain } from 'thirdweb/chains';
-import { getContract, prepareContractCall } from 'thirdweb';
+import { getContract, prepareContractCall, readContract } from 'thirdweb';
 import { waitForReceipt } from 'thirdweb';
 import { CONTRACT_ADDRESSES } from '@/lib/contracts/addresses';
 import { client } from '@/lib/config/thirdweb';
 import { toast } from 'sonner';
 import { getTransactionUrl, formatTxHash } from '@/lib/utils/blockchain';
+
+// ProposalStatus enum values from contract
+const ProposalStatus = {
+  Pending: 0,
+  Active: 1,
+  Succeeded: 2,
+  Defeated: 3,
+  Executed: 4,
+  Cancelled: 5,
+} as const;
+
+const ProposalStatusLabels: Record<number, string> = {
+  0: 'Pending',
+  1: 'Active',
+  2: 'Succeeded',
+  3: 'Defeated',
+  4: 'Executed',
+  5: 'Cancelled',
+};
 
 const opBNBTestnet = defineChain({
   id: 5611,
