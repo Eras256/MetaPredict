@@ -186,6 +186,45 @@ export function useVoteOnProposal() {
     try {
       setLoading(true);
       
+      // Verificar el estado real de la propuesta antes de votar
+      try {
+        const proposalData = await readContract({
+          contract,
+          method: 'getProposal',
+          params: [BigInt(proposalId)],
+        }) as any;
+
+        // Verificar que la propuesta existe (el ID debe ser mayor a 0)
+        const proposalIdFromContract = Number(proposalData[0]);
+        if (!proposalIdFromContract || proposalIdFromContract === 0 || proposalIdFromContract !== proposalId) {
+          throw new Error(`La propuesta #${proposalId} no existe en el contrato`);
+        }
+
+        const proposalStatus = Number(proposalData[8]);
+        
+        // Verificar que la propuesta esté en estado Active (1)
+        if (proposalStatus !== ProposalStatus.Active) {
+          const statusLabel = ProposalStatusLabels[proposalStatus] || 'Desconocido';
+          throw new Error(`La propuesta #${proposalId} no está activa. Estado actual: ${statusLabel}. Solo puedes votar en propuestas con estado Active.`);
+        }
+
+        // Verificar que no haya sido ejecutada
+        if (proposalData[9] === true) {
+          throw new Error('Esta propuesta ya ha sido ejecutada');
+        }
+      } catch (validationError: any) {
+        // Si es un error de validación personalizado, mostrarlo y no continuar
+        if (validationError.message && 
+            (validationError.message.includes('no existe') || 
+             validationError.message.includes('no está activa') || 
+             validationError.message.includes('ya ha sido ejecutada'))) {
+          toast.error(validationError.message);
+          throw validationError;
+        }
+        // Si es un error de contrato (revert, etc.), continuar para que el contrato lo maneje
+        // El contrato también validará el estado y mostrará su propio error
+      }
+      
       const tx = prepareContractCall({
         contract,
         method: 'castVote',
@@ -211,7 +250,21 @@ export function useVoteOnProposal() {
       return { transactionHash: txHash, receipt: result };
     } catch (error: any) {
       console.error('Error voting:', error);
-      toast.error(error?.message || 'Error casting vote');
+      
+      // Mejorar mensajes de error
+      let errorMessage = error?.message || 'Error casting vote';
+      
+      if (errorMessage.includes('Not active')) {
+        errorMessage = 'La propuesta no está activa. Solo puedes votar en propuestas con estado Active.';
+      } else if (errorMessage.includes('Voting ended')) {
+        errorMessage = 'El período de votación ha terminado para esta propuesta.';
+      } else if (errorMessage.includes('Already voted')) {
+        errorMessage = 'Ya has votado en esta propuesta.';
+      } else if (errorMessage.includes('No voting power')) {
+        errorMessage = 'No tienes poder de voto suficiente. Necesitas tener BNB en el contrato.';
+      }
+      
+      toast.error(errorMessage);
       throw error;
     } finally {
       setLoading(false);

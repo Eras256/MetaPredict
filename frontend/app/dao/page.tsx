@@ -15,25 +15,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { analyzeDAOProposal } from '@/lib/services/ai/gemini';
 import { toast } from 'sonner';
 
-// ProposalStatus enum values from contract
-const ProposalStatus = {
-  Pending: 0,
-  Active: 1,
-  Succeeded: 2,
-  Defeated: 3,
-  Executed: 4,
-  Cancelled: 5,
-} as const;
-
-const ProposalStatusLabels: Record<number, string> = {
-  0: 'Pending',
-  1: 'Active',
-  2: 'Succeeded',
-  3: 'Defeated',
-  4: 'Executed',
-  5: 'Cancelled',
-};
-
 export default function DAOPage() {
   const [selectedProposal, setSelectedProposal] = useState<number | null>(null);
   const [voteSupport, setVoteSupport] = useState<0 | 1 | 2>(1);
@@ -44,6 +25,8 @@ export default function DAOPage() {
   const [analysisResults, setAnalysisResults] = useState<Record<number, any>>({});
 
   // Mock proposals - in production, fetch from contract
+  // NOTA: Estas son propuestas de ejemplo. Para votar, la propuesta debe existir
+  // en el contrato y estar en estado Active (1)
   const proposals = [
     {
       id: 1,
@@ -60,34 +43,11 @@ export default function DAOPage() {
 
   const handleVote = async (proposalId: number) => {
     try {
-      // Verificar el estado real de la propuesta antes de votar
-      const { proposal: realProposal } = useProposal(proposalId);
-      
-      if (!realProposal) {
-        toast.error(`La propuesta #${proposalId} no existe en el contrato`);
-        return;
-      }
-
-      // Verificar que la propuesta esté en estado Active (1)
-      if (realProposal.status !== ProposalStatus.Active) {
-        const statusLabel = ProposalStatusLabels[realProposal.status] || 'Desconocido';
-        toast.error(`La propuesta #${proposalId} no está activa. Estado actual: ${statusLabel}`);
-        return;
-      }
-
-      // Verificar que no haya votado ya
-      if (realProposal.executed) {
-        toast.error('Esta propuesta ya ha sido ejecutada');
-        return;
-      }
-
+      // La validación del estado de la propuesta se hace en el hook useVoteOnProposal
       await vote(proposalId, voteSupport, '');
-    } catch (error: any) {
-      // El error ya se maneja en el hook, pero agregamos validación adicional
-      if (error?.message?.includes('Not active')) {
-        toast.error('La propuesta no está activa. Solo puedes votar en propuestas con estado Active.');
-      }
-      throw error;
+    } catch (error) {
+      // El error ya se maneja y muestra un toast en el hook
+      console.error('Error en handleVote:', error);
     }
   };
 
