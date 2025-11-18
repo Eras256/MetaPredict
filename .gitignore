@@ -74,7 +74,9 @@ forge-out/
 out/
 broadcast/
 cache/
+# lib/ - Ignore lib/ in smart-contracts and backend, but allow frontend/lib/
 lib/
+!frontend/lib/
 
 # ============================================
 # Database

@@ -29,7 +29,7 @@ export default function PortfolioPage() {
 
   const handleAnalyzePortfolio = async () => {
     if (positions.length === 0) {
-      toast.error('No hay posiciones para analizar');
+      toast.error('No positions to analyze');
       return;
     }
 
@@ -46,12 +46,12 @@ export default function PortfolioPage() {
       const result = await analyzePortfolioRebalance(positionsData);
       if (result.success && result.data) {
         setAnalysisResult(result.data);
-        toast.success(`Análisis completado con ${result.modelUsed}`);
+        toast.success(`Analysis completed with ${result.modelUsed}`);
       } else {
-        toast.error(result.error || 'Error al analizar portfolio');
+        toast.error(result.error || 'Error analyzing portfolio');
       }
     } catch (error: any) {
-      toast.error('Error al analizar portfolio');
+      toast.error('Error analyzing portfolio');
       console.error(error);
     } finally {
       setAnalyzing(false);
@@ -117,12 +117,12 @@ export default function PortfolioPage() {
               {analyzing ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Analizando...
+                    Analyzing...
                 </>
               ) : (
                 <>
                   <Brain className="mr-2 h-4 w-4" />
-                  Analizar Portfolio con AI
+                    Analyze Portfolio with AI
                 </>
               )}
             </Button>
@@ -135,31 +135,31 @@ export default function PortfolioPage() {
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold flex items-center gap-2">
                 <Brain className="h-5 w-5 text-purple-400" />
-                Análisis de Portfolio
+                Portfolio Analysis
               </h3>
               <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                 analysisResult.riskScore < 30 ? 'bg-green-500/20 text-green-400' :
                 analysisResult.riskScore < 70 ? 'bg-yellow-500/20 text-yellow-400' :
                 'bg-red-500/20 text-red-400'
               }`}>
-                Riesgo: {analysisResult.riskScore}/100
+                Risk: {analysisResult.riskScore}/100
               </span>
             </div>
             <p className="text-sm text-gray-300 mb-4">{analysisResult.overallRecommendation}</p>
             {analysisResult.allocations && analysisResult.allocations.length > 0 && (
               <div className="space-y-2">
-                <h4 className="text-sm font-medium text-gray-400 mb-2">Recomendaciones:</h4>
+                <h4 className="text-sm font-medium text-gray-400 mb-2">Recommendations:</h4>
                 {analysisResult.allocations.map((allocation: any, idx: number) => (
                   <div key={idx} className="p-3 rounded-lg bg-white/5 border border-white/10">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-white">Mercado #{allocation.marketId}</span>
+                      <span className="text-sm text-white">Market #{allocation.marketId}</span>
                       <span className={`px-2 py-1 rounded text-xs font-medium ${
                         allocation.recommendedAction === 'increase' ? 'bg-green-500/20 text-green-400' :
                         allocation.recommendedAction === 'decrease' ? 'bg-red-500/20 text-red-400' :
                         'bg-gray-500/20 text-gray-400'
                       }`}>
-                        {allocation.recommendedAction === 'increase' ? 'Aumentar' :
-                         allocation.recommendedAction === 'decrease' ? 'Reducir' : 'Mantener'}
+                        {allocation.recommendedAction === 'increase' ? 'Increase' :
+                         allocation.recommendedAction === 'decrease' ? 'Decrease' : 'Maintain'}
                         {allocation.recommendedAction === 'increase' && <TrendingUp className="inline ml-1 h-3 w-3" />}
                         {allocation.recommendedAction === 'decrease' && <TrendingDown className="inline ml-1 h-3 w-3" />}
                       </span>

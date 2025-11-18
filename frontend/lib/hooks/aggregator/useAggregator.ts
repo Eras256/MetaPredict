@@ -1,9 +1,24 @@
 'use client';
 
-import { useReadContract } from 'wagmi';
-import { CONTRACTS } from '@/lib/config/constants';
+import { useMemo } from 'react';
+import { useReadContract } from 'thirdweb/react';
+import { defineChain } from 'thirdweb/chains';
+import { getContract } from 'thirdweb';
+import { CONTRACT_ADDRESSES } from '@/lib/contracts/addresses';
+import { client } from '@/lib/config/thirdweb';
 
-// ABI placeholder
+const opBNBTestnet = defineChain({
+  id: 5611,
+  name: 'opBNB Testnet',
+  nativeCurrency: {
+    name: 'tBNB',
+    symbol: 'tBNB',
+    decimals: 18,
+  },
+  rpc: 'https://opbnb-testnet-rpc.bnbchain.org',
+});
+
+// ABI simplificado
 const OmniRouterABI = [
   {
     name: 'findBestPrice',
@@ -43,12 +58,21 @@ const OmniRouterABI = [
 ] as const;
 
 export function usePriceComparison(marketQuestion: string, isYes: boolean, amount: string) {
-  const { data, isLoading, error } = useReadContract({
-    address: CONTRACTS.CROSS_CHAIN_ROUTER as `0x${string}`,
-    abi: OmniRouterABI,
-    functionName: 'findBestPrice',
-    args: [marketQuestion, isYes, BigInt(amount || '0')],
-    query: { enabled: !!marketQuestion && !!amount },
+  const contract = useMemo(() => {
+    if (!CONTRACT_ADDRESSES.OMNI_ROUTER) return null;
+    return getContract({
+      client,
+      chain: opBNBTestnet,
+      address: CONTRACT_ADDRESSES.OMNI_ROUTER,
+      abi: OmniRouterABI as any,
+    });
+  }, []);
+
+  const { data, isLoading } = useReadContract({
+    contract: contract!,
+    method: 'findBestPrice',
+    params: [marketQuestion, isYes, BigInt(amount || '0')],
+    queryOptions: { enabled: !!marketQuestion && !!amount && !!contract },
   });
 
   const result = data as any;
@@ -59,17 +83,25 @@ export function usePriceComparison(marketQuestion: string, isYes: boolean, amoun
     estimatedShares: result?.[2] ? Number(result[2]) : null,
     gasCost: result?.[3] ? Number(result[3]) : null,
     isLoading,
-    error,
   };
 }
 
 export function useMarketPrices(marketQuestion: string) {
+  const contract = useMemo(() => {
+    if (!CONTRACT_ADDRESSES.OMNI_ROUTER) return null;
+    return getContract({
+      client,
+      chain: opBNBTestnet,
+      address: CONTRACT_ADDRESSES.OMNI_ROUTER,
+      abi: OmniRouterABI as any,
+    });
+  }, []);
+
   const { data, isLoading } = useReadContract({
-    address: CONTRACTS.CROSS_CHAIN_ROUTER as `0x${string}`,
-    abi: OmniRouterABI,
-    functionName: 'getMarketPrices',
-    args: [marketQuestion],
-    query: { enabled: !!marketQuestion },
+    contract: contract!,
+    method: 'getMarketPrices',
+    params: [marketQuestion],
+    queryOptions: { enabled: !!marketQuestion && !!contract },
   });
 
   const result = data as any;
@@ -84,11 +116,21 @@ export function useMarketPrices(marketQuestion: string) {
 }
 
 export function useSupportedChains() {
+  const contract = useMemo(() => {
+    if (!CONTRACT_ADDRESSES.OMNI_ROUTER) return null;
+    return getContract({
+      client,
+      chain: opBNBTestnet,
+      address: CONTRACT_ADDRESSES.OMNI_ROUTER,
+      abi: OmniRouterABI as any,
+    });
+  }, []);
+
   const { data, isLoading } = useReadContract({
-    address: CONTRACTS.CROSS_CHAIN_ROUTER as `0x${string}`,
-    abi: OmniRouterABI,
-    functionName: 'getSupportedChains',
-    args: [],
+    contract: contract!,
+    method: 'getSupportedChains',
+    params: [],
+    queryOptions: { enabled: !!contract },
   });
 
   return {
@@ -96,4 +138,3 @@ export function useSupportedChains() {
     isLoading,
   };
 }
-

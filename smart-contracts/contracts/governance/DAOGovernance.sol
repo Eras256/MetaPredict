@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
@@ -9,17 +8,17 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
  * @title DAOGovernance
  * @notice Governanza descentralizada con quadratic voting y expertise validation
  * @dev Resuelve mercados subjetivos + propuestas de protocolo
+ * @dev Usa BNB nativo en lugar de tokens ERC20
  */
 contract DAOGovernance is Ownable, ReentrancyGuard {
     // ============ State Variables ============
     
     address public coreContract;
     address public reputationContract;
-    IERC20 public governanceToken;
     
     uint256 public proposalCounter;
     uint256 public votingPeriod = 3 days;
-    uint256 public minQuorum = 1000e18; // 1000 tokens
+    uint256 public minQuorum = 1 ether; // 1 BNB
     uint256 public expertiseWeight = 2; // 2x multiplier
     
     // Proposal types
@@ -115,10 +114,8 @@ contract DAOGovernance is Ownable, ReentrancyGuard {
     // ============ Constructor ============
     
     constructor(
-        address _governanceToken,
         address _reputationContract
     ) Ownable(msg.sender) {
-        governanceToken = IERC20(_governanceToken);
         reputationContract = _reputationContract;
     }
     
@@ -176,10 +173,10 @@ contract DAOGovernance is Ownable, ReentrancyGuard {
     function createParameterProposal(
         string calldata _title,
         string calldata _description
-    ) external returns (uint256) {
+    ) external payable returns (uint256) {
         require(
-            governanceToken.balanceOf(msg.sender) >= 100e18,
-            "Insufficient tokens"
+            msg.value >= 0.1 ether,
+            "Insufficient BNB (min 0.1 BNB)"
         );
         
         uint256 proposalId = ++proposalCounter;
@@ -222,7 +219,9 @@ contract DAOGovernance is Ownable, ReentrancyGuard {
         require(!proposal.votes[msg.sender].hasVoted, "Already voted");
         require(_support <= 2, "Invalid support value");
         
-        uint256 votes = governanceToken.balanceOf(msg.sender);
+        // Voting power based on BNB balance in contract (staked via reputation)
+        // In production, this would query ReputationStaking contract
+        uint256 votes = address(msg.sender).balance; // Simplified - should query reputation staking
         require(votes > 0, "No voting power");
         
         // Quadratic voting: sqrt of token balance

@@ -20,7 +20,7 @@ export default function CreateMarketPage() {
 
   const handleGetSuggestions = async () => {
     if (!question.trim()) {
-      toast.error('Ingresa un tema primero para generar sugerencias');
+      toast.error('Please enter a topic first to generate suggestions');
       return;
     }
 
@@ -29,14 +29,14 @@ export default function CreateMarketPage() {
       const result = await suggestMarketCreation(question);
       if (result.success && result.data) {
         setSuggestions(result.data.suggestions);
-        toast.success(`Generadas ${result.data.suggestions.length} sugerencias con ${result.modelUsed}`);
+        toast.success(`Generated ${result.data.suggestions.length} suggestions with ${result.modelUsed}`);
       } else {
-        toast.error(result.error || 'Error al generar sugerencias');
+        toast.error(result.error || 'Error generating suggestions');
       }
     } catch (error: any) {
-      const errorMessage = error.message || 'Error al generar sugerencias';
+      const errorMessage = error.message || 'Error generating suggestions';
       if (errorMessage.includes('GEMINI_API_KEY')) {
-        toast.error('⚠️ API Key de Gemini no configurada. Verifica tu archivo .env.local');
+        toast.error('⚠️ Gemini API Key not configured. Check your .env.local file');
       } else {
         toast.error(errorMessage);
       }
@@ -48,7 +48,7 @@ export default function CreateMarketPage() {
 
   const handleValidateQuestion = async () => {
     if (!question.trim()) {
-      toast.error('Ingresa una pregunta primero');
+      toast.error('Please enter a question first');
       return;
     }
 
@@ -57,17 +57,17 @@ export default function CreateMarketPage() {
       const result = await analyzeMarket(question, description);
       if (result.success && result.data) {
         if (result.data.answer === 'INVALID') {
-          toast.warning(`Pregunta inválida: ${result.data.reasoning}`);
+          toast.warning(`Invalid question: ${result.data.reasoning}`);
         } else {
-          toast.success(`Pregunta válida (Confianza: ${result.data.confidence}%)`);
+          toast.success(`Valid question (Confidence: ${result.data.confidence}%)`);
         }
       } else {
-        toast.error(result.error || 'Error al validar pregunta');
+        toast.error(result.error || 'Error validating question');
       }
     } catch (error: any) {
-      const errorMessage = error.message || 'Error al validar pregunta';
+      const errorMessage = error.message || 'Error validating question';
       if (errorMessage.includes('GEMINI_API_KEY')) {
-        toast.error('⚠️ API Key de Gemini no configurada. Verifica tu archivo .env.local');
+        toast.error('⚠️ Gemini API Key not configured. Check your .env.local file');
       } else {
         toast.error(errorMessage);
       }
@@ -81,7 +81,7 @@ export default function CreateMarketPage() {
     setQuestion(suggestion.question);
     setDescription(suggestion.description);
     setSuggestions([]);
-    toast.success('Sugerencia aplicada');
+        toast.success('Suggestion applied');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -124,10 +124,10 @@ export default function CreateMarketPage() {
                     {validating ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Validando...
+                        Validating...
                       </>
                     ) : (
-                      'Validar con AI'
+                      'Validate with AI'
                     )}
                   </Button>
                   <Button
@@ -140,12 +140,12 @@ export default function CreateMarketPage() {
                     {loadingSuggestions ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Generando...
+                        Generating...
                       </>
                     ) : (
                       <>
                         <Sparkles className="mr-2 h-4 w-4" />
-                        Sugerencias AI
+                        AI Suggestions
                       </>
                     )}
                   </Button>
@@ -167,7 +167,7 @@ export default function CreateMarketPage() {
               <GlassCard className="p-4 border-purple-500/20">
                 <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
                   <Sparkles className="h-4 w-4 text-purple-400" />
-                  Sugerencias de AI
+                  AI Suggestions
                 </h4>
                 <div className="space-y-2">
                   {suggestions.map((suggestion, idx) => (
@@ -193,7 +193,7 @@ export default function CreateMarketPage() {
                             handleUseSuggestion(suggestion);
                           }}
                         >
-                          Usar
+                          Use
                         </Button>
                       </div>
                     </div>

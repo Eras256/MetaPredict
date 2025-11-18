@@ -1,108 +1,171 @@
 'use client';
 
-import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
-import { parseUnits } from 'viem';
-import { CONTRACTS } from '@/lib/config/constants';
+import { useState, useMemo } from 'react';
+import { useSendTransaction, useActiveAccount } from 'thirdweb/react';
+import { defineChain } from 'thirdweb/chains';
+import { getContract, prepareContractCall } from 'thirdweb';
+import { waitForReceipt } from 'thirdweb';
+import { CONTRACT_ADDRESSES } from '@/lib/contracts/addresses';
+import PREDICTION_MARKET_ABI from '@/lib/contracts/abi/PredictionMarket.json';
+import { client } from '@/lib/config/thirdweb';
 import { toast } from 'sonner';
+import { getTransactionUrl, formatTxHash } from '@/lib/utils/blockchain';
 
-// ABI placeholder - should import from actual ABI file
-const PredictionMarketCoreABI = [
-  {
-    name: 'placeBet',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [
-      { name: '_marketId', type: 'uint256' },
-      { name: '_isYes', type: 'bool' },
-      { name: '_amount', type: 'uint256' },
-    ],
+const opBNBTestnet = defineChain({
+  id: 5611,
+  name: 'opBNB Testnet',
+  nativeCurrency: {
+    name: 'tBNB',
+    symbol: 'tBNB',
+    decimals: 18,
   },
-] as const;
-
-const USDCABI = [
-  {
-    name: 'approve',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [
-      { name: 'spender', type: 'address' },
-      { name: 'amount', type: 'uint256' },
-    ],
-    outputs: [{ name: '', type: 'bool' }],
-  },
-] as const;
+  rpc: 'https://opbnb-testnet-rpc.bnbchain.org',
+});
 
 export function usePlaceBet() {
-  const { writeContract, data: hash, isPending } = useWriteContract();
-  const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash });
+  const [loading, setLoading] = useState(false);
+  const account = useActiveAccount();
+  
+  const predictionMarketContract = useMemo(() => {
+    return getContract({
+      client,
+      chain: opBNBTestnet,
+      address: CONTRACT_ADDRESSES.PREDICTION_MARKET,
+      abi: PREDICTION_MARKET_ABI as any,
+    });
+  }, []);
+
+  const { mutateAsync: sendTransaction, isPending: isSending } = useSendTransaction();
 
   const placeBet = async (marketId: number, isYes: boolean, amount: string) => {
+    if (!account) {
+      throw new Error('No account connected');
+    }
+    
     try {
-      const amountWei = parseUnits(amount, 6);
+      setLoading(true);
       
-      writeContract({
-        address: CONTRACTS.PREDICTION_MARKET_CORE as `0x${string}`,
-        abi: PredictionMarketCoreABI,
-        functionName: 'placeBet',
-        args: [BigInt(marketId), isYes, amountWei],
+      // Convertir amount a bigint (BNB tiene 18 decimales)
+      const amountBigInt = BigInt(Math.floor(parseFloat(amount) * 1e18));
+      
+      // Colocar apuesta con BNB nativo (payable)
+      const betTx = prepareContractCall({
+        contract: predictionMarketContract,
+        method: 'placeBet',
+        params: [BigInt(marketId), isYes],
+        value: amountBigInt, // Enviar BNB nativo
       });
+
+      const betResult = await sendTransaction(betTx);
+      const betHash = betResult.transactionHash;
+      await waitForReceipt({ client, chain: opBNBTestnet, transactionHash: betHash });
       
-      toast.success('Bet placed successfully!');
+      const txUrl = getTransactionUrl(betHash);
+      toast.success(
+        `Apuesta colocada exitosamente! Ver transacción: ${formatTxHash(betHash)}`,
+        {
+          duration: 10000,
+          action: {
+            label: 'Ver en opBNBScan',
+            onClick: () => window.open(txUrl, '_blank'),
+          },
+        }
+      );
+      
+      return { transactionHash: betHash, receipt: betResult };
     } catch (error: any) {
-      toast.error(error.message || 'Failed to place bet');
+      console.error('Error placing bet:', error);
+      toast.error(error?.message || 'Error placing bet');
       throw error;
+    } finally {
+      setLoading(false);
     }
   };
 
-  return { placeBet, isPending: isPending || isConfirming, isSuccess, hash };
+  return { placeBet, isPending: loading || isSending };
 }
 
-export function useApproveUSDC() {
-  const { writeContract, data: hash, isPending } = useWriteContract();
-  const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash });
+// Ya no se necesita approval para BNB nativo - función eliminada
 
-  const approve = async (amount: string) => {
-    try {
-      const amountWei = parseUnits(amount, 6);
-      
-      writeContract({
-        address: CONTRACTS.USDC as `0x${string}`,
-        abi: USDCABI,
-        functionName: 'approve',
-        args: [CONTRACTS.PREDICTION_MARKET_CORE as `0x${string}`, amountWei],
-      });
-      
-      toast.success('Approval successful!');
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to approve');
-      throw error;
+// ABI simplificado para BinaryMarket.claimWinnings
+const BinaryMarketABI = [
+  {
+    name: 'claimWinnings',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [{ name: '_marketId', type: 'uint256' }],
+    outputs: [],
+  },
+] as const;
+
+export function useClaimWinnings(marketId: number, marketType: 'binary' | 'conditional' | 'subjective' = 'binary') {
+  const [loading, setLoading] = useState(false);
+  const account = useActiveAccount();
+  
+  // Determinar qué contrato usar según el tipo de mercado
+  const contractAddress = useMemo(() => {
+    switch (marketType) {
+      case 'binary':
+        return CONTRACT_ADDRESSES.BINARY_MARKET;
+      case 'conditional':
+        return CONTRACT_ADDRESSES.CONDITIONAL_MARKET;
+      case 'subjective':
+        return CONTRACT_ADDRESSES.SUBJECTIVE_MARKET;
+      default:
+        return CONTRACT_ADDRESSES.BINARY_MARKET;
     }
-  };
+  }, [marketType]);
+  
+  const contract = useMemo(() => {
+    return getContract({
+      client,
+      chain: opBNBTestnet,
+      address: contractAddress,
+      abi: BinaryMarketABI as any,
+    });
+  }, [contractAddress]);
 
-  return { approve, isPending: isPending || isConfirming, isSuccess };
-}
-
-export function useClaimWinnings(marketId: number) {
-  const { writeContract, data: hash, isPending } = useWriteContract();
-  const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash });
+  const { mutateAsync: sendTransaction, isPending: isSending } = useSendTransaction();
 
   const claim = async () => {
+    if (!account) {
+      throw new Error('No account connected');
+    }
+    
     try {
-      // Get market contract from core first
-      writeContract({
-        address: CONTRACTS.PREDICTION_MARKET_CORE as `0x${string}`,
-        abi: [] as any, // BinaryMarketABI
-        functionName: 'claimWinnings',
-        args: [BigInt(marketId)],
-      });
+      setLoading(true);
       
-      toast.success('Winnings claimed!');
+      const tx = prepareContractCall({
+        contract,
+        method: 'claimWinnings',
+        params: [BigInt(marketId)],
+      });
+
+      const result = await sendTransaction(tx);
+      const txHash = result.transactionHash;
+      await waitForReceipt({ client, chain: opBNBTestnet, transactionHash: txHash });
+      
+      const txUrl = getTransactionUrl(txHash);
+      toast.success(
+        `Ganancias reclamadas! Ver transacción: ${formatTxHash(txHash)}`,
+        {
+          duration: 10000,
+          action: {
+            label: 'Ver en opBNBScan',
+            onClick: () => window.open(txUrl, '_blank'),
+          },
+        }
+      );
+      
+      return { transactionHash: txHash, receipt: result };
     } catch (error: any) {
-      toast.error(error.message || 'Failed to claim');
+      console.error('Error claiming winnings:', error);
+      toast.error(error?.message || 'Error claiming winnings');
       throw error;
+    } finally {
+      setLoading(false);
     }
   };
 
-  return { claim, isPending: isPending || isConfirming, isSuccess };
+  return { claim, isPending: loading || isSending };
 }
-

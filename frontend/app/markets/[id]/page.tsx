@@ -1,7 +1,7 @@
 'use client';
 
 import { use } from 'react';
-import { useMarketDetails } from '@/lib/hooks/markets/useMarkets';
+import { useMarket } from '@/lib/hooks/useMarkets';
 import { BettingPanel } from '@/components/markets/BettingPanel';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -11,61 +11,41 @@ import { ArrowLeft, Clock, Users, TrendingUp, Shield, Brain, ExternalLink, Loade
 import Link from 'next/link';
 import { formatDistanceToNow, format } from 'date-fns';
 import { MARKET_STATUS, MARKET_TYPES } from '@/lib/config/constants';
+import { CONTRACT_ADDRESSES } from '@/lib/contracts/addresses';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useReadContract } from 'wagmi';
 import { useActiveAccount } from 'thirdweb/react';
-import { CONTRACTS } from '@/lib/config/constants';
-import { formatUnits } from 'viem';
 import { analyzeMarket } from '@/lib/services/ai/gemini';
 import { toast } from 'sonner';
 import { useState } from 'react';
+import { useBNBBalance } from '@/lib/hooks/useBNBBalance';
 
-// USDC ABI placeholder
-const USDCABI = [
-  {
-    name: 'balanceOf',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [{ name: 'account', type: 'address' }],
-    outputs: [{ name: '', type: 'uint256' }],
-  },
-] as const;
 
 export default function MarketDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const marketId = parseInt(id);
-  const { marketInfo, marketData, odds, isLoading } = useMarketDetails(marketId);
+  const { market, loading: isLoading } = useMarket(marketId);
   const account = useActiveAccount();
+  const { balance: userBalance } = useBNBBalance();
   const [analyzingMarket, setAnalyzingMarket] = useState(false);
   const [marketAnalysis, setMarketAnalysis] = useState<any>(null);
-  
-  const { data: balance } = useReadContract({
-    address: CONTRACTS.USDC as `0x${string}`,
-    abi: USDCABI,
-    functionName: 'balanceOf',
-    args: [account?.address as `0x${string}`],
-    query: { enabled: !!account },
-  });
-
-  const userBalance = balance ? Number(formatUnits(balance, 6)) : 0;
 
   const handleAnalyzeMarket = async () => {
-    if (!marketData?.question) {
-      toast.error('No hay información del mercado para analizar');
+    if (!market?.question) {
+      toast.error('No market information to analyze');
       return;
     }
 
     setAnalyzingMarket(true);
     try {
-      const result = await analyzeMarket(marketData.question, marketData.description);
+      const result = await analyzeMarket(market.question, market.description || '');
       if (result.success && result.data) {
         setMarketAnalysis(result.data);
-        toast.success(`Análisis completado con ${result.modelUsed}`);
+        toast.success(`Analysis completed with ${result.modelUsed}`);
       } else {
-        toast.error(result.error || 'Error al analizar mercado');
+        toast.error(result.error || 'Error analyzing market');
       }
     } catch (error: any) {
-      toast.error('Error al analizar mercado');
+      toast.error('Error analyzing market');
       console.error(error);
     } finally {
       setAnalyzingMarket(false);
@@ -82,10 +62,12 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
     );
   }
 
-  const yesOdds = odds ? Number(odds[0]) / 100 : 50;
-  const noOdds = odds ? Number(odds[1]) / 100 : 50;
-  const timeRemaining = marketInfo ? formatDistanceToNow(new Date(Number(marketInfo.resolutionTime) * 1000), { addSuffix: true }) : '';
-  const resolutionDate = marketInfo ? format(new Date(Number(marketInfo.resolutionTime) * 1000), 'PPP p') : '';
+  // Calcular odds desde los pools del mercado
+  const totalPool = market ? Number(market.yesPool) + Number(market.noPool) : 0;
+  const yesOdds = market && totalPool > 0 ? (Number(market.yesPool) / totalPool) * 100 : 50;
+  const noOdds = market && totalPool > 0 ? (Number(market.noPool) / totalPool) * 100 : 50;
+  const timeRemaining = market ? formatDistanceToNow(new Date(Number(market.resolutionTime) * 1000), { addSuffix: true }) : '';
+  const resolutionDate = market ? format(new Date(Number(market.resolutionTime) * 1000), 'PPP p') : '';
 
   return (
     <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
@@ -104,10 +86,10 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
               <div className="flex items-start justify-between mb-6">
                 <div className="flex items-center gap-3">
                   <Badge variant="outline" className="text-xs">
-                    {MARKET_TYPES[marketInfo?.marketType as keyof typeof MARKET_TYPES]}
+                    Binary Market
                   </Badge>
                   <Badge className="text-xs bg-green-500/20 text-green-300">
-                    Active
+                    {market?.status === 0 ? 'Active' : market?.status === 2 ? 'Resolved' : 'Pending'}
                   </Badge>
                 </div>
                 <div className="flex items-center gap-2">
@@ -117,7 +99,7 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
               </div>
 
               <h1 className="text-3xl font-bold text-white mb-6">
-                {marketData?.question || `Market #${marketId}`}
+                {market?.question || `Market #${marketId}`}
               </h1>
 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
@@ -154,10 +136,10 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                 </div>
               </div>
 
-              {marketData?.description && (
+              {market?.description && (
                 <div className="p-4 rounded-lg bg-white/5 border border-white/10">
                   <h3 className="text-sm font-semibold text-gray-400 mb-2">Description</h3>
-                  <p className="text-gray-300">{marketData.description}</p>
+                  <p className="text-gray-300">{market.description}</p>
                 </div>
               )}
 
@@ -165,18 +147,18 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
               <div className="mt-6 pt-6 border-t border-white/10">
                 <Button
                   onClick={handleAnalyzeMarket}
-                  disabled={analyzingMarket || !marketData?.question}
+                  disabled={analyzingMarket || !market?.question}
                   className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
                 >
                   {analyzingMarket ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Analizando con AI...
+                      Analyzing with AI...
                     </>
                   ) : (
                     <>
                       <Brain className="mr-2 h-4 w-4" />
-                      Analizar Mercado con AI
+                      Analyze Market with AI
                     </>
                   )}
                 </Button>
@@ -188,7 +170,7 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                   <div className="flex items-center justify-between mb-3">
                     <h4 className="text-sm font-semibold flex items-center gap-2 text-purple-400">
                       <Brain className="h-4 w-4" />
-                      Análisis AI
+                      AI Analysis
                     </h4>
                     <div className="flex items-center gap-2">
                       <span className={`px-2 py-1 rounded text-xs font-medium ${
@@ -199,7 +181,7 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                         {marketAnalysis.answer}
                       </span>
                       <span className="text-xs text-gray-400">
-                        {marketAnalysis.confidence}% confianza
+                        {marketAnalysis.confidence}% confidence
                       </span>
                     </div>
                   </div>
@@ -287,13 +269,13 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                     <div className="flex justify-between py-3 border-b border-white/10">
                       <span className="text-gray-400">Creator</span>
                       <span className="text-white font-mono text-sm">
-                        {marketInfo?.creator ? `${marketInfo.creator.slice(0, 6)}...${marketInfo.creator.slice(-4)}` : '-'}
+                        {market?.creator ? `${market.creator.slice(0, 6)}...${market.creator.slice(-4)}` : '-'}
                       </span>
                     </div>
                     <div className="flex justify-between py-3 border-b border-white/10">
                       <span className="text-gray-400">Created</span>
                       <span className="text-white">
-                        {marketInfo ? format(new Date(Number(marketInfo.createdAt) * 1000), 'PPP') : '-'}
+                        {market ? format(new Date(Number(market.createdAt) * 1000), 'PPP') : '-'}
                       </span>
                     </div>
                     <div className="flex justify-between py-3 border-b border-white/10">
@@ -306,10 +288,16 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                     </div>
                   </div>
 
-                  <Button variant="outline" className="w-full mt-6 gap-2">
-                    View on Explorer
-                    <ExternalLink className="w-4 h-4" />
-                  </Button>
+                  <a
+                    href={`https://testnet.opbnbscan.com/address/${CONTRACT_ADDRESSES.PREDICTION_MARKET}#code`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Button variant="outline" className="w-full mt-6 gap-2">
+                      View on opBNBScan
+                      <ExternalLink className="w-4 h-4" />
+                    </Button>
+                  </a>
                 </GlassCard>
               </TabsContent>
             </Tabs>

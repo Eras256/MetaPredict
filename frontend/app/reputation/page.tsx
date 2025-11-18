@@ -47,7 +47,7 @@ export default function ReputationPage() {
 
   const handleAnalyzeReputation = async () => {
     if (totalVotes === 0) {
-      toast.error('No hay datos suficientes para analizar');
+      toast.error('Insufficient data to analyze');
       return;
     }
 
@@ -64,12 +64,12 @@ export default function ReputationPage() {
       const result = await analyzeReputation(userData);
       if (result.success && result.data) {
         setAnalysisResult(result.data);
-        toast.success(`Análisis completado con ${result.modelUsed}`);
+        toast.success(`Analysis completed with ${result.modelUsed}`);
       } else {
-        toast.error(result.error || 'Error al analizar reputación');
+        toast.error(result.error || 'Error analyzing reputation');
       }
     } catch (error: any) {
-      toast.error('Error al analizar reputación');
+      toast.error('Error analyzing reputation');
       console.error(error);
     } finally {
       setAnalyzing(false);
@@ -108,12 +108,12 @@ export default function ReputationPage() {
                   {analyzing ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Analizando...
+                      Analyzing...
                     </>
                   ) : (
                     <>
                       <Brain className="mr-2 h-4 w-4" />
-                      Analizar con AI
+                      Analyze with AI
                     </>
                   )}
                 </Button>
@@ -168,7 +168,7 @@ export default function ReputationPage() {
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="text-sm font-semibold flex items-center gap-2 text-purple-400">
                     <Brain className="h-4 w-4" />
-                    Análisis AI
+                    AI Analysis
                   </h3>
                   <span className={`px-2 py-1 rounded text-xs font-medium ${
                     analysisResult.riskLevel === 'low' ? 'bg-green-500/20 text-green-400' :
@@ -179,11 +179,11 @@ export default function ReputationPage() {
                   </span>
                 </div>
                 <p className="text-xs text-gray-400 mb-3">
-                  Score de Reputación AI: <span className="text-white font-semibold">{analysisResult.reputationScore}/100</span>
+                  AI Reputation Score: <span className="text-white font-semibold">{analysisResult.reputationScore}/100</span>
                 </p>
                 {analysisResult.recommendations && analysisResult.recommendations.length > 0 && (
                   <div>
-                    <p className="text-xs text-gray-400 mb-2">Recomendaciones:</p>
+                    <p className="text-xs text-gray-400 mb-2">Recommendations:</p>
                     <ul className="list-disc list-inside space-y-1 text-xs text-gray-300">
                       {analysisResult.recommendations.map((rec: string, idx: number) => (
                         <li key={idx}>{rec}</li>
@@ -204,16 +204,16 @@ export default function ReputationPage() {
             
             <div className="space-y-4">
               <div>
-                <label className="text-sm text-gray-400 mb-2 block">Amount (USDC)</label>
+                <label className="text-sm text-gray-400 mb-2 block">Amount (BNB)</label>
                 <Input
                   type="number"
                   placeholder="0.00"
                   value={stakeAmount}
                   onChange={(e) => setStakeAmount(e.target.value)}
-                  min="100"
+                  min="0.1"
                   step="0.01"
                 />
-                <p className="text-xs text-gray-500 mt-1">Minimum: $100 USDC</p>
+                <p className="text-xs text-gray-500 mt-1">Minimum: 0.1 BNB</p>
               </div>
 
               <div className="p-4 rounded-lg bg-blue-500/10 border border-blue-500/20">
@@ -224,7 +224,7 @@ export default function ReputationPage() {
 
               <Button
                 onClick={handleStake}
-                disabled={!stakeAmount || isStaking || parseFloat(stakeAmount) < 100}
+                disabled={!stakeAmount || isStaking || parseFloat(stakeAmount) < 0.1}
                 className="w-full"
                 size="lg"
               >

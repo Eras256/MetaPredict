@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { MarketCard } from '@/components/markets/MarketCard';
-import { useMarkets } from '@/lib/hooks/markets/useMarkets';
+import { useMarkets } from '@/lib/hooks/useMarkets';
 import { MarketFilters } from '@/components/markets/MarketFilters';
 import { GlassCard } from '@/components/effects/GlassCard';
 import { MARKET_STATUS, MARKET_TYPES } from '@/lib/config/constants';
@@ -14,7 +14,7 @@ import { callGemini } from '@/lib/services/ai/gemini';
 import { toast } from 'sonner';
 
 export default function MarketsPage() {
-  const { markets, isLoading } = useMarkets();
+  const { markets, loading: isLoading } = useMarkets();
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState('all');
   const [sortBy, setSortBy] = useState('newest');
@@ -43,7 +43,7 @@ export default function MarketsPage() {
 
   const handleAnalyzeTrends = async () => {
     if (!markets || markets.length === 0) {
-      toast.error('No hay mercados para analizar');
+      toast.error('No markets to analyze');
       return;
     }
 
@@ -55,28 +55,28 @@ export default function MarketsPage() {
         volume: m.totalVolume || 0,
       }));
 
-      const prompt = `Analiza las tendencias de estos mercados de predicción y proporciona un análisis en JSON:
+      const prompt = `Analyze the trends of these prediction markets and provide an analysis in JSON:
 
-Mercados:
+Markets:
 ${JSON.stringify(marketsSummary, null, 2)}
 
-Responde con un JSON en este formato:
+Respond with a JSON in this format:
 {
-  "trends": ["tendencia 1", "tendencia 2", "tendencia 3"],
-  "recommendations": ["recomendación 1", "recomendación 2"],
+  "trends": ["trend 1", "trend 2", "trend 3"],
+  "recommendations": ["recommendation 1", "recommendation 2"],
   "riskLevel": "low" | "medium" | "high",
-  "summary": "resumen general del análisis"
+  "summary": "overall analysis summary"
 }`;
 
       const result = await callGemini(prompt, undefined, true);
       if (result.success && result.data) {
         setTrendAnalysis(result.data);
-        toast.success(`Análisis completado con ${result.modelUsed}`);
+        toast.success(`Analysis completed with ${result.modelUsed}`);
       } else {
-        toast.error(result.error || 'Error al analizar tendencias');
+        toast.error(result.error || 'Error analyzing trends');
       }
     } catch (error: any) {
-      toast.error('Error al analizar tendencias');
+      toast.error('Error analyzing trends');
       console.error(error);
     } finally {
       setAnalyzingTrends(false);
@@ -101,12 +101,12 @@ Responde con un JSON en este formato:
                 {analyzingTrends ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Analizando...
+                    Analyzing...
                   </>
                 ) : (
                   <>
                     <Brain className="mr-2 h-4 w-4" />
-                    Analizar Tendencias AI
+                    Analyze Trends with AI
                   </>
                 )}
               </Button>
@@ -120,20 +120,20 @@ Responde con un JSON en este formato:
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold flex items-center gap-2">
                 <TrendingUp className="h-5 w-5 text-purple-400" />
-                Análisis de Tendencias
+                Trend Analysis
               </h3>
               <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                 trendAnalysis.riskLevel === 'low' ? 'bg-green-500/20 text-green-400' :
                 trendAnalysis.riskLevel === 'medium' ? 'bg-yellow-500/20 text-yellow-400' :
                 'bg-red-500/20 text-red-400'
               }`}>
-                Riesgo: {trendAnalysis.riskLevel}
+                Risk: {trendAnalysis.riskLevel}
               </span>
             </div>
             <p className="text-sm text-gray-300 mb-4">{trendAnalysis.summary}</p>
             {trendAnalysis.trends && trendAnalysis.trends.length > 0 && (
               <div className="mb-4">
-                <h4 className="text-sm font-medium text-gray-400 mb-2">Tendencias Identificadas:</h4>
+                <h4 className="text-sm font-medium text-gray-400 mb-2">Identified Trends:</h4>
                 <ul className="list-disc list-inside space-y-1 text-sm text-gray-300">
                   {trendAnalysis.trends.map((trend: string, idx: number) => (
                     <li key={idx}>{trend}</li>
@@ -143,7 +143,7 @@ Responde con un JSON en este formato:
             )}
             {trendAnalysis.recommendations && trendAnalysis.recommendations.length > 0 && (
               <div>
-                <h4 className="text-sm font-medium text-gray-400 mb-2">Recomendaciones:</h4>
+                <h4 className="text-sm font-medium text-gray-400 mb-2">Recommendations:</h4>
                 <ul className="list-disc list-inside space-y-1 text-sm text-gray-300">
                   {trendAnalysis.recommendations.map((rec: string, idx: number) => (
                     <li key={idx}>{rec}</li>

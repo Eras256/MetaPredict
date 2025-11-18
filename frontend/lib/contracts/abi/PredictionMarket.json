@@ -10,16 +10,11 @@
         "internalType": "bool",
         "name": "_isYes",
         "type": "bool"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_amount",
-        "type": "uint256"
       }
     ],
     "name": "placeBet",
     "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "payable",
     "type": "function"
   },
   {

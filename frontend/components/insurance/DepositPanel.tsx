@@ -5,13 +5,36 @@ import { DollarSign, TrendingUp } from 'lucide-react';
 import { GlassCard } from '@/components/effects/GlassCard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useInsurance } from '@/lib/hooks/insurance/useInsurance';
+import { useActiveAccount } from 'thirdweb/react';
+import { toast } from 'sonner';
 
 export function DepositPanel() {
   const [amount, setAmount] = useState('');
+  const account = useActiveAccount();
+  const { deposit, loading } = useInsurance();
 
   const handleDeposit = async () => {
-    // TODO: Implement deposit via contract
-    console.log('Deposit:', amount);
+    if (!account) {
+      toast.error('Please connect your wallet');
+      return;
+    }
+
+    if (!amount || parseFloat(amount) <= 0) {
+      toast.error('Please enter a valid amount');
+      return;
+    }
+
+    try {
+      // Convertir amount a bigint (BNB tiene 18 decimales)
+      const amountBigInt = BigInt(Math.floor(parseFloat(amount) * 1e18));
+      await deposit(amountBigInt, account.address);
+      setAmount('');
+      toast.success('Deposit successful!');
+    } catch (error: any) {
+      console.error('Error depositing:', error);
+      // El error ya se maneja en el hook
+    }
   };
 
   return (
@@ -22,7 +45,7 @@ export function DepositPanel() {
         <div className="space-y-4">
           <div>
             <label htmlFor="amount" className="block text-sm font-medium text-gray-300 mb-2">
-              Amount (USDC)
+              Amount (BNB)
             </label>
             <Input
               id="amount"
@@ -31,6 +54,7 @@ export function DepositPanel() {
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               className="w-full"
+              disabled={loading}
             />
           </div>
 
@@ -41,13 +65,18 @@ export function DepositPanel() {
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-400">Yield Source</span>
-              <span className="text-sm text-white">Venus Protocol</span>
+              <span className="text-sm text-white">Native Yield</span>
             </div>
           </div>
 
-          <Button onClick={handleDeposit} size="lg" className="w-full">
+          <Button 
+            onClick={handleDeposit} 
+            size="lg" 
+            className="w-full"
+            disabled={loading || !account}
+          >
             <DollarSign className="mr-2 h-5 w-5" />
-            Deposit USDC
+            {loading ? 'Depositing...' : 'Deposit BNB'}
           </Button>
         </div>
       </GlassCard>
@@ -57,7 +86,7 @@ export function DepositPanel() {
         <ul className="space-y-3 text-sm text-gray-400">
           <li className="flex items-start gap-2">
             <TrendingUp className="h-5 w-5 text-purple-400 mt-0.5 flex-shrink-0" />
-            <span>Deposit USDC to earn yield via Venus Protocol (8.5% APY)</span>
+            <span>Deposit BNB to earn yield. Pool generates returns through native staking and yield strategies.</span>
           </li>
           <li className="flex items-start gap-2">
             <TrendingUp className="h-5 w-5 text-purple-400 mt-0.5 flex-shrink-0" />
@@ -76,4 +105,3 @@ export function DepositPanel() {
     </div>
   );
 }
-

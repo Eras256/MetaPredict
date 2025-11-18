@@ -1,11 +1,27 @@
 'use client';
 
-import { useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
-import { useActiveAccount } from 'thirdweb/react';
-import { CONTRACTS } from '@/lib/config/constants';
+import { useState, useMemo } from 'react';
+import { useSendTransaction, useActiveAccount, useReadContract } from 'thirdweb/react';
+import { defineChain } from 'thirdweb/chains';
+import { getContract, prepareContractCall } from 'thirdweb';
+import { waitForReceipt } from 'thirdweb';
+import { CONTRACT_ADDRESSES } from '@/lib/contracts/addresses';
+import { client } from '@/lib/config/thirdweb';
 import { toast } from 'sonner';
+import { getTransactionUrl, formatTxHash } from '@/lib/utils/blockchain';
 
-// ABI placeholder
+const opBNBTestnet = defineChain({
+  id: 5611,
+  name: 'opBNB Testnet',
+  nativeCurrency: {
+    name: 'tBNB',
+    symbol: 'tBNB',
+    decimals: 18,
+  },
+  rpc: 'https://opbnb-testnet-rpc.bnbchain.org',
+});
+
+// ABI simplificado - debería importarse del archivo ABI real
 const DAOGovernanceABI = [
   {
     name: 'getProposal',
@@ -74,12 +90,21 @@ const DAOGovernanceABI = [
 ] as const;
 
 export function useProposal(proposalId: number) {
+  const contract = useMemo(() => {
+    if (!CONTRACT_ADDRESSES.DAO_GOVERNANCE) return null;
+    return getContract({
+      client,
+      chain: opBNBTestnet,
+      address: CONTRACT_ADDRESSES.DAO_GOVERNANCE,
+      abi: DAOGovernanceABI as any,
+    });
+  }, []);
+
   const { data, isLoading } = useReadContract({
-    address: CONTRACTS.DAO_GOVERNANCE as `0x${string}`,
-    abi: DAOGovernanceABI,
-    functionName: 'getProposal',
-    args: [BigInt(proposalId)],
-    query: { enabled: proposalId > 0 },
+    contract: contract!,
+    method: 'getProposal',
+    params: [BigInt(proposalId)],
+    queryOptions: { enabled: proposalId > 0 && !!contract },
   });
 
   const result = data as any;
@@ -104,60 +129,149 @@ export function useProposal(proposalId: number) {
 }
 
 export function useVoteOnProposal() {
-  const { writeContract, data: hash, isPending } = useWriteContract();
-  const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash });
+  const [loading, setLoading] = useState(false);
+  const account = useActiveAccount();
+  
+  const contract = useMemo(() => {
+    if (!CONTRACT_ADDRESSES.DAO_GOVERNANCE) return null;
+    return getContract({
+      client,
+      chain: opBNBTestnet,
+      address: CONTRACT_ADDRESSES.DAO_GOVERNANCE,
+      abi: DAOGovernanceABI as any,
+    });
+  }, []);
+
+  const { mutateAsync: sendTransaction, isPending: isSending } = useSendTransaction();
 
   const vote = async (proposalId: number, support: 0 | 1 | 2, expertiseDomain: string = '') => {
+    if (!account) {
+      throw new Error('No account connected');
+    }
+    
+    if (!contract) {
+      throw new Error('DAO Governance contract not configured');
+    }
+    
     try {
-      writeContract({
-        address: CONTRACTS.DAO_GOVERNANCE as `0x${string}`,
-        abi: DAOGovernanceABI,
-        functionName: 'castVote',
-        args: [BigInt(proposalId), support, expertiseDomain],
-      });
+      setLoading(true);
       
-      toast.success('Vote cast successfully!');
+      const tx = prepareContractCall({
+        contract,
+        method: 'castVote',
+        params: [BigInt(proposalId), support, expertiseDomain],
+      });
+
+      const result = await sendTransaction(tx);
+      const txHash = result.transactionHash;
+      await waitForReceipt({ client, chain: opBNBTestnet, transactionHash: txHash });
+      
+      const txUrl = getTransactionUrl(txHash);
+      toast.success(
+        `Voto emitido exitosamente! Ver transacción: ${formatTxHash(txHash)}`,
+        {
+          duration: 10000,
+          action: {
+            label: 'Ver en opBNBScan',
+            onClick: () => window.open(txUrl, '_blank'),
+          },
+        }
+      );
+      
+      return { transactionHash: txHash, receipt: result };
     } catch (error: any) {
-      toast.error(error.message || 'Failed to cast vote');
+      console.error('Error voting:', error);
+      toast.error(error?.message || 'Error casting vote');
       throw error;
+    } finally {
+      setLoading(false);
     }
   };
 
-  return { vote, isPending: isPending || isConfirming, isSuccess };
+  return { vote, isPending: loading || isSending };
 }
 
 export function useExecuteProposal() {
-  const { writeContract, data: hash, isPending } = useWriteContract();
-  const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash });
+  const [loading, setLoading] = useState(false);
+  const account = useActiveAccount();
+  
+  const contract = useMemo(() => {
+    if (!CONTRACT_ADDRESSES.DAO_GOVERNANCE) return null;
+    return getContract({
+      client,
+      chain: opBNBTestnet,
+      address: CONTRACT_ADDRESSES.DAO_GOVERNANCE,
+      abi: DAOGovernanceABI as any,
+    });
+  }, []);
+
+  const { mutateAsync: sendTransaction, isPending: isSending } = useSendTransaction();
 
   const execute = async (proposalId: number) => {
+    if (!account) {
+      throw new Error('No account connected');
+    }
+    
+    if (!contract) {
+      throw new Error('DAO Governance contract not configured');
+    }
+    
     try {
-      writeContract({
-        address: CONTRACTS.DAO_GOVERNANCE as `0x${string}`,
-        abi: DAOGovernanceABI,
-        functionName: 'executeProposal',
-        args: [BigInt(proposalId)],
-      });
+      setLoading(true);
       
-      toast.success('Proposal executed!');
+      const tx = prepareContractCall({
+        contract,
+        method: 'executeProposal',
+        params: [BigInt(proposalId)],
+      });
+
+      const result = await sendTransaction(tx);
+      const txHash = result.transactionHash;
+      await waitForReceipt({ client, chain: opBNBTestnet, transactionHash: txHash });
+      
+      const txUrl = getTransactionUrl(txHash);
+      toast.success(
+        `Propuesta ejecutada exitosamente! Ver transacción: ${formatTxHash(txHash)}`,
+        {
+          duration: 10000,
+          action: {
+            label: 'Ver en opBNBScan',
+            onClick: () => window.open(txUrl, '_blank'),
+          },
+        }
+      );
+      
+      return { transactionHash: txHash, receipt: result };
     } catch (error: any) {
-      toast.error(error.message || 'Failed to execute proposal');
+      console.error('Error executing proposal:', error);
+      toast.error(error?.message || 'Error executing proposal');
       throw error;
+    } finally {
+      setLoading(false);
     }
   };
 
-  return { execute, isPending: isPending || isConfirming, isSuccess };
+  return { execute, isPending: loading || isSending };
 }
 
 export function useUserProposals() {
   const account = useActiveAccount();
   
+  const contract = useMemo(() => {
+    if (!CONTRACT_ADDRESSES.DAO_GOVERNANCE) return null;
+    return getContract({
+      client,
+      chain: opBNBTestnet,
+      address: CONTRACT_ADDRESSES.DAO_GOVERNANCE,
+      abi: DAOGovernanceABI as any,
+    });
+  }, []);
+
   const { data, isLoading } = useReadContract({
-    address: CONTRACTS.DAO_GOVERNANCE as `0x${string}`,
-    abi: DAOGovernanceABI,
-    functionName: 'getUserProposals',
-    args: [account?.address as `0x${string}`],
-    query: { enabled: !!account },
+    contract: contract!,
+    method: 'getUserProposals',
+    params: account?.address ? [account.address] : undefined,
+    queryOptions: { enabled: !!account && !!contract },
   });
 
   return {
@@ -167,12 +281,21 @@ export function useUserProposals() {
 }
 
 export function useExpertise(userAddress: string, domain: string) {
+  const contract = useMemo(() => {
+    if (!CONTRACT_ADDRESSES.DAO_GOVERNANCE) return null;
+    return getContract({
+      client,
+      chain: opBNBTestnet,
+      address: CONTRACT_ADDRESSES.DAO_GOVERNANCE,
+      abi: DAOGovernanceABI as any,
+    });
+  }, []);
+
   const { data, isLoading } = useReadContract({
-    address: CONTRACTS.DAO_GOVERNANCE as `0x${string}`,
-    abi: DAOGovernanceABI,
-    functionName: 'getExpertise',
-    args: [userAddress as `0x${string}`, domain],
-    query: { enabled: !!userAddress && !!domain },
+    contract: contract!,
+    method: 'getExpertise',
+    params: [userAddress as `0x${string}`, domain],
+    queryOptions: { enabled: !!userAddress && !!domain && !!contract },
   });
 
   const result = data as any;
@@ -190,4 +313,3 @@ export function useExpertise(userAddress: string, domain: string) {
     isLoading,
   };
 }
-

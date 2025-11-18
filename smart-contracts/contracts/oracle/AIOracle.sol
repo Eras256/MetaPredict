@@ -135,7 +135,17 @@ contract AIOracle is FunctionsClient, OwnerIsCreator {
         args[1] = Strings.toString(_pythPriceId);
         req.setArgs(args);
         
-        bytes32 requestId = _sendRequest(
+        // In test environment, if router is ZeroAddress, skip Chainlink Functions call
+        // and return a zero requestId (will be handled by fulfillResolutionManual)
+        bytes32 requestId;
+        if (address(i_router) == address(0)) {
+            requestId = bytes32(0);
+            requestToMarketId[requestId] = _marketId;
+            emit ResolutionRequested(requestId, _marketId, _question);
+            return requestId;
+        }
+        
+        requestId = _sendRequest(
             req.encodeCBOR(),
             subscriptionId,
             gasLimit,

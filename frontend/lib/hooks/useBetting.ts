@@ -77,7 +77,7 @@ export function useBetting() {
       return { transactionHash: txHash, receipt: result };
     } catch (error: any) {
       console.error('Error placing bet:', error);
-      toast.error(error?.message || 'Error al colocar apuesta');
+      toast.error(error?.message || 'Error placing bet');
       throw error;
     } finally {
       setLoading(false);
@@ -122,7 +122,7 @@ export function useBetting() {
       return { transactionHash: txHash, receipt: result };
     } catch (error: any) {
       console.error('Error claiming winnings:', error);
-      toast.error(error?.message || 'Error al reclamar ganancias');
+      toast.error(error?.message || 'Error claiming winnings');
       throw error;
     } finally {
       setLoading(false);

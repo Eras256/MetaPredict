@@ -11,7 +11,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 contract MockUSDC is ERC20 {
     uint8 private constant _decimals = 6;
     
-    constructor() ERC20("Mock USDC", "mUSDC") {
+    constructor() ERC20("USD Coin", "USDC") {
         // Mint 1,000,000 USDC (1M) al deployer para testing
         _mint(msg.sender, 1_000_000 * 10**decimals());
     }

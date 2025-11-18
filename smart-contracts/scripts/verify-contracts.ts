@@ -41,18 +41,13 @@ async function main() {
 
   console.log("📋 Contratos a verificar:\n");
 
-  // 1. Insurance Pool
-  console.log("1️⃣ Verificando Insurance Pool...");
+  // 1. Insurance Pool (BNB native - no constructor args)
+  console.log("1️⃣ Verificando Insurance Pool (BNB native)...");
   try {
     await verifyContract(
       "InsurancePool",
       contracts.insurancePool,
-      [
-        contracts.usdc,
-        process.env.VENUS_VTOKEN || "0xe3923805f6E117E51f5387421240a86EF1570abC", // Venus vUSDT_Core
-        "MetaPredict Insurance Shares",
-        "mpINS"
-      ],
+      [], // No constructor arguments - uses BNB native
       apiKey,
       network
     );
@@ -60,13 +55,13 @@ async function main() {
     console.error("   ❌ Error:", error.message);
   }
 
-  // 2. Reputation Staking
-  console.log("\n2️⃣ Verificando Reputation Staking...");
+  // 2. Reputation Staking (BNB native - no constructor args)
+  console.log("\n2️⃣ Verificando Reputation Staking (BNB native)...");
   try {
     await verifyContract(
       "ReputationStaking",
       contracts.reputationStaking,
-      [contracts.usdc],
+      [], // No constructor arguments - uses BNB native
       apiKey,
       network
     );
@@ -93,15 +88,14 @@ async function main() {
     console.error("   ❌ Error:", error.message);
   }
 
-  // 4. DAO Governance
-  console.log("\n4️⃣ Verificando DAO Governance...");
+  // 4. DAO Governance (BNB native)
+  console.log("\n4️⃣ Verificando DAO Governance (BNB native)...");
   try {
     await verifyContract(
       "DAOGovernance",
       contracts.daoGovernance,
       [
-        contracts.usdc,
-        contracts.reputationStaking
+        contracts.reputationStaking // Only reputation contract, no token
       ],
       apiKey,
       network
@@ -110,13 +104,13 @@ async function main() {
     console.error("   ❌ Error:", error.message);
   }
 
-  // 5. OmniRouter
-  console.log("\n5️⃣ Verificando Cross-Chain Router (OmniRouter)...");
+  // 5. OmniRouter (BNB native - no constructor args)
+  console.log("\n5️⃣ Verificando Cross-Chain Router (OmniRouter) (BNB native)...");
   try {
     await verifyContract(
       "OmniRouter",
       contracts.crossChainRouter,
-      [contracts.usdc],
+      [], // No constructor arguments - uses BNB native
       apiKey,
       network
     );
@@ -124,14 +118,13 @@ async function main() {
     console.error("   ❌ Error:", error.message);
   }
 
-  // 6. Binary Market
-  console.log("\n6️⃣ Verificando Binary Market...");
+  // 6. Binary Market (BNB native)
+  console.log("\n6️⃣ Verificando Binary Market (BNB native)...");
   try {
     await verifyContract(
       "BinaryMarket",
       contracts.markets.binary,
       [
-        contracts.usdc,
         deployment.deployer // coreContract (temporal, luego transferido)
       ],
       apiKey,
@@ -141,14 +134,13 @@ async function main() {
     console.error("   ❌ Error:", error.message);
   }
 
-  // 7. Conditional Market
-  console.log("\n7️⃣ Verificando Conditional Market...");
+  // 7. Conditional Market (BNB native)
+  console.log("\n7️⃣ Verificando Conditional Market (BNB native)...");
   try {
     await verifyContract(
       "ConditionalMarket",
       contracts.markets.conditional,
       [
-        contracts.usdc,
         deployment.deployer // coreContract (temporal)
       ],
       apiKey,
@@ -158,14 +150,13 @@ async function main() {
     console.error("   ❌ Error:", error.message);
   }
 
-  // 8. Subjective Market
-  console.log("\n8️⃣ Verificando Subjective Market...");
+  // 8. Subjective Market (BNB native)
+  console.log("\n8️⃣ Verificando Subjective Market (BNB native)...");
   try {
     await verifyContract(
       "SubjectiveMarket",
       contracts.markets.subjective,
       [
-        contracts.usdc,
         deployment.deployer, // coreContract (temporal)
         contracts.daoGovernance
       ],
@@ -176,14 +167,13 @@ async function main() {
     console.error("   ❌ Error:", error.message);
   }
 
-  // 9. Prediction Market Core
-  console.log("\n9️⃣ Verificando Prediction Market Core...");
+  // 9. Prediction Market Core (BNB native - no token parameter)
+  console.log("\n9️⃣ Verificando Prediction Market Core (BNB native)...");
   try {
     await verifyContract(
       "PredictionMarketCore",
       contracts.core,
       [
-        contracts.usdc,
         contracts.markets.binary,
         contracts.markets.conditional,
         contracts.markets.subjective,

@@ -107,7 +107,7 @@ contract PredictionMarket is Ownable, ReentrancyGuard, Pausable {
     constructor(
         address _bettingToken,
         address _aiOracle,
-        address _insurancePool
+        address payable _insurancePool
     ) Ownable(msg.sender) {
         if (_bettingToken == address(0)) revert Errors.InvalidAmount();
         if (_aiOracle == address(0)) revert Errors.InvalidAmount();

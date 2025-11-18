@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TrendingUp, TrendingDown, Info, Shield, Brain } from 'lucide-react';
-import { usePlaceBet, useApproveUSDC } from '@/lib/hooks/betting/useBetting';
+import { usePlaceBet } from '@/lib/hooks/betting/usePlaceBet';
 import { toast } from 'sonner';
 
 interface BettingPanelProps {
@@ -20,7 +20,6 @@ export function BettingPanel({ marketId, yesOdds, noOdds, userBalance }: Betting
   const [amount, setAmount] = useState('');
   const [side, setSide] = useState<'yes' | 'no'>('yes');
   const { placeBet, isPending: isPlacingBet } = usePlaceBet();
-  const { approve, isPending: isApproving } = useApproveUSDC();
 
   const odds = side === 'yes' ? yesOdds : noOdds;
   const estimatedShares = amount ? (parseFloat(amount) / (odds / 100)).toFixed(2) : '0';
@@ -38,7 +37,7 @@ export function BettingPanel({ marketId, yesOdds, noOdds, userBalance }: Betting
     }
 
     try {
-      await approve(amount);
+      // BNB nativo no requiere approval
       await placeBet(marketId, side === 'yes', amount);
       setAmount('');
     } catch (error) {
@@ -75,7 +74,7 @@ export function BettingPanel({ marketId, yesOdds, noOdds, userBalance }: Betting
 
           <TabsContent value="yes" className="space-y-4 mt-6">
             <div>
-              <label className="text-sm text-gray-400 mb-2 block">Amount (USDC)</label>
+              <label className="text-sm text-gray-400 mb-2 block">Amount (BNB)</label>
               <Input
                 type="number"
                 placeholder="0.00"
@@ -85,7 +84,7 @@ export function BettingPanel({ marketId, yesOdds, noOdds, userBalance }: Betting
                 step="0.01"
               />
               <div className="flex items-center justify-between mt-2 text-xs text-gray-500">
-                <span>Balance: {userBalance.toFixed(2)} USDC</span>
+                <span>Balance: {userBalance.toFixed(4)} BNB</span>
                 <button onClick={() => setAmount(userBalance.toString())} className="text-purple-400 hover:underline">
                   Max
                 </button>
@@ -120,14 +119,14 @@ export function BettingPanel({ marketId, yesOdds, noOdds, userBalance }: Betting
               </div>
             </div>
 
-            <Button onClick={handleBet} disabled={isPlacingBet || isApproving} className="w-full" size="lg">
-              {isApproving ? 'Approving...' : isPlacingBet ? 'Placing Bet...' : 'Bet YES'}
+            <Button onClick={handleBet} disabled={isPlacingBet} className="w-full" size="lg">
+              {isPlacingBet ? 'Placing Bet...' : 'Bet YES'}
             </Button>
           </TabsContent>
 
           <TabsContent value="no" className="space-y-4 mt-6">
             <div>
-              <label className="text-sm text-gray-400 mb-2 block">Amount (USDC)</label>
+              <label className="text-sm text-gray-400 mb-2 block">Amount (BNB)</label>
               <Input
                 type="number"
                 placeholder="0.00"
@@ -137,7 +136,7 @@ export function BettingPanel({ marketId, yesOdds, noOdds, userBalance }: Betting
                 step="0.01"
               />
               <div className="flex items-center justify-between mt-2 text-xs text-gray-500">
-                <span>Balance: {userBalance.toFixed(2)} USDC</span>
+                <span>Balance: {userBalance.toFixed(4)} BNB</span>
                 <button onClick={() => setAmount(userBalance.toString())} className="text-purple-400 hover:underline">
                   Max
                 </button>
@@ -172,8 +171,8 @@ export function BettingPanel({ marketId, yesOdds, noOdds, userBalance }: Betting
               </div>
             </div>
 
-            <Button onClick={handleBet} disabled={isPlacingBet || isApproving} className="w-full" size="lg" variant="destructive">
-              {isApproving ? 'Approving...' : isPlacingBet ? 'Placing Bet...' : 'Bet NO'}
+            <Button onClick={handleBet} disabled={isPlacingBet} className="w-full" size="lg" variant="destructive">
+              {isPlacingBet ? 'Placing Bet...' : 'Bet NO'}
             </Button>
           </TabsContent>
         </Tabs>

@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
@@ -9,9 +8,9 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
  * @title SubjectiveMarket
  * @notice Mercados subjetivos resueltos por expertos via DAO voting
  * @dev Requiere expertise verification y quadratic voting
+ * @dev Usa BNB nativo en lugar de tokens ERC20
  */
 contract SubjectiveMarket is Ownable, ReentrancyGuard {
-    IERC20 public immutable bettingToken;
     address public immutable coreContract;
     address public immutable daoGovernance;
     
@@ -64,11 +63,9 @@ contract SubjectiveMarket is Ownable, ReentrancyGuard {
     );
     
     constructor(
-        address _bettingToken,
         address _coreContract,
         address _daoGovernance
     ) Ownable(msg.sender) {
-        bettingToken = IERC20(_bettingToken);
         coreContract = _coreContract;
         daoGovernance = _daoGovernance;
     }
@@ -113,15 +110,11 @@ contract SubjectiveMarket is Ownable, ReentrancyGuard {
         address _user,
         bool _isYes,
         uint256 _amount
-    ) external onlyCore nonReentrant {
+    ) external payable onlyCore nonReentrant {
         Market storage market = markets[_marketId];
         require(!market.resolved, "Already resolved");
         require(!market.votingStarted, "Voting started");
-        
-        require(
-            bettingToken.transferFrom(msg.sender, address(this), _amount),
-            "Transfer failed"
-        );
+        require(msg.value == _amount, "Amount mismatch");
         
         uint256 shares = _calculateShares(market, _isYes, _amount);
         uint256 avgPrice = (_amount * 1e18) / shares;
@@ -203,11 +196,12 @@ contract SubjectiveMarket is Ownable, ReentrancyGuard {
         
         position.claimed = true;
         
-        require(
-            bettingToken.transfer(msg.sender, payout),
-            "Transfer failed"
-        );
+        (bool success, ) = payable(msg.sender).call{value: payout}("");
+        require(success, "Transfer failed");
     }
+    
+    // Allow contract to receive BNB
+    receive() external payable {}
     
     function _calculateShares(
         Market storage market,

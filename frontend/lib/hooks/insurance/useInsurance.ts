@@ -46,10 +46,12 @@ export function useInsurance() {
     try {
       setLoading(true);
       
+      // InsurancePool.deposit(address receiver) is payable - send BNB native
       const tx = prepareContractCall({
         contract,
         method: 'deposit',
-        params: [amount, receiver || account.address],
+        params: [receiver || account.address],
+        value: amount, // Send BNB native
       });
 
       const result = await sendTransaction(tx);
@@ -59,11 +61,11 @@ export function useInsurance() {
       
       const txUrl = getTransactionUrl(txHash);
       toast.success(
-        `Depósito exitoso! Ver transacción: ${formatTxHash(txHash)}`,
+        `Deposit successful! View transaction: ${formatTxHash(txHash)}`,
         {
           duration: 10000,
           action: {
-            label: 'Ver en opBNBScan',
+            label: 'View on opBNBScan',
             onClick: () => window.open(txUrl, '_blank'),
           },
         }
@@ -72,7 +74,7 @@ export function useInsurance() {
       return { transactionHash: txHash, receipt: result };
     } catch (error: any) {
       console.error('Error depositing:', error);
-      toast.error(error?.message || 'Error al depositar');
+      toast.error(error?.message || 'Error depositing');
       throw error;
     } finally {
       setLoading(false);
@@ -100,11 +102,11 @@ export function useInsurance() {
       
       const txUrl = getTransactionUrl(txHash);
       toast.success(
-        `Retiro exitoso! Ver transacción: ${formatTxHash(txHash)}`,
+        `Withdrawal successful! View transaction: ${formatTxHash(txHash)}`,
         {
           duration: 10000,
           action: {
-            label: 'Ver en opBNBScan',
+            label: 'View on opBNBScan',
             onClick: () => window.open(txUrl, '_blank'),
           },
         }
@@ -113,7 +115,7 @@ export function useInsurance() {
       return { transactionHash: txHash, receipt: result };
     } catch (error: any) {
       console.error('Error withdrawing:', error);
-      toast.error(error?.message || 'Error al retirar');
+      toast.error(error?.message || 'Error withdrawing');
       throw error;
     } finally {
       setLoading(false);
@@ -141,11 +143,11 @@ export function useInsurance() {
       
       const txUrl = getTransactionUrl(txHash);
       toast.success(
-        `Yield reclamado exitosamente! Ver transacción: ${formatTxHash(txHash)}`,
+        `Yield claimed successfully! View transaction: ${formatTxHash(txHash)}`,
         {
           duration: 10000,
           action: {
-            label: 'Ver en opBNBScan',
+            label: 'View on opBNBScan',
             onClick: () => window.open(txUrl, '_blank'),
           },
         }
@@ -154,7 +156,7 @@ export function useInsurance() {
       return { transactionHash: txHash, receipt: result };
     } catch (error: any) {
       console.error('Error claiming yield:', error);
-      toast.error(error?.message || 'Error al reclamar yield');
+      toast.error(error?.message || 'Error claiming yield');
       throw error;
     } finally {
       setLoading(false);
@@ -204,7 +206,7 @@ export function useInsurance() {
       return { transactionHash: txHash, receipt: result };
     } catch (error: any) {
       console.error('Error claiming insurance:', error);
-      toast.error(error?.message || 'Error al reclamar seguro');
+      toast.error(error?.message || 'Error claiming insurance');
       throw error;
     } finally {
       setLoading(false);

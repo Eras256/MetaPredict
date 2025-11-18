@@ -11,7 +11,7 @@ import { DepositPanel } from '@/components/insurance/DepositPanel';
 import { ClaimPanel } from '@/components/insurance/ClaimPanel';
 import { analyzeInsuranceRisk } from '@/lib/services/ai/gemini';
 import { toast } from 'sonner';
-import { useMarkets } from '@/lib/hooks/markets/useMarkets';
+import { useMarkets } from '@/lib/hooks/useMarkets';
 
 export default function InsurancePage() {
   const [activeTab, setActiveTab] = useState<'stats' | 'deposit' | 'claims'>('stats');
@@ -33,12 +33,12 @@ export default function InsurancePage() {
       const result = await analyzeInsuranceRisk(marketData);
       if (result.success && result.data) {
         setRiskAnalysis({ ...result.data, marketId: market.id, marketQuestion: market.question });
-        toast.success(`Análisis completado con ${result.modelUsed}`);
+        toast.success(`Analysis completed with ${result.modelUsed}`);
       } else {
-        toast.error(result.error || 'Error al analizar riesgo');
+        toast.error(result.error || 'Error analyzing risk');
       }
     } catch (error: any) {
-      toast.error('Error al analizar riesgo');
+      toast.error('Error analyzing risk');
       console.error(error);
     } finally {
       setAnalyzingRisk(false);
@@ -90,7 +90,7 @@ export default function InsurancePage() {
               <div>
                 <h3 className="text-lg font-semibold flex items-center gap-2">
                   <Brain className="h-5 w-5 text-purple-400" />
-                  Análisis de Riesgo
+                  Risk Analysis
                 </h3>
                 <p className="text-sm text-gray-400 mt-1">{riskAnalysis.marketQuestion}</p>
               </div>
@@ -99,15 +99,15 @@ export default function InsurancePage() {
                 riskAnalysis.riskScore < 70 ? 'bg-yellow-500/20 text-yellow-400' :
                 'bg-red-500/20 text-red-400'
               }`}>
-                Riesgo: {riskAnalysis.riskScore}/100
+                Risk: {riskAnalysis.riskScore}/100
               </span>
             </div>
             <p className="text-sm text-gray-300 mb-3">{riskAnalysis.reasoning}</p>
             <div className="flex items-center justify-between p-3 rounded-lg bg-white/5">
-              <span className="text-sm text-gray-400">Cobertura Recomendada:</span>
+              <span className="text-sm text-gray-400">Recommended Coverage:</span>
               <span className="text-lg font-semibold text-white">{riskAnalysis.recommendedCoverage}%</span>
             </div>
-            <p className="text-xs text-gray-500 mt-2">Confianza: {riskAnalysis.confidence}%</p>
+            <p className="text-xs text-gray-500 mt-2">Confidence: {riskAnalysis.confidence}%</p>
           </GlassCard>
         )}
 
@@ -120,7 +120,7 @@ export default function InsurancePage() {
                 <GlassCard className="p-6 mt-6">
                   <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                     <Brain className="h-5 w-5 text-purple-400" />
-                    Analizar Riesgo de Mercados
+                    Analyze Market Risk
                   </h3>
                   <div className="space-y-2 max-h-64 overflow-y-auto">
                     {markets.slice(0, 5).map((market: any) => (
@@ -135,7 +135,7 @@ export default function InsurancePage() {
                           {analyzingRisk ? (
                             <Loader2 className="h-4 w-4 animate-spin" />
                           ) : (
-                            'Analizar'
+                            'Analyze'
                           )}
                         </Button>
                       </div>

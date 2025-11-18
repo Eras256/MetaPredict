@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
@@ -10,9 +9,9 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
  * @title ReputationStaking
  * @notice Sistema de reputación con staking, slashing y NFT badges
  * @dev Track 2: Reputation cross-chain con incentivos económicos
+ * @dev Usa BNB nativo en lugar de tokens ERC20
  */
 contract ReputationStaking is ERC721, Ownable, ReentrancyGuard {
-    IERC20 public immutable stakingToken;
     address public coreContract;
     
     // Reputation tiers
@@ -45,19 +44,19 @@ contract ReputationStaking is ERC721, Ownable, ReentrancyGuard {
     
     uint256 public totalStaked;
     uint256 public totalSlashed;
-    uint256 public minStake = 100e6; // $100 USDC
+    uint256 public minStake = 0.1 ether; // 0.1 BNB
     uint256 public slashingPenalty = 2000; // 20%
     
     uint256 public nftCounter;
     
-    // Tier requirements (in USDC)
+    // Tier requirements (in BNB)
     uint256[6] public tierRequirements = [
-        0,           // None
-        100e6,       // Bronze: $100
-        1_000e6,     // Silver: $1,000
-        10_000e6,    // Gold: $10,000
-        50_000e6,    // Platinum: $50,000
-        100_000e6    // Diamond: $100,000
+        0,                    // None
+        0.1 ether,            // Bronze: 0.1 BNB
+        1 ether,              // Silver: 1 BNB
+        10 ether,             // Gold: 10 BNB
+        50 ether,             // Platinum: 50 BNB
+        100 ether             // Diamond: 100 BNB
     ];
     
     event Staked(address indexed user, uint256 amount, Tier newTier);
@@ -68,11 +67,10 @@ contract ReputationStaking is ERC721, Ownable, ReentrancyGuard {
     event ReputationNFTMinted(address indexed user, uint256 tokenId, Tier tier);
     event TierUpgraded(address indexed user, Tier oldTier, Tier newTier);
     
-    constructor(address _stakingToken) 
+    constructor() 
         ERC721("MetaPredict Reputation", "MPR")
         Ownable(msg.sender) 
     {
-        stakingToken = IERC20(_stakingToken);
     }
     
     function setCoreContract(address _core) external onlyOwner {
@@ -82,16 +80,16 @@ contract ReputationStaking is ERC721, Ownable, ReentrancyGuard {
     // ============ Staking Functions ============
     
     /**
-     * @notice Stake tokens para ganar reputación
+     * @notice Stake BNB para ganar reputación
      */
     function stake(address _user, uint256 _amount) 
         external 
+        payable
         nonReentrant 
     {
         require(msg.sender == coreContract, "Only core");
-        require(_amount >= minStake, "Below min stake");
-        
-        stakingToken.transferFrom(msg.sender, address(this), _amount);
+        require(msg.value >= minStake, "Below min stake");
+        require(msg.value == _amount, "Amount mismatch");
         
         Staker storage staker = stakers[_user];
         staker.stakedAmount += _amount;
@@ -117,7 +115,7 @@ contract ReputationStaking is ERC721, Ownable, ReentrancyGuard {
     }
     
     /**
-     * @notice Unstake tokens (con cooldown period)
+     * @notice Unstake BNB (con cooldown period)
      */
     function unstake(uint256 _amount) 
         external 
@@ -139,10 +137,14 @@ contract ReputationStaking is ERC721, Ownable, ReentrancyGuard {
             staker.tier = newTier;
         }
         
-        stakingToken.transfer(msg.sender, _amount);
+        (bool success, ) = payable(msg.sender).call{value: _amount}("");
+        require(success, "Transfer failed");
         
         emit Unstaked(msg.sender, _amount);
     }
+    
+    // Allow contract to receive BNB
+    receive() external payable {}
     
     // ============ Voting Functions ============
     

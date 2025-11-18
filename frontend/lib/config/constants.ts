@@ -24,7 +24,7 @@ export const CONTRACTS = {
   INSURANCE_POOL: process.env.NEXT_PUBLIC_INSURANCE_POOL || "0x0000000000000000000000000000000000000000",
   CROSS_CHAIN_ROUTER: process.env.NEXT_PUBLIC_CROSS_CHAIN_ROUTER || "0x0000000000000000000000000000000000000000",
   DAO_GOVERNANCE: process.env.NEXT_PUBLIC_DAO_GOVERNANCE || "0x0000000000000000000000000000000000000000",
-  USDC: process.env.NEXT_PUBLIC_USDC || "0x0000000000000000000000000000000000000000",
+  // USDC removed - all contracts now use native BNB
 } as const;
 
 // Chain IDs
@@ -47,9 +47,9 @@ export const API_ENDPOINTS = {
 // IPFS
 export const IPFS_GATEWAY = "https://ipfs.io/ipfs/";
 
-// UI constants
-export const MIN_BET = 1; // $1 USDC
-export const MAX_BET = 100000; // $100k USDC
+// UI constants (BNB native)
+export const MIN_BET = 0.001; // 0.001 BNB (minimum bet)
+export const MAX_BET = 100; // 100 BNB (maximum bet)
 export const FEE_PERCENTAGE = 0.5; // 0.5%
 export const INSURANCE_FEE_PERCENTAGE = 0.1; // 0.1%
 

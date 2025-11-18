@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/Pausable.sol";
@@ -19,6 +18,7 @@ import "../governance/DAOGovernance.sol";
  * @title PredictionMarketCore
  * @notice Contrato principal que orquesta todos los módulos de MetaPredict.ai
  * @dev Integra 5 tracks: AI Oracle, Reputation, Gasless UX, Conditional/Subjective, Aggregator
+ * @dev Usa BNB nativo en lugar de tokens ERC20
  */
 contract PredictionMarketCore is Ownable, ReentrancyGuard, Pausable {
     // ============ Constants ============
@@ -26,12 +26,8 @@ contract PredictionMarketCore is Ownable, ReentrancyGuard, Pausable {
     uint256 public constant VERSION = 1;
     uint256 public constant FEE_BASIS_POINTS = 50; // 0.5%
     uint256 public constant INSURANCE_FEE_BP = 10; // 0.1%
-    uint256 public constant MIN_BET = 1e6; // $1 USDC
-    uint256 public constant MAX_BET = 100_000e6; // $100k USDC
-    
-    // ============ State Variables ============
-    
-    IERC20 public immutable bettingToken;
+    uint256 public constant MIN_BET = 0.001 ether; // 0.001 BNB
+    uint256 public constant MAX_BET = 100 ether; // 100 BNB
     
     // Module addresses
     BinaryMarket public binaryMarket;
@@ -89,19 +85,15 @@ contract PredictionMarketCore is Ownable, ReentrancyGuard, Pausable {
     // ============ Constructor ============
     
     constructor(
-        address _bettingToken,
-        address _binaryMarket,
-        address _conditionalMarket,
-        address _subjectiveMarket,
+        address payable _binaryMarket,
+        address payable _conditionalMarket,
+        address payable _subjectiveMarket,
         address _aiOracle,
-        address _reputationStaking,
-        address _insurancePool,
-        address _crossChainRouter,
+        address payable _reputationStaking,
+        address payable _insurancePool,
+        address payable _crossChainRouter,
         address _daoGovernance
     ) Ownable(msg.sender) {
-        require(_bettingToken != address(0), "Invalid token");
-        
-        bettingToken = IERC20(_bettingToken);
         binaryMarket = BinaryMarket(_binaryMarket);
         conditionalMarket = ConditionalMarket(_conditionalMarket);
         subjectiveMarket = SubjectiveMarket(_subjectiveMarket);
@@ -255,22 +247,17 @@ contract PredictionMarketCore is Ownable, ReentrancyGuard, Pausable {
     // ============ Betting Functions ============
     
     /**
-     * @notice Coloca apuesta (gasless via Thirdweb)
+     * @notice Coloca apuesta con BNB nativo
      */
     function placeBet(
         uint256 _marketId,
-        bool _isYes,
-        uint256 _amount
-    ) external nonReentrant whenNotPaused {
+        bool _isYes
+    ) external payable nonReentrant whenNotPaused {
         MarketInfo storage market = markets[_marketId];
         require(market.status == MarketStatus.Active, "Not active");
-        require(_amount >= MIN_BET && _amount <= MAX_BET, "Invalid amount");
+        require(msg.value >= MIN_BET && msg.value <= MAX_BET, "Invalid amount");
         
-        // Transfer tokens
-        require(
-            bettingToken.transferFrom(msg.sender, address(this), _amount),
-            "Transfer failed"
-        );
+        uint256 _amount = msg.value;
         
         // Calculate fees
         uint256 tradingFee = (_amount * FEE_BASIS_POINTS) / 10000;
@@ -278,19 +265,17 @@ contract PredictionMarketCore is Ownable, ReentrancyGuard, Pausable {
         uint256 netAmount = _amount - tradingFee - insuranceFee;
         
         // Transfer to insurance pool
-        bettingToken.approve(address(insurancePool), insuranceFee);
-        insurancePool.receiveInsurancePremium(_marketId, insuranceFee);
+        insurancePool.receiveInsurancePremium{value: insuranceFee}(_marketId, insuranceFee);
         
         // Route to appropriate market contract
         address marketContract = marketTypeContract[_marketId];
-        bettingToken.approve(marketContract, netAmount);
         
         if (market.marketType == MarketType.Binary) {
-            binaryMarket.placeBet(_marketId, msg.sender, _isYes, netAmount);
+            binaryMarket.placeBet{value: netAmount}(_marketId, msg.sender, _isYes, netAmount);
         } else if (market.marketType == MarketType.Conditional) {
-            conditionalMarket.placeBet(_marketId, msg.sender, _isYes, netAmount);
+            conditionalMarket.placeBet{value: netAmount}(_marketId, msg.sender, _isYes, netAmount);
         } else {
-            subjectiveMarket.placeBet(_marketId, msg.sender, _isYes, netAmount);
+            subjectiveMarket.placeBet{value: netAmount}(_marketId, msg.sender, _isYes, netAmount);
         }
         
         emit FeeCollected(_marketId, msg.sender, tradingFee, insuranceFee);
@@ -367,15 +352,15 @@ contract PredictionMarketCore is Ownable, ReentrancyGuard, Pausable {
     function placeBetCrossChain(
         uint256 _marketId,
         bool _isYes,
-        uint256 _amount,
         uint256 _targetChainId
     ) external payable nonReentrant whenNotPaused {
+        require(msg.value >= MIN_BET && msg.value <= MAX_BET, "Invalid amount");
         // Route via CrossChainRouter
         crossChainRouter.routeBet{value: msg.value}(
             _marketId,
             msg.sender,
             _isYes,
-            _amount,
+            msg.value,
             _targetChainId
         );
     }
@@ -385,10 +370,9 @@ contract PredictionMarketCore is Ownable, ReentrancyGuard, Pausable {
     /**
      * @notice Stake para participar en disputes
      */
-    function stakeReputation(uint256 _amount) external {
-        bettingToken.transferFrom(msg.sender, address(this), _amount);
-        bettingToken.approve(address(reputationStaking), _amount);
-        reputationStaking.stake(msg.sender, _amount);
+    function stakeReputation() external payable {
+        require(msg.value > 0, "Amount must be > 0");
+        reputationStaking.stake{value: msg.value}(msg.sender, msg.value);
     }
     
     /**
@@ -405,13 +389,19 @@ contract PredictionMarketCore is Ownable, ReentrancyGuard, Pausable {
     
     function updateModule(
         string calldata _moduleName,
-        address _newAddress
+        address payable _newAddress
     ) external onlyOwner {
         address oldAddress;
         
         if (keccak256(bytes(_moduleName)) == keccak256("binaryMarket")) {
             oldAddress = address(binaryMarket);
             binaryMarket = BinaryMarket(_newAddress);
+        } else if (keccak256(bytes(_moduleName)) == keccak256("conditionalMarket")) {
+            oldAddress = address(conditionalMarket);
+            conditionalMarket = ConditionalMarket(_newAddress);
+        } else if (keccak256(bytes(_moduleName)) == keccak256("subjectiveMarket")) {
+            oldAddress = address(subjectiveMarket);
+            subjectiveMarket = SubjectiveMarket(_newAddress);
         } else if (keccak256(bytes(_moduleName)) == keccak256("aiOracle")) {
             oldAddress = address(aiOracle);
             aiOracle = AIOracle(_newAddress);
@@ -442,12 +432,17 @@ contract PredictionMarketCore is Ownable, ReentrancyGuard, Pausable {
         _unpause();
     }
     
-    function emergencyWithdraw(address _token, uint256 _amount) 
+    function emergencyWithdraw(uint256 _amount) 
         external 
         onlyOwner 
     {
-        IERC20(_token).transfer(owner(), _amount);
+        require(address(this).balance >= _amount, "Insufficient balance");
+        (bool success, ) = payable(owner()).call{value: _amount}("");
+        require(success, "Transfer failed");
     }
+    
+    // Allow contract to receive BNB
+    receive() external payable {}
     
     // ============ View Functions ============
     

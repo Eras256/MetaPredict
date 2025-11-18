@@ -5,6 +5,8 @@
   "scripts": {
     "compile": "hardhat compile",
     "test": "hardhat test",
+    "test:transactions": "hardhat test test/transactions.test.ts --network opBNBTestnet",
+    "test:transactions:verbose": "hardhat test test/transactions.test.ts --network opBNBTestnet --verbose",
     "deploy:testnet": "hardhat run scripts/deploy.ts --network opBNBTestnet",
     "deploy:mainnet": "hardhat run scripts/deploy.ts --network opBNBMainnet",
     "verify": "hardhat verify --network",
@@ -16,7 +18,8 @@
     "verify:all": "hardhat run scripts/verify-contracts.ts --network opBNBTestnet",
     "streams:configure": "hardhat run scripts/configure-data-streams-markets.ts --network opBNBTestnet",
     "streams:create-test": "hardhat run scripts/create-test-markets-with-streams.ts --network opBNBTestnet",
-    "streams:verify": "hardhat run scripts/verify-price-report.ts --network opBNBTestnet"
+    "streams:verify": "hardhat run scripts/verify-price-report.ts --network opBNBTestnet",
+    "mock-usdc:deploy": "hardhat run scripts/deploy-mock-usdc.ts --network opBNBTestnet"
   },
   "dependencies": {
     "@chainlink/contracts": "^0.8.0",

@@ -1,22 +1,19 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/extensions/ERC4626.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
-import "./interfaces/IVenus.sol";
 
 /**
  * @title InsurancePool
- * @notice Pool de seguro ERC-4626 con yield farming en Venus Protocol
- * @dev Protege contra fallos del oracle, genera APY del 5-12% en opBNB
+ * @notice Pool de seguro con yield farming (BNB nativo)
+ * @dev Protege contra fallos del oracle, genera yield en OPBNB
+ * @dev Usa BNB nativo en lugar de tokens ERC20
  */
-contract InsurancePool is ERC4626, Ownable, ReentrancyGuard {
+contract InsurancePool is Ownable, ReentrancyGuard {
     // ============ State Variables ============
     
     address public coreContract;
-    address public venusVToken; // vUSDC en opBNB
     
     uint256 public totalInsured;
     uint256 public totalClaimed;
@@ -26,8 +23,12 @@ contract InsurancePool is ERC4626, Ownable, ReentrancyGuard {
     
     // Insurance parameters
     uint256 public constant PREMIUM_FEE_BP = 10; // 0.1%
-    uint256 public constant MIN_DEPOSIT = 10e6; // $10
+    uint256 public constant MIN_DEPOSIT = 0.01 ether; // 0.01 BNB
     uint256 public constant CLAIM_COOLDOWN = 1 hours;
+    
+    // Share-based system (similar to ERC4626 but for native BNB)
+    uint256 public totalShares;
+    mapping(address => uint256) public shares;
     
     struct InsurancePolicy {
         uint256 marketId;
@@ -93,13 +94,7 @@ contract InsurancePool is ERC4626, Ownable, ReentrancyGuard {
     
     // ============ Constructor ============
     
-    constructor(
-        IERC20 _asset,
-        address _venusVToken,
-        string memory _name,
-        string memory _symbol
-    ) ERC4626(_asset) ERC20(_name, _symbol) Ownable(msg.sender) {
-        venusVToken = _venusVToken;
+    constructor() Ownable(msg.sender) {
         lastYieldHarvest = block.timestamp;
     }
     
@@ -116,10 +111,6 @@ contract InsurancePool is ERC4626, Ownable, ReentrancyGuard {
         coreContract = _core;
     }
     
-    function setVenusVToken(address _vToken) external onlyOwner {
-        venusVToken = _vToken;
-    }
-    
     function setMaxUtilization(uint256 _maxBP) external onlyOwner {
         require(_maxBP <= 10000, "Invalid BP");
         maxUtilization = _maxBP;
@@ -128,43 +119,47 @@ contract InsurancePool is ERC4626, Ownable, ReentrancyGuard {
     // ============ Deposit/Withdraw Functions ============
     
     /**
-     * @notice Deposita USDC para ganar yield + proteger mercados
+     * @notice Deposita BNB para ganar yield + proteger mercados
      */
-    function deposit(
-        uint256 assets,
-        address receiver
-    ) public override nonReentrant returns (uint256 shares) {
-        require(assets >= MIN_DEPOSIT, "Below min deposit");
+    function deposit(address receiver) 
+        external 
+        payable 
+        nonReentrant 
+        returns (uint256 userShares) 
+    {
+        require(msg.value >= MIN_DEPOSIT, "Below min deposit");
         
         // Harvest yield before deposit
         _harvestYield();
         
-        shares = super.deposit(assets, receiver);
+        // Calculate shares (1:1 initially, can be adjusted for yield)
+        userShares = _convertToShares(msg.value);
+        
+        totalShares += userShares;
+        shares[receiver] += userShares;
         
         deposits[receiver] = UserDeposit({
-            amount: assets,
-            shares: shares,
+            amount: msg.value,
+            shares: shares[receiver],
             depositedAt: block.timestamp,
             lastYieldClaim: block.timestamp
         });
         
-        // Stake 70% en Venus para yield
-        uint256 stakeAmount = (assets * 7000) / 10000;
-        _stakeInVenus(stakeAmount);
+        emit Deposited(receiver, msg.value, userShares);
         
-        emit Deposited(receiver, assets, shares);
-        
-        return shares;
+        return userShares;
     }
     
     /**
-     * @notice Retira USDC + yield acumulado
+     * @notice Retira BNB + yield acumulado
      */
     function withdraw(
         uint256 assets,
         address receiver,
         address owner
-    ) public override nonReentrant returns (uint256 shares) {
+    ) external nonReentrant returns (uint256 userShares) {
+        require(msg.sender == owner || msg.sender == coreContract, "Unauthorized");
+        
         // Claim pending yield first
         _claimYield(owner);
         
@@ -172,13 +167,11 @@ contract InsurancePool is ERC4626, Ownable, ReentrancyGuard {
         uint256 available = totalAssets() - totalInsured + totalClaimed;
         require(assets <= available, "Insufficient liquidity");
         
-        // Unstake from Venus if needed
-        if (IERC20(asset()).balanceOf(address(this)) < assets) {
-            uint256 toUnstake = assets - IERC20(asset()).balanceOf(address(this));
-            _unstakeFromVenus(toUnstake);
-        }
+        userShares = _convertToShares(assets);
+        require(shares[owner] >= userShares, "Insufficient shares");
         
-        shares = super.withdraw(assets, receiver, owner);
+        totalShares -= userShares;
+        shares[owner] -= userShares;
         
         // Update deposits
         if (deposits[owner].amount > 0) {
@@ -186,12 +179,17 @@ contract InsurancePool is ERC4626, Ownable, ReentrancyGuard {
                 delete deposits[owner];
             } else {
                 deposits[owner].amount -= assets;
+                deposits[owner].shares -= userShares;
             }
         }
         
-        emit Withdrawn(owner, assets, shares);
+        // Transfer BNB
+        (bool success, ) = payable(receiver).call{value: assets}("");
+        require(success, "Transfer failed");
         
-        return shares;
+        emit Withdrawn(owner, assets, userShares);
+        
+        return userShares;
     }
     
     // ============ Insurance Functions ============
@@ -202,17 +200,17 @@ contract InsurancePool is ERC4626, Ownable, ReentrancyGuard {
     function receiveInsurancePremium(
         uint256 _marketId,
         uint256 _amount
-    ) external onlyCore {
-        require(
-            IERC20(asset()).transferFrom(msg.sender, address(this), _amount),
-            "Transfer failed"
-        );
+    ) external payable onlyCore {
+        require(msg.value >= _amount, "Insufficient BNB");
         
         policies[_marketId].reserve += _amount;
         totalInsured += _amount;
         
         // Update utilization
-        utilizationRateBP = (totalInsured * 10000) / totalAssets();
+        uint256 total = totalAssets();
+        if (total > 0) {
+            utilizationRateBP = (totalInsured * 10000) / total;
+        }
     }
     
     /**
@@ -263,13 +261,14 @@ contract InsurancePool is ERC4626, Ownable, ReentrancyGuard {
         totalClaimed += claimAmount;
         
         // Update utilization
-        utilizationRateBP = ((totalInsured - totalClaimed) * 10000) / totalAssets();
+        uint256 total = totalAssets();
+        if (total > 0) {
+            utilizationRateBP = ((totalInsured - totalClaimed) * 10000) / total;
+        }
         
-        // Transfer USDC
-        require(
-            IERC20(asset()).transfer(_user, claimAmount),
-            "Transfer failed"
-        );
+        // Transfer BNB
+        (bool success, ) = payable(_user).call{value: claimAmount}("");
+        require(success, "Transfer failed");
         
         emit ClaimProcessed(_marketId, _user, claimAmount);
         
@@ -279,32 +278,23 @@ contract InsurancePool is ERC4626, Ownable, ReentrancyGuard {
     // ============ Yield Functions ============
     
     /**
-     * @notice Harvest yield de Venus Protocol
+     * @notice Harvest yield (simplified - can be extended with staking)
      */
     function _harvestYield() internal {
         if (block.timestamp < lastYieldHarvest + 1 hours) return;
         
-        // Get underlying balance from Venus
-        uint256 venusBalance = IVenus(venusVToken).balanceOfUnderlying(address(this));
-        uint256 deposited = (totalAssets() * 7000) / 10000;
+        // Simple yield calculation (can be extended with actual staking)
+        // For now, we'll use a simple interest rate
+        uint256 timeElapsed = block.timestamp - lastYieldHarvest;
+        uint256 baseYield = (totalAssets() * timeElapsed * 500) / (10000 * 365 days); // ~5% APY
         
-        if (venusBalance > deposited) {
-            uint256 yield = venusBalance - deposited;
-            
-            // Redeem yield only
-            IVenus(venusVToken).redeemUnderlying(yield);
-            
-            totalYieldGenerated += yield;
-            totalYieldAccrued += yield;
+        if (baseYield > 0 && totalShares > 0) {
+            totalYieldGenerated += baseYield;
+            totalYieldAccrued += baseYield;
+            yieldPerShare += (baseYield * 1e18) / totalShares;
             lastYieldHarvest = block.timestamp;
             
-            // Update yield per share
-            uint256 totalShares = totalSupply();
-            if (totalShares > 0) {
-                yieldPerShare += (yield * 1e18) / totalShares;
-            }
-            
-            emit YieldHarvested(yield, block.timestamp);
+            emit YieldHarvested(baseYield, block.timestamp);
         }
     }
     
@@ -316,59 +306,45 @@ contract InsurancePool is ERC4626, Ownable, ReentrancyGuard {
     }
     
     function _claimYield(address _user) internal {
-        UserDeposit storage deposit = deposits[_user];
-        if (deposit.shares == 0) return;
+        UserDeposit storage userDeposit = deposits[_user];
+        if (userDeposit.shares == 0) return;
         
         _harvestYield();
         
         // Calculate pending yield
-        uint256 pendingYield = (deposit.shares * yieldPerShare) / 1e18;
-        uint256 lastClaimed = (deposit.shares * 
-            (yieldPerShare - ((block.timestamp - deposit.lastYieldClaim) * 1e18 / 365 days))
+        uint256 pendingYield = (userDeposit.shares * yieldPerShare) / 1e18;
+        uint256 lastClaimed = (userDeposit.shares * 
+            (yieldPerShare - ((block.timestamp - userDeposit.lastYieldClaim) * 1e18 / 365 days))
         ) / 1e18;
         
-        uint256 claimable = pendingYield - lastClaimed;
+        uint256 claimable = pendingYield > lastClaimed ? pendingYield - lastClaimed : 0;
         
         if (claimable > 0) {
-            deposit.lastYieldClaim = block.timestamp;
+            userDeposit.lastYieldClaim = block.timestamp;
             
-            require(
-                IERC20(asset()).transfer(_user, claimable),
-                "Transfer failed"
-            );
+            (bool success, ) = payable(_user).call{value: claimable}("");
+            require(success, "Transfer failed");
             
             emit YieldDistributed(_user, claimable);
         }
     }
     
-    /**
-     * @notice Stake en Venus Protocol
-     */
-    function _stakeInVenus(uint256 _amount) internal {
-        if (_amount == 0) return;
-        
-        IERC20(asset()).approve(venusVToken, _amount);
-        
-        uint256 mintResult = IVenus(venusVToken).mint(_amount);
-        require(mintResult == 0, "Venus mint failed");
-    }
+    // ============ Internal Functions ============
     
-    /**
-     * @notice Unstake de Venus Protocol
-     */
-    function _unstakeFromVenus(uint256 _amount) internal {
-        uint256 redeemResult = IVenus(venusVToken).redeemUnderlying(_amount);
-        require(redeemResult == 0, "Venus redeem failed");
-    }
-    
-    /**
-     * @notice Emergency withdraw de Venus
-     */
-    function emergencyUnstakeAll() external onlyOwner {
-        uint256 venusBalance = IVenus(venusVToken).balanceOfUnderlying(address(this));
-        if (venusBalance > 0) {
-            _unstakeFromVenus(venusBalance);
+    function _convertToShares(uint256 assets) internal view returns (uint256) {
+        if (totalShares == 0 || totalAssets() == 0) {
+            return assets; // 1:1 initially
         }
+        return (assets * totalShares) / totalAssets();
+    }
+    
+    function _convertToAssets(uint256 _shares) internal view returns (uint256) {
+        if (totalShares == 0) return 0;
+        return (_shares * totalAssets()) / totalShares;
+    }
+    
+    function totalAssets() public view returns (uint256) {
+        return address(this).balance;
     }
     
     // ============ View Functions ============
@@ -388,9 +364,11 @@ contract InsurancePool is ERC4626, Ownable, ReentrancyGuard {
         utilizationRate = utilizationRateBP;
         
         // Calculate APY (simplified)
-        uint256 yearlyYield = (totalYieldGenerated * 365 days) / 
-                              (block.timestamp - lastYieldHarvest + 1);
-        yieldAPY = totalAsset > 0 ? (yearlyYield * 10000) / totalAsset : 0;
+        if (block.timestamp > lastYieldHarvest && totalAsset > 0) {
+            uint256 timeElapsed = block.timestamp - lastYieldHarvest;
+            uint256 yearlyYield = (totalYieldGenerated * 365 days) / (timeElapsed + 1);
+            yieldAPY = (yearlyYield * 10000) / totalAsset;
+        }
     }
     
     function getPolicyStatus(uint256 _marketId) 
@@ -425,12 +403,12 @@ contract InsurancePool is ERC4626, Ownable, ReentrancyGuard {
         view 
         returns (uint256) 
     {
-        UserDeposit storage deposit = deposits[_user];
-        if (deposit.shares == 0) return 0;
+        UserDeposit storage userDeposit = deposits[_user];
+        if (userDeposit.shares == 0) return 0;
         
-        uint256 pendingYield = (deposit.shares * yieldPerShare) / 1e18;
-        uint256 lastClaimed = (deposit.shares * 
-            (yieldPerShare - ((block.timestamp - deposit.lastYieldClaim) * 1e18 / 365 days))
+        uint256 pendingYield = (userDeposit.shares * yieldPerShare) / 1e18;
+        uint256 lastClaimed = (userDeposit.shares * 
+            (yieldPerShare - ((block.timestamp - userDeposit.lastYieldClaim) * 1e18 / 365 days))
         ) / 1e18;
         
         return pendingYield > lastClaimed ? pendingYield - lastClaimed : 0;
@@ -443,4 +421,7 @@ contract InsurancePool is ERC4626, Ownable, ReentrancyGuard {
     {
         return policies[_marketId].hasClaimed[_user];
     }
+    
+    // Allow contract to receive BNB
+    receive() external payable {}
 }

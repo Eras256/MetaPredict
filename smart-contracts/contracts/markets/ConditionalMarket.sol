@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
@@ -9,9 +8,9 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
  * @title ConditionalMarket
  * @notice Mercados condicionales en árbol (if-then predictions)
  * @dev Parent market debe resolverse antes que child markets
+ * @dev Usa BNB nativo en lugar de tokens ERC20
  */
 contract ConditionalMarket is Ownable, ReentrancyGuard {
-    IERC20 public immutable bettingToken;
     address public immutable coreContract;
     
     struct Market {
@@ -65,10 +64,9 @@ contract ConditionalMarket is Ownable, ReentrancyGuard {
         uint8 outcome
     );
     
-    constructor(address _bettingToken, address _coreContract) 
+    constructor(address _coreContract) 
         Ownable(msg.sender) 
     {
-        bettingToken = IERC20(_bettingToken);
         coreContract = _coreContract;
     }
     
@@ -110,16 +108,11 @@ contract ConditionalMarket is Ownable, ReentrancyGuard {
         address _user,
         bool _isYes,
         uint256 _amount
-    ) external onlyCore nonReentrant {
+    ) external payable onlyCore nonReentrant {
         Market storage market = markets[_marketId];
         require(!market.resolved, "Already resolved");
         require(!market.parentResolved, "Awaiting parent");
-        
-        // Transfer from core
-        require(
-            bettingToken.transferFrom(msg.sender, address(this), _amount),
-            "Transfer failed"
-        );
+        require(msg.value == _amount, "Amount mismatch");
         
         // Calculate shares
         uint256 shares = _calculateShares(market, _isYes, _amount);
@@ -224,11 +217,12 @@ contract ConditionalMarket is Ownable, ReentrancyGuard {
         
         position.claimed = true;
         
-        require(
-            bettingToken.transfer(msg.sender, payout),
-            "Transfer failed"
-        );
+        (bool success, ) = payable(msg.sender).call{value: payout}("");
+        require(success, "Transfer failed");
     }
+    
+    // Allow contract to receive BNB
+    receive() external payable {}
     
     function _calculateShares(
         Market storage market,

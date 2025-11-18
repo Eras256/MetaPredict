@@ -79,49 +79,26 @@ async function main() {
     console.warn("⚠️  WARNING: Low balance! You may not have enough for deployment.\n");
   }
 
-  // 1. Use USDC address (testnet or mainnet)
-  // opBNB Testnet USDC: 0x845E27B8A4ad1Fe3dc0b41b900dC8C1Bb45141C3
-  // opBNB Mainnet USDC: (check official docs)
-  let usdcAddress: string;
-  
-  if (process.env.USDC_ADDRESS && process.env.USDC_ADDRESS !== "0x0000000000000000000000000000000000000000") {
-    // Use custom USDC address from .env
-    usdcAddress = process.env.USDC_ADDRESS;
-    console.log("📝 Using USDC address from .env:", usdcAddress, "\n");
-  } else {
-    // Use default opBNB Testnet USDC address
-    usdcAddress = "0x845E27B8A4ad1Fe3dc0b41b900dC8C1Bb45141C3";
-    console.log("📝 Using default opBNB Testnet USDC:", usdcAddress, "\n");
-    console.log("💡 Tip: Set USDC_ADDRESS in .env to use a different address\n");
-  }
-  
-  const usdc = await ethers.getContractAt("IERC20", usdcAddress);
-
   // Helper function to get contract address
   const getAddress = async (contract: any) => await contract.getAddress();
 
-  // 2. Deploy Insurance Pool
-  console.log("📝 Deploying Insurance Pool...");
+  // 1. Deploy Insurance Pool (BNB nativo)
+  console.log("📝 Deploying Insurance Pool (BNB native)...");
   const InsurancePool = await ethers.getContractFactory("InsurancePool");
-  const insurancePool = await InsurancePool.deploy(
-    usdcAddress,
-    process.env.VENUS_VTOKEN || ethers.ZeroAddress, // Venus vUSDC
-    "MetaPredict Insurance Shares",
-    "mpINS"
-  );
+  const insurancePool = await InsurancePool.deploy();
   await insurancePool.waitForDeployment();
   const insurancePoolAddress = await getAddress(insurancePool);
   console.log("✅ Insurance Pool deployed:", insurancePoolAddress, "\n");
 
-  // 3. Deploy Reputation Staking
-  console.log("📝 Deploying Reputation Staking...");
+  // 2. Deploy Reputation Staking (BNB nativo)
+  console.log("📝 Deploying Reputation Staking (BNB native)...");
   const ReputationStaking = await ethers.getContractFactory("ReputationStaking");
-  const reputationStaking = await ReputationStaking.deploy(usdcAddress);
+  const reputationStaking = await ReputationStaking.deploy();
   await reputationStaking.waitForDeployment();
   const reputationStakingAddress = await getAddress(reputationStaking);
   console.log("✅ Reputation Staking deployed:", reputationStakingAddress, "\n");
 
-  // 4. Deploy AI Oracle
+  // 3. Deploy AI Oracle
   console.log("📝 Deploying AI Oracle...");
   const AIOracle = await ethers.getContractFactory("AIOracle");
   const aiOracle = await AIOracle.deploy(
@@ -134,54 +111,48 @@ async function main() {
   const aiOracleAddress = await getAddress(aiOracle);
   console.log("✅ AI Oracle deployed:", aiOracleAddress, "\n");
 
-  // 5. Deploy DAO Governance
-  console.log("📝 Deploying DAO Governance...");
+  // 4. Deploy DAO Governance (BNB nativo)
+  console.log("📝 Deploying DAO Governance (BNB native)...");
   const DAOGovernance = await ethers.getContractFactory("DAOGovernance");
   const daoGovernance = await DAOGovernance.deploy(
-    usdcAddress, // Using USDC as governance token for MVP
     reputationStakingAddress
   );
   await daoGovernance.waitForDeployment();
   const daoGovernanceAddress = await getAddress(daoGovernance);
   console.log("✅ DAO Governance deployed:", daoGovernanceAddress, "\n");
 
-  // 6. Deploy Cross-Chain Router (OmniRouter)
-  console.log("📝 Deploying Cross-Chain Router (OmniRouter)...");
+  // 5. Deploy Cross-Chain Router (OmniRouter) (BNB nativo)
+  console.log("📝 Deploying Cross-Chain Router (OmniRouter) (BNB native)...");
   const OmniRouter = await ethers.getContractFactory("OmniRouter");
-  const crossChainRouter = await OmniRouter.deploy(
-    usdcAddress
-  );
+  const crossChainRouter = await OmniRouter.deploy();
   await crossChainRouter.waitForDeployment();
   const crossChainRouterAddress = await getAddress(crossChainRouter);
   console.log("✅ Cross-Chain Router (OmniRouter) deployed:", crossChainRouterAddress, "\n");
 
-  // 7. Deploy Market Contracts FIRST (needed for Core)
+  // 6. Deploy Market Contracts FIRST (needed for Core)
   // Note: Markets need coreContract in constructor (immutable), so we use deployer temporarily
   // After Core is deployed, we'll transfer ownership to Core
-  console.log("📝 Deploying Binary Market...");
+  console.log("📝 Deploying Binary Market (BNB native)...");
   const BinaryMarket = await ethers.getContractFactory("BinaryMarket");
   const binaryMarket = await BinaryMarket.deploy(
-    usdcAddress,
     deployer.address // Temporary, will transfer ownership to Core
   );
   await binaryMarket.waitForDeployment();
   const binaryMarketAddress = await getAddress(binaryMarket);
   console.log("✅ Binary Market deployed:", binaryMarketAddress, "\n");
 
-  console.log("📝 Deploying Conditional Market...");
+  console.log("📝 Deploying Conditional Market (BNB native)...");
   const ConditionalMarket = await ethers.getContractFactory("ConditionalMarket");
   const conditionalMarket = await ConditionalMarket.deploy(
-    usdcAddress,
     deployer.address // Temporary, will transfer ownership to Core
   );
   await conditionalMarket.waitForDeployment();
   const conditionalMarketAddress = await getAddress(conditionalMarket);
   console.log("✅ Conditional Market deployed:", conditionalMarketAddress, "\n");
 
-  console.log("📝 Deploying Subjective Market...");
+  console.log("📝 Deploying Subjective Market (BNB native)...");
   const SubjectiveMarket = await ethers.getContractFactory("SubjectiveMarket");
   const subjectiveMarket = await SubjectiveMarket.deploy(
-    usdcAddress,
     deployer.address, // Temporary, will transfer ownership to Core
     daoGovernanceAddress
   );
@@ -189,11 +160,10 @@ async function main() {
   const subjectiveMarketAddress = await getAddress(subjectiveMarket);
   console.log("✅ Subjective Market deployed:", subjectiveMarketAddress, "\n");
 
-  // 8. Deploy Core Contract
-  console.log("📝 Deploying Prediction Market Core...");
+  // 7. Deploy Core Contract (BNB nativo)
+  console.log("📝 Deploying Prediction Market Core (BNB native)...");
   const PredictionMarketCore = await ethers.getContractFactory("PredictionMarketCore");
   const core = await PredictionMarketCore.deploy(
-    usdcAddress,
     binaryMarketAddress,
     conditionalMarketAddress,
     subjectiveMarketAddress,
@@ -254,8 +224,8 @@ async function main() {
   const addresses: any = {
     network: "opBNB Testnet",
     chainId: 5611,
+    token: "BNB (native)",
     contracts: {
-      usdc: usdcAddress,
       core: coreAddress,
       insurancePool: insurancePoolAddress,
       reputationStaking: reputationStakingAddress,
@@ -302,8 +272,9 @@ async function main() {
   console.log("\n🔗 Next steps:");
   console.log("1. Verify contracts on opBNBScan");
   console.log("2. Setup Chainlink Functions subscription");
-  console.log("3. Fund contracts with test tokens");
+  console.log("3. Fund contracts with BNB (native)");
   console.log("4. Update frontend .env with contract addresses");
+  console.log("\n💡 All contracts now use BNB native (no USDC required)");
 }
 
 main()

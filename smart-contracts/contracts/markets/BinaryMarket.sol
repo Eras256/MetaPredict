@@ -1,16 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /**
  * @title BinaryMarket
  * @notice Mercado de predicción binario estándar (YES/NO)
+ * @dev Usa BNB nativo en lugar de tokens ERC20
  */
 contract BinaryMarket is Ownable, ReentrancyGuard {
-    IERC20 public immutable bettingToken;
     address public immutable coreContract;
     
     struct Market {
@@ -55,10 +54,9 @@ contract BinaryMarket is Ownable, ReentrancyGuard {
         uint256 amount
     );
     
-    constructor(address _bettingToken, address _coreContract) 
+    constructor(address _coreContract) 
         Ownable(msg.sender) 
     {
-        bettingToken = IERC20(_bettingToken);
         coreContract = _coreContract;
     }
     
@@ -92,15 +90,10 @@ contract BinaryMarket is Ownable, ReentrancyGuard {
         address _user,
         bool _isYes,
         uint256 _amount
-    ) external onlyCore nonReentrant {
+    ) external payable onlyCore nonReentrant {
         Market storage market = markets[_marketId];
         require(!market.resolved, "Already resolved");
-        
-        // Transfer tokens from core
-        require(
-            bettingToken.transferFrom(msg.sender, address(this), _amount),
-            "Transfer failed"
-        );
+        require(msg.value == _amount, "Amount mismatch");
         
         // Calculate shares (constant product AMM)
         uint256 shares = _calculateShares(market, _isYes, _amount);
@@ -176,13 +169,14 @@ contract BinaryMarket is Ownable, ReentrancyGuard {
         
         position.claimed = true;
         
-        require(
-            bettingToken.transfer(msg.sender, payout),
-            "Transfer failed"
-        );
+        (bool success, ) = payable(msg.sender).call{value: payout}("");
+        require(success, "Transfer failed");
         
         emit WinningsClaimed(_marketId, msg.sender, payout);
     }
+    
+    // Allow contract to receive BNB
+    receive() external payable {}
     
     function _calculateShares(
         Market storage market,

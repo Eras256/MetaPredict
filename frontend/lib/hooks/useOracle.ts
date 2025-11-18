@@ -1,7 +1,21 @@
-import { useState, useEffect } from 'react';
-import { useReadContract } from 'wagmi';
+import { useState, useEffect, useMemo } from 'react';
+import { useReadContract } from 'thirdweb/react';
+import { defineChain } from 'thirdweb/chains';
+import { getContract } from 'thirdweb';
 import AIOracleABI from '@/lib/contracts/abi/AIOracle.json';
 import { CONTRACT_ADDRESSES } from '@/lib/contracts/addresses';
+import { client } from '@/lib/config/thirdweb';
+
+const opBNBTestnet = defineChain({
+  id: 5611,
+  name: 'opBNB Testnet',
+  nativeCurrency: {
+    name: 'tBNB',
+    symbol: 'tBNB',
+    decimals: 18,
+  },
+  rpc: 'https://opbnb-testnet-rpc.bnbchain.org',
+});
 
 export interface OracleResult {
   resolved: boolean;
@@ -13,15 +27,23 @@ export interface OracleResult {
 }
 
 export function useOracle(marketId: number) {
-  const [result, setResult] = useState<OracleResult | null>(null);
-  const [loading, setLoading] = useState(true);
+  const contract = useMemo(() => {
+    return getContract({
+      client,
+      chain: opBNBTestnet,
+      address: CONTRACT_ADDRESSES.AI_ORACLE,
+      abi: AIOracleABI as any,
+    });
+  }, []);
 
-  const { data: oracleResult } = useReadContract({
-    address: CONTRACT_ADDRESSES.AI_ORACLE,
-    abi: AIOracleABI,
-    functionName: 'getResult',
-    args: [BigInt(marketId)],
+  const { data: oracleResult, isLoading } = useReadContract({
+    contract,
+    method: 'getResult',
+    params: [BigInt(marketId)],
+    queryOptions: { enabled: marketId > 0 },
   });
+
+  const [result, setResult] = useState<OracleResult | null>(null);
 
   useEffect(() => {
     if (oracleResult && Array.isArray(oracleResult)) {
@@ -33,10 +55,10 @@ export function useOracle(marketId: number) {
         confidence: Number(oracleResult[4]),
         timestamp: oracleResult[5] as bigint,
       });
-      setLoading(false);
+    } else {
+      setResult(null);
     }
   }, [oracleResult]);
 
-  return { result, loading };
+  return { result, loading: isLoading };
 }
-

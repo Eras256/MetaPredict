@@ -14,6 +14,7 @@ import {
   Shield,
   Users,
   ExternalLink,
+  PlayCircle,
 } from 'lucide-react';
 import { ConnectButton, useActiveAccount } from 'thirdweb/react';
 import { client, chain } from '@/lib/config/thirdweb';
@@ -28,6 +29,7 @@ const navigation = [
   { name: 'Reputation', href: '/reputation', icon: Users },
   { name: 'Insurance', href: '/insurance', icon: Shield },
   { name: 'DAO', href: '/dao', icon: Brain },
+  { name: 'Demo', href: '/demo', icon: PlayCircle },
 ];
 
 export function Navbar() {

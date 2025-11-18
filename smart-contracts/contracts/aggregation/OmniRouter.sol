@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
@@ -9,12 +8,12 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
  * @title OmniRouter (CrossChainRouter)
  * @notice Agregador cross-chain para encontrar mejores precios
  * @dev Track 5: Price comparison + routing via CCIP y LayerZero
+ * @dev Usa BNB nativo en lugar de tokens ERC20
  */
 contract OmniRouter is Ownable, ReentrancyGuard {
     // ============ State Variables ============
     
     address public coreContract;
-    IERC20 public immutable bettingToken;
     
     // Supported chains
     mapping(uint256 => ChainConfig) public chains;
@@ -100,10 +99,7 @@ contract OmniRouter is Ownable, ReentrancyGuard {
     
     // ============ Constructor ============
     
-    constructor(
-        address _bettingToken
-    ) Ownable(msg.sender) {
-        bettingToken = IERC20(_bettingToken);
+    constructor() Ownable(msg.sender) {
     }
     
     // ============ Admin Functions ============
@@ -222,13 +218,7 @@ contract OmniRouter is Ownable, ReentrancyGuard {
     ) external payable nonReentrant {
         require(msg.sender == coreContract, "Only core");
         require(chains[_targetChainId].supported, "Chain not supported");
-        require(msg.value >= chains[_targetChainId].baseFee, "Insufficient gas");
-        
-        // Transfer tokens to this contract
-        require(
-            bettingToken.transferFrom(_user, address(this), _amount),
-            "Transfer failed"
-        );
+        require(msg.value >= chains[_targetChainId].baseFee + _amount, "Insufficient BNB");
         
         // Generate bet ID
         bytes32 betId = keccak256(abi.encodePacked(
@@ -279,16 +269,16 @@ contract OmniRouter is Ownable, ReentrancyGuard {
         CrossChainBet storage bet = pendingBets[_betId];
         require(bet.status == BetStatus.Pending, "Not pending");
         
-        // Forward to core contract for execution
-        bettingToken.approve(coreContract, _amount);
-        
-        // Call core contract placeBet
-        // IPredictionMarketCore(coreContract).placeBet(_marketId, _isYes, _amount);
+        // Forward to core contract for execution with BNB
+        // IPredictionMarketCore(coreContract).placeBet{value: _amount}(_marketId, _isYes);
         
         bet.status = BetStatus.Executed;
         
         emit CrossChainBetExecuted(_betId, 0, 0);
     }
+    
+    // Allow contract to receive BNB
+    receive() external payable {}
     
     // ============ Arbitrage Detection ============
     

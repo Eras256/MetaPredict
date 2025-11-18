@@ -78,7 +78,7 @@ export function useReputation() {
   const staker = stakerData as any;
 
   return {
-    stakedAmount: staker?.[0] ? Number(staker[0]) / 1e6 : 0,
+    stakedAmount: staker?.[0] ? Number(staker[0]) / 1e18 : 0, // BNB tiene 18 decimales
     reputationScore: staker?.[1] ? Number(staker[1]) : 0,
     tier: staker?.[2] ? Number(staker[2]) : 0,
     correctVotes: staker?.[3] ? Number(staker[3]) : 0,
@@ -115,10 +115,12 @@ export function useStakeReputation() {
     try {
       setLoading(true);
       
+      // ReputationStaking.stake(address _user, uint256 _amount) is payable - send BNB native
       const tx = prepareContractCall({
         contract,
         method: 'stake',
         params: [account.address, amount],
+        value: amount, // Send BNB native
       });
 
       const result = await sendTransaction(tx);
@@ -141,7 +143,7 @@ export function useStakeReputation() {
       return { transactionHash: txHash, receipt: result };
     } catch (error: any) {
       console.error('Error staking:', error);
-      toast.error(error?.message || 'Error al hacer stake');
+      toast.error(error?.message || 'Error staking');
       throw error;
     } finally {
       setLoading(false);
@@ -205,7 +207,7 @@ export function useUnstakeReputation() {
       return { transactionHash: txHash, receipt: result };
     } catch (error: any) {
       console.error('Error unstaking:', error);
-      toast.error(error?.message || 'Error al hacer unstake');
+      toast.error(error?.message || 'Error unstaking');
       throw error;
     } finally {
       setLoading(false);

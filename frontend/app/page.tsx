@@ -17,7 +17,7 @@ const features = [
   {
     icon: Shield,
     title: 'Insurance Protected (ERC-4626)',
-    description: 'First prediction market with financial guarantee. 100% refund if oracle fails. Yield-generating vault via Venus Protocol. All deposits and yields transparent on-chain.',
+    description: 'First prediction market with financial guarantee. 100% refund if oracle fails. Yield-generating insurance pool with native BNB. All deposits and yields transparent on-chain.',
     gradient: 'from-blue-500 to-cyan-500',
     link: 'https://testnet.opbnbscan.com/address/0x4fec42A17F54870d104bEf233688dc9904Bbd58d#code'
   },
@@ -31,7 +31,7 @@ const features = [
   {
     icon: Activity,
     title: 'Chainlink Data Streams',
-    description: 'Sub-second price feeds (up to 100ms) for 8 trading pairs (BTC, ETH, USDT, BNB, SOL, XRP, USDC, DOGE). Real-time updates for price-based predictions.',
+    description: 'Sub-second price feeds (up to 100ms) for 8 trading pairs (BTC, ETH, USDT, BNB, SOL, XRP, DOGE). Real-time updates for price-based predictions.',
     gradient: 'from-green-500 to-emerald-500',
     link: 'https://testnet.opbnbscan.com/address/0xe1a2ac2d4269400904A7240B2B3Cef20DBE7939F#code'
   },
@@ -108,7 +108,7 @@ const howItWorks = [
   {
     step: '02',
     title: 'Place Your Bets',
-    description: 'Buy YES or NO shares with USDC. Our AMM ensures always-available liquidity at fair prices. Ultra-low gas costs on opBNB.',
+    description: 'Buy YES or NO shares with native BNB. Our AMM ensures always-available liquidity at fair prices. Ultra-low gas costs on opBNB.',
     items: ['Ultra-low gas (<$0.001)', '0.5% trading fee', '0.1% insurance premium', 'Instant execution']
   },
   {
