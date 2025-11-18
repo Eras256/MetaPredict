@@ -10,10 +10,10 @@ export const maxDuration = 30;
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const market = await marketService.getMarketById(id);
     if (!market) {
       return NextResponse.json(

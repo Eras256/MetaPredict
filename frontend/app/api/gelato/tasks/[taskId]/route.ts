@@ -10,10 +10,10 @@ export const maxDuration = 10;
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { taskId: string } }
+  { params }: { params: Promise<{ taskId: string }> }
 ) {
   try {
-    const { taskId } = params;
+    const { taskId } = await params;
     const status = await gelatoService.getTaskStatus(taskId);
     return NextResponse.json(status);
   } catch (error: any) {
@@ -30,10 +30,10 @@ export async function GET(
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { taskId: string } }
+  { params }: { params: Promise<{ taskId: string }> }
 ) {
   try {
-    const { taskId } = params;
+    const { taskId } = await params;
     const success = await gelatoService.cancelTask(taskId);
     return NextResponse.json({ success, taskId });
   } catch (error: any) {

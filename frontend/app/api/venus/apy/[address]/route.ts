@@ -10,10 +10,10 @@ export const maxDuration = 30;
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { address: string } }
+  { params }: { params: Promise<{ address: string }> }
 ) {
   try {
-    const { address } = params;
+    const { address } = await params;
     const apy = await venusService.getVTokenAPY(address);
     return NextResponse.json({ address, apy });
   } catch (error: any) {
