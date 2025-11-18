@@ -7,6 +7,7 @@ import { getContract, prepareContractCall } from 'thirdweb';
 import { waitForReceipt } from 'thirdweb';
 import { CONTRACT_ADDRESSES } from '@/lib/contracts/addresses';
 import InsurancePoolABI from '@/lib/contracts/abi/InsurancePool.json';
+import BinaryMarketABI from '@/lib/contracts/abi/BinaryMarket.json';
 import { client } from '@/lib/config/thirdweb';
 import { toast } from 'sonner';
 import { getTransactionUrl, formatTxHash } from '@/lib/utils/blockchain';
@@ -171,17 +172,28 @@ export function useInsurance() {
     try {
       setLoading(true);
       
-      // Note: This might need to be called on PredictionMarket contract, not InsurancePool
-      // Adjust based on your contract structure
-      const predictionMarketContract = getContract({
+      // claimInsurance está en los contratos de mercado (BinaryMarket, ConditionalMarket, SubjectiveMarket)
+      // Intentamos primero con BinaryMarket, que es el más común
+      // El método claimInsurance requiere que el mercado esté en estado Disputed
+      const marketContract = getContract({
         client,
         chain: opBNBTestnet,
-        address: CONTRACT_ADDRESSES.PREDICTION_MARKET,
-        abi: [] as any, // Add proper ABI
+        address: CONTRACT_ADDRESSES.BINARY_MARKET,
+        abi: [
+          {
+            name: 'claimInsurance',
+            type: 'function',
+            stateMutability: 'nonpayable',
+            inputs: [
+              { name: '_marketId', type: 'uint256' }
+            ],
+            outputs: []
+          }
+        ] as any,
       });
       
       const tx = prepareContractCall({
-        contract: predictionMarketContract,
+        contract: marketContract,
         method: 'claimInsurance',
         params: [BigInt(marketId)],
       });
@@ -206,7 +218,19 @@ export function useInsurance() {
       return { transactionHash: txHash, receipt: result };
     } catch (error: any) {
       console.error('Error claiming insurance:', error);
-      toast.error(error?.message || 'Error claiming insurance');
+      
+      // Mejorar mensajes de error
+      let errorMessage = error?.message || 'Error claiming insurance';
+      
+      if (errorMessage.includes('MarketNotActive') || errorMessage.includes('Not active')) {
+        errorMessage = 'El mercado no está en estado Disputed. Solo puedes reclamar seguro cuando el oracle falla.';
+      } else if (errorMessage.includes('AlreadyClaimed')) {
+        errorMessage = 'Ya has reclamado el seguro para este mercado.';
+      } else if (errorMessage.includes('InsufficientBalance')) {
+        errorMessage = 'No tienes inversión en este mercado para reclamar.';
+      }
+      
+      toast.error(errorMessage);
       throw error;
     } finally {
       setLoading(false);

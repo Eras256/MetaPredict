@@ -91,13 +91,23 @@ export function useStakeReputation() {
   const [loading, setLoading] = useState(false);
   const account = useActiveAccount();
   
+  // Usar el contrato Core en lugar de ReputationStaking directamente
+  // porque stake() requiere "Only core" - debe llamarse a través de Core.stakeReputation()
   const contract = useMemo(() => {
-    if (!CONTRACT_ADDRESSES.REPUTATION_STAKING) return null;
+    if (!CONTRACT_ADDRESSES.CORE_CONTRACT) return null;
     return getContract({
       client,
       chain: opBNBTestnet,
-      address: CONTRACT_ADDRESSES.REPUTATION_STAKING as `0x${string}`,
-      abi: ReputationStakingABI as any,
+      address: CONTRACT_ADDRESSES.CORE_CONTRACT as `0x${string}`,
+      abi: [
+        {
+          name: 'stakeReputation',
+          type: 'function',
+          stateMutability: 'payable',
+          inputs: [],
+          outputs: [],
+        },
+      ] as any,
     });
   }, []);
 
@@ -109,17 +119,18 @@ export function useStakeReputation() {
     }
     
     if (!contract) {
-      throw new Error('Reputation staking contract not configured');
+      throw new Error('Core contract not configured');
     }
     
     try {
       setLoading(true);
       
-      // ReputationStaking.stake(address _user, uint256 _amount) is payable - send BNB native
+      // PredictionMarketCore.stakeReputation() es payable - envía BNB nativo
+      // Esta función llama internamente a ReputationStaking.stake() con el msg.sender correcto
       const tx = prepareContractCall({
         contract,
-        method: 'stake',
-        params: [account.address, amount],
+        method: 'stakeReputation',
+        params: [],
         value: amount, // Send BNB native
       });
 
@@ -143,7 +154,19 @@ export function useStakeReputation() {
       return { transactionHash: txHash, receipt: result };
     } catch (error: any) {
       console.error('Error staking:', error);
-      toast.error(error?.message || 'Error staking');
+      
+      // Mejorar mensajes de error
+      let errorMessage = error?.message || 'Error staking';
+      
+      if (errorMessage.includes('Only core')) {
+        errorMessage = 'Error: El stake debe hacerse a través del contrato Core. Por favor, contacta al soporte.';
+      } else if (errorMessage.includes('Amount must be > 0')) {
+        errorMessage = 'El monto debe ser mayor a 0';
+      } else if (errorMessage.includes('Below min stake')) {
+        errorMessage = 'El monto es menor al mínimo requerido (0.1 BNB)';
+      }
+      
+      toast.error(errorMessage);
       throw error;
     } finally {
       setLoading(false);
