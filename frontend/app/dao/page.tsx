@@ -3,14 +3,14 @@
 // Force dynamic rendering to avoid SSG issues with contract addresses
 export const dynamic = 'force-dynamic';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { GlassCard } from '@/components/effects/GlassCard';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useProposal, useVoteOnProposal, useUserProposals, useExecuteProposal, useAllProposals } from '@/lib/hooks/dao/useDAO';
-import { Vote, CheckCircle, XCircle, Clock, TrendingUp, Users, Brain, Loader2 } from 'lucide-react';
+import { Vote, CheckCircle, XCircle, Clock, TrendingUp, Users, Brain, Loader2, RefreshCw } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { analyzeDAOProposal } from '@/lib/services/ai/gemini';
 import { toast } from 'sonner';
@@ -19,7 +19,7 @@ export default function DAOPage() {
   const [selectedProposal, setSelectedProposal] = useState<number | null>(null);
   const [voteSupport, setVoteSupport] = useState<0 | 1 | 2>(1);
   const { proposalIds, isLoading: userProposalsLoading } = useUserProposals();
-  const { proposals: allProposals, isLoading: allProposalsLoading } = useAllProposals();
+  const { proposals: allProposals, isLoading: allProposalsLoading, refetch: refetchProposals } = useAllProposals();
   const { vote, isPending: isVoting } = useVoteOnProposal();
   const { execute, isPending: isExecuting } = useExecuteProposal();
   const [analyzing, setAnalyzing] = useState<number | null>(null);
@@ -30,10 +30,28 @@ export default function DAOPage() {
   const resolvedProposals = allProposals.filter((p) => p.status !== 1); // Todas las demás
   const proposalsLoading = allProposalsLoading;
 
+  // Escuchar eventos de voto para refrescar
+  useEffect(() => {
+    const handleVote = () => {
+      // Esperar un poco más para asegurar que el bloque se haya minado
+      setTimeout(() => {
+        refetchProposals();
+      }, 3000);
+    };
+
+    window.addEventListener('proposal-voted', handleVote);
+    return () => window.removeEventListener('proposal-voted', handleVote);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const handleVote = async (proposalId: number) => {
     try {
       // La validación del estado de la propuesta se hace en el hook useVoteOnProposal
       await vote(proposalId, voteSupport, '');
+      // Refrescar propuestas después de votar exitosamente
+      setTimeout(() => {
+        refetchProposals();
+      }, 4000);
     } catch (error) {
       // El error ya se maneja y muestra un toast en el hook
       console.error('Error en handleVote:', error);
@@ -72,13 +90,25 @@ export default function DAOPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-950 text-white pt-32 pb-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-            DAO Governance
-          </h1>
-          <p className="text-gray-400 text-lg">
-            Participate in protocol governance with quadratic voting and expertise validation
-          </p>
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+              DAO Governance
+            </h1>
+            <p className="text-gray-400 text-lg">
+              Participate in protocol governance with quadratic voting and expertise validation
+            </p>
+          </div>
+          <Button
+            onClick={() => refetchProposals()}
+            disabled={proposalsLoading}
+            variant="outline"
+            size="sm"
+            className="ml-4"
+          >
+            <RefreshCw className={`w-4 h-4 mr-2 ${proposalsLoading ? 'animate-spin' : ''}`} />
+            Refrescar
+          </Button>
         </div>
 
         <Tabs defaultValue="active" className="space-y-6">
