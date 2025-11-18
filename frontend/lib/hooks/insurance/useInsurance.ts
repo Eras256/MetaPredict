@@ -1,151 +1,221 @@
 'use client';
 
-import { useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
-import { CONTRACTS } from '@/lib/config/constants';
-import { parseUnits, formatUnits } from 'viem';
+import { useState, useMemo } from 'react';
+import { useSendTransaction, useActiveAccount } from 'thirdweb/react';
+import { defineChain } from 'thirdweb/chains';
+import { getContract, prepareContractCall } from 'thirdweb';
+import { waitForReceipt } from 'thirdweb';
+import { CONTRACT_ADDRESSES } from '@/lib/contracts/addresses';
+import InsurancePoolABI from '@/lib/contracts/abi/InsurancePool.json';
+import { client } from '@/lib/config/thirdweb';
 import { toast } from 'sonner';
+import { getTransactionUrl, formatTxHash } from '@/lib/utils/blockchain';
 
-// ABI placeholder
-const InsurancePoolABI = [
-  {
-    name: 'getPoolHealth',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [],
-    outputs: [
-      { name: 'totalAsset', type: 'uint256' },
-      { name: 'insured', type: 'uint256' },
-      { name: 'claimed', type: 'uint256' },
-      { name: 'available', type: 'uint256' },
-      { name: 'utilizationRate', type: 'uint256' },
-      { name: 'yieldAPY', type: 'uint256' },
-    ],
+// ✅ Configurar opBNB testnet
+const opBNBTestnet = defineChain({
+  id: 5611,
+  name: 'opBNB Testnet',
+  nativeCurrency: {
+    name: 'tBNB',
+    symbol: 'tBNB',
+    decimals: 18,
   },
-  {
-    name: 'deposit',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [
-      { name: 'assets', type: 'uint256' },
-      { name: 'receiver', type: 'address' },
-    ],
-    outputs: [{ name: 'shares', type: 'uint256' }],
-  },
-  {
-    name: 'withdraw',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [
-      { name: 'assets', type: 'uint256' },
-      { name: 'receiver', type: 'address' },
-      { name: 'owner', type: 'address' },
-    ],
-    outputs: [{ name: 'shares', type: 'uint256' }],
-  },
-  {
-    name: 'claimYield',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [],
-  },
-  {
-    name: 'getPendingYield',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [{ name: '_user', type: 'address' }],
-    outputs: [{ name: '', type: 'uint256' }],
-  },
-] as const;
+  rpc: 'https://opbnb-testnet-rpc.bnbchain.org',
+});
 
-export function useInsurancePool() {
-  const { data: poolHealth } = useReadContract({
-    address: CONTRACTS.INSURANCE_POOL as `0x${string}`,
-    abi: InsurancePoolABI,
-    functionName: 'getPoolHealth',
-  });
+export function useInsurance() {
+  const [loading, setLoading] = useState(false);
+  const account = useActiveAccount();
+  
+  const contract = useMemo(() => {
+    return getContract({
+      client,
+      chain: opBNBTestnet,
+      address: CONTRACT_ADDRESSES.INSURANCE_POOL,
+      abi: InsurancePoolABI as any,
+    });
+  }, []);
 
-  const health = poolHealth as any;
+  const { mutateAsync: sendTransaction, isPending: isSending } = useSendTransaction();
 
-  return {
-    totalAssets: health ? Number(formatUnits(health[0], 6)) : 0,
-    totalInsured: health ? Number(formatUnits(health[1], 6)) : 0,
-    totalClaimed: health ? Number(formatUnits(health[2], 6)) : 0,
-    available: health ? Number(formatUnits(health[3], 6)) : 0,
-    utilizationRate: health ? Number(health[4]) / 100 : 0,
-    yieldAPY: health ? Number(health[5]) / 100 : 0,
-  };
-}
-
-export function useDepositInsurance() {
-  const { writeContract, data: hash, isPending } = useWriteContract();
-  const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash });
-
-  const deposit = async (amount: string, receiver: string) => {
+  const deposit = async (amount: bigint, receiver?: string) => {
+    if (!account) {
+      throw new Error('No account connected');
+    }
+    
     try {
-      const amountWei = parseUnits(amount, 6);
+      setLoading(true);
       
-      writeContract({
-        address: CONTRACTS.INSURANCE_POOL as `0x${string}`,
-        abi: InsurancePoolABI,
-        functionName: 'deposit',
-        args: [amountWei, receiver as `0x${string}`],
+      const tx = prepareContractCall({
+        contract,
+        method: 'deposit',
+        params: [amount, receiver || account.address],
       });
+
+      const result = await sendTransaction(tx);
+      const txHash = result.transactionHash;
       
-      toast.success('Deposited to insurance pool!');
+      await waitForReceipt({ client, chain: opBNBTestnet, transactionHash: txHash });
+      
+      const txUrl = getTransactionUrl(txHash);
+      toast.success(
+        `Depósito exitoso! Ver transacción: ${formatTxHash(txHash)}`,
+        {
+          duration: 10000,
+          action: {
+            label: 'Ver en opBNBScan',
+            onClick: () => window.open(txUrl, '_blank'),
+          },
+        }
+      );
+      
+      return { transactionHash: txHash, receipt: result };
     } catch (error: any) {
-      toast.error(error.message || 'Failed to deposit');
+      console.error('Error depositing:', error);
+      toast.error(error?.message || 'Error al depositar');
       throw error;
+    } finally {
+      setLoading(false);
     }
   };
 
-  return { deposit, isPending: isPending || isConfirming, isSuccess };
-}
-
-export function useWithdrawInsurance() {
-  const { writeContract, data: hash, isPending } = useWriteContract();
-  const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash });
-
-  const withdraw = async (amount: string, receiver: string, owner: string) => {
+  const withdraw = async (amount: bigint, receiver?: string, owner?: string) => {
+    if (!account) {
+      throw new Error('No account connected');
+    }
+    
     try {
-      const amountWei = parseUnits(amount, 6);
+      setLoading(true);
       
-      writeContract({
-        address: CONTRACTS.INSURANCE_POOL as `0x${string}`,
-        abi: InsurancePoolABI,
-        functionName: 'withdraw',
-        args: [amountWei, receiver as `0x${string}`, owner as `0x${string}`],
+      const tx = prepareContractCall({
+        contract,
+        method: 'withdraw',
+        params: [amount, receiver || account.address, owner || account.address],
       });
+
+      const result = await sendTransaction(tx);
+      const txHash = result.transactionHash;
       
-      toast.success('Withdrawn from insurance pool!');
+      await waitForReceipt({ client, chain: opBNBTestnet, transactionHash: txHash });
+      
+      const txUrl = getTransactionUrl(txHash);
+      toast.success(
+        `Retiro exitoso! Ver transacción: ${formatTxHash(txHash)}`,
+        {
+          duration: 10000,
+          action: {
+            label: 'Ver en opBNBScan',
+            onClick: () => window.open(txUrl, '_blank'),
+          },
+        }
+      );
+      
+      return { transactionHash: txHash, receipt: result };
     } catch (error: any) {
-      toast.error(error.message || 'Failed to withdraw');
+      console.error('Error withdrawing:', error);
+      toast.error(error?.message || 'Error al retirar');
       throw error;
+    } finally {
+      setLoading(false);
     }
   };
-
-  return { withdraw, isPending: isPending || isConfirming, isSuccess };
-}
-
-export function useClaimInsuranceYield() {
-  const { writeContract, data: hash, isPending } = useWriteContract();
-  const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash });
 
   const claimYield = async () => {
+    if (!account) {
+      throw new Error('No account connected');
+    }
+    
     try {
-      writeContract({
-        address: CONTRACTS.INSURANCE_POOL as `0x${string}`,
-        abi: InsurancePoolABI,
-        functionName: 'claimYield',
-        args: [],
-      });
+      setLoading(true);
       
-      toast.success('Yield claimed!');
+      const tx = prepareContractCall({
+        contract,
+        method: 'claimYield',
+        params: [],
+      });
+
+      const result = await sendTransaction(tx);
+      const txHash = result.transactionHash;
+      
+      await waitForReceipt({ client, chain: opBNBTestnet, transactionHash: txHash });
+      
+      const txUrl = getTransactionUrl(txHash);
+      toast.success(
+        `Yield reclamado exitosamente! Ver transacción: ${formatTxHash(txHash)}`,
+        {
+          duration: 10000,
+          action: {
+            label: 'Ver en opBNBScan',
+            onClick: () => window.open(txUrl, '_blank'),
+          },
+        }
+      );
+      
+      return { transactionHash: txHash, receipt: result };
     } catch (error: any) {
-      toast.error(error.message || 'Failed to claim yield');
+      console.error('Error claiming yield:', error);
+      toast.error(error?.message || 'Error al reclamar yield');
       throw error;
+    } finally {
+      setLoading(false);
     }
   };
 
-  return { claimYield, isPending: isPending || isConfirming, isSuccess };
-}
+  const claimInsurance = async (marketId: number) => {
+    if (!account) {
+      throw new Error('No account connected');
+    }
+    
+    try {
+      setLoading(true);
+      
+      // Note: This might need to be called on PredictionMarket contract, not InsurancePool
+      // Adjust based on your contract structure
+      const predictionMarketContract = getContract({
+        client,
+        chain: opBNBTestnet,
+        address: CONTRACT_ADDRESSES.PREDICTION_MARKET,
+        abi: [] as any, // Add proper ABI
+      });
+      
+      const tx = prepareContractCall({
+        contract: predictionMarketContract,
+        method: 'claimInsurance',
+        params: [BigInt(marketId)],
+      });
 
+      const result = await sendTransaction(tx);
+      const txHash = result.transactionHash;
+      
+      await waitForReceipt({ client, chain: opBNBTestnet, transactionHash: txHash });
+      
+      const txUrl = getTransactionUrl(txHash);
+      toast.success(
+        `Reclamo de seguro exitoso! Ver transacción: ${formatTxHash(txHash)}`,
+        {
+          duration: 10000,
+          action: {
+            label: 'Ver en opBNBScan',
+            onClick: () => window.open(txUrl, '_blank'),
+          },
+        }
+      );
+      
+      return { transactionHash: txHash, receipt: result };
+    } catch (error: any) {
+      console.error('Error claiming insurance:', error);
+      toast.error(error?.message || 'Error al reclamar seguro');
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return {
+    deposit,
+    withdraw,
+    claimYield,
+    claimInsurance,
+    loading: loading || isSending,
+  };
+}

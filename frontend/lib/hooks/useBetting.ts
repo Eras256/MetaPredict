@@ -2,12 +2,14 @@ import { useState, useMemo } from 'react';
 import { useSendTransaction, useActiveAccount } from 'thirdweb/react';
 import { defineChain } from 'thirdweb/chains';
 import { getContract, prepareContractCall } from 'thirdweb';
+import { waitForReceipt } from 'thirdweb';
 import { CONTRACT_ADDRESSES } from '@/lib/contracts/addresses';
 import PREDICTION_MARKET_ABI from '@/lib/contracts/abi/PredictionMarket.json';
 import { client } from '@/lib/config/thirdweb';
 import { toast } from 'sonner';
+import { getTransactionUrl, formatTxHash } from '@/lib/utils/blockchain';
 
-// ✅ FIX #7: Configurar opBNB testnet
+// ✅ Configurar opBNB testnet
 const opBNBTestnet = defineChain({
   id: 5611,
   name: 'opBNB Testnet',
@@ -19,7 +21,7 @@ const opBNBTestnet = defineChain({
   rpc: 'https://opbnb-testnet-rpc.bnbchain.org',
 });
 
-// ✅ FIX #7: Hook mejorado con Thirdweb v5 API
+// ✅ Hook mejorado con Thirdweb v5 API y hash de transacción
 export function useBetting() {
   const [loading, setLoading] = useState(false);
   const account = useActiveAccount();
@@ -43,18 +45,36 @@ export function useBetting() {
     try {
       setLoading(true);
       
-      // ✅ FIX #7: Preparar transacción con Thirdweb
+      // ✅ Preparar transacción con Thirdweb
       const tx = prepareContractCall({
         contract,
         method: 'placeBet',
         params: [BigInt(marketId), isYes, amount],
       });
 
-      // ✅ FIX #7: Enviar transacción con Thirdweb v5
+      // ✅ Enviar transacción con Thirdweb v5
       const result = await sendTransaction(tx);
       
-      toast.success('Apuesta colocada exitosamente!');
-      return result;
+      // ✅ Obtener hash de transacción
+      const txHash = result.transactionHash;
+      
+      // ✅ Esperar confirmación
+      await waitForReceipt({ client, chain: opBNBTestnet, transactionHash: txHash });
+      
+      // ✅ Mostrar toast con enlace al scanner
+      const txUrl = getTransactionUrl(txHash);
+      toast.success(
+        `Apuesta colocada exitosamente! Ver transacción: ${formatTxHash(txHash)}`,
+        {
+          duration: 10000,
+          action: {
+            label: 'Ver en opBNBScan',
+            onClick: () => window.open(txUrl, '_blank'),
+          },
+        }
+      );
+      
+      return { transactionHash: txHash, receipt: result };
     } catch (error: any) {
       console.error('Error placing bet:', error);
       toast.error(error?.message || 'Error al colocar apuesta');
@@ -80,8 +100,26 @@ export function useBetting() {
 
       const result = await sendTransaction(tx);
       
-      toast.success('Ganancias reclamadas exitosamente!');
-      return result;
+      // ✅ Obtener hash de transacción
+      const txHash = result.transactionHash;
+      
+      // ✅ Esperar confirmación
+      await waitForReceipt({ client, chain: opBNBTestnet, transactionHash: txHash });
+      
+      // ✅ Mostrar toast con enlace al scanner
+      const txUrl = getTransactionUrl(txHash);
+      toast.success(
+        `Ganancias reclamadas exitosamente! Ver transacción: ${formatTxHash(txHash)}`,
+        {
+          duration: 10000,
+          action: {
+            label: 'Ver en opBNBScan',
+            onClick: () => window.open(txUrl, '_blank'),
+          },
+        }
+      );
+      
+      return { transactionHash: txHash, receipt: result };
     } catch (error: any) {
       console.error('Error claiming winnings:', error);
       toast.error(error?.message || 'Error al reclamar ganancias');

@@ -1,12 +1,28 @@
 'use client';
 
-import { useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
-import { useActiveAccount } from 'thirdweb/react';
-import { CONTRACTS } from '@/lib/config/constants';
-import { parseUnits, formatUnits } from 'viem';
+import { useState, useMemo } from 'react';
+import { useSendTransaction, useActiveAccount, useReadContract } from 'thirdweb/react';
+import { defineChain } from 'thirdweb/chains';
+import { getContract, prepareContractCall } from 'thirdweb';
+import { waitForReceipt } from 'thirdweb';
+import { CONTRACT_ADDRESSES } from '@/lib/contracts/addresses';
+import { client } from '@/lib/config/thirdweb';
 import { toast } from 'sonner';
+import { getTransactionUrl, formatTxHash } from '@/lib/utils/blockchain';
 
-// ABI placeholder - should be imported from actual ABI file
+// ✅ Configurar opBNB testnet
+const opBNBTestnet = defineChain({
+  id: 5611,
+  name: 'opBNB Testnet',
+  nativeCurrency: {
+    name: 'tBNB',
+    symbol: 'tBNB',
+    decimals: 18,
+  },
+  rpc: 'https://opbnb-testnet-rpc.bnbchain.org',
+});
+
+// ABI simplificado - debería importarse del archivo ABI real
 const ReputationStakingABI = [
   {
     name: 'getStaker',
@@ -42,64 +58,167 @@ const ReputationStakingABI = [
 export function useReputation() {
   const account = useActiveAccount();
   
+  const contract = useMemo(() => {
+    if (!CONTRACT_ADDRESSES.REPUTATION_STAKING) return null;
+    return getContract({
+      client,
+      chain: opBNBTestnet,
+      address: CONTRACT_ADDRESSES.REPUTATION_STAKING as `0x${string}`,
+      abi: ReputationStakingABI as any,
+    });
+  }, []);
+
   const { data: stakerData, isLoading } = useReadContract({
-    address: CONTRACTS.REPUTATION_STAKING as `0x${string}`,
-    abi: ReputationStakingABI,
-    functionName: 'getStaker',
-    args: [account?.address as `0x${string}`],
-    query: { enabled: !!account },
+    contract: contract!,
+    method: 'getStaker',
+    params: account?.address ? [account.address] : undefined,
+    queryOptions: { enabled: !!account && !!contract },
   });
 
   const staker = stakerData as any;
 
   return {
-    stakedAmount: staker?.stakedAmount ? Number(formatUnits(staker.stakedAmount, 6)) : 0,
-    reputationScore: staker?.reputationScore ? Number(staker.reputationScore) : 0,
-    tier: staker?.tier ? Number(staker.tier) : 0,
-    correctVotes: staker?.correctVotes ? Number(staker.correctVotes) : 0,
-    totalVotes: staker?.totalVotes ? Number(staker.totalVotes) : 0,
+    stakedAmount: staker?.[0] ? Number(staker[0]) / 1e6 : 0,
+    reputationScore: staker?.[1] ? Number(staker[1]) : 0,
+    tier: staker?.[2] ? Number(staker[2]) : 0,
+    correctVotes: staker?.[3] ? Number(staker[3]) : 0,
+    totalVotes: staker?.[4] ? Number(staker[4]) : 0,
     isLoading,
   };
 }
 
 export function useStakeReputation() {
-  const { writeContract, data: hash, isPending } = useWriteContract();
-  const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash });
+  const [loading, setLoading] = useState(false);
+  const account = useActiveAccount();
+  
+  const contract = useMemo(() => {
+    if (!CONTRACT_ADDRESSES.REPUTATION_STAKING) return null;
+    return getContract({
+      client,
+      chain: opBNBTestnet,
+      address: CONTRACT_ADDRESSES.REPUTATION_STAKING as `0x${string}`,
+      abi: ReputationStakingABI as any,
+    });
+  }, []);
 
-  const stake = async (amount: string) => {
+  const { mutateAsync: sendTransaction, isPending: isSending } = useSendTransaction();
+
+  const stake = async (amount: bigint) => {
+    if (!account) {
+      throw new Error('No account connected');
+    }
+    
+    if (!contract) {
+      throw new Error('Reputation staking contract not configured');
+    }
+    
     try {
-      const amountWei = parseUnits(amount, 6);
+      setLoading(true);
       
-      writeContract({
-        address: CONTRACTS.PREDICTION_MARKET_CORE as `0x${string}`,
-        abi: [] as any, // CoreABI
-        functionName: 'stakeReputation',
-        args: [amountWei],
+      const tx = prepareContractCall({
+        contract,
+        method: 'stake',
+        params: [account.address, amount],
       });
+
+      const result = await sendTransaction(tx);
+      const txHash = result.transactionHash;
       
-      toast.success('Staked successfully!');
+      await waitForReceipt({ client, chain: opBNBTestnet, transactionHash: txHash });
+      
+      const txUrl = getTransactionUrl(txHash);
+      toast.success(
+        `Stake exitoso! Ver transacción: ${formatTxHash(txHash)}`,
+        {
+          duration: 10000,
+          action: {
+            label: 'Ver en opBNBScan',
+            onClick: () => window.open(txUrl, '_blank'),
+          },
+        }
+      );
+      
+      return { transactionHash: txHash, receipt: result };
     } catch (error: any) {
-      toast.error(error.message || 'Failed to stake');
+      console.error('Error staking:', error);
+      toast.error(error?.message || 'Error al hacer stake');
       throw error;
+    } finally {
+      setLoading(false);
     }
   };
 
-  return { stake, isPending: isPending || isConfirming, isSuccess };
+  return { stake, loading: loading || isSending };
+}
+
+export function useUnstakeReputation() {
+  const [loading, setLoading] = useState(false);
+  const account = useActiveAccount();
+  
+  const contract = useMemo(() => {
+    if (!CONTRACT_ADDRESSES.REPUTATION_STAKING) return null;
+    return getContract({
+      client,
+      chain: opBNBTestnet,
+      address: CONTRACT_ADDRESSES.REPUTATION_STAKING as `0x${string}`,
+      abi: ReputationStakingABI as any,
+    });
+  }, []);
+
+  const { mutateAsync: sendTransaction, isPending: isSending } = useSendTransaction();
+
+  const unstake = async (amount: bigint) => {
+    if (!account) {
+      throw new Error('No account connected');
+    }
+    
+    if (!contract) {
+      throw new Error('Reputation staking contract not configured');
+    }
+    
+    try {
+      setLoading(true);
+      
+      const tx = prepareContractCall({
+        contract,
+        method: 'unstake',
+        params: [amount],
+      });
+
+      const result = await sendTransaction(tx);
+      const txHash = result.transactionHash;
+      
+      await waitForReceipt({ client, chain: opBNBTestnet, transactionHash: txHash });
+      
+      const txUrl = getTransactionUrl(txHash);
+      toast.success(
+        `Unstake exitoso! Ver transacción: ${formatTxHash(txHash)}`,
+        {
+          duration: 10000,
+          action: {
+            label: 'Ver en opBNBScan',
+            onClick: () => window.open(txUrl, '_blank'),
+          },
+        }
+      );
+      
+      return { transactionHash: txHash, receipt: result };
+    } catch (error: any) {
+      console.error('Error unstaking:', error);
+      toast.error(error?.message || 'Error al hacer unstake');
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { unstake, loading: loading || isSending };
 }
 
 export function useLeaderboard() {
-  // This would typically fetch from a subgraph or API
-  const { data, isLoading } = useReadContract({
-    address: CONTRACTS.REPUTATION_STAKING as `0x${string}`,
-    abi: ReputationStakingABI,
-    functionName: 'getStaker',
-    args: ['0x0000000000000000000000000000000000000000' as `0x${string}`],
-    query: { enabled: false },
-  });
-
+  // TODO: Implementar con subgraph o API
   return {
     leaderboard: [],
-    isLoading,
+    isLoading: false,
   };
 }
-
