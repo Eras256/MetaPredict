@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.20;
+pragma solidity ^0.8.24;
 
-import "@chainlink/contracts/src/v0.8/ccip/client/CCIPReceiver.sol";
+// TODO: Re-enable CCIP when Chainlink 0.8.0+ is available
+// import "@chainlink/contracts/src/v0.8/ccip/client/CCIPReceiver.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
@@ -9,8 +10,9 @@ import "@openzeppelin/contracts/access/Ownable.sol";
  * @title ReputationDAO
  * @notice Cross-protocol reputation staking with economic penalties
  * @dev Slash amount = Base Stake × (Market Size / $1M) × (1 - Reputation Score)
+ * @dev CCIP integration temporarily disabled for initial deployment
  */
-contract ReputationDAO is CCIPReceiver, Ownable {
+contract ReputationDAO is Ownable {
     struct ReputationScore {
         uint256 stake;
         uint256 accuracy; // 0-100
@@ -47,7 +49,9 @@ contract ReputationDAO is CCIPReceiver, Ownable {
         uint256 chainId
     );
 
-    constructor(address _router) CCIPReceiver(_router) Ownable(msg.sender) {}
+    // TODO: Re-enable CCIP router when available
+    // constructor(address _router) CCIPReceiver(_router) Ownable(msg.sender) {}
+    constructor() Ownable(msg.sender) {}
 
     /**
      * @notice Join reputation DAO with stake
@@ -170,12 +174,13 @@ contract ReputationDAO is CCIPReceiver, Ownable {
 
     /**
      * @notice Handle CCIP message from other chains
+     * @dev TODO: Re-enable when CCIP is available
      */
-    function _ccipReceive(
-        Client.Any2EVMMessage memory message
-    ) internal override {
-        // Handle cross-chain reputation sync
-        // Simplified for MVP
-    }
+    // function _ccipReceive(
+    //     Client.Any2EVMMessage memory message
+    // ) internal override {
+    //     // Handle cross-chain reputation sync
+    //     // Simplified for MVP
+    // }
 }
 

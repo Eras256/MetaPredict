@@ -3,7 +3,7 @@ pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/Pausable.sol";
 import "../oracle/AIOracle.sol";
 import "../oracle/InsurancePool.sol";
@@ -297,7 +297,7 @@ contract PredictionMarket is Ownable, ReentrancyGuard, Pausable {
         // Si confidence < 80%, activar insurance
         if (_confidence < 80) {
             market.status = MarketStatus.Disputed;
-            insurancePool.activateInsurance(_marketId, market.insuranceReserve);
+            insurancePool.activateInsurance(_marketId);
             return;
         }
         

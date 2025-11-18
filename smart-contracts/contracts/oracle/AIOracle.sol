@@ -211,6 +211,59 @@ contract AIOracle is FunctionsClient, OwnerIsCreator {
         emit ResolutionFulfilled(requestId, marketId, outcome, confidence);
     }
     
+    /**
+     * @notice Resuelve un mercado manualmente sin Chainlink Functions (para Gelato Bot)
+     * @dev Permite resolver mercados cuando Chainlink Functions no está disponible
+     * @param _marketId ID del mercado a resolver
+     * @param _outcome Resultado del consenso (1=Yes, 2=No, 3=Invalid)
+     * @param _confidence Nivel de confianza del consenso (0-100)
+     */
+    function fulfillResolutionManual(
+        uint256 _marketId,
+        uint8 _outcome,
+        uint8 _confidence
+    ) external onlyOwner {
+        if (_marketId == 0) revert Errors.InvalidAmount();
+        if (_outcome < 1 || _outcome > 3) revert Errors.InvalidAmount();
+        if (_confidence > 100) revert Errors.InvalidAmount();
+        
+        // Verificar que el mercado no esté ya resuelto
+        if (results[_marketId].resolved) {
+            revert Errors.InvalidRequestId(); // Reutilizar error para "ya resuelto"
+        }
+        
+        // outcome: 1=Yes, 2=No, 3=Invalid
+        uint8 yesVotes = _outcome == 1 ? 5 : 0;
+        uint8 noVotes = _outcome == 2 ? 5 : 0;
+        uint8 invalidVotes = _outcome == 3 ? 5 : 0;
+        
+        // Guardar resultado
+        results[_marketId] = OracleResult({
+            resolved: true,
+            yesVotes: yesVotes,
+            noVotes: noVotes,
+            invalidVotes: invalidVotes,
+            confidence: _confidence,
+            timestamp: block.timestamp
+        });
+        
+        // Convertir outcome a enum de PredictionMarket
+        PredictionMarket.Outcome finalOutcome;
+        if (_outcome == 1) finalOutcome = PredictionMarket.Outcome.Yes;
+        else if (_outcome == 2) finalOutcome = PredictionMarket.Outcome.No;
+        else finalOutcome = PredictionMarket.Outcome.Invalid;
+        
+        // Resolver mercado en PredictionMarket
+        PredictionMarket(payable(predictionMarket)).resolveMarket(
+            _marketId,
+            finalOutcome,
+            _confidence
+        );
+        
+        // Emitir evento (usar requestId cero para indicar resolución manual)
+        emit ResolutionFulfilled(bytes32(0), _marketId, _outcome, _confidence);
+    }
+    
     // ============ View Functions ============
     
     function getResult(uint256 _marketId) 
