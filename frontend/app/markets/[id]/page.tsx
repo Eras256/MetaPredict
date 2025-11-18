@@ -79,12 +79,12 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
           </Button>
         </Link>
 
-        <div className="grid lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
+          <div className="lg:col-span-2 space-y-4 sm:space-y-6">
             {/* Market Header */}
-            <GlassCard className="p-8">
-              <div className="flex items-start justify-between mb-6">
-                <div className="flex items-center gap-3">
+            <GlassCard className="p-4 sm:p-6 md:p-8">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 gap-3 sm:gap-0">
+                <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
                   <Badge variant="outline" className="text-xs">
                     Binary Market
                   </Badge>
@@ -93,46 +93,46 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                   </Badge>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Shield className="w-5 h-5 text-purple-400" />
-                  <span className="text-sm text-purple-300">Insured</span>
+                  <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-purple-400" />
+                  <span className="text-xs sm:text-sm text-purple-300">Insured</span>
                 </div>
               </div>
 
-              <h1 className="text-3xl font-bold text-white mb-6">
+              <h1 className="text-2xl sm:text-3xl font-bold text-white mb-4 sm:mb-6 break-words">
                 {market?.question || `Market #${marketId}`}
               </h1>
 
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                <div className="p-4 rounded-lg bg-purple-500/5 border border-purple-500/10">
-                  <div className="flex items-center gap-2 text-gray-400 text-sm mb-1">
-                    <Clock className="w-4 h-4" />
-                    Closes
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
+                <div className="p-3 sm:p-4 rounded-lg bg-purple-500/5 border border-purple-500/10">
+                  <div className="flex items-center gap-1.5 sm:gap-2 text-gray-400 text-xs sm:text-sm mb-1">
+                    <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <span className="truncate">Closes</span>
                   </div>
-                  <div className="text-white font-semibold">{timeRemaining}</div>
+                  <div className="text-white font-semibold text-sm sm:text-base truncate">{timeRemaining}</div>
                 </div>
 
-                <div className="p-4 rounded-lg bg-purple-500/5 border border-purple-500/10">
-                  <div className="flex items-center gap-2 text-gray-400 text-sm mb-1">
-                    <Users className="w-4 h-4" />
-                    Participants
+                <div className="p-3 sm:p-4 rounded-lg bg-purple-500/5 border border-purple-500/10">
+                  <div className="flex items-center gap-1.5 sm:gap-2 text-gray-400 text-xs sm:text-sm mb-1">
+                    <Users className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <span className="truncate">Participants</span>
                   </div>
-                  <div className="text-white font-semibold">0</div>
+                  <div className="text-white font-semibold text-sm sm:text-base">0</div>
                 </div>
 
-                <div className="p-4 rounded-lg bg-purple-500/5 border border-purple-500/10">
-                  <div className="flex items-center gap-2 text-gray-400 text-sm mb-1">
-                    <TrendingUp className="w-4 h-4" />
-                    Volume
+                <div className="p-3 sm:p-4 rounded-lg bg-purple-500/5 border border-purple-500/10">
+                  <div className="flex items-center gap-1.5 sm:gap-2 text-gray-400 text-xs sm:text-sm mb-1">
+                    <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <span className="truncate">Volume</span>
                   </div>
-                  <div className="text-white font-semibold">$0</div>
+                  <div className="text-white font-semibold text-sm sm:text-base">$0</div>
                 </div>
 
-                <div className="p-4 rounded-lg bg-purple-500/5 border border-purple-500/10">
-                  <div className="flex items-center gap-2 text-gray-400 text-sm mb-1">
-                    <Brain className="w-4 h-4" />
-                    Oracle
+                <div className="p-3 sm:p-4 rounded-lg bg-purple-500/5 border border-purple-500/10">
+                  <div className="flex items-center gap-1.5 sm:gap-2 text-gray-400 text-xs sm:text-sm mb-1">
+                    <Brain className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <span className="truncate">Oracle</span>
                   </div>
-                  <div className="text-white font-semibold">AI 5x</div>
+                  <div className="text-white font-semibold text-sm sm:text-base">AI 5x</div>
                 </div>
               </div>
 
@@ -304,8 +304,8 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
           </div>
 
           {/* Betting Panel */}
-          <div className="lg:col-span-1">
-            <div className="sticky top-24">
+          <div className="lg:col-span-1 order-first lg:order-last">
+            <div className="sticky top-20 lg:top-24">
               <BettingPanel
                 marketId={marketId}
                 yesOdds={yesOdds}

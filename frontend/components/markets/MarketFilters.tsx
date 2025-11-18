@@ -32,71 +32,71 @@ export function MarketFilters({
   return (
     <>
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <GlassCard className="p-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
-              <TrendingUp className="w-5 h-5 text-purple-400" />
+      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
+        <GlassCard className="p-3 sm:p-4">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-purple-500/20 flex items-center justify-center flex-shrink-0">
+              <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-purple-400" />
             </div>
-            <div>
-              <p className="text-sm text-gray-400">Active Markets</p>
-              <p className="text-2xl font-bold text-white">{stats?.activeMarkets || 0}</p>
+            <div className="min-w-0">
+              <p className="text-xs sm:text-sm text-gray-400 truncate">Active Markets</p>
+              <p className="text-xl sm:text-2xl font-bold text-white">{stats?.activeMarkets || 0}</p>
             </div>
           </div>
         </GlassCard>
         
-        <GlassCard className="p-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center">
-              <DollarSign className="w-5 h-5 text-green-400" />
+        <GlassCard className="p-3 sm:p-4">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-green-500/20 flex items-center justify-center flex-shrink-0">
+              <DollarSign className="w-4 h-4 sm:w-5 sm:h-5 text-green-400" />
             </div>
-            <div>
-              <p className="text-sm text-gray-400">24h Volume</p>
-              <p className="text-2xl font-bold text-white">{stats?.volume24h || '$0'}</p>
-            </div>
-          </div>
-        </GlassCard>
-
-        <GlassCard className="p-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center">
-              <Clock className="w-5 h-5 text-blue-400" />
-            </div>
-            <div>
-              <p className="text-sm text-gray-400">Resolving Soon</p>
-              <p className="text-2xl font-bold text-white">{stats?.resolvingSoon || 0}</p>
+            <div className="min-w-0">
+              <p className="text-xs sm:text-sm text-gray-400 truncate">24h Volume</p>
+              <p className="text-xl sm:text-2xl font-bold text-white truncate">{stats?.volume24h || '$0'}</p>
             </div>
           </div>
         </GlassCard>
 
-        <GlassCard className="p-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-yellow-500/20 flex items-center justify-center">
-              <Shield className="w-5 h-5 text-yellow-400" />
+        <GlassCard className="p-3 sm:p-4">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-blue-500/20 flex items-center justify-center flex-shrink-0">
+              <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400" />
             </div>
-            <div>
-              <p className="text-sm text-gray-400">Insured Markets</p>
-              <p className="text-2xl font-bold text-white">{stats?.insuredMarkets || '0%'}</p>
+            <div className="min-w-0">
+              <p className="text-xs sm:text-sm text-gray-400 truncate">Resolving Soon</p>
+              <p className="text-xl sm:text-2xl font-bold text-white">{stats?.resolvingSoon || 0}</p>
+            </div>
+          </div>
+        </GlassCard>
+
+        <GlassCard className="p-3 sm:p-4">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-yellow-500/20 flex items-center justify-center flex-shrink-0">
+              <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs sm:text-sm text-gray-400 truncate">Insured Markets</p>
+              <p className="text-xl sm:text-2xl font-bold text-white truncate">{stats?.insuredMarkets || '0%'}</p>
             </div>
           </div>
         </GlassCard>
       </div>
 
       {/* Filters */}
-      <GlassCard className="p-4 mb-6">
-        <div className="flex flex-col md:flex-row gap-4">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+      <GlassCard className="p-3 sm:p-4 mb-4 sm:mb-6">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+          <div className="relative flex-1 min-w-0">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 z-10" />
             <Input
               placeholder="Search markets..."
               value={search}
               onChange={(e) => onSearchChange(e.target.value)}
-              className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-gray-500"
+              className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-gray-500 text-sm sm:text-base"
             />
           </div>
 
           <Select value={category} onValueChange={onCategoryChange}>
-            <SelectTrigger className="w-full md:w-48 bg-white/5 border-white/10 text-white">
+            <SelectTrigger className="w-full sm:w-auto sm:min-w-[140px] md:w-48 bg-white/5 border-white/10 text-white text-sm sm:text-base">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -110,7 +110,7 @@ export function MarketFilters({
           </Select>
 
           <Select value={sortBy} onValueChange={onSortByChange}>
-            <SelectTrigger className="w-full md:w-48 bg-white/5 border-white/10 text-white">
+            <SelectTrigger className="w-full sm:w-auto sm:min-w-[140px] md:w-48 bg-white/5 border-white/10 text-white text-sm sm:text-base">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>

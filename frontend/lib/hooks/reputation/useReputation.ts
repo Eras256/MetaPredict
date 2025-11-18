@@ -77,12 +77,28 @@ export function useReputation() {
 
   const staker = stakerData as any;
 
+  const stakedAmount = staker?.[0] ? Number(staker[0]) / 1e18 : 0;
+  const correctVotes = staker?.[3] ? Number(staker[3]) : 0;
+  const totalVotes = staker?.[4] ? Number(staker[4]) : 0;
+  
+  // Calcular reputación: si no hay votos, usar una reputación base basada en el stake
+  let reputationScore = 0;
+  if (totalVotes > 0) {
+    // Reputación basada en votos correctos
+    reputationScore = (correctVotes * 100) / totalVotes;
+  } else if (stakedAmount > 0) {
+    // Reputación base basada en el stake (mínimo 50, máximo 70 para nuevos usuarios)
+    // Esto incentiva a los usuarios a participar en disputes para mejorar su reputación
+    const baseReputation = Math.min(50 + (stakedAmount * 2), 70);
+    reputationScore = baseReputation;
+  }
+
   return {
-    stakedAmount: staker?.[0] ? Number(staker[0]) / 1e18 : 0, // BNB tiene 18 decimales
-    reputationScore: staker?.[1] ? Number(staker[1]) : 0,
+    stakedAmount,
+    reputationScore: Math.round(reputationScore),
     tier: staker?.[2] ? Number(staker[2]) : 0,
-    correctVotes: staker?.[3] ? Number(staker[3]) : 0,
-    totalVotes: staker?.[4] ? Number(staker[4]) : 0,
+    correctVotes,
+    totalVotes,
     isLoading,
   };
 }
@@ -155,15 +171,15 @@ export function useStakeReputation() {
     } catch (error: any) {
       console.error('Error staking:', error);
       
-      // Mejorar mensajes de error
+      // Improve error messages
       let errorMessage = error?.message || 'Error staking';
       
       if (errorMessage.includes('Only core')) {
-        errorMessage = 'Error: El stake debe hacerse a través del contrato Core. Por favor, contacta al soporte.';
+        errorMessage = 'Error: Staking must be done through the Core contract. Please contact support.';
       } else if (errorMessage.includes('Amount must be > 0')) {
-        errorMessage = 'El monto debe ser mayor a 0';
+        errorMessage = 'Amount must be greater than 0';
       } else if (errorMessage.includes('Below min stake')) {
-        errorMessage = 'El monto es menor al mínimo requerido (0.1 BNB)';
+        errorMessage = 'Amount is below the minimum required (0.1 BNB)';
       }
       
       toast.error(errorMessage);
@@ -217,11 +233,11 @@ export function useUnstakeReputation() {
       
       const txUrl = getTransactionUrl(txHash);
       toast.success(
-        `Unstake exitoso! Ver transacción: ${formatTxHash(txHash)}`,
+        `Unstake successful! View transaction: ${formatTxHash(txHash)}`,
         {
           duration: 10000,
           action: {
-            label: 'Ver en opBNBScan',
+            label: 'View on opBNBScan',
             onClick: () => window.open(txUrl, '_blank'),
           },
         }
@@ -231,15 +247,15 @@ export function useUnstakeReputation() {
     } catch (error: any) {
       console.error('Error unstaking:', error);
       
-      // Mejorar mensajes de error
+      // Improve error messages
       let errorMessage = error?.message || 'Error unstaking';
       
       if (errorMessage.includes('Cooldown period') || errorMessage.includes('cooldown')) {
-        errorMessage = 'Debes esperar 7 días desde tu último stake antes de poder hacer unstake. Este es un período de seguridad para proteger el sistema de reputación.';
+        errorMessage = 'You must wait 7 days from your last stake before you can unstake. This is a security period to protect the reputation system.';
       } else if (errorMessage.includes('Insufficient stake')) {
-        errorMessage = 'No tienes suficiente stake para retirar esa cantidad';
+        errorMessage = 'You do not have enough stake to withdraw that amount';
       } else if (errorMessage.includes('Transfer failed')) {
-        errorMessage = 'Error al transferir los fondos. Por favor, intenta de nuevo.';
+        errorMessage = 'Error transferring funds. Please try again.';
       }
       
       toast.error(errorMessage);

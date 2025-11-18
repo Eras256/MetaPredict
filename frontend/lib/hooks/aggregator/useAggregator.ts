@@ -68,11 +68,19 @@ export function usePriceComparison(marketQuestion: string, isYes: boolean, amoun
     });
   }, []);
 
+  // Solo habilitar la query si marketQuestion tiene al menos 3 caracteres y amount es válido
+  const isValidQuery = Boolean(
+    marketQuestion.trim().length >= 3 && 
+    amount && 
+    parseFloat(amount) > 0 && 
+    contract
+  );
+
   const { data, isLoading } = useReadContract({
     contract: contract!,
     method: 'findBestPrice',
     params: [marketQuestion, isYes, BigInt(amount || '0')],
-    queryOptions: { enabled: !!marketQuestion && !!amount && !!contract },
+    queryOptions: { enabled: isValidQuery },
   });
 
   const result = data as any;
