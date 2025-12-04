@@ -97,7 +97,7 @@ const config: HardhatUserConfig = {
           // This is the correct API endpoint according to opBNBScan docs
           apiURL: process.env.NODEREAL_API_KEY 
             ? `https://open-platform.nodereal.io/${process.env.NODEREAL_API_KEY}/op-bnb-testnet/contract/`
-            : `https://open-platform.nodereal.io/your_nodereal_api_key/op-bnb-testnet/contract/`,
+            : `https://open-platform.nodereal.io/${process.env.NODEREAL_API_KEY || 'your_nodereal_api_key'}/op-bnb-testnet/contract/`,
           browserURL: "https://testnet.opbnbscan.com/",
         },
       },
