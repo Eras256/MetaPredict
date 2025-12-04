@@ -42,7 +42,7 @@
     "@nomicfoundation/hardhat-toolbox": "^4.0.0",
     "@nomicfoundation/hardhat-verify": "^2.0.14",
     "@types/node": "^20.0.0",
-    "hardhat": "^2.19.0",
+    "hardhat": "^3.0.17",
     "ts-node": "^10.9.0",
     "typescript": "^5.3.0"
   }
