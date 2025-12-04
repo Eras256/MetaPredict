@@ -160,8 +160,8 @@ importers:
         specifier: ^3.22.4
         version: 3.25.76
       zustand:
-        specifier: ^4.4.7
-        version: 4.5.7(@types/react@19.2.6)(react@19.2.0)
+        specifier: ^5.0.9
+        version: 5.0.9(@types/react@19.2.6)(react@19.2.0)(use-sync-external-store@1.4.0(react@19.2.0))
     devDependencies:
       '@testing-library/jest-dom':
         specifier: ^6.9.1
@@ -6768,6 +6768,7 @@ packages:
   next@15.5.6:
     resolution: {integrity: sha512-zTxsnI3LQo3c9HSdSf91O1jMNsEzIXDShXd4wVdg9y5shwLqBXi4ZtUUJyB86KGVSJLZx0PFONvO54aheGX8QQ==}
     engines: {node: ^18.18.0 || ^19.8.0 || >= 20.0.0}
+    deprecated: This version has a security vulnerability. Please upgrade to a patched version. See https://nextjs.org/blog/CVE-2025-66478 for more details.
     hasBin: true
     peerDependencies:
       '@opentelemetry/api': ^1.1.0
@@ -7253,6 +7254,9 @@ packages:
 
   preact@10.27.2:
     resolution: {integrity: sha512-5SYSgFKSyhCbk6SrXyMpqjb5+MQBgfvEKE/OC+PujcY34sOpqtr+0AZQtPYx5IA6VxynQ7rUPCtKzyovpj9Bpg==}
+
+  preact@10.28.0:
+    resolution: {integrity: sha512-rytDAoiXr3+t6OIP3WGlDd0ouCUG1iCWzkcY3++Nreuoi17y6T5i/zRhe6uYfoVcxq6YU+sBtJouuRDsq8vvqA==}
 
   prelude-ls@1.1.2:
     resolution: {integrity: sha512-ESF23V4SKG6lVSGZgYNpbsiaAkdab6ZgOxe52p7+Kid3W3u3bxR4Vfd/o21dmN7jSt0IwgZ4v5MUd26FEtXE9w==}
@@ -8557,11 +8561,6 @@ packages:
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
-  use-sync-external-store@1.6.0:
-    resolution: {integrity: sha512-Pp6GSwGP/NrPIrxVFAIkOQeyw8lFenOHijQWkUTrDvrF4ALqylP2C/KCkeS9dpUM3KvYRQhna5vt7IL95+ZQ9w==}
-    peerDependencies:
-      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
-
   utf-8-validate@5.0.10:
     resolution: {integrity: sha512-Z6czzLq4u8fPOyx7TU6X3dvUZVvoJmxSQ+IcrlmagKhilxlhZgxPK6C5Jqbkw1IDUmFTM+cz9QDnnLTwDz/2gQ==}
     engines: {node: '>=6.14.2'}
@@ -9010,21 +9009,6 @@ packages:
   zod@4.1.12:
     resolution: {integrity: sha512-JInaHOamG8pt5+Ey8kGmdcAcg3OL9reK8ltczgHTAwNhMys/6ThXHityHxVV2p3fkw/c+MAvBHFVYHFZDmjMCQ==}
 
-  zustand@4.5.7:
-    resolution: {integrity: sha512-CHOUy7mu3lbD6o6LJLfllpjkzhHXSBlX8B9+qPddUsIfeF5S/UZ5q0kmCsnRqT1UHFQZchNFDDzMbQsuesHWlw==}
-    engines: {node: '>=12.7.0'}
-    peerDependencies:
-      '@types/react': '>=16.8'
-      immer: '>=9.0.6'
-      react: '>=16.8'
-    peerDependenciesMeta:
-      '@types/react':
-        optional: true
-      immer:
-        optional: true
-      react:
-        optional: true
-
   zustand@5.0.0:
     resolution: {integrity: sha512-LE+VcmbartOPM+auOjCCLQOsQ05zUTp8RkgwRzefUk+2jISdMMFnxvyTjA4YNWr5ZGXYbVsEMZosttuxUBkojQ==}
     engines: {node: '>=12.20.0'}
@@ -9061,8 +9045,8 @@ packages:
       use-sync-external-store:
         optional: true
 
-  zustand@5.0.8:
-    resolution: {integrity: sha512-gyPKpIaxY9XcO2vSMrLbiER7QMAMGOQZVRdJ6Zi782jkbzZygq5GI9nG8g+sMgitRtndwaBSl7uiqC49o1SSiw==}
+  zustand@5.0.9:
+    resolution: {integrity: sha512-ALBtUj0AfjJt3uNRQoL1tL2tMvj6Gp/6e39dnfT6uzpelGru8v1tPOGBzayOWbPJvujM8JojDk3E1LxeFisBNg==}
     engines: {node: '>=12.20.0'}
     peerDependencies:
       '@types/react': '>=18.0.0'
@@ -9937,7 +9921,7 @@ snapshots:
       eth-json-rpc-filters: 6.0.1
       eventemitter3: 5.0.1
       keccak: 3.0.4
-      preact: 10.27.2
+      preact: 10.28.0
       sha.js: 2.4.12
     transitivePeerDependencies:
       - supports-color
@@ -11202,7 +11186,7 @@ snapshots:
       '@noble/hashes': 1.8.0
       '@scure/base': 1.2.6
       '@types/debug': 4.1.12
-      debug: 4.3.4
+      debug: 4.4.3(supports-color@8.1.1)
       pony-cause: 2.1.11
       semver: 7.7.3
       uuid: 9.0.1
@@ -18714,7 +18698,7 @@ snapshots:
       ox: 0.9.14(typescript@5.9.3)(zod@4.1.12)
       viem: 2.39.2(bufferutil@4.0.9)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@3.25.76)
       zod: 4.1.12
-      zustand: 5.0.8(@types/react@19.2.6)(react@19.2.0)(use-sync-external-store@1.4.0(react@19.2.0))
+      zustand: 5.0.9(@types/react@19.2.6)(react@19.2.0)(use-sync-external-store@1.4.0(react@19.2.0))
     optionalDependencies:
       '@tanstack/react-query': 5.81.5(react@19.2.0)
       react: 19.2.0
@@ -18734,7 +18718,7 @@ snapshots:
       ox: 0.9.14(typescript@5.9.3)(zod@4.1.12)
       viem: 2.39.2(bufferutil@4.0.9)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@3.25.76)
       zod: 4.1.12
-      zustand: 5.0.8(@types/react@19.2.6)(react@19.2.0)(use-sync-external-store@1.4.0(react@19.2.0))
+      zustand: 5.0.9(@types/react@19.2.6)(react@19.2.0)(use-sync-external-store@1.4.0(react@19.2.0))
     optionalDependencies:
       '@tanstack/react-query': 5.90.10(react@19.2.0)
       react: 19.2.0
@@ -18794,6 +18778,8 @@ snapshots:
   preact@10.24.2: {}
 
   preact@10.27.2: {}
+
+  preact@10.28.0: {}
 
   prelude-ls@1.1.2: {}
 
@@ -20245,10 +20231,6 @@ snapshots:
     dependencies:
       react: 19.2.0
 
-  use-sync-external-store@1.6.0(react@19.2.0):
-    dependencies:
-      react: 19.2.0
-
   utf-8-validate@5.0.10:
     dependencies:
       node-gyp-build: 4.8.4
@@ -20978,13 +20960,6 @@ snapshots:
 
   zod@4.1.12: {}
 
-  zustand@4.5.7(@types/react@19.2.6)(react@19.2.0):
-    dependencies:
-      use-sync-external-store: 1.6.0(react@19.2.0)
-    optionalDependencies:
-      '@types/react': 19.2.6
-      react: 19.2.0
-
   zustand@5.0.0(@types/react@19.2.6)(react@19.2.0)(use-sync-external-store@1.4.0(react@19.2.0)):
     optionalDependencies:
       '@types/react': 19.2.6
@@ -20997,7 +20972,7 @@ snapshots:
       react: 19.2.0
       use-sync-external-store: 1.4.0(react@19.2.0)
 
-  zustand@5.0.8(@types/react@19.2.6)(react@19.2.0)(use-sync-external-store@1.4.0(react@19.2.0)):
+  zustand@5.0.9(@types/react@19.2.6)(react@19.2.0)(use-sync-external-store@1.4.0(react@19.2.0)):
     optionalDependencies:
       '@types/react': 19.2.6
       react: 19.2.0
