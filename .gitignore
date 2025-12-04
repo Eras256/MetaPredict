@@ -165,6 +165,17 @@ secrets/
 deployments/
 deploy/
 
+# Scripts de deployment con información sensible
+*deploy-vercel*.ps1
+*inject-env*.ps1
+*add-all-env*.ps1
+*check-and-add-missing-env*.ps1
+*check-and-inject-env*.ps1
+VERCEL_DEPLOYMENT_GUIDE.md
+*deployment-guide*.md
+*deploy*.ps1
+*env*.ps1
+
 # ============================================
 # Temporary Files
 # ============================================
