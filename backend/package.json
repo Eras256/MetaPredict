@@ -19,7 +19,7 @@
     "test:consensus": "node test-consensus-simple.js"
   },
   "dependencies": {
-    "@chainlink/contracts": "^0.8.0",
+    "@chainlink/contracts": "^1.5.0",
     "@chainlink/functions-toolkit": "^0.3.2",
     "@google/generative-ai": "^0.24.1",
     "@prisma/client": "^5.7.0",
