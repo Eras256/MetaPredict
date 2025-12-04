@@ -61,8 +61,8 @@ const stats = [
 const contracts = [
   {
     name: 'Prediction Market Core',
-    address: '0x5eaa77CC135b82c254F1144c48f4d179964fA0b1',
-    explorer: 'https://testnet.opbnbscan.com/address/0x5eaa77CC135b82c254F1144c48f4d179964fA0b1#code',
+    address: '0xCB6a24b349c96526B6e7b79a87B2c4009d25D7AC',
+    explorer: 'https://testnet.opbnbscan.com/address/0xCB6a24b349c96526B6e7b79a87B2c4009d25D7AC#code',
     status: 'Verified'
   },
   {
@@ -123,19 +123,19 @@ const marketTypes = [
   {
     title: 'Binary Markets',
     description: 'Simple YES/NO predictions on any future event',
-    contract: '0x41A5CFeEf9C7fc50e68E13bAbB11b3B8872a0b6d',
+    contract: '0x44bF3De950526d5BDbfaA284F6430c72Ea99163B',
     examples: ['Will Bitcoin reach $100K by EOY?', 'Will there be snow in NYC on Christmas?', 'Will SpaceX launch Starship in Q1?']
   },
   {
     title: 'Conditional Markets',
     description: 'If-then predictions that depend on parent market outcomes',
-    contract: '0x41C2b1FB595Ad18cb111c3a3Fc1B2d6307e43741',
+    contract: '0x45E223eAB99761A7E60eF7690420C178FEBD23df',
     examples: ['IF Bitcoin hits $100K, THEN will Ethereum reach $5K?', 'IF Fed cuts rates, THEN will S&P 500 rally 10%?', 'IF Trump wins, THEN will crypto regulation ease?']
   },
   {
     title: 'Subjective Markets',
     description: 'Opinion-based predictions resolved by expert DAO voting',
-    contract: '0xAE88cE8f797FCBD36b0Ae78f80FDb11774d766f8',
+    contract: '0xaBb50827b49E7c725B6A8B735348D3A2a34E70cE',
     examples: ['Was Oppenheimer better than Barbie?', 'Is GPT-5 a significant improvement over GPT-4?', 'Will 2025 be the year of AI agents?']
   }
 ];
@@ -186,7 +186,7 @@ export default function HomePage() {
                 </Button>
               </Link>
 
-              <a href="https://testnet.opbnbscan.com/address/0x5eaa77CC135b82c254F1144c48f4d179964fA0b1#code" target="_blank" rel="noopener noreferrer">
+              <a href="https://testnet.opbnbscan.com/address/0xCB6a24b349c96526B6e7b79a87B2c4009d25D7AC#code" target="_blank" rel="noopener noreferrer">
                 <Button size="lg" variant="outline" className="border-blue-500/50 text-blue-300 hover:bg-blue-500/10 gap-2">
                   <ExternalLink className="w-4 h-4" />
                   View Contracts

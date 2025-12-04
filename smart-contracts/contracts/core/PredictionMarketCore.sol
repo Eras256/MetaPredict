@@ -271,11 +271,11 @@ contract PredictionMarketCore is Ownable, ReentrancyGuard, Pausable {
         address marketContract = marketTypeContract[_marketId];
         
         if (market.marketType == MarketType.Binary) {
-            binaryMarket.placeBet{value: netAmount}(_marketId, msg.sender, _isYes, netAmount);
+            BinaryMarket(payable(marketContract)).placeBet{value: netAmount}(_marketId, msg.sender, _isYes, netAmount);
         } else if (market.marketType == MarketType.Conditional) {
-            conditionalMarket.placeBet{value: netAmount}(_marketId, msg.sender, _isYes, netAmount);
+            ConditionalMarket(payable(marketContract)).placeBet{value: netAmount}(_marketId, msg.sender, _isYes, netAmount);
         } else {
-            subjectiveMarket.placeBet{value: netAmount}(_marketId, msg.sender, _isYes, netAmount);
+            SubjectiveMarket(payable(marketContract)).placeBet{value: netAmount}(_marketId, msg.sender, _isYes, netAmount);
         }
         
         emit FeeCollected(_marketId, msg.sender, tradingFee, insuranceFee);

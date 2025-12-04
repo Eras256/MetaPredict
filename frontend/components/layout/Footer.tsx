@@ -16,7 +16,7 @@ const footerLinks = {
   contracts: [
     { 
       name: 'Prediction Market Core', 
-      href: 'https://testnet.opbnbscan.com/address/0x5eaa77CC135b82c254F1144c48f4d179964fA0b1#code',
+      href: 'https://testnet.opbnbscan.com/address/0xCB6a24b349c96526B6e7b79a87B2c4009d25D7AC#code',
       external: true 
     },
     { 

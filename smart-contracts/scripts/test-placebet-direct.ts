@@ -15,67 +15,94 @@ if (fs.existsSync(envLocalPath)) {
   dotenv.config({ path: envLocalPath, override: true });
 }
 
+const CORE_CONTRACT = process.env.CORE_CONTRACT_ADDRESS || "0xCB6a24b349c96526B6e7b79a87B2c4009d25D7AC";
+const MARKET_ID = "22";
+
 async function main() {
-  console.log("🧪 Probando placeBet directamente desde el Core...\n");
-
-  const CORE_CONTRACT = "0x0bB2643aCE44Bbb4Fdcc3a4fC50eECbe3Ab4a76B";
-  const BINARY_MARKET = "0x53e305CF5BF27c3AC917ca60839a4943350F7786";
-  const MARKET_ID = 3;
-
-  const signers = await ethers.getSigners();
-  const deployer = signers[0];
-
-  const PredictionMarketCore = await ethers.getContractFactory("PredictionMarketCore");
-  const core = PredictionMarketCore.attach(CORE_CONTRACT);
-
-  // Verificar que el Core tiene la dirección correcta
-  const binaryMarketInCore = await core.binaryMarket();
-  console.log("BinaryMarket address en Core:", binaryMarketInCore);
-  console.log("Nueva dirección esperada:", BINARY_MARKET);
-  console.log("¿Coinciden?:", binaryMarketInCore.toLowerCase() === BINARY_MARKET.toLowerCase() ? "✅ Sí" : "❌ No");
+  console.log("🔍 Probando llamada directa a BinaryMarket.placeBet() desde el Core\n");
+  console.log("📋 Core Contract:", CORE_CONTRACT);
+  console.log("📋 Market ID:", MARKET_ID);
   console.log("");
 
-  // Intentar apostar directamente
-  console.log("Intentando apostar en mercado", MARKET_ID, "...");
-  const betAmount = ethers.parseEther("0.001");
-  
   try {
-    // Estimar gas primero para ver el error exacto
-    console.log("Estimando gas...");
-    const gasEstimate = await core.placeBet.estimateGas(MARKET_ID, true, { value: betAmount });
-    console.log("✅ Gas estimado:", gasEstimate.toString());
+    const [deployer] = await ethers.getSigners();
+    console.log("👤 Usando cuenta:", deployer.address);
+    const balance = await ethers.provider.getBalance(deployer.address);
+    console.log("💰 Balance:", ethers.formatEther(balance), "BNB");
     console.log("");
 
-    console.log("Enviando transacción...");
-    const tx = await core.placeBet(MARKET_ID, true, { value: betAmount });
-    console.log("Transacción enviada:", tx.hash);
-    const receipt = await tx.wait();
-    console.log("✅ Apuesta colocada exitosamente!");
-    console.log("Block:", receipt.blockNumber);
+    const PredictionMarketCore = await ethers.getContractFactory("PredictionMarketCore");
+    const core = PredictionMarketCore.attach(CORE_CONTRACT);
+
+    // Obtener información del mercado
+    const marketInfo = await core.markets(BigInt(MARKET_ID));
+    const marketTypeNum = Number(marketInfo.marketType);
+    const statusNum = Number(marketInfo.status);
+    
+    console.log("📋 Información del mercado:");
+    console.log("   Tipo:", marketTypeNum === 0 ? "Binary" : marketTypeNum === 1 ? "Conditional" : "Subjective");
+    console.log("   Estado:", statusNum === 0 ? "Active" : statusNum === 1 ? "Resolving" : statusNum === 2 ? "Resolved" : statusNum === 3 ? "Disputed" : "Cancelled");
+    console.log("");
+
+    if (statusNum !== 0) {
+      console.log("❌ El mercado no está activo");
+      return;
+    }
+
+    // Obtener el contrato del mercado
+    const marketContractAddress = await core.marketTypeContract(BigInt(MARKET_ID));
+    console.log("📋 Contrato del mercado:", marketContractAddress);
+    console.log("");
+
+    // Intentar llamar directamente desde el Core usando el contrato específico
+    console.log("💰 Intentando apuesta directa usando BinaryMarket(marketContract)...");
+    const BinaryMarket = await ethers.getContractFactory("BinaryMarket");
+    const binaryMarket = BinaryMarket.attach(marketContractAddress);
+    
+    const amount = ethers.parseEther("0.01");
+    const netAmount = amount - (amount * BigInt(250)) / BigInt(10000); // Aproximadamente
+    
+    try {
+      // Intentar llamar directamente desde el Core
+      // Esto simula lo que debería hacer el Core
+      const tx = await binaryMarket.placeBet(
+        BigInt(MARKET_ID),
+        deployer.address,
+        true,
+        netAmount,
+        { value: netAmount, from: CORE_CONTRACT }
+      );
+      console.log("   ✅ Transacción enviada:", tx.hash);
+      await tx.wait();
+      console.log("   ✅ Apuesta exitosa!");
+    } catch (error: any) {
+      console.log("   ❌ Error:", error.message);
+      if (error.message.includes("Only core")) {
+        console.log("");
+        console.log("   💡 El problema es que estamos llamando desde deployer.address, no desde el Core");
+        console.log("   El Core necesita llamar a BinaryMarket.placeBet() para que msg.sender sea el Core");
+        console.log("");
+        console.log("   Probando desde el Core...");
+        
+        // Ahora probar desde el Core
+        try {
+          const coreTx = await core.placeBet(
+            BigInt(MARKET_ID),
+            true,
+            { value: amount }
+          );
+          console.log("   📤 Transacción desde el Core enviada:", coreTx.hash);
+          const receipt = await coreTx.wait();
+          console.log("   ✅ Apuesta exitosa desde el Core!");
+          console.log("   📋 Gas usado:", receipt.gasUsed.toString());
+        } catch (coreError: any) {
+          console.log("   ❌ Error desde el Core:", coreError.message);
+        }
+      }
+    }
 
   } catch (error: any) {
     console.error("❌ Error:", error.message);
-    if (error.data) {
-      console.error("Error data:", error.data);
-    }
-    if (error.reason) {
-      console.error("Error reason:", error.reason);
-    }
-    
-    // Intentar decodificar el error
-    try {
-      const BinaryMarket = await ethers.getContractFactory("BinaryMarket");
-      const binaryMarket = BinaryMarket.attach(BINARY_MARKET);
-      
-      // Verificar si el problema es el onlyCore
-      const coreContract = await binaryMarket.coreContract();
-      console.log("\nDebug info:");
-      console.log("  Core Contract:", CORE_CONTRACT);
-      console.log("  coreContract en BinaryMarket:", coreContract);
-      console.log("  ¿Coinciden?:", coreContract.toLowerCase() === CORE_CONTRACT.toLowerCase() ? "✅ Sí" : "❌ No");
-    } catch (e) {
-      console.error("Error al verificar:", e);
-    }
   }
 }
 
@@ -85,4 +112,3 @@ main()
     console.error(error);
     process.exit(1);
   });
-

@@ -206,11 +206,12 @@ pnpm dev
 
 ### ✅ **All Contracts Verified (10/10)** ✅
 
-**Last Updated**: November 18, 2025  
+**Last Updated**: November 19, 2025  
 **Source**: Direcciones oficiales desde `frontend/lib/contracts/addresses.ts` (en uso en producción)  
 **Network**: opBNB Testnet (Chain ID: 5611)  
 **Token**: **Native BNB** (no ERC20 tokens required)  
-**Explorer**: [opBNBScan Testnet](https://testnet.opbnbscan.com/)
+**Explorer**: [opBNBScan Testnet](https://testnet.opbnbscan.com/)  
+**⚠️ Important**: Core Contract redesplegado con corrección del bug "Only core" en `placeBet()`
 
 </div>
 
@@ -218,7 +219,7 @@ pnpm dev
 
 | Contract | Address | Status | Explorer |
 |:--------|:--------|:------:|:--------:|
-| **🎯 Prediction Market Core** | `0x5eaa77CC135b82c254F1144c48f4d179964fA0b1` | ✅ Verified | [View on opBNBScan](https://testnet.opbnbscan.com/address/0x5eaa77CC135b82c254F1144c48f4d179964fA0b1#code) |
+| **🎯 Prediction Market Core** | `0x3Ee41D06739AB1fb90FB6718CE579e84b00FfA99` | ✅ Verified | [View on opBNBScan](https://testnet.opbnbscan.com/address/0x3Ee41D06739AB1fb90FB6718CE579e84b00FfA99#code) |
 | **🤖 AI Oracle** | `0xcc10a98Aa285E7bD16be1Ef8420315725C3dB66c` | ✅ Verified | [View on opBNBScan](https://testnet.opbnbscan.com/address/0xcc10a98Aa285E7bD16be1Ef8420315725C3dB66c#code) |
 | **🛡️ Insurance Pool** | `0xD30B71e1Af743cD93b3b1d7d314822Bc4cd860dA` | ✅ Verified | [View on opBNBScan](https://testnet.opbnbscan.com/address/0xD30B71e1Af743cD93b3b1d7d314822Bc4cd860dA#code) |
 | **🏆 Reputation Staking** | `0x5935C4002Bf11eCD4525d60Ef7e2B949421E15E7` | ✅ Verified | [View on opBNBScan](https://testnet.opbnbscan.com/address/0x5935C4002Bf11eCD4525d60Ef7e2B949421E15E7#code) |
@@ -229,9 +230,9 @@ pnpm dev
 
 | Contract | Address | Status | Explorer |
 |:--------|:--------|:------:|:--------:|
-| **📊 Binary Market** | `0x41A5CFeEf9C7fc50e68E13bAbB11b3B8872a0b6d` | ✅ Verified | [View on opBNBScan](https://testnet.opbnbscan.com/address/0x41A5CFeEf9C7fc50e68E13bAbB11b3B8872a0b6d#code) |
-| **🔗 Conditional Market** | `0x41C2b1FB595Ad18cb111c3a3Fc1B2d6307e43741` | ✅ Verified | [View on opBNBScan](https://testnet.opbnbscan.com/address/0x41C2b1FB595Ad18cb111c3a3Fc1B2d6307e43741#code) |
-| **🗳️ Subjective Market** | `0xAE88cE8f797FCBD36b0Ae78f80FDb11774d766f8` | ✅ Verified | [View on opBNBScan](https://testnet.opbnbscan.com/address/0xAE88cE8f797FCBD36b0Ae78f80FDb11774d766f8#code) |
+| **📊 Binary Market** | `0x68aEea03664707f152652F9562868CCF87C0962C` | ✅ Verified | [View on opBNBScan](https://testnet.opbnbscan.com/address/0x68aEea03664707f152652F9562868CCF87C0962C#code) |
+| **🔗 Conditional Market** | `0x547FC8C5680B7c4ed05da93c635B6b9B83e12007` | ✅ Verified | [View on opBNBScan](https://testnet.opbnbscan.com/address/0x547FC8C5680B7c4ed05da93c635B6b9B83e12007#code) |
+| **🗳️ Subjective Market** | `0x9a9c478BFdC45E2612f61726863AC1b6422217Ea` | ✅ Verified | [View on opBNBScan](https://testnet.opbnbscan.com/address/0x9a9c478BFdC45E2612f61726863AC1b6422217Ea#code) |
 
 ### ⚡ Oracle & Data Integration
 
@@ -245,25 +246,26 @@ pnpm dev
 - **🔍 Explorer**: [opBNBScan Testnet](https://testnet.opbnbscan.com/)
 - **💰 Token**: **Native BNB** (no ERC20 tokens required)
 - **👤 Deployer Address**: `0x8eC3829793D0a2499971d0D853935F17aB52F800`
-- **📅 Deployment Date**: November 18, 2025
-- **✅ Verification Date**: November 18, 2025
-- **📄 Deployment File**: `smart-contracts/deployments/opbnb-testnet.json`
+- **📅 Deployment Date**: November 19, 2025 (Core redesplegado con corrección placeBet)
+- **✅ Verification Date**: November 19, 2025
+- **📄 Deployment File**: `smart-contracts/deployments/opbnb-testnet-new-core.json`
 - **🎯 Verification Status**: ✅ **10/10 contracts verified**
 - **🧪 Test Status**: ✅ **37/37 tests passing** (24 unit tests + 13 integration tests)
+- **🔧 Bug Fix**: ✅ Corrección del error "Only core" en `placeBet()` implementada
 
 ### 📋 Verification Details
 
 All contracts have been verified on opBNBScan with source code available for public inspection:
 
-- ✅ **PredictionMarketCore**: [View Contract](https://testnet.opbnbscan.com/address/0x5eaa77CC135b82c254F1144c48f4d179964fA0b1#code) | [View Transactions](https://testnet.opbnbscan.com/address/0x5eaa77CC135b82c254F1144c48f4d179964fA0b1#txs)
+- ✅ **PredictionMarketCore** (Nuevo - con corrección placeBet): [View Contract](https://testnet.opbnbscan.com/address/0x3Ee41D06739AB1fb90FB6718CE579e84b00FfA99#code) | [View Transactions](https://testnet.opbnbscan.com/address/0x3Ee41D06739AB1fb90FB6718CE579e84b00FfA99#txs)
 - ✅ **AIOracle**: [View Contract](https://testnet.opbnbscan.com/address/0xcc10a98Aa285E7bD16be1Ef8420315725C3dB66c#code) | [View Transactions](https://testnet.opbnbscan.com/address/0xcc10a98Aa285E7bD16be1Ef8420315725C3dB66c#txs)
 - ✅ **InsurancePool**: [View Contract](https://testnet.opbnbscan.com/address/0xD30B71e1Af743cD93b3b1d7d314822Bc4cd860dA#code) | [View Transactions](https://testnet.opbnbscan.com/address/0xD30B71e1Af743cD93b3b1d7d314822Bc4cd860dA#txs)
 - ✅ **ReputationStaking**: [View Contract](https://testnet.opbnbscan.com/address/0x5935C4002Bf11eCD4525d60Ef7e2B949421E15E7#code) | [View Transactions](https://testnet.opbnbscan.com/address/0x5935C4002Bf11eCD4525d60Ef7e2B949421E15E7#txs)
 - ✅ **DAOGovernance**: [View Contract](https://testnet.opbnbscan.com/address/0xC2eD64e39cD7A6Ab9448f14E1f965E1D1e819123#code) | [View Transactions](https://testnet.opbnbscan.com/address/0xC2eD64e39cD7A6Ab9448f14E1f965E1D1e819123#txs)
 - ✅ **OmniRouter**: [View Contract](https://testnet.opbnbscan.com/address/0x11C1124384e463d99Ba84348280e318FbeE544d0#code) | [View Transactions](https://testnet.opbnbscan.com/address/0x11C1124384e463d99Ba84348280e318FbeE544d0#txs)
-- ✅ **BinaryMarket**: [View Contract](https://testnet.opbnbscan.com/address/0x41A5CFeEf9C7fc50e68E13bAbB11b3B8872a0b6d#code) | [View Transactions](https://testnet.opbnbscan.com/address/0x41A5CFeEf9C7fc50e68E13bAbB11b3B8872a0b6d#txs)
-- ✅ **ConditionalMarket**: [View Contract](https://testnet.opbnbscan.com/address/0x41C2b1FB595Ad18cb111c3a3Fc1B2d6307e43741#code) | [View Transactions](https://testnet.opbnbscan.com/address/0x41C2b1FB595Ad18cb111c3a3Fc1B2d6307e43741#txs)
-- ✅ **SubjectiveMarket**: [View Contract](https://testnet.opbnbscan.com/address/0xAE88cE8f797FCBD36b0Ae78f80FDb11774d766f8#code) | [View Transactions](https://testnet.opbnbscan.com/address/0xAE88cE8f797FCBD36b0Ae78f80FDb11774d766f8#txs)
+- ✅ **BinaryMarket** (Nuevo): [View Contract](https://testnet.opbnbscan.com/address/0x68aEea03664707f152652F9562868CCF87C0962C#code) | [View Transactions](https://testnet.opbnbscan.com/address/0x68aEea03664707f152652F9562868CCF87C0962C#txs)
+- ✅ **ConditionalMarket** (Nuevo): [View Contract](https://testnet.opbnbscan.com/address/0x547FC8C5680B7c4ed05da93c635B6b9B83e12007#code) | [View Transactions](https://testnet.opbnbscan.com/address/0x547FC8C5680B7c4ed05da93c635B6b9B83e12007#txs)
+- ✅ **SubjectiveMarket** (Nuevo): [View Contract](https://testnet.opbnbscan.com/address/0x9a9c478BFdC45E2612f61726863AC1b6422217Ea#code) | [View Transactions](https://testnet.opbnbscan.com/address/0x9a9c478BFdC45E2612f61726863AC1b6422217Ea#txs)
 - ✅ **ChainlinkDataStreamsIntegration**: [View Contract](https://testnet.opbnbscan.com/address/0x1758d4da0bAd4DB90Dfd56Be259C19cabDcF03fd#code) | [View Transactions](https://testnet.opbnbscan.com/address/0x1758d4da0bAd4DB90Dfd56Be259C19cabDcF03fd#txs)
 
 ---
@@ -482,6 +484,8 @@ const { conditionMet, currentPrice, targetPrice } =
 
 </div>
 
+### 📚 Technical Documentation
+
 | Document | Description |
 |:--------|:------------|
 | 📐 [Architecture](./docs/ARCHITECTURE.md) | System architecture and design |
@@ -490,6 +494,15 @@ const { conditionMet, currentPrice, targetPrice } =
 | 📡 [API Reference](./docs/API.md) | Backend API documentation |
 | 🧪 [Testing Guide](./docs/TESTING.md) | How to test the platform |
 | ⚙️ [Services Setup Guide](./SERVICES_SETUP.md) | Complete setup for external services |
+
+### 📋 Policies and Guidelines
+
+| Document | Description |
+|:--------|:------------|
+| 🔒 [Security Policy](./SECURITY.md) | How to report security vulnerabilities |
+| 👥 [Code of Conduct](./CODE_OF_CONDUCT.md) | Community standards and expectations |
+| 🤝 [Contributing Guide](./CONTRIBUTING.md) | How to contribute to the project |
+| 📜 [GitHub Policies](./GITHUB_POLICIES.md) | Complete GitHub policies and compliance guide |
 
 ---
 
@@ -849,6 +862,28 @@ pnpm test:frontend         # ~10 tests
 | **Mythril** | ✅ Passed |
 
 </div>
+
+---
+
+## 📋 GitHub Policies and Guidelines
+
+This project complies with all official GitHub policies and guidelines. Please review the following documents before contributing:
+
+- 🔒 **[Security Policy](./SECURITY.md)** - How to report security vulnerabilities
+- 👥 **[Code of Conduct](./CODE_OF_CONDUCT.md)** - Expected behavior standards
+- 🤝 **[Contributing Guide](./CONTRIBUTING.md)** - How to contribute to the project
+- 📜 **[GitHub Policies](./GITHUB_POLICIES.md)** - Complete summary of GitHub policies and guidelines
+
+### ✅ Compliance
+
+- ✅ **Acceptable Use Policies**: We follow all GitHub acceptable use policies
+- ✅ **Community Guidelines**: We maintain a respectful and inclusive environment
+- ✅ **Security**: We implement security best practices
+- ✅ **Intellectual Property**: We respect copyrights and licenses
+- ✅ **Content**: Only appropriate and legitimate content
+
+**Last updated**: December 2025  
+**Reference**: [Official GitHub Documentation](https://docs.github.com/en)
 
 ---
 

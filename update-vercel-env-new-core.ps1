@@ -8,10 +8,10 @@ Write-Host "⚠️  Nuevas direcciones después del redespliegue completo`n" -Fo
 Push-Location frontend
 
 $contracts = @{
-    "NEXT_PUBLIC_CORE_CONTRACT_ADDRESS" = "0x5eaa77CC135b82c254F1144c48f4d179964fA0b1"
-    "NEXT_PUBLIC_BINARY_MARKET_ADDRESS" = "0x41A5CFeEf9C7fc50e68E13bAbB11b3B8872a0b6d"
-    "NEXT_PUBLIC_CONDITIONAL_MARKET_ADDRESS" = "0x41C2b1FB595Ad18cb111c3a3Fc1B2d6307e43741"
-    "NEXT_PUBLIC_SUBJECTIVE_MARKET_ADDRESS" = "0xAE88cE8f797FCBD36b0Ae78f80FDb11774d766f8"
+    "NEXT_PUBLIC_CORE_CONTRACT_ADDRESS" = "0xCB6a24b349c96526B6e7b79a87B2c4009d25D7AC"
+    "NEXT_PUBLIC_BINARY_MARKET_ADDRESS" = "0x44bF3De950526d5BDbfaA284F6430c72Ea99163B"
+    "NEXT_PUBLIC_CONDITIONAL_MARKET_ADDRESS" = "0x45E223eAB99761A7E60eF7690420C178FEBD23df"
+    "NEXT_PUBLIC_SUBJECTIVE_MARKET_ADDRESS" = "0xaBb50827b49E7c725B6A8B735348D3A2a34E70cE"
     "NEXT_PUBLIC_AI_ORACLE_ADDRESS" = "0xcc10a98Aa285E7bD16be1Ef8420315725C3dB66c"
     "NEXT_PUBLIC_INSURANCE_POOL_ADDRESS" = "0xD30B71e1Af743cD93b3b1d7d314822Bc4cd860dA"
     "NEXT_PUBLIC_REPUTATION_STAKING_ADDRESS" = "0x5935C4002Bf11eCD4525d60Ef7e2B949421E15E7"
@@ -50,6 +50,8 @@ Write-Host "  1. Reinicia el deployment en Vercel o espera el auto-deploy" -Fore
 Write-Host "  2. Verifica que el error 'Only core' haya desaparecido" -ForegroundColor White
 Write-Host "  3. Prueba crear un mercado y apostar" -ForegroundColor White
 Write-Host "`n💡 Las nuevas direcciones están configuradas:" -ForegroundColor Cyan
-Write-Host "   Core: 0x5eaa77CC135b82c254F1144c48f4d179964fA0b1" -ForegroundColor White
-Write-Host "   BinaryMarket: 0x41A5CFeEf9C7fc50e68E13bAbB11b3B8872a0b6d" -ForegroundColor White
+Write-Host "   Core: 0xCB6a24b349c96526B6e7b79a87B2c4009d25D7AC" -ForegroundColor White
+Write-Host "   BinaryMarket: 0x44bF3De950526d5BDbfaA284F6430c72Ea99163B" -ForegroundColor White
+Write-Host "   ConditionalMarket: 0x45E223eAB99761A7E60eF7690420C178FEBD23df" -ForegroundColor White
+Write-Host "   SubjectiveMarket: 0xaBb50827b49E7c725B6A8B735348D3A2a34E70cE" -ForegroundColor White
 

@@ -1,6 +1,7 @@
 import * as dotenv from "dotenv";
 import * as path from "path";
 import * as fs from "fs";
+// @ts-ignore - Hardhat types may not be fully updated
 import { ethers } from "hardhat";
 
 // Load .env

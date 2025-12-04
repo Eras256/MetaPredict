@@ -1,0 +1,77 @@
+# Configuración de Dependabot para actualizaciones automáticas de dependencias
+# Esto ayuda a mantener el proyecto seguro y actualizado
+
+version: 2
+updates:
+  # Actualizar dependencias de npm/pnpm
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "Vaios0x"
+    labels:
+      - "dependencies"
+      - "automated"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+
+  # Actualizar dependencias del backend
+  - package-ecosystem: "npm"
+    directory: "/backend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "Vaios0x"
+    labels:
+      - "dependencies"
+      - "backend"
+      - "automated"
+
+  # Actualizar dependencias del frontend
+  - package-ecosystem: "npm"
+    directory: "/frontend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "Vaios0x"
+    labels:
+      - "dependencies"
+      - "frontend"
+      - "automated"
+
+  # Actualizar dependencias de smart contracts
+  - package-ecosystem: "npm"
+    directory: "/smart-contracts"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "Vaios0x"
+    labels:
+      - "dependencies"
+      - "smart-contracts"
+      - "automated"
+
+  # Actualizar acciones de GitHub
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "Vaios0x"
+    labels:
+      - "dependencies"
+      - "github-actions"
+      - "automated"
+
