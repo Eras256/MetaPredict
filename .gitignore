@@ -175,6 +175,8 @@ VERCEL_DEPLOYMENT_GUIDE.md
 *deployment-guide*.md
 *deploy*.ps1
 *env*.ps1
+SECURITY_ROTATION_REQUIRED.md
+*SECURITY*.md
 
 # ============================================
 # Temporary Files
