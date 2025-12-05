@@ -18,6 +18,7 @@ import { analyzeMarket } from '@/lib/services/ai/gemini';
 import { toast } from 'sonner';
 import { useState } from 'react';
 import { useBNBBalance } from '@/lib/hooks/useBNBBalance';
+import { formatModelName } from '@/lib/utils/model-formatter';
 
 
 export default function MarketDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -40,7 +41,7 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
       const result = await analyzeMarket(market.question, market.description || '');
       if (result.success && result.data) {
         setMarketAnalysis(result.data);
-        toast.success(`Analysis completed with ${result.modelUsed}`);
+        toast.success(`Analysis completed with ${formatModelName(result.modelUsed)}`);
       } else {
         toast.error(result.error || 'Error analyzing market');
       }
@@ -231,7 +232,7 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                           This market will be resolved using our multi-AI consensus system, querying 5 AI models from 3 providers in priority order:
                         </p>
                         <ul className="list-disc list-inside ml-2 space-y-1">
-                          <li>Google Gemini 2.5 Flash (Priority 1)</li>
+                          <li>GEMINI IA (Priority 1)</li>
                           <li>Groq Llama 3.1 Standard (Priority 2)</li>
                           <li>OpenRouter Mistral 7B (Priority 3)</li>
                           <li>OpenRouter Llama 3.2 3B (Priority 4)</li>

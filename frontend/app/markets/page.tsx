@@ -7,6 +7,7 @@ import { MarketCard } from '@/components/markets/MarketCard';
 import { useMarkets } from '@/lib/hooks/useMarkets';
 import { MarketFilters } from '@/components/markets/MarketFilters';
 import { GlassCard } from '@/components/effects/GlassCard';
+import { formatModelName } from '@/lib/utils/model-formatter';
 import { MARKET_STATUS, MARKET_TYPES } from '@/lib/config/constants';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Brain, Loader2, TrendingUp } from 'lucide-react';
@@ -108,7 +109,7 @@ Respond with a JSON in this format:
       const result = await callGemini(prompt, undefined, true);
       if (result.success && result.data) {
         setTrendAnalysis(result.data);
-        toast.success(`Analysis completed with ${result.modelUsed}`);
+        toast.success(`Analysis completed with ${formatModelName(result.modelUsed)}`);
       } else {
         toast.error(result.error || 'Error analyzing trends');
       }

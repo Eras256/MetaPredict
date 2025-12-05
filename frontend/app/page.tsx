@@ -10,7 +10,7 @@ const features = [
   {
     icon: Brain,
     title: 'Multi-AI Oracle Consensus',
-    description: '5 AI models from 3 providers (Gemini 2.5 Flash, Groq Llama 3.1, OpenRouter Mistral/Llama/Gemini) working in sequential priority. 80%+ consensus required. Automatic fallback ensures 95%+ accuracy.',
+    description: '5 AI models from 3 providers (GEMINI IA, Groq Llama 3.1, OpenRouter Mistral/Llama/Gemini) working in sequential priority. 80%+ consensus required. Automatic fallback ensures 95%+ accuracy.',
     gradient: 'from-purple-500 to-pink-500',
     link: 'https://testnet.opbnbscan.com/address/0xcc10a98Aa285E7bD16be1Ef8420315725C3dB66c#code'
   },
@@ -114,7 +114,7 @@ const howItWorks = [
   {
     step: '03',
     title: 'Multi-AI Oracle Consensus Resolves',
-    description: 'At resolution time, our Oracle Bot detects the event and queries 5 AI models sequentially: Gemini 2.5 Flash → Groq Llama 3.1 → OpenRouter Mistral 7B → OpenRouter Llama 3.2 3B → OpenRouter Gemini. 80%+ consensus required. Gelato Relay executes resolution on-chain.',
+    description: 'At resolution time, our Oracle Bot detects the event and queries 5 AI models sequentially: GEMINI IA → Groq Llama 3.1 → OpenRouter Mistral 7B → OpenRouter Llama 3.2 3B → OpenRouter Gemini. 80%+ consensus required. Gelato Relay executes resolution on-chain.',
     items: ['5 AI models from 3 providers', 'Sequential priority system', '80%+ consensus required', '<1 hour resolution', '100% refund if oracle fails', 'Transparent on-chain']
   }
 ];

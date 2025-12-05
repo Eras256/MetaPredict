@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { suggestMarketCreation, analyzeMarket } from '@/lib/services/ai/gemini';
 import { toast } from 'sonner';
+import { formatModelName } from '@/lib/utils/model-formatter';
 import { useActiveAccount } from 'thirdweb/react';
 import {
   useCreateBinaryMarket,
@@ -67,7 +68,7 @@ export default function CreateMarketPage() {
       const result = await suggestMarketCreation(question);
       if (result.success && result.data) {
         setSuggestions(result.data.suggestions);
-        toast.success(`Generated ${result.data.suggestions.length} suggestions with ${result.modelUsed}`);
+        toast.success(`Generated ${result.data.suggestions.length} suggestions with ${formatModelName(result.modelUsed)}`);
       } else {
         toast.error(result.error || 'Error generating suggestions');
       }

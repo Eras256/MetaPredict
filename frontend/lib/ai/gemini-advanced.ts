@@ -1,4 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { formatModelName } from '../utils/model-formatter';
 
 // Verificar que la API key esté configurada
 // NOTA: Este archivo solo se ejecuta server-side (API routes), por lo que podemos usar
@@ -184,7 +185,7 @@ export async function callGemini(
     throw new Error(`Failed to extract text from Gemini response: ${error.message}`);
   }
 
-  return { data: responseText, modelUsed };
+  return { data: responseText, modelUsed: formatModelName(modelUsed) };
 }
 
 /**
@@ -203,7 +204,7 @@ export async function callGeminiJSON<T = any>(
   try {
     const result = await callGemini(prompt, config);
     responseText = result.data;
-    modelUsed = result.modelUsed;
+    modelUsed = formatModelName(result.modelUsed);
   } catch (error: any) {
     console.error('[AI] Error in callGemini:', error);
     throw new Error(`Failed to call Gemini: ${error.message}`);
@@ -247,7 +248,7 @@ export async function callGeminiJSON<T = any>(
   // Estrategia 1: Intentar parsear directamente
   try {
     parsed = JSON.parse(cleanedText) as T;
-    return { data: parsed, modelUsed };
+    return { data: parsed, modelUsed: formatModelName(modelUsed) };
   } catch (e) {
     lastError = e as Error;
   }
@@ -257,7 +258,7 @@ export async function callGeminiJSON<T = any>(
   if (jsonMatch) {
     try {
       parsed = JSON.parse(jsonMatch[0]) as T;
-      return { data: parsed, modelUsed };
+      return { data: parsed, modelUsed: formatModelName(modelUsed) };
     } catch (e) {
       lastError = e as Error;
     }
@@ -276,7 +277,7 @@ export async function callGeminiJSON<T = any>(
         try {
           const jsonStr = cleanedText.substring(startIdx, i + 1);
           parsed = JSON.parse(jsonStr) as T;
-          return { data: parsed, modelUsed };
+          return { data: parsed, modelUsed: formatModelName(modelUsed) };
         } catch (e) {
           lastError = e as Error;
         }

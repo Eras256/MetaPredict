@@ -58,7 +58,6 @@ Write-Host ""
 Write-Host "Eliminando archivos del historial..." -ForegroundColor Green
 
 # Construir el comando de git-filter-repo
-$pathsToRemove = $filesToRemove -join " "
 $filterCommand = "git filter-repo --path $($filesToRemove[0])"
 
 foreach ($file in $filesToRemove[1..($filesToRemove.Length-1)]) {

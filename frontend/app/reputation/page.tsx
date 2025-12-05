@@ -12,6 +12,7 @@ import { useState } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { analyzeReputation } from '@/lib/services/ai/gemini';
 import { toast } from 'sonner';
+import { formatModelName } from '@/lib/utils/model-formatter';
 
 const tierLabels = {
   0: 'None',
@@ -65,7 +66,7 @@ export default function ReputationPage() {
       const result = await analyzeReputation(userData);
       if (result.success && result.data) {
         setAnalysisResult(result.data);
-        toast.success(`Analysis completed with ${result.modelUsed}`);
+        toast.success(`Analysis completed with ${formatModelName(result.modelUsed)}`);
       } else {
         toast.error(result.error || 'Error analyzing reputation');
       }

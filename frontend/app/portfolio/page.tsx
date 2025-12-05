@@ -7,6 +7,7 @@ import { GlassCard } from '@/components/effects/GlassCard';
 import { Button } from '@/components/ui/button';
 import { analyzePortfolioRebalance } from '@/lib/services/ai/gemini';
 import { toast } from 'sonner';
+import { formatModelName } from '@/lib/utils/model-formatter';
 
 export default function PortfolioPage() {
   const [activeTab, setActiveTab] = useState<'positions' | 'history' | 'claims'>('positions');
@@ -46,7 +47,7 @@ export default function PortfolioPage() {
       const result = await analyzePortfolioRebalance(positionsData);
       if (result.success && result.data) {
         setAnalysisResult(result.data);
-        toast.success(`Analysis completed with ${result.modelUsed}`);
+        toast.success(`Analysis completed with ${formatModelName(result.modelUsed)}`);
       } else {
         toast.error(result.error || 'Error analyzing portfolio');
       }

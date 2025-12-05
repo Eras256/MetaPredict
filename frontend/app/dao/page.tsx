@@ -14,6 +14,7 @@ import { Vote, CheckCircle, XCircle, Clock, TrendingUp, Users, Brain, Loader2, R
 import { Skeleton } from '@/components/ui/skeleton';
 import { analyzeDAOProposal } from '@/lib/services/ai/gemini';
 import { toast } from 'sonner';
+import { formatModelName } from '@/lib/utils/model-formatter';
 
 export default function DAOPage() {
   const [selectedProposal, setSelectedProposal] = useState<number | null>(null);
@@ -75,7 +76,7 @@ export default function DAOPage() {
       const result = await analyzeDAOProposal(proposalData);
       if (result.success && result.data) {
         setAnalysisResults({ ...analysisResults, [proposal.id]: result.data });
-        toast.success(`Analysis completed with ${result.modelUsed}`);
+        toast.success(`Analysis completed with ${formatModelName(result.modelUsed)}`);
       } else {
         toast.error(result.error || 'Error analyzing proposal');
       }

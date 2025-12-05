@@ -1,5 +1,8 @@
-// Load .env from root directory before Next.js processes it
+// Load .env files from root directory before Next.js processes it
+// Next.js automatically loads .env.local from frontend/ directory, but we also load from root
 require('dotenv').config({ path: require('path').resolve(__dirname, '../.env') });
+require('dotenv').config({ path: require('path').resolve(__dirname, '../.env.local') });
+require('dotenv').config({ path: require('path').resolve(__dirname, '.env.local') });
 
 const withPWA = require("next-pwa")({
   dest: "public",

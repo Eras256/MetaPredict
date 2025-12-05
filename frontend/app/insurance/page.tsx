@@ -11,6 +11,7 @@ import { DepositPanel } from '@/components/insurance/DepositPanel';
 import { ClaimPanel } from '@/components/insurance/ClaimPanel';
 import { analyzeInsuranceRisk } from '@/lib/services/ai/gemini';
 import { toast } from 'sonner';
+import { formatModelName } from '@/lib/utils/model-formatter';
 import { useMarkets } from '@/lib/hooks/useMarkets';
 
 export default function InsurancePage() {
@@ -33,7 +34,7 @@ export default function InsurancePage() {
       const result = await analyzeInsuranceRisk(marketData);
       if (result.success && result.data) {
         setRiskAnalysis({ ...result.data, marketId: market.id, marketQuestion: market.question });
-        toast.success(`Analysis completed with ${result.modelUsed}`);
+        toast.success(`Analysis completed with ${formatModelName(result.modelUsed)}`);
       } else {
         toast.error(result.error || 'Error analyzing risk');
       }
