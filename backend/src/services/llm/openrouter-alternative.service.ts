@@ -2,23 +2,23 @@ import axios from 'axios';
 import { LLMResponse } from './groq.service';
 
 /**
- * Servicio alternativo para OpenRouter que intenta múltiples modelos gratuitos
- * Útil como fallback o para reemplazar modelos no disponibles
+ * Alternative service for OpenRouter that tries multiple free models
+ * Useful as fallback or to replace unavailable models
  * 
- * Modelos que intenta (en orden de prioridad):
+ * Models it tries (in priority order):
  * 1. meta-llama/llama-3.2-3b-instruct:free
  * 2. mistralai/mistral-7b-instruct:free
- * 3. Otros modelos gratuitos si están disponibles
+ * 3. Other free models if available
  */
 export class OpenRouterAlternativeService {
   private apiKey: string;
   private baseUrl = 'https://openrouter.ai/api/v1/chat/completions';
   
-  // Modelos a intentar en orden de prioridad
+  // Models to try in priority order
   private modelsToTry = [
     'meta-llama/llama-3.2-3b-instruct:free', // Llama 3.2 3B
-    'mistralai/mistral-7b-instruct:free', // Mistral 7B (ya usado en otro servicio, pero como fallback)
-    // Modelos adicionales que pueden estar disponibles
+    'mistralai/mistral-7b-instruct:free', // Mistral 7B (already used in another service, but as fallback)
+    // Additional models that may be available
     'google/gemini-2.0-flash-exp:free',
     'qwen/qwen-2.5-7b-instruct:free',
     'huggingfaceh4/zephyr-7b-beta:free',

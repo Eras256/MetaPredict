@@ -2,9 +2,9 @@ import axios from 'axios';
 import { LLMResponse } from './groq.service';
 
 /**
- * Servicio específico para OpenRouter usando Llama 3.2 3B Instruct (gratuito)
- * Modelo: meta-llama/llama-3.2-3b-instruct:free
- * Nota: Puede no estar disponible siempre, pero está preparado para cuando funcione
+ * Specific service for OpenRouter using Llama 3.2 3B Instruct (free)
+ * Model: meta-llama/llama-3.2-3b-instruct:free
+ * Note: May not always be available, but prepared for when it works
  */
 export class OpenRouterLlamaService {
   private apiKey: string;
@@ -111,8 +111,8 @@ Respond with ONLY one word: YES, NO, or INVALID`;
               reasoning: retryAnswer,
             };
           } catch (retryError: any) {
-            // Si el reintento también falla, retornar INVALID
-            console.warn(`[OpenRouterLlamaService] ⚠️ Modelo ${this.modelName} no disponible después de reintento`);
+            // If retry also fails, return INVALID
+            console.warn(`[OpenRouterLlamaService] ⚠️ Model ${this.modelName} not available after retry`);
             return {
               answer: 'INVALID',
               confidence: 0,
@@ -121,8 +121,8 @@ Respond with ONLY one word: YES, NO, or INVALID`;
           }
         }
         
-        console.warn(`[OpenRouterLlamaService] ⚠️ Modelo ${this.modelName} no disponible: ${errorMessage}`);
-        // Retornar INVALID en lugar de lanzar error para que el consenso continúe
+        console.warn(`[OpenRouterLlamaService] ⚠️ Model ${this.modelName} not available: ${errorMessage}`);
+        // Return INVALID instead of throwing error so consensus continues
         return {
           answer: 'INVALID',
           confidence: 0,

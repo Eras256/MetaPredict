@@ -147,7 +147,7 @@ export default function CreateMarketPage() {
       setBinaryResolutionTime('');
       setBinaryMetadata('');
       toast.success('Binary market created successfully!');
-      // El evento 'marketCreated' se emite desde el hook, que refrescará automáticamente
+      // The 'marketCreated' event is emitted from the hook, which will automatically refresh
     } catch (error) {
       // Error already handled by hook
     }
@@ -169,7 +169,7 @@ export default function CreateMarketPage() {
       return;
     }
 
-    // Verificar que el mercado padre existe
+    // Verify that parent market exists
     try {
       const opBNBTestnet = defineChain({
         id: 5611,

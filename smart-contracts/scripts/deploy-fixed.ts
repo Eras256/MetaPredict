@@ -36,10 +36,11 @@ console.log("");
 
 // Import ethers - @nomicfoundation/hardhat-toolbox provides this
 // @ts-ignore - Hardhat types may not be fully updated
+// @ts-expect-error - hardhat exports ethers but TypeScript types may not reflect it
 import { ethers } from "hardhat";
 
 async function main() {
-  console.log("🚀 Deploying MetaPredict.ai to opBNB...\n");
+  console.log("🚀 Deploying MetaPredict.fun to opBNB...\n");
 
   // Debug: Check if PRIVATE_KEY is loaded
   const privateKey = process.env.PRIVATE_KEY;

@@ -7,9 +7,9 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /**
  * @title ReputationStaking
- * @notice Sistema de reputación con staking, slashing y NFT badges
- * @dev Track 2: Reputation cross-chain con incentivos económicos
- * @dev Usa BNB nativo en lugar de tokens ERC20
+ * @notice Reputation system with staking, slashing and NFT badges
+ * @dev Track 2: Cross-chain reputation with economic incentives
+ * @dev Uses native BNB instead of ERC20 tokens
  */
 contract ReputationStaking is ERC721, Ownable, ReentrancyGuard {
     address public coreContract;
@@ -80,7 +80,7 @@ contract ReputationStaking is ERC721, Ownable, ReentrancyGuard {
     // ============ Staking Functions ============
     
     /**
-     * @notice Stake BNB para ganar reputación
+     * @notice Stake BNB to earn reputation
      */
     function stake(address _user, uint256 _amount) 
         external 
@@ -260,7 +260,7 @@ contract ReputationStaking is ERC721, Ownable, ReentrancyGuard {
         
         // Return dynamic metadata based on tier and reputation
         return string(abi.encodePacked(
-            "https://api.metapredict.ai/nft/",
+            "https://api.metapredict.fun/nft/",
             _uint2str(tokenId),
             "?tier=",
             _uint2str(uint256(tier))

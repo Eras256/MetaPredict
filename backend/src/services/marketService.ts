@@ -1,11 +1,11 @@
-// Prisma Client - solo inicializar si está disponible
+// Prisma Client - only initialize if available
 let prisma: any = null;
 try {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const { PrismaClient } = require("@prisma/client");
   prisma = new PrismaClient();
 } catch (error) {
-  // Prisma no disponible en entorno de tests
+  // Prisma not available in test environment
   console.warn("PrismaClient not available, using mock data");
 }
 

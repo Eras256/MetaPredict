@@ -36,10 +36,11 @@ console.log("");
 
 // Import ethers - @nomicfoundation/hardhat-toolbox provides this
 // @ts-ignore - Hardhat types may not be fully updated
+// @ts-expect-error - hardhat exports ethers but TypeScript types may not reflect it
 import { ethers } from "hardhat";
 
 async function main() {
-  console.log("🚀 Deploying MetaPredict.ai to opBNB...\n");
+  console.log("🚀 Deploying MetaPredict.fun to opBNB...\n");
 
   // Debug: Check if PRIVATE_KEY is loaded
   const privateKey = process.env.PRIVATE_KEY;
@@ -58,7 +59,7 @@ async function main() {
     console.error("   Expected: 64 hexadecimal characters (without 0x prefix)");
     console.error("   Example: 2003f926c578fea4a77ffdd98a288a3297ee12b8893505562422dd258e4a5765");
     console.error("\n   Make sure your .env.local or .env has:");
-    console.error("   PRIVATE_KEY=tu_private_key_de_64_caracteres_sin_0x");
+    console.error("   PRIVATE_KEY=your_64_character_private_key_without_0x");
     throw new Error("PRIVATE_KEY format invalid");
   }
   
@@ -82,16 +83,16 @@ async function main() {
   // Helper function to get contract address
   const getAddress = async (contract: any) => await contract.getAddress();
 
-  // 1. Deploy Insurance Pool (BNB nativo)
-  console.log("📝 Deploying Insurance Pool (BNB native)...");
+  // 1. Deploy Insurance Pool (native BNB)
+  console.log("📝 Deploying Insurance Pool (native BNB)...");
   const InsurancePool = await ethers.getContractFactory("InsurancePool");
   const insurancePool = await InsurancePool.deploy();
   await insurancePool.waitForDeployment();
   const insurancePoolAddress = await getAddress(insurancePool);
   console.log("✅ Insurance Pool deployed:", insurancePoolAddress, "\n");
 
-  // 2. Deploy Reputation Staking (BNB nativo)
-  console.log("📝 Deploying Reputation Staking (BNB native)...");
+  // 2. Deploy Reputation Staking (native BNB)
+  console.log("📝 Deploying Reputation Staking (native BNB)...");
   const ReputationStaking = await ethers.getContractFactory("ReputationStaking");
   const reputationStaking = await ReputationStaking.deploy();
   await reputationStaking.waitForDeployment();

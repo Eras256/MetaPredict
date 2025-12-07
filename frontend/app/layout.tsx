@@ -16,18 +16,18 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
-  title: 'MetaPredict.ai | AI-Powered Prediction Markets',
-  description: 'The first all-in-one prediction market platform with 5-AI consensus oracle (Gemini, Groq, OpenRouter), cross-chain aggregation, and insurance protection on opBNB',
+  title: 'MetaPredict.fun | AI-Powered Prediction Markets',
+  description: 'The first all-in-one prediction market platform with 5-AI consensus oracle (Gemini, Llama, Mistral), cross-chain aggregation, and insurance protection on opBNB',
   keywords: ['prediction markets', 'AI oracle', 'multi-AI consensus', '5 AI models', 'opBNB', 'DeFi', 'Web3', 'blockchain'],
   openGraph: {
-    title: 'MetaPredict.ai',
+    title: 'MetaPredict.fun',
     description: 'AI-Powered Prediction Markets with 5-AI Consensus & Insurance',
     images: ['/og-image.png'],
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'MetaPredict.ai',
+    title: 'MetaPredict.fun',
     description: 'AI-Powered Prediction Markets with 5-AI Consensus',
     images: ['/og-image.png'],
   },

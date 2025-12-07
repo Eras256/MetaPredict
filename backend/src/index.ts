@@ -55,7 +55,7 @@ app.use((err: Error, req: express.Request, res: express.Response, next: express.
 
 // Start server
 app.listen(PORT, async () => {
-  logger.info(`🚀 MetaPredict.ai Backend running on port ${PORT}`);
+  logger.info(`🚀 MetaPredict.fun Backend running on port ${PORT}`);
   logger.info(`📡 API available at http://localhost:${PORT}/api`);
   
   // Start Oracle Bot
@@ -64,7 +64,7 @@ app.listen(PORT, async () => {
     logger.info(`🤖 Oracle Bot started successfully`);
   } catch (error: any) {
     logger.error(`❌ Failed to start Oracle Bot: ${error.message}`);
-    // No lanzar error para que el servidor siga funcionando
+    // Don't throw error so server continues running
   }
 });
 

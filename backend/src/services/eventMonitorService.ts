@@ -48,11 +48,11 @@ class EventMonitorService {
   }
 
   /**
-   * Inicializa el provider y el contrato
+   * Initializes the provider and contract
    */
   async initialize(): Promise<void> {
     try {
-      // Usar RPC privado de Gelato si está disponible, sino usar RPC público
+      // Use Gelato private RPC if available, otherwise use public RPC
       const rpcUrl = gelatoService.getRpcUrl() || 
                      process.env.GELATO_RPC_URL_TESTNET ||
                      process.env.RPC_URL_TESTNET ||
@@ -75,7 +75,7 @@ class EventMonitorService {
   }
 
   /**
-   * Inicia el monitoreo de eventos
+   * Starts event monitoring
    */
   async startMonitoring(): Promise<void> {
     if (this.isMonitoring) {
@@ -90,17 +90,17 @@ class EventMonitorService {
     this.isMonitoring = true;
     logger.info("[EventMonitor] Starting event monitoring...");
 
-    // Monitorear eventos en tiempo real
+    // Monitor events in real-time
     this.monitorEvents();
 
-    // También hacer polling periódico como backup
-    this.monitoringInterval = setInterval(() => {
+    // Also do periodic polling as backup
+      this.monitoringInterval = setInterval(() => {
       this.checkPendingResolutions();
-    }, 60000); // Cada minuto
+    }, 60000); // Every minute
   }
 
   /**
-   * Detiene el monitoreo
+   * Stops monitoring
    */
   stopMonitoring(): void {
     this.isMonitoring = false;
@@ -112,13 +112,13 @@ class EventMonitorService {
   }
 
   /**
-   * Monitorea eventos ResolutionRequested en tiempo real
+   * Monitors ResolutionRequested events in real-time
    */
   private async monitorEvents(): Promise<void> {
     if (!this.aiOracleContract) return;
 
     try {
-      // Escuchar eventos ResolutionRequested
+      // Listen to ResolutionRequested events
       this.aiOracleContract.on("ResolutionRequested", async (
         requestId: string,
         marketId: bigint,
@@ -128,14 +128,14 @@ class EventMonitorService {
         const requestIdStr = requestId;
         const marketIdNum = Number(marketId);
 
-        // Evitar procesar el mismo evento dos veces
+        // Avoid processing the same event twice
         if (this.processedRequests.has(requestIdStr)) {
           return;
         }
 
         logger.info(`[EventMonitor] ResolutionRequested detected: requestId=${requestIdStr}, marketId=${marketIdNum}`);
 
-        // Procesar la resolución
+        // Process the resolution
         await this.processResolution({
           requestId: requestIdStr,
           marketId: marketIdNum,
@@ -152,21 +152,21 @@ class EventMonitorService {
   }
 
   /**
-   * Verifica resoluciones pendientes (polling como backup)
+   * Checks pending resolutions (polling as backup)
    */
   private async checkPendingResolutions(): Promise<void> {
     if (!this.aiOracleContract || !this.provider) return;
 
     try {
-      // Obtener eventos de las últimas 24 horas
+      // Get events from the last 24 hours
       const currentBlock = await this.provider.getBlockNumber();
-      const fromBlock = Math.max(0, currentBlock - 10000); // Últimos ~10000 bloques
+      const fromBlock = Math.max(0, currentBlock - 10000); // Last ~10000 blocks
 
       const filter = this.aiOracleContract.filters.ResolutionRequested();
       const events = await this.aiOracleContract.queryFilter(filter, fromBlock, currentBlock);
 
       for (const event of events) {
-        // Verificar que es un EventLog y tiene args
+        // Verify that it's an EventLog and has args
         if (event instanceof ethers.EventLog && event.args) {
           const requestId = event.args[0];
           const marketId = Number(event.args[1]);
@@ -174,7 +174,7 @@ class EventMonitorService {
 
           const requestIdStr = requestId;
 
-          // Solo procesar si no se ha procesado antes
+          // Only process if not processed before
           if (!this.processedRequests.has(requestIdStr)) {
             logger.info(`[EventMonitor] Found pending resolution: requestId=${requestIdStr}, marketId=${marketId}`);
 
@@ -194,24 +194,24 @@ class EventMonitorService {
   }
 
   /**
-   * Procesa una resolución: llama al backend y luego usa Gelato Relay
+   * Processes a resolution: calls backend and then uses Gelato Relay
    */
   private async processResolution(request: ResolutionRequest): Promise<void> {
     try {
-      // Marcar como procesado inmediatamente para evitar duplicados
+      // Mark as processed immediately to avoid duplicates
       this.processedRequests.add(request.requestId);
 
       logger.info(`[EventMonitor] Processing resolution for marketId=${request.marketId}`);
 
-      // Paso 1: Llamar al backend para obtener el consenso multi-AI
+      // Step 1: Call backend to get multi-AI consensus
       const backendResponse = await axios.post(
         `${this.backendUrl}/oracle/resolve`,
         {
           marketDescription: request.question,
-          priceId: null, // Opcional
+          priceId: null, // Optional
         },
         {
-          timeout: 60000, // 60 segundos timeout
+          timeout: 60000, // 60 seconds timeout
           headers: {
             "Content-Type": "application/json",
           },
@@ -228,8 +228,8 @@ class EventMonitorService {
         `[EventMonitor] Backend resolved: outcome=${outcome}, confidence=${confidence}`
       );
 
-      // Paso 2: Usar Gelato Relay para ejecutar la resolución en el contrato AIOracle
-      // AIOracle.fulfillResolutionManual() resuelve el mercado y llama a PredictionMarket internamente
+      // Step 2: Use Gelato Relay to execute resolution in AIOracle contract
+      // AIOracle.fulfillResolutionManual() resolves the market and calls PredictionMarket internally
       const gelatoResult = await gelatoService.fulfillResolution(
         this.aiOracleAddress,
         request.marketId,
@@ -242,27 +242,27 @@ class EventMonitorService {
         `[EventMonitor] Gelato Relay task created: taskId=${gelatoResult.taskId} for marketId=${request.marketId}`
       );
 
-      // Marcar como procesado exitosamente
+      // Mark as successfully processed
       request.processed = true;
     } catch (error: any) {
       logger.error(
         `[EventMonitor] Error processing resolution for marketId=${request.marketId}: ${error.message}`
       );
       
-      // Remover de procesados para reintentar más tarde
+      // Remove from processed to retry later
       this.processedRequests.delete(request.requestId);
       
-      // Reintentar después de 5 minutos
+      // Retry after 5 minutes
       setTimeout(() => {
         if (!this.processedRequests.has(request.requestId)) {
           this.processResolution(request);
         }
-      }, 300000); // 5 minutos
+      }, 300000); // 5 minutes
     }
   }
 
   /**
-   * Obtiene el estado del monitor
+   * Gets monitor status
    */
   getStatus(): {
     isMonitoring: boolean;

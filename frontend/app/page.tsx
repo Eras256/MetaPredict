@@ -10,7 +10,7 @@ const features = [
   {
     icon: Brain,
     title: 'Multi-AI Oracle Consensus',
-    description: '5 AI models from 3 providers (GEMINI IA, Groq Llama 3.1, OpenRouter Mistral/Llama/Gemini) working in sequential priority. 80%+ consensus required. Automatic fallback ensures 95%+ accuracy.',
+    description: '5 AI models from 3 providers (Gemini, Llama, Mistral) working in sequential priority. 80%+ consensus required. Automatic fallback ensures 95%+ accuracy.',
     gradient: 'from-purple-500 to-pink-500',
     link: 'https://testnet.opbnbscan.com/address/0xcc10a98Aa285E7bD16be1Ef8420315725C3dB66c#code'
   },
@@ -88,9 +88,9 @@ const contracts = [
 const technologies = [
   { name: 'opBNB', description: 'Ultra-low gas Layer 2', icon: '⚡' },
   { name: 'Chainlink', description: 'Data Streams & CCIP', icon: '🔗' },
-  { name: 'Google Gemini', description: 'AI Model Priority 1', icon: '🧠' },
-  { name: 'Groq', description: 'AI Model Priority 2', icon: '⚡' },
-  { name: 'OpenRouter', description: 'AI Models Priority 3-5', icon: '🌐' },
+  { name: 'Gemini', description: 'AI Model Priority 1', icon: '🧠' },
+  { name: 'Llama', description: 'AI Model Priority 2', icon: '⚡' },
+  { name: 'Mistral', description: 'AI Models Priority 3-5', icon: '🌐' },
   { name: 'Gelato', description: 'Automation & Relay', icon: '🤖' },
   { name: 'Venus Protocol', description: 'Yield Farming', icon: '💰' },
   { name: 'Thirdweb', description: 'Gasless Wallets', icon: '🔐' },
@@ -114,7 +114,7 @@ const howItWorks = [
   {
     step: '03',
     title: 'Multi-AI Oracle Consensus Resolves',
-    description: 'At resolution time, our Oracle Bot detects the event and queries 5 AI models sequentially: GEMINI IA → Groq Llama 3.1 → OpenRouter Mistral 7B → OpenRouter Llama 3.2 3B → OpenRouter Gemini. 80%+ consensus required. Gelato Relay executes resolution on-chain.',
+    description: 'At resolution time, our Oracle Bot detects the event and queries 5 AI models sequentially: Gemini → Llama → Mistral → Llama 3.2 → Gemini Flash. 80%+ consensus required. Gelato Relay executes resolution on-chain.',
     items: ['5 AI models from 3 providers', 'Sequential priority system', '80%+ consensus required', '<1 hour resolution', '100% refund if oracle fails', 'Transparent on-chain']
   }
 ];
@@ -159,13 +159,13 @@ export default function HomePage() {
             </div>
             
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-4 sm:mb-6 leading-tight px-2">
-              <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-clip-text text-transparent">MetaPredict.ai</span>
+              <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-clip-text text-transparent">MetaPredict.fun</span>
               <br />
               <span className="text-white">AI-Powered Prediction Markets</span>
             </h1>
             
             <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-300 mb-3 sm:mb-4 max-w-3xl mx-auto px-4">
-              The first prediction market platform with <strong>5-AI consensus oracle</strong> (Gemini, Groq, OpenRouter), <strong>insurance protection</strong>, and <strong>Chainlink Data Streams</strong>
+              The first prediction market platform with <strong>5-AI consensus oracle</strong>. Powered by <strong>Gemini (Google)</strong>, <strong>Meta (Facebook)</strong> and <strong>Mistral AI</strong>. <strong>Insurance protection</strong> and <strong>Chainlink Data Streams</strong>
             </p>
             
             <p className="text-sm sm:text-base md:text-lg text-gray-400 mb-6 sm:mb-8 max-w-2xl mx-auto px-4">
@@ -236,10 +236,10 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-white mb-4">
-              Why MetaPredict.ai?
+              Why MetaPredict.fun?
             </h2>
             <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-              Solving the oracle manipulation problem with multi-AI consensus (5 models from 3 providers), sequential fallback, and insurance protection
+              Solving the oracle manipulation problem with multi-AI consensus (Gemini, Llama, Mistral), sequential fallback, and insurance protection
             </p>
           </div>
           

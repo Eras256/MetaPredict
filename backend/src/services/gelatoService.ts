@@ -33,19 +33,19 @@ class GelatoService {
     // Gelato API endpoints
     this.baseUrl = "https://api.gelato.digital";
     this.testnetBaseUrl = "https://api.gelato.digital";
-    // RPC privado de Gelato (si está configurado)
+    // Gelato private RPC (if configured)
     this.rpcUrl = process.env.GELATO_RPC_URL_TESTNET || null;
   }
 
   /**
-   * Obtiene el RPC URL de Gelato (privado si está disponible)
+   * Gets Gelato RPC URL (private if available)
    */
   getRpcUrl(): string | null {
     return this.rpcUrl;
   }
 
   /**
-   * Obtiene la URL base según el entorno
+   * Gets base URL according to environment
    */
   private getBaseUrl(): string {
     const isTestnet = process.env.NODE_ENV === "development" || 
@@ -129,8 +129,8 @@ class GelatoService {
   }
 
   /**
-   * Obtiene el estado de una tarea
-   * @param taskId ID de la tarea
+   * Gets task status
+   * @param taskId Task ID
    */
   async getTaskStatus(taskId: string): Promise<any> {
     try {
@@ -198,12 +198,12 @@ class GelatoService {
   }
 
   /**
-   * Resuelve un mercado usando Gelato después de obtener el resultado del backend
-   * @param aiOracleAddress Dirección del contrato AIOracle
-   * @param marketId ID del mercado a resolver
-   * @param outcome Resultado del consenso (1=Yes, 2=No, 3=Invalid)
-   * @param confidence Nivel de confianza (0-100)
-   * @param chainId ID de la cadena (opBNB Testnet = 5611)
+   * Resolves a market using Gelato after getting backend result
+   * @param aiOracleAddress AIOracle contract address
+   * @param marketId Market ID to resolve
+   * @param outcome Consensus result (1=Yes, 2=No, 3=Invalid)
+   * @param confidence Confidence level (0-100)
+   * @param chainId Chain ID (opBNB Testnet = 5611)
    */
   async fulfillResolution(
     aiOracleAddress: string,
@@ -213,8 +213,8 @@ class GelatoService {
     chainId: number = 5611
   ): Promise<{ taskId: string }> {
     try {
-      // Llamar a AIOracle.fulfillResolutionManual()
-      // Esta función permite resolver mercados sin Chainlink Functions
+      // Call AIOracle.fulfillResolutionManual()
+      // This function allows resolving markets without Chainlink Functions
       const iface = new ethers.Interface([
         "function fulfillResolutionManual(uint256 marketId, uint8 outcome, uint8 confidence) external"
       ]);
@@ -237,10 +237,10 @@ class GelatoService {
   }
 
   /**
-   * Crea una tarea automatizada para monitorear eventos del AIOracle
-   * @param aiOracleAddress Dirección del contrato AIOracle
-   * @param backendUrl URL del backend para llamar cuando se detecte un evento
-   * @param chainId ID de la cadena (opBNB Testnet = 5611)
+   * Creates an automated task to monitor AIOracle events
+   * @param aiOracleAddress AIOracle contract address
+   * @param backendUrl Backend URL to call when an event is detected
+   * @param chainId Chain ID (opBNB Testnet = 5611)
    */
   async setupOracleAutomation(
     aiOracleAddress: string,
@@ -248,12 +248,12 @@ class GelatoService {
     chainId: number = 5611
   ): Promise<GelatoTaskResponse> {
     try {
-      // Nota: Gelato Automation requiere un contrato executor que monitoree eventos
-      // y llame al backend. Esto se puede hacer con un contrato dedicado o
-      // usando Gelato Web3 Functions (si está disponible)
+      // Note: Gelato Automation requires an executor contract that monitors events
+      // and calls the backend. This can be done with a dedicated contract or
+      // using Gelato Web3 Functions (if available)
       
-      // Por ahora, creamos una tarea que se ejecuta periódicamente
-      // El contrato debe tener una función que pueda ser llamada por Gelato
+      // For now, we create a task that runs periodically
+      // The contract must have a function that can be called by Gelato
       const iface = new ethers.Interface([
         "function checkAndResolvePendingMarkets() external"
       ]);
@@ -270,7 +270,7 @@ class GelatoService {
         execAddress: aiOracleAddress,
         execSelector: func.selector,
         execData: execData,
-        interval: 300, // Revisar cada 5 minutos
+        interval: 300, // Check every 5 minutes
         useTreasury: true,
       });
     } catch (error: any) {
@@ -280,7 +280,7 @@ class GelatoService {
   }
 
   /**
-   * Verifica si Gelato está configurado correctamente
+   * Verifies if Gelato is configured correctly
    */
   async checkConfiguration(): Promise<{
     configured: boolean;

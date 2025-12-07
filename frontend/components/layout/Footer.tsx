@@ -63,13 +63,13 @@ const socials = [
   { icon: Github, href: 'https://github.com/vaiosx01/MetaPredict', label: 'GitHub' },
   { icon: Twitter, href: 'https://twitter.com/metapredict', label: 'Twitter' },
   { icon: MessageCircle, href: 'https://t.me/metapredict', label: 'Telegram' },
-  { icon: Mail, href: 'mailto:hello@metapredict.ai', label: 'Email' },
+  { icon: Mail, href: 'mailto:hello@metapredict.fun', label: 'Email' },
 ];
 
 const techStack = [
   { name: 'opBNB', icon: Zap, color: 'text-yellow-400' },
   { name: 'Chainlink', icon: Activity, color: 'text-blue-400' },
-  { name: 'Google Gemini', icon: Brain, color: 'text-purple-400' },
+  { name: 'Gemini', icon: Brain, color: 'text-purple-400' },
   { name: 'Next.js', icon: Code, color: 'text-white' },
 ];
 
@@ -86,13 +86,13 @@ export function Footer() {
                 </div>
                 <div className="flex flex-col">
                   <span className="text-xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                    MetaPredict.ai
+                    MetaPredict.fun
                   </span>
                   <span className="text-xs text-gray-400">AI-Powered Prediction Markets</span>
                 </div>
               </Link>
               <p className="text-sm text-gray-400 mb-4 max-w-xs">
-                The first all-in-one prediction market platform with 5-AI consensus oracle, Chainlink Data Streams, and insurance protection. Built on opBNB Testnet.
+                The first all-in-one prediction market platform with 5-AI consensus oracle. Powered by <strong>Gemini (Google)</strong>, <strong>Meta (Facebook)</strong> and <strong>Mistral AI</strong>. Chainlink Data Streams, and insurance protection. Built on opBNB Testnet.
               </p>
               <div className="flex items-center gap-2 mb-3 md:mb-4">
                 {socials.map((social) => (
@@ -204,7 +204,7 @@ export function Footer() {
 
           <div className="pt-6 md:pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="flex flex-col gap-2 text-center md:text-left">
-              <p className="text-xs sm:text-sm text-gray-400">© 2025 MetaPredict.ai. All rights reserved.</p>
+              <p className="text-xs sm:text-sm text-gray-400">© 2025 MetaPredict.fun. All rights reserved.</p>
               <div className="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-2 sm:gap-4 text-xs text-gray-500">
                 <span>Network: opBNB Testnet (5611)</span>
                 <span className="hidden sm:inline">•</span>
@@ -231,7 +231,7 @@ export function Footer() {
 
           <div className="mt-4 md:mt-6 p-3 sm:p-4 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
             <p className="text-xs sm:text-sm text-yellow-200/80 text-center leading-relaxed">
-              <strong>Disclaimer:</strong> MetaPredict.ai is a decentralized prediction market protocol running on opBNB Testnet. 
+              <strong>Disclaimer:</strong> MetaPredict.fun is a decentralized prediction market protocol running on opBNB Testnet. 
               This is experimental software. Participation may not be legal in your jurisdiction. Users are responsible for compliance with local laws. 
               This is not financial advice. Never bet more than you can afford to lose.
             </p>

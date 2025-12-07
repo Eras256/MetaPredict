@@ -16,9 +16,9 @@ import "../governance/DAOGovernance.sol";
 
 /**
  * @title PredictionMarketCore
- * @notice Contrato principal que orquesta todos los módulos de MetaPredict.ai
- * @dev Integra 5 tracks: AI Oracle, Reputation, Gasless UX, Conditional/Subjective, Aggregator
- * @dev Usa BNB nativo en lugar de tokens ERC20
+ * @notice Main contract that orchestrates all MetaPredict.fun modules
+ * @dev Integrates 5 tracks: AI Oracle, Reputation, Gasless UX, Conditional/Subjective, Aggregator
+ * @dev Uses native BNB instead of ERC20 tokens
  */
 contract PredictionMarketCore is Ownable, ReentrancyGuard, Pausable {
     // ============ Constants ============

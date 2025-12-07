@@ -19,7 +19,7 @@ import type {
  * @notice Comprehensive security tests covering all attack vectors
  * @dev Tests reentrancy, access control, input validation, oracle manipulation, DoS, flash loans, and more
  */
-describe("Security Tests - MetaPredict.ai", function () {
+describe("Security Tests - MetaPredict.fun", function () {
   let core: PredictionMarketCore;
   let binaryMarket: BinaryMarket;
   let conditionalMarket: ConditionalMarket;

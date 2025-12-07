@@ -2,15 +2,15 @@ import axios from 'axios';
 import { LLMResponse } from './groq.service';
 
 /**
- * Servicio para OpenRouter usando modelos Gemini gratuitos
- * Intenta usar modelos Gemini gratuitos de OpenRouter como alternativa
- * Modelos: google/gemini-2.0-flash-exp:free, google/gemini-flash-1.5:free
+ * Service for OpenRouter using free Gemini models
+ * Attempts to use free Gemini models from OpenRouter as alternative
+ * Models: google/gemini-2.0-flash-exp:free, google/gemini-flash-1.5:free
  */
 export class OpenRouterGeminiService {
   private apiKey: string;
   private baseUrl = 'https://openrouter.ai/api/v1/chat/completions';
   
-  // Modelos Gemini gratuitos en OpenRouter (en orden de prioridad)
+  // Free Gemini models on OpenRouter (in priority order)
   private modelsToTry = [
     'google/gemini-2.0-flash-exp:free',
     'google/gemini-flash-1.5:free',
@@ -29,7 +29,7 @@ Respond with ONLY one word: YES, NO, or INVALID`;
 
     let lastError: any = null;
 
-    // Intentar con diferentes modelos Gemini en orden de prioridad
+    // Try different Gemini models in priority order
     for (const modelName of this.modelsToTry) {
       try {
         const response = await axios.post(

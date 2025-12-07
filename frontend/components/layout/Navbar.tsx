@@ -80,7 +80,7 @@ export function Navbar() {
                 </div>
                 <div className="flex flex-col">
                   <span className="text-base sm:text-lg md:text-xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                    MetaPredict.ai
+                    MetaPredict.fun
                   </span>
                   <span className="text-[9px] sm:text-[10px] text-gray-400 -mt-0.5 sm:-mt-1 hidden sm:block">opBNB Testnet</span>
                 </div>
@@ -107,7 +107,7 @@ export function Navbar() {
                   );
                 })}
                 
-                {/* Markets con submenú */}
+                {/* Markets with submenu */}
                 <div 
                   className="relative"
                   onMouseEnter={() => setMarketsSubmenuHover(true)}

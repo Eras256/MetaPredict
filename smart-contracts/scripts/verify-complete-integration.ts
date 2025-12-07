@@ -1,3 +1,4 @@
+// @ts-expect-error - hardhat exports ethers but TypeScript types may not reflect it
 import { ethers } from "hardhat";
 import * as dotenv from "dotenv";
 import * as path from "path";
@@ -16,7 +17,7 @@ const CONTRACTS = {
 };
 
 async function main() {
-  console.log("🔍 Verificación Completa de Integración - MetaPredict.ai\n");
+  console.log("🔍 Verificación Completa de Integración - MetaPredict.fun\n");
   console.log("=".repeat(80));
 
   const [deployer] = await ethers.getSigners();

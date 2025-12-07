@@ -53,7 +53,7 @@ export default function DemoPage() {
           🎮 Demo - On-Chain Features
         </h1>
         <p className="text-gray-400 text-sm sm:text-base md:text-lg px-2">
-          Test all available features on MetaPredict.ai
+          Test all available features on MetaPredict.fun
         </p>
         {account && (
           <div className="mt-3 sm:mt-4 inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg bg-purple-500/10 border border-purple-500/20">
@@ -857,7 +857,7 @@ function DAOOperations() {
     }
     try {
       await vote(parseInt(proposalId), voteSupport, '');
-      // Refrescar propuestas después de votar
+      // Refresh proposals after voting
       setTimeout(() => {
         refetchProposals();
       }, 3000);

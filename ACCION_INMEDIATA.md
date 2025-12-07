@@ -1,77 +1,77 @@
-# 🚨 ACCIÓN INMEDIATA REQUERIDA
+# 🚨 IMMEDIATE ACTION REQUIRED
 
-## ⚠️ SITUACIÓN CRÍTICA
+## ⚠️ CRITICAL SITUATION
 
-Google AI Studio detectó que tu API key está expuesta públicamente en GitHub. Esto puede resultar en:
-- **Suspensión de cuenta de GitHub** por violar términos de servicio
-- **Uso malicioso de tus API keys** (costos, abuso)
-- **Compromiso de seguridad** de tu aplicación
+Google AI Studio detected that your API key is publicly exposed on GitHub. This may result in:
+- **GitHub account suspension** for violating terms of service
+- **Malicious use of your API keys** (costs, abuse)
+- **Security compromise** of your application
 
-## 🔴 PASOS INMEDIATOS (HACER AHORA)
+## 🔴 IMMEDIATE STEPS (DO NOW)
 
-### 1. ROTAR API KEY DE GOOGLE/GEMINI (URGENTE - 5 minutos)
+### 1. ROTATE GOOGLE/GEMINI API KEY (URGENT - 5 minutes)
 
-1. Ve a: https://aistudio.google.com/api-keys?hl=es-419
-2. Encuentra la key que termina en `...4mHs` (MetaPredict)
-3. Haz clic en "Eliminar" o "Revocar"
-4. Crea una nueva API key
-5. Actualiza en Vercel Environment Variables inmediatamente
+1. Go to: https://aistudio.google.com/api-keys?hl=es-419
+2. Find the key ending in `...4mHs` (MetaPredict)
+3. Click "Delete" or "Revoke"
+4. Create a new API key
+5. Update in Vercel Environment Variables immediately
 
-### 2. ROTAR TODAS LAS DEMÁS API KEYS EXPUESTAS
+### 2. ROTATE ALL OTHER EXPOSED API KEYS
 
-Consulta `SECURITY_ROTATION_REQUIRED.md` para la lista completa.
+See `SECURITY_ROTATION_REQUIRED.md` for the complete list.
 
-### 3. CONTACTAR A GITHUB SUPPORT
+### 3. CONTACT GITHUB SUPPORT
 
 **Email**: support@github.com
-**Asunto**: "URGENT: Request to remove exposed API keys from repository history"
+**Subject**: "URGENT: Request to remove exposed API keys from repository history"
 
-**Mensaje**:
+**Message**:
 ```
-Hola GitHub Support,
+Hello GitHub Support,
 
-Necesito ayuda urgente para eliminar commits que contienen API keys expuestas de mi repositorio.
+I need urgent help to remove commits containing exposed API keys from my repository.
 
-Repositorio: https://github.com/Eras256/MetaPredict
-Commit problemático: 47652ee39ae296e4824bd16e0b6a36a007c6cf62
-Archivo: VERCEL_DEPLOYMENT_GUIDE.md
+Repository: https://github.com/Eras256/MetaPredict
+Problematic commit: 47652ee39ae296e4824bd16e0b6a36a007c6cf62
+File: VERCEL_DEPLOYMENT_GUIDE.md
 
-He intentado eliminar estos archivos usando git filter-branch y git filter-repo, pero el commit todavía es accesible a través de su hash directo. Necesito que eliminen este objeto del servidor de GitHub para prevenir acceso no autorizado a mis API keys.
+I have tried to remove these files using git filter-branch and git filter-repo, but the commit is still accessible through its direct hash. I need you to remove this object from GitHub's server to prevent unauthorized access to my API keys.
 
-He rotado todas las API keys expuestas y actualizado el .gitignore para prevenir futuros incidentes.
+I have rotated all exposed API keys and updated .gitignore to prevent future incidents.
 
-Por favor, ayúdenme a eliminar este commit del historial de GitHub.
+Please help me remove this commit from GitHub's history.
 
-Gracias,
-[Tu nombre]
+Thank you,
+[Your name]
 ```
 
-### 4. VERIFICAR QUE NO HAY MÁS ARCHIVOS EXPUESTOS
+### 4. VERIFY NO MORE FILES ARE EXPOSED
 
-Ejecuta este comando para buscar posibles archivos con keys:
+Run this command to search for possible files with keys:
 ```bash
 git log --all --source --full-history -p | grep -i "api.*key\|secret\|password\|token" | head -20
 ```
 
-## 📋 CHECKLIST DE SEGURIDAD
+## 📋 SECURITY CHECKLIST
 
-- [ ] API key de Google/Gemini revocada y rotada
-- [ ] Todas las demás API keys rotadas (ver SECURITY_ROTATION_REQUIRED.md)
-- [ ] Email enviado a GitHub Support
-- [ ] Variables de entorno actualizadas en Vercel
-- [ ] Monitoreando uso de APIs para actividad sospechosa
-- [ ] `.gitignore` actualizado (ya hecho ✓)
-- [ ] Historial de Git limpiado (en proceso)
+- [ ] Google/Gemini API key revoked and rotated
+- [ ] All other API keys rotated (see SECURITY_ROTATION_REQUIRED.md)
+- [ ] Email sent to GitHub Support
+- [ ] Environment variables updated in Vercel
+- [ ] Monitoring API usage for suspicious activity
+- [ ] `.gitignore` updated (already done ✓)
+- [ ] Git history cleaned (in progress)
 
-## 🔒 PREVENCIÓN FUTURA
+## 🔒 FUTURE PREVENTION
 
-1. **NUNCA** commits archivos con API keys reales
-2. Usa siempre `.env.example` con placeholders
-3. Revisa todos los archivos antes de hacer commit
-4. Usa herramientas como `git-secrets` para prevenir commits accidentales
-5. Considera usar GitHub Secrets para CI/CD
+1. **NEVER** commit files with real API keys
+2. Always use `.env.example` with placeholders
+3. Review all files before committing
+4. Use tools like `git-secrets` to prevent accidental commits
+5. Consider using GitHub Secrets for CI/CD
 
-## 📞 CONTACTOS DE EMERGENCIA
+## 📞 EMERGENCY CONTACTS
 
 - **GitHub Support**: support@github.com
 - **Google Cloud Support**: https://cloud.google.com/support
@@ -79,5 +79,4 @@ git log --all --source --full-history -p | grep -i "api.*key\|secret\|password\|
 
 ---
 
-**IMPORTANTE**: Este documento debe ser eliminado después de completar todas las acciones.
-
+**IMPORTANT**: This document should be deleted after completing all actions.

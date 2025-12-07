@@ -119,7 +119,7 @@ export function BettingPanel({ marketId, yesOdds, noOdds, userBalance }: Betting
                 </p>
                 <p className="text-xs text-purple-300 flex items-center gap-1">
                   <Brain className="w-3 h-3 flex-shrink-0" />
-                  <span className="truncate">Powered by GEMINI IA with automatic fallback</span>
+                  <span className="truncate">Powered by Gemini with automatic fallback</span>
                 </p>
               </div>
             </div>
@@ -172,7 +172,7 @@ export function BettingPanel({ marketId, yesOdds, noOdds, userBalance }: Betting
                 </p>
                 <p className="text-xs text-purple-300 flex items-center gap-1">
                   <Brain className="w-3 h-3 flex-shrink-0" />
-                  <span className="truncate">Powered by GEMINI IA with automatic fallback</span>
+                  <span className="truncate">Powered by Gemini with automatic fallback</span>
                 </p>
               </div>
             </div>
