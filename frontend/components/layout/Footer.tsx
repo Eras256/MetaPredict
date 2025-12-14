@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Github, Twitter, MessageCircle, FileText, Mail, ExternalLink, Brain, Code, Shield, Zap, Activity } from 'lucide-react';
+import { Twitter, MessageCircle, FileText, ExternalLink, Brain, Code, Shield, Zap, Activity } from 'lucide-react';
 import { GlassCard } from '@/components/effects/GlassCard';
 
 const footerLinks = {
@@ -60,10 +60,8 @@ const footerLinks = {
 };
 
 const socials = [
-  { icon: Github, href: 'https://github.com/vaiosx01/MetaPredict', label: 'GitHub' },
-  { icon: Twitter, href: 'https://twitter.com/metapredict', label: 'Twitter' },
-  { icon: MessageCircle, href: 'https://t.me/metapredict', label: 'Telegram' },
-  { icon: Mail, href: 'mailto:hello@metapredict.fun', label: 'Email' },
+  { icon: Twitter, href: 'https://x.com/metapredictbnb', label: 'Twitter' },
+  { icon: MessageCircle, href: 'https://t.me/Vaiosx', label: 'Telegram' },
 ];
 
 const techStack = [

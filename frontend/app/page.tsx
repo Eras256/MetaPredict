@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Brain, Shield, Zap, TrendingUp, Lock, Users, ArrowRight, CheckCircle, BarChart3, Globe, Award, Link2, Code, ExternalLink, FileCode, Activity } from 'lucide-react';
+import { Brain, Shield, Zap, TrendingUp, Lock, Users, ArrowRight, CheckCircle, BarChart3, Globe, Award, Link2, Code, ExternalLink, Activity } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { GlassCard } from '@/components/effects/GlassCard';
 
@@ -56,33 +56,6 @@ const stats = [
   { label: 'AI Models', value: '5', prefix: '', suffix: '', description: 'From 3 providers' },
   { label: 'Oracle Accuracy', value: '95', prefix: '', suffix: '%+', description: 'Multi-AI consensus rate' },
   { label: 'Price Feeds', value: '8', prefix: '', suffix: '', description: 'Chainlink Data Streams' },
-];
-
-const contracts = [
-  {
-    name: 'Prediction Market Core',
-    address: '0x5eaa77CC135b82c254F1144c48f4d179964fA0b1',
-    explorer: 'https://testnet.opbnbscan.com/address/0x5eaa77CC135b82c254F1144c48f4d179964fA0b1#code',
-    status: 'Verified'
-  },
-  {
-    name: 'AI Oracle',
-    address: '0xcc10a98Aa285E7bD16be1Ef8420315725C3dB66c',
-    explorer: 'https://testnet.opbnbscan.com/address/0xcc10a98Aa285E7bD16be1Ef8420315725C3dB66c#code',
-    status: 'Verified'
-  },
-  {
-    name: 'Insurance Pool',
-    address: '0xD30B71e1Af743cD93b3b1d7d314822Bc4cd860dA',
-    explorer: 'https://testnet.opbnbscan.com/address/0xD30B71e1Af743cD93b3b1d7d314822Bc4cd860dA#code',
-    status: 'Verified'
-  },
-  {
-    name: 'Chainlink Data Streams',
-    address: '0x1758d4da0bAd4DB90Dfd56Be259C19cabDcF03fd',
-    explorer: 'https://testnet.opbnbscan.com/address/0x1758d4da0bAd4DB90Dfd56Be259C19cabDcF03fd#code',
-    status: 'Verified'
-  }
 ];
 
 const technologies = [
@@ -424,71 +397,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Contracts Section */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-white mb-4">
-              Verified Smart Contracts
-            </h2>
-            <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-              All contracts verified and auditable on opBNBScan
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-4">
-            {contracts.map((contract, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: index * 0.1 }}
-                viewport={{ once: true }}
-              >
-                <GlassCard hover className="p-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <div>
-                      <h3 className="text-lg font-semibold text-white mb-2">
-                        {contract.name}
-                      </h3>
-                      <div className="flex items-center gap-2 text-sm text-gray-400 font-mono">
-                        <FileCode className="w-4 h-4" />
-                        {contract.address.slice(0, 6)}...{contract.address.slice(-4)}
-                      </div>
-                    </div>
-                    <div className="px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20">
-                      <span className="text-xs text-green-400 font-semibold">{contract.status}</span>
-                    </div>
-                  </div>
-                  <a 
-                    href={contract.explorer}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-sm text-purple-400 hover:text-purple-300 transition-colors"
-                  >
-                    View on opBNBScan
-                    <ExternalLink className="w-4 h-4" />
-                  </a>
-                </GlassCard>
-              </motion.div>
-            ))}
-          </div>
-
-          <div className="mt-8 text-center">
-            <a 
-              href="https://testnet.opbnbscan.com/"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Button variant="outline" className="border-purple-500/50 text-purple-300 hover:bg-purple-500/10 gap-2">
-                View All Contracts on opBNBScan
-                <ExternalLink className="w-4 h-4" />
-              </Button>
-            </a>
-          </div>
-        </div>
-      </section>
-      
       {/* CTA Section */}
       <section className="py-24 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto">
