@@ -1,4 +1,4 @@
-import { createThirdwebClient } from 'thirdweb';
+import { createThirdwebClient, defineChain } from 'thirdweb';
 
 const clientId = process.env.NEXT_PUBLIC_THIRDWEB_CLIENT_ID?.trim() || '';
 
@@ -35,8 +35,45 @@ export const client = createThirdwebClient({
   clientId: getClientId(),
 });
 
-export const chain = {
-  id: 5611, // opBNB Testnet
+// Definir opBNB Testnet
+export const opBNBTestnet = defineChain({
+  id: 5611,
+  name: 'opBNB Testnet',
   rpc: 'https://opbnb-testnet-rpc.bnbchain.org',
-};
+  nativeCurrency: {
+    name: 'BNB Chain Native Token',
+    symbol: 'tBNB',
+    decimals: 18,
+  },
+  blockExplorers: [
+    {
+      name: 'bscscan-opbnb-testnet',
+      url: 'https://opbnb-testnet.bscscan.com',
+    },
+  ],
+});
+
+// Definir opBNB Mainnet
+export const opBNBMainnet = defineChain({
+  id: 204,
+  name: 'opBNB Mainnet',
+  rpc: 'https://opbnb-mainnet-rpc.bnbchain.org',
+  nativeCurrency: {
+    name: 'BNB Chain Native Token',
+    symbol: 'BNB',
+    decimals: 18,
+  },
+  blockExplorers: [
+    {
+      name: 'opbnbscan',
+      url: 'https://mainnet.opbnbscan.com',
+    },
+  ],
+});
+
+// Exportar ambas chains como array para usar en ConnectButton
+export const chains = [opBNBTestnet, opBNBMainnet];
+
+// Exportar chain por defecto (testnet) para compatibilidad con código existente
+export const chain = opBNBTestnet;
 

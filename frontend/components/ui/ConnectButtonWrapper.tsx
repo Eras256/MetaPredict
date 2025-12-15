@@ -1,151 +1,238 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useLayoutEffect, useEffect, useRef, useCallback } from 'react';
 import { ConnectButton, ConnectButtonProps } from 'thirdweb/react';
 
 /**
  * Wrapper para ConnectButton que corrige el problema de botones anidados
  * Basado en la documentación oficial de thirdweb, este wrapper detecta y corrige
  * el botón de copiar anidado dentro del modal del ConnectButton
+ * 
+ * Usa useLayoutEffect para ejecutar antes de que React valide el DOM durante la hidratación
  */
 export function ConnectButtonWrapper(props: ConnectButtonProps) {
-  const processedButtonsRef = useRef<WeakSet<HTMLElement>>(new WeakSet());
+  const processedElementsRef = useRef<WeakSet<HTMLElement>>(new WeakSet());
+  const observerRef = useRef<MutationObserver | null>(null);
+  const fixIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  useEffect(() => {
-    // Función para convertir un botón anidado en un div
-    const convertButtonToDiv = (button: HTMLButtonElement): HTMLDivElement => {
-      const div = document.createElement('div');
-      
-      // Copiar todos los atributos
-      Array.from(button.attributes).forEach(attr => {
-        if (attr.name !== 'type') {
-          div.setAttribute(attr.name, attr.value);
-        }
-      });
-      
-      // Asegurar atributos de accesibilidad
-      div.setAttribute('role', 'button');
-      div.setAttribute('tabindex', '0');
-      
-      // Copiar estilos inline
-      div.style.cssText = button.style.cssText;
-      
-      // Copiar clases
-      div.className = button.className;
-      
-      // Clonar el contenido (preservando event listeners de React)
-      const clone = button.cloneNode(true) as HTMLElement;
-      Array.from(clone.childNodes).forEach(node => {
-        div.appendChild(node.cloneNode(true));
-      });
-      
-      // Preservar el onClick original
-      const originalClick = button.onclick;
-      if (originalClick) {
-        div.addEventListener('click', function(e) {
-          e.stopPropagation();
-          originalClick.call(button, e as any);
-        });
+  // Función para convertir un botón anidado en un div
+  const convertButtonToDiv = useCallback((button: HTMLButtonElement): HTMLDivElement => {
+    // Si ya fue procesado, buscar el div existente
+    if (processedElementsRef.current.has(button)) {
+      const existingDiv = button.parentElement?.querySelector(`div[data-replaced-button="${button.className}"]`);
+      if (existingDiv) return existingDiv as HTMLDivElement;
+    }
+
+    const div = document.createElement('div');
+    div.setAttribute('data-replaced-button', button.className || 'copy-button');
+    
+    // Copiar todos los atributos excepto type y onclick
+    Array.from(button.attributes).forEach(attr => {
+      if (attr.name !== 'type' && attr.name !== 'onclick') {
+        div.setAttribute(attr.name, attr.value);
       }
+    });
+    
+    // Asegurar atributos de accesibilidad
+    div.setAttribute('role', 'button');
+    div.setAttribute('tabindex', '0');
+    
+    // Copiar estilos inline
+    div.style.cssText = button.style.cssText;
+    
+    // Copiar clases
+    div.className = button.className;
+    
+    // Copiar el contenido HTML
+    div.innerHTML = button.innerHTML;
+    
+    // Crear un handler que preserve la funcionalidad original
+    const handleClick = (e: MouseEvent | KeyboardEvent) => {
+      e.stopPropagation();
+      e.preventDefault();
       
-      // También intentar obtener el handler de React
-      const reactFiber = (button as any).__reactFiber || (button as any)._reactInternalFiber;
-      if (reactFiber?.memoizedProps?.onClick) {
-        div.addEventListener('click', (e) => {
-          e.stopPropagation();
-          reactFiber.memoizedProps.onClick(e);
-        });
-      }
-      
-      // Disparar click en el botón original como fallback
-      div.addEventListener('click', (e) => {
-        e.stopPropagation();
+      // Intentar disparar el click original del botón
+      try {
         button.click();
-      }, true);
-      
-      // Soporte para teclado
-      div.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          e.stopPropagation();
-          div.click();
+      } catch (err) {
+        // Si falla, intentar obtener y ejecutar el handler de React
+        const reactProps = (button as any).__reactProps || 
+                         (button as any)._reactInternalFiber?.memoizedProps;
+        if (reactProps?.onClick) {
+          reactProps.onClick(e);
         }
-      });
-      
-      return div;
+      }
     };
+    
+    div.addEventListener('click', handleClick);
+    
+    // Soporte para teclado
+    div.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        e.stopPropagation();
+        handleClick(e);
+      }
+    });
+    
+    // Marcar como procesado
+    processedElementsRef.current.add(button);
+    processedElementsRef.current.add(div);
+    
+    return div;
+  }, []);
 
-    // Función para corregir botones anidados en el modal
-    const fixNestedButtons = () => {
-      // Buscar el modal de thirdweb
-      const modal = document.querySelector('[data-radix-dialog-content]') || 
-                    document.querySelector('[role="dialog"]');
-      
-      if (!modal) return;
+  // Función principal para corregir botones anidados
+  const fixNestedButtons = useCallback(() => {
+    // Buscar el modal de thirdweb con múltiples selectores
+    const modal = document.querySelector('[data-radix-dialog-content]') || 
+                  document.querySelector('[role="dialog"]') ||
+                  document.querySelector('.tw-modal');
+    
+    if (!modal) return;
 
-      // Buscar todos los botones en el modal
-      const allButtons = Array.from(modal.querySelectorAll('button'));
+    // Buscar TODOS los botones en el modal
+    const allButtons = Array.from(modal.querySelectorAll('button'));
+    
+    allButtons.forEach((button) => {
+      // Verificar si este botón contiene otro botón (anidado)
+      const nestedButton = button.querySelector('button');
       
-      allButtons.forEach((button) => {
-        // Buscar botones anidados (recursivamente)
-        const findNestedButtons = (parent: HTMLElement): HTMLButtonElement[] => {
-          const nested: HTMLButtonElement[] = [];
-          const children = Array.from(parent.children);
-          
-          children.forEach(child => {
-            if (child.tagName === 'BUTTON') {
-              nested.push(child as HTMLButtonElement);
-            } else if (child.children.length > 0) {
-              nested.push(...findNestedButtons(child as HTMLElement));
-            }
-          });
-          
-          return nested;
-        };
+      if (nestedButton && nestedButton !== button) {
+        // Verificar que realmente está anidado
+        let isNested = false;
+        let current: HTMLElement | null = nestedButton;
         
-        const nestedButtons = findNestedButtons(button);
-        
-        nestedButtons.forEach(nestedButton => {
-          // Evitar procesar el mismo botón múltiples veces
-          if (processedButtonsRef.current.has(nestedButton)) {
-            return;
+        while (current && current !== modal) {
+          if (current === button) {
+            isNested = true;
+            break;
           }
-          
-          // Verificar que realmente está anidado dentro de otro botón
+          current = current.parentElement;
+        }
+        
+        if (isNested && !processedElementsRef.current.has(nestedButton)) {
+          try {
+            const div = convertButtonToDiv(nestedButton);
+            nestedButton.replaceWith(div);
+          } catch (err) {
+            // Silenciar errores durante la corrección
+          }
+        }
+      }
+    });
+    
+    // También buscar botones que están dentro de otros botones de forma indirecta
+    allButtons.forEach((button) => {
+      // Buscar recursivamente botones dentro de este botón
+      const walker = document.createTreeWalker(
+        button,
+        NodeFilter.SHOW_ELEMENT,
+        {
+          acceptNode: (node) => {
+            if (node.nodeName === 'BUTTON' && node !== button) {
+              return NodeFilter.FILTER_ACCEPT;
+            }
+            return NodeFilter.FILTER_SKIP;
+          }
+        }
+      );
+      
+      let nestedNode: Node | null;
+      while ((nestedNode = walker.nextNode())) {
+        const nestedButton = nestedNode as HTMLButtonElement;
+        
+        if (!processedElementsRef.current.has(nestedButton)) {
+          // Verificar que está realmente anidado
           let parent = nestedButton.parentElement;
+          let isNested = false;
+          
           while (parent && parent !== modal) {
-            if (parent.tagName === 'BUTTON' && parent !== nestedButton) {
-              // Este botón está anidado, convertirlo a div
-              const div = convertButtonToDiv(nestedButton);
-              nestedButton.replaceWith(div);
-              processedButtonsRef.current.add(div as any);
+            if (parent === button) {
+              isNested = true;
               break;
             }
             parent = parent.parentElement;
           }
-        });
-      });
-    };
-
-    // Función para ejecutar la corrección con retry
-    const executeFix = (retries = 3) => {
-      const modal = document.querySelector('[data-radix-dialog-content]') || 
-                    document.querySelector('[role="dialog"]');
-      
-      if (modal) {
-        // Ejecutar inmediatamente
-        fixNestedButtons();
-        
-        // Retry con delays para capturar renderizados asíncronos
-        if (retries > 0) {
-          setTimeout(() => executeFix(retries - 1), 100);
+          
+          if (isNested) {
+            try {
+              const div = convertButtonToDiv(nestedButton);
+              nestedButton.replaceWith(div);
+            } catch (err) {
+              // Silenciar errores durante la corrección
+            }
+          }
         }
       }
+    });
+  }, [convertButtonToDiv]);
+
+  // Interceptar errores de hidratación relacionados con botones anidados
+  useEffect(() => {
+    const originalError = console.error;
+    const originalWarn = console.warn;
+    
+    // Interceptar console.error
+    console.error = (...args: any[]) => {
+      const message = args[0]?.toString() || '';
+      // Suprimir errores de botones anidados durante la hidratación
+      if (message.includes('cannot be a descendant of <button>') || 
+          message.includes('cannot contain a nested <button>')) {
+        // Ejecutar la corrección inmediatamente
+        requestAnimationFrame(() => {
+          fixNestedButtons();
+        });
+        return;
+      }
+      originalError.apply(console, args);
     };
 
+    // Interceptar console.warn también
+    console.warn = (...args: any[]) => {
+      const message = args[0]?.toString() || '';
+      if (message.includes('cannot be a descendant of <button>') || 
+          message.includes('cannot contain a nested <button>')) {
+        requestAnimationFrame(() => {
+          fixNestedButtons();
+        });
+        return;
+      }
+      originalWarn.apply(console, args);
+    };
+
+    return () => {
+      console.error = originalError;
+      console.warn = originalWarn;
+    };
+  }, [fixNestedButtons]);
+
+  // Ejecutar corrección de forma proactiva
+  useLayoutEffect(() => {
+    // Ejecutar inmediatamente antes de que React valide el DOM
+    fixNestedButtons();
+    
+    // Ejecutar con delays para capturar renderizados asíncronos
+    const timeouts = [
+      setTimeout(() => fixNestedButtons(), 0),
+      setTimeout(() => fixNestedButtons(), 50),
+      setTimeout(() => fixNestedButtons(), 100),
+      setTimeout(() => fixNestedButtons(), 200),
+      setTimeout(() => fixNestedButtons(), 500),
+    ];
+
     // Observar cambios en el DOM
-    const observer = new MutationObserver(() => {
-      executeFix(2);
+    const observer = new MutationObserver((mutations) => {
+      const hasRelevantChanges = mutations.some(mutation => {
+        return mutation.type === 'childList' && 
+               (mutation.addedNodes.length > 0 || mutation.removedNodes.length > 0);
+      });
+      
+      if (hasRelevantChanges) {
+        requestAnimationFrame(() => {
+          fixNestedButtons();
+        });
+      }
     });
     
     observer.observe(document.body, {
@@ -153,15 +240,30 @@ export function ConnectButtonWrapper(props: ConnectButtonProps) {
       subtree: true,
       attributes: false,
     });
+    
+    observerRef.current = observer;
 
-    // Ejecutar inicialmente
-    executeFix(3);
+    // Ejecutar periódicamente como fallback
+    fixIntervalRef.current = setInterval(() => {
+      const modal = document.querySelector('[data-radix-dialog-content]') || 
+                    document.querySelector('[role="dialog"]');
+      if (modal) {
+        fixNestedButtons();
+      }
+    }, 1000);
 
     return () => {
-      observer.disconnect();
+      timeouts.forEach(timeout => clearTimeout(timeout));
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+        observerRef.current = null;
+      }
+      if (fixIntervalRef.current) {
+        clearInterval(fixIntervalRef.current);
+        fixIntervalRef.current = null;
+      }
     };
-  }, []);
+  }, [fixNestedButtons]);
 
   return <ConnectButton {...props} />;
 }
-

@@ -20,7 +20,7 @@ import {
   LayoutDashboard,
 } from 'lucide-react';
 import { useActiveAccount } from 'thirdweb/react';
-import { client, chain } from '@/lib/config/thirdweb';
+import { client, chains } from '@/lib/config/thirdweb';
 import { Button } from '@/components/ui/button';
 import { GlassCard } from '@/components/effects/GlassCard';
 import { ConnectButtonWrapper } from '@/components/ui/ConnectButtonWrapper';
@@ -242,7 +242,7 @@ export function Navbar() {
                 )}
                 <ConnectButtonWrapper
                   client={client}
-                  chain={chain}
+                  chains={chains}
                   theme="dark"
                   connectButton={{
                     label: "Connect",
@@ -254,7 +254,7 @@ export function Navbar() {
               <div className="md:hidden flex items-center gap-1.5 sm:gap-2">
                 <ConnectButtonWrapper
                   client={client}
-                  chain={chain}
+                  chains={chains}
                   theme="dark"
                   connectButton={{
                     label: "Connect",

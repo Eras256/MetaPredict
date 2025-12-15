@@ -109,31 +109,44 @@
 
 /* Fix for thirdweb ConnectButton nested button issue */
 /* Prevent nested buttons in thirdweb ConnectButton modal */
-/* Target the copy button specifically within the account details */
-[data-radix-dialog-content] button[class*="css-"] button,
-[role="dialog"] button[class*="css-"] button,
-[data-radix-dialog-content] button button[class*="css-"],
-[role="dialog"] button button[class*="css-"] {
-  all: unset;
+/* These rules help style nested buttons as divs until JavaScript converts them */
+
+/* Target any button nested inside another button in the modal */
+[data-radix-dialog-content] button button,
+[role="dialog"] button button,
+.tw-modal button button {
+  /* Remove button-specific styles */
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  border: none;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  text-align: inherit;
+  cursor: pointer;
+  
+  /* Make it look like a div */
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
   padding: 2px;
   border-radius: 6px;
   transition: background-color 0.2s;
 }
 
-[data-radix-dialog-content] button[class*="css-"] button:hover,
-[role="dialog"] button[class*="css-"] button:hover,
-[data-radix-dialog-content] button button[class*="css-"]:hover,
-[role="dialog"] button button[class*="css-"]:hover {
+[data-radix-dialog-content] button button:hover,
+[role="dialog"] button button:hover,
+.tw-modal button button:hover {
   background-color: rgba(255, 255, 255, 0.1);
 }
 
-/* Alternative: Use a more specific selector for the CopyIcon button */
+/* Specific targeting for CopyIcon button */
 [data-radix-dialog-content] [class*="CopyIcon"] button,
-[role="dialog"] [class*="CopyIcon"] button {
+[role="dialog"] [class*="CopyIcon"] button,
+.tw-modal [class*="CopyIcon"] button {
   all: unset;
   display: inline-flex;
   align-items: center;
@@ -142,5 +155,25 @@
   padding: 2px;
   border-radius: 6px;
   transition: background-color 0.2s;
+}
+
+/* Style for divs that replaced buttons (added by JavaScript) */
+[data-replaced-button] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 6px;
+  transition: background-color 0.2s;
+}
+
+[data-replaced-button]:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-replaced-button]:focus {
+  outline: 2px solid rgba(139, 92, 246, 0.5);
+  outline-offset: 2px;
 }
 
