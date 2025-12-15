@@ -19,10 +19,11 @@ import {
   ChevronDown,
   LayoutDashboard,
 } from 'lucide-react';
-import { ConnectButton, useActiveAccount } from 'thirdweb/react';
+import { useActiveAccount } from 'thirdweb/react';
 import { client, chain } from '@/lib/config/thirdweb';
 import { Button } from '@/components/ui/button';
 import { GlassCard } from '@/components/effects/GlassCard';
+import { ConnectButtonWrapper } from '@/components/ui/ConnectButtonWrapper';
 import { cn } from '@/lib/utils';
 
 const navigation = [
@@ -239,7 +240,7 @@ export function Navbar() {
                     <span className="text-xs sm:text-sm text-gray-300">Connected</span>
                   </div>
                 )}
-                <ConnectButton
+                <ConnectButtonWrapper
                   client={client}
                   chain={chain}
                   theme="dark"
@@ -251,7 +252,7 @@ export function Navbar() {
               </div>
               
               <div className="md:hidden flex items-center gap-1.5 sm:gap-2">
-                <ConnectButton
+                <ConnectButtonWrapper
                   client={client}
                   chain={chain}
                   theme="dark"

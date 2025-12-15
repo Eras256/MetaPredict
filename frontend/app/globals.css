@@ -107,3 +107,40 @@
   outline-offset: 2px;
 }
 
+/* Fix for thirdweb ConnectButton nested button issue */
+/* Prevent nested buttons in thirdweb ConnectButton modal */
+/* Target the copy button specifically within the account details */
+[data-radix-dialog-content] button[class*="css-"] button,
+[role="dialog"] button[class*="css-"] button,
+[data-radix-dialog-content] button button[class*="css-"],
+[role="dialog"] button button[class*="css-"] {
+  all: unset;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 6px;
+  transition: background-color 0.2s;
+}
+
+[data-radix-dialog-content] button[class*="css-"] button:hover,
+[role="dialog"] button[class*="css-"] button:hover,
+[data-radix-dialog-content] button button[class*="css-"]:hover,
+[role="dialog"] button button[class*="css-"]:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Alternative: Use a more specific selector for the CopyIcon button */
+[data-radix-dialog-content] [class*="CopyIcon"] button,
+[role="dialog"] [class*="CopyIcon"] button {
+  all: unset;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 6px;
+  transition: background-color 0.2s;
+}
+
