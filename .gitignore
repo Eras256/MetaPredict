@@ -162,6 +162,7 @@ secrets/
 .railway/*
 .github/workflows/*.yml
 !.github/workflows/ci.yml
+!.github/workflows/resolve-markets.yml
 deployments/
 deploy/
 

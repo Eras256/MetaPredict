@@ -1,0 +1,49 @@
+name: Resolve Pending Markets
+
+on:
+  schedule:
+    # Ejecutar cada 10 minutos como fallback si Gelato no funciona
+    - cron: '*/10 * * * *'
+  workflow_dispatch:  # Permite ejecución manual desde GitHub
+
+jobs:
+  resolve-markets:
+    name: Resolve Pending Markets
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: |
+          cd smart-contracts
+          pnpm install
+
+      - name: Resolve pending markets
+        env:
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+          RPC_URL_TESTNET: ${{ secrets.RPC_URL_TESTNET }}
+          AI_ORACLE_ADDRESS: ${{ secrets.AI_ORACLE_ADDRESS }}
+          BACKEND_URL: ${{ secrets.BACKEND_URL || 'https://metapredict.vercel.app/api' }}
+        run: |
+          cd smart-contracts
+          pnpm hardhat run scripts/resolve-all-pending-markets.ts --network opBNBTestnet
+
+      - name: Report results
+        if: always()
+        run: |
+          echo "✅ Script de resolución completado"
+          echo "📊 Revisa los logs arriba para ver los resultados"
+
