@@ -23,7 +23,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'pnpm'
 
       - name: Install dependencies
@@ -35,8 +35,8 @@ jobs:
         env:
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
           RPC_URL_TESTNET: ${{ secrets.RPC_URL_TESTNET }}
-          AI_ORACLE_ADDRESS: ${{ secrets.AI_ORACLE_ADDRESS }}
-          BACKEND_URL: ${{ secrets.BACKEND_URL || 'https://metapredict.vercel.app/api' }}
+          AI_ORACLE_ADDRESS: ${{ secrets.AI_ORACLE_ADDRESS || '0xA65bE35D25B09F7326ab154E154572dB90F67081' }}
+          BACKEND_URL: ${{ secrets.BACKEND_URL || 'https://www.metapredict.fun/api' }}
         run: |
           cd smart-contracts
           pnpm hardhat run scripts/resolve-all-pending-markets.ts --network opBNBTestnet
