@@ -6,6 +6,7 @@ import { GlassCard } from '@/components/effects/GlassCard';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useInsurance } from '@/lib/hooks/insurance/useInsurance';
+import { useInsuranceClaims } from '@/lib/hooks/insurance/useInsuranceClaims';
 import { useActiveAccount } from 'thirdweb/react';
 import { toast } from 'sonner';
 import { getTransactionUrl, formatTxHash } from '@/lib/utils/blockchain';
@@ -13,66 +14,14 @@ import { getTransactionUrl, formatTxHash } from '@/lib/utils/blockchain';
 export function ClaimPanel() {
   const account = useActiveAccount();
   const { claimInsurance, loading } = useInsurance();
+  const { claims, loading: claimsLoading, refresh: refreshClaims } = useInsuranceClaims();
   const [claimingMarketId, setClaimingMarketId] = useState<number | null>(null);
 
-  // Mercados disponibles para reclamar seguro (mercados en estado Disputed)
-  // En producción, estos deberían obtenerse del contrato
-  const claims = [
-    {
-      id: 1,
-      marketId: 1,
-      question: 'Will Bitcoin reach $100K by end of 2025?',
-      amount: 100,
-      status: 'pending',
-      reason: 'Oracle confidence below 80%',
-      invested: 0.1, // BNB invertido
-    },
-    {
-      id: 2,
-      marketId: 2,
-      question: 'Will Ethereum reach $5,000 by Q2 2025?',
-      amount: 250,
-      status: 'pending',
-      reason: 'Oracle timeout - no resolution received',
-      invested: 0.25,
-    },
-    {
-      id: 3,
-      marketId: 3,
-      question: 'Will the S&P 500 close above 6,000 by end of 2025?',
-      amount: 150,
-      status: 'pending',
-      reason: 'Oracle confidence below 80%',
-      invested: 0.15,
-    },
-    {
-      id: 4,
-      marketId: 4,
-      question: 'Will Tesla stock reach $300 by end of 2025?',
-      amount: 200,
-      status: 'pending',
-      reason: 'Oracle data inconsistency detected',
-      invested: 0.2,
-    },
-    {
-      id: 5,
-      marketId: 5,
-      question: 'Will gold price exceed $2,500 per ounce by end of 2025?',
-      amount: 180,
-      status: 'pending',
-      reason: 'Oracle confidence below 80%',
-      invested: 0.18,
-    },
-    {
-      id: 6,
-      marketId: 6,
-      question: 'Will the Fed cut rates by more than 1% in 2025?',
-      amount: 120,
-      status: 'pending',
-      reason: 'Oracle timeout - no resolution received',
-      invested: 0.12,
-    },
-  ];
+  // Función helper para formatear BNB
+  const formatBNB = (value: bigint): string => {
+    const bnbValue = Number(value) / 1e18;
+    return `${bnbValue.toFixed(4)} BNB`;
+  };
 
   const handleClaim = async (marketId: number) => {
     if (!account) {
@@ -92,6 +41,10 @@ export function ClaimPanel() {
             onClick: () => window.open(getTransactionUrl(result.transactionHash), '_blank'),
           },
         });
+        // Refrescar la lista de claims después de un reclamo exitoso
+        setTimeout(() => {
+          refreshClaims();
+        }, 2000);
       }
     } catch (error: any) {
       // El error ya se maneja en el hook
@@ -100,6 +53,24 @@ export function ClaimPanel() {
       setClaimingMarketId(null);
     }
   };
+
+  if (claimsLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin text-purple-400" />
+      </div>
+    );
+  }
+
+  if (!account) {
+    return (
+      <GlassCard className="p-12 text-center">
+        <AlertCircle className="h-16 w-16 text-yellow-400 mx-auto mb-4" />
+        <p className="text-gray-400 text-lg">Conecta tu wallet</p>
+        <p className="text-gray-500 text-sm mt-2">Necesitas conectar tu wallet para ver tus reclamos de seguro</p>
+      </GlassCard>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -119,12 +90,8 @@ export function ClaimPanel() {
                       <span className="ml-2 text-white font-semibold">#{claim.marketId}</span>
                     </div>
                     <div>
-                      <span className="text-gray-400">Amount:</span>
-                      <span className="ml-2 text-white font-semibold">${claim.amount}</span>
-                    </div>
-                    <div>
                       <span className="text-gray-400">Invertido:</span>
-                      <span className="ml-2 text-white font-semibold">{claim.invested} BNB</span>
+                      <span className="ml-2 text-white font-semibold">{formatBNB(claim.invested)}</span>
                     </div>
                     <div>
                       <span className="text-gray-400">Status:</span>
@@ -135,17 +102,30 @@ export function ClaimPanel() {
                         {claim.status}
                       </Badge>
                     </div>
+                    {claim.policyActivated && (
+                      <div>
+                        <span className="text-gray-400">Póliza:</span>
+                        <span className="ml-2 text-white font-semibold">
+                          {claim.expired ? 'Expirada' : 'Activa'}
+                        </span>
+                      </div>
+                    )}
                   </div>
                   <p className="text-sm text-gray-400 flex items-center gap-1">
                     <AlertCircle className="h-4 w-4" />
                     {claim.reason}
                   </p>
+                  {claim.policyActivated && claim.policyReserve > BigInt(0) && (
+                    <p className="text-xs text-gray-500 mt-2">
+                      Reserva de póliza: {formatBNB(claim.policyReserve)}
+                    </p>
+                  )}
                 </div>
                 <Button 
                   variant="outline" 
                   className="ml-4 min-w-[120px]"
                   onClick={() => handleClaim(claim.marketId)}
-                  disabled={isDisabled}
+                  disabled={isDisabled || claim.status !== 'pending'}
                 >
                   {isClaiming ? (
                     <>
@@ -158,7 +138,7 @@ export function ClaimPanel() {
                       Claim Now
                     </>
                   ) : (
-                    'View Details'
+                    'Ya Reclamado'
                   )}
                 </Button>
               </div>
@@ -169,7 +149,11 @@ export function ClaimPanel() {
         <GlassCard className="p-12 text-center">
           <CheckCircle className="h-16 w-16 text-green-400 mx-auto mb-4" />
           <p className="text-gray-400 text-lg">No hay reclamos pendientes</p>
-          <p className="text-gray-500 text-sm mt-2">Todas tus posiciones están protegidas</p>
+          <p className="text-gray-500 text-sm mt-2">
+            {account 
+              ? 'No tienes mercados disputados con inversiones elegibles para reclamar seguro'
+              : 'Conecta tu wallet para ver tus reclamos de seguro'}
+          </p>
         </GlassCard>
       )}
     </div>

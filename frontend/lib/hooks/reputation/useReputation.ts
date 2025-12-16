@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useSendTransaction, useActiveAccount, useReadContract } from 'thirdweb/react';
 import { defineChain } from 'thirdweb/chains';
 import { getContract, prepareContractCall } from 'thirdweb';
@@ -78,27 +78,31 @@ export function useReputation() {
   const staker = stakerData as any;
 
   const stakedAmount = staker?.[0] ? Number(staker[0]) / 1e18 : 0;
+  const reputationScore = staker?.[1] ? Number(staker[1]) : 0;
+  const tier = staker?.[2] ? Number(staker[2]) : 0;
   const correctVotes = staker?.[3] ? Number(staker[3]) : 0;
   const totalVotes = staker?.[4] ? Number(staker[4]) : 0;
+  const slashedAmount = staker?.[5] ? Number(staker[5]) / 1e18 : 0;
   
-  // Calcular reputación: si no hay votos, usar una reputación base basada en el stake
-  let reputationScore = 0;
+  // Calcular reputación basada en votos si hay votos, sino usar la del contrato
+  let calculatedReputation = reputationScore;
   if (totalVotes > 0) {
     // Reputación basada en votos correctos
-    reputationScore = (correctVotes * 100) / totalVotes;
-  } else if (stakedAmount > 0) {
+    calculatedReputation = (correctVotes * 100) / totalVotes;
+  } else if (stakedAmount > 0 && reputationScore === 0) {
     // Reputación base basada en el stake (mínimo 50, máximo 70 para nuevos usuarios)
     // Esto incentiva a los usuarios a participar en disputes para mejorar su reputación
     const baseReputation = Math.min(50 + (stakedAmount * 2), 70);
-    reputationScore = baseReputation;
+    calculatedReputation = baseReputation;
   }
 
   return {
     stakedAmount,
-    reputationScore: Math.round(reputationScore),
-    tier: staker?.[2] ? Number(staker[2]) : 0,
+    reputationScore: Math.round(calculatedReputation || reputationScore),
+    tier,
     correctVotes,
     totalVotes,
+    slashedAmount,
     isLoading,
   };
 }
@@ -107,24 +111,43 @@ export function useStakeReputation() {
   const [loading, setLoading] = useState(false);
   const account = useActiveAccount();
   
-  // Usar el contrato Core en lugar de ReputationStaking directamente
+  // Usar el contrato Core (PREDICTION_MARKET) en lugar de ReputationStaking directamente
   // porque stake() requiere "Only core" - debe llamarse a través de Core.stakeReputation()
   const contract = useMemo(() => {
-    if (!CONTRACT_ADDRESSES.CORE_CONTRACT) return null;
-    return getContract({
-      client,
-      chain: opBNBTestnet,
-      address: CONTRACT_ADDRESSES.CORE_CONTRACT as `0x${string}`,
-      abi: [
-        {
-          name: 'stakeReputation',
-          type: 'function',
-          stateMutability: 'payable',
-          inputs: [],
-          outputs: [],
-        },
-      ] as any,
-    });
+    // Usar PREDICTION_MARKET que es el mismo que CORE_CONTRACT pero más confiable
+    const coreAddress = CONTRACT_ADDRESSES.PREDICTION_MARKET || CONTRACT_ADDRESSES.CORE_CONTRACT;
+    if (!coreAddress) {
+      console.error('Core contract address not configured');
+      return null;
+    }
+    
+    // Importar ABI completo del Core contract
+    try {
+      const CoreABI = require('@/lib/contracts/abi/PredictionMarketCore.json');
+      return getContract({
+        client,
+        chain: opBNBTestnet,
+        address: coreAddress,
+        abi: CoreABI as any,
+      });
+    } catch (error) {
+      console.error('Error loading Core ABI:', error);
+      // Fallback a ABI mínimo
+      return getContract({
+        client,
+        chain: opBNBTestnet,
+        address: coreAddress,
+        abi: [
+          {
+            name: 'stakeReputation',
+            type: 'function',
+            stateMutability: 'payable',
+            inputs: [],
+            outputs: [],
+          },
+        ] as any,
+      });
+    }
   }, []);
 
   const { mutateAsync: sendTransaction, isPending: isSending } = useSendTransaction();
@@ -138,8 +161,19 @@ export function useStakeReputation() {
       throw new Error('Core contract not configured');
     }
     
+    // Validar que el amount sea al menos 0.1 BNB (minStake)
+    const minStake = BigInt('100000000000000000'); // 0.1 BNB
+    if (amount < minStake) {
+      throw new Error('Amount is below the minimum required (0.1 BNB)');
+    }
+    
     try {
       setLoading(true);
+      
+      // Verificar que estamos usando la dirección correcta del Core
+      const coreAddress = CONTRACT_ADDRESSES.PREDICTION_MARKET || CONTRACT_ADDRESSES.CORE_CONTRACT;
+      console.log('📝 Staking through Core contract:', coreAddress);
+      console.log('📝 Amount:', amount.toString(), 'BNB');
       
       // PredictionMarketCore.stakeReputation() es payable - envía BNB nativo
       // Esta función llama internamente a ReputationStaking.stake() con el msg.sender correcto
@@ -150,11 +184,14 @@ export function useStakeReputation() {
         value: amount, // Send BNB native
       });
 
+      console.log('📤 Sending transaction...');
       const result = await sendTransaction(tx);
       const txHash = result.transactionHash;
       
+      console.log('⏳ Waiting for receipt...');
       await waitForReceipt({ client, chain: opBNBTestnet, transactionHash: txHash });
       
+      console.log('✅ Transaction confirmed');
       const txUrl = getTransactionUrl(txHash);
       toast.success(
         `Stake exitoso! Ver transacción: ${formatTxHash(txHash)}`,
@@ -169,17 +206,27 @@ export function useStakeReputation() {
       
       return { transactionHash: txHash, receipt: result };
     } catch (error: any) {
-      console.error('Error staking:', error);
+      console.error('❌ Error staking:', error);
+      console.error('Error details:', {
+        message: error?.message,
+        code: error?.code,
+        data: error?.data,
+        contract: contract?.address,
+      });
       
       // Improve error messages
       let errorMessage = error?.message || 'Error staking';
       
-      if (errorMessage.includes('Only core')) {
-        errorMessage = 'Error: Staking must be done through the Core contract. Please contact support.';
-      } else if (errorMessage.includes('Amount must be > 0')) {
-        errorMessage = 'Amount must be greater than 0';
-      } else if (errorMessage.includes('Below min stake')) {
-        errorMessage = 'Amount is below the minimum required (0.1 BNB)';
+      if (errorMessage.includes('Only core') || errorMessage.includes('only core')) {
+        errorMessage = 'Error: El contrato Core no está configurado correctamente en ReputationStaking. Por favor, verifica la configuración del contrato.';
+      } else if (errorMessage.includes('Amount must be > 0') || errorMessage.includes('amount must be')) {
+        errorMessage = 'El monto debe ser mayor que 0';
+      } else if (errorMessage.includes('Below min stake') || errorMessage.includes('below min')) {
+        errorMessage = 'El monto está por debajo del mínimo requerido (0.1 BNB)';
+      } else if (errorMessage.includes('user rejected') || errorMessage.includes('User rejected')) {
+        errorMessage = 'Transacción rechazada por el usuario';
+      } else if (errorMessage.includes('insufficient funds') || errorMessage.includes('Insufficient funds')) {
+        errorMessage = 'Fondos insuficientes. Asegúrate de tener suficiente BNB en tu wallet.';
       }
       
       toast.error(errorMessage);
@@ -269,9 +316,39 @@ export function useUnstakeReputation() {
 }
 
 export function useLeaderboard() {
-  // TODO: Implementar con subgraph o API
+  const [leaderboard, setLeaderboard] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchLeaderboard = async () => {
+      try {
+        setIsLoading(true);
+        // Intentar obtener leaderboard desde la API
+        const response = await fetch('/api/reputation/leaderboard');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.leaderboard && Array.isArray(data.leaderboard)) {
+            setLeaderboard(data.leaderboard);
+          } else {
+            setLeaderboard([]);
+          }
+        } else {
+          // Si la API no está disponible, retornar array vacío
+          setLeaderboard([]);
+        }
+      } catch (error) {
+        console.error('Error fetching leaderboard:', error);
+        setLeaderboard([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchLeaderboard();
+  }, []);
+
   return {
-    leaderboard: [],
-    isLoading: false,
+    leaderboard,
+    isLoading,
   };
 }

@@ -76,10 +76,18 @@ export function usePriceComparison(marketQuestion: string, isYes: boolean, amoun
     contract
   );
 
+  // Convertir amount a BigInt (BNB tiene 18 decimales, convertir a wei)
+  const amountBigInt = useMemo(() => {
+    if (!amount) return BigInt(0);
+    const amountNum = parseFloat(amount);
+    if (isNaN(amountNum) || amountNum <= 0) return BigInt(0);
+    return BigInt(Math.floor(amountNum * 1e18));
+  }, [amount]);
+
   const { data, isLoading } = useReadContract({
     contract: contract!,
     method: 'findBestPrice',
-    params: [marketQuestion, isYes, BigInt(amount || '0')],
+    params: [marketQuestion, isYes, amountBigInt],
     queryOptions: { enabled: isValidQuery },
   });
 
@@ -123,6 +131,27 @@ export function useMarketPrices(marketQuestion: string) {
   };
 }
 
+// Mapeo de Chain IDs a nombres legibles
+const CHAIN_NAMES: Record<number, string> = {
+  1: 'Ethereum Mainnet',
+  5: 'Ethereum Goerli',
+  56: 'BSC Mainnet',
+  97: 'BSC Testnet',
+  137: 'Polygon Mainnet',
+  80001: 'Polygon Mumbai',
+  204: 'opBNB Mainnet',
+  5611: 'opBNB Testnet',
+  42161: 'Arbitrum One',
+  421614: 'Arbitrum Sepolia',
+  10: 'Optimism',
+  11155111: 'Sepolia',
+  // Cadenas soportadas por MetaPredict
+  // 5611: 'opBNB Testnet' - ✅ Configurada
+  // 97: 'BSC Testnet' - ⏳ Pendiente despliegue
+  // 56: 'BSC Mainnet' - ⏳ Pendiente despliegue
+  // 204: 'opBNB Mainnet' - ⏳ Pendiente despliegue
+};
+
 export function useSupportedChains() {
   const contract = useMemo(() => {
     if (!CONTRACT_ADDRESSES.OMNI_ROUTER) return null;
@@ -134,15 +163,30 @@ export function useSupportedChains() {
     });
   }, []);
 
-  const { data, isLoading } = useReadContract({
+  const { data: chainIds, isLoading } = useReadContract({
     contract: contract!,
     method: 'getSupportedChains',
     params: [],
     queryOptions: { enabled: !!contract },
   });
 
+  // Obtener información detallada de cada cadena
+  const chainsWithDetails = useMemo(() => {
+    if (!chainIds || !Array.isArray(chainIds) || chainIds.length === 0) return [];
+    
+    return chainIds.map((chainId: bigint) => {
+      const id = Number(chainId);
+      return {
+        chainId: id,
+        name: CHAIN_NAMES[id] || `Chain ${id}`,
+        isKnown: id in CHAIN_NAMES,
+      };
+    });
+  }, [chainIds]);
+
   return {
-    chains: (data as any) || [],
+    chains: chainIds || [],
+    chainsWithDetails,
     isLoading,
   };
 }

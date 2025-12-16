@@ -8,7 +8,6 @@ const footerLinks = {
   product: [
     { name: 'Markets', href: '/markets' },
     { name: 'Create Market', href: '/create' },
-    { name: 'Portfolio', href: '/portfolio' },
     { name: 'Insurance Pool', href: '/insurance' },
     { name: 'Reputation', href: '/reputation' },
     { name: 'DAO Governance', href: '/dao' },

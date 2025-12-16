@@ -15,6 +15,10 @@ import {
   RefreshCw,
   ExternalLink,
   ArrowRight,
+  Brain,
+  Loader2,
+  TrendingDown,
+  CheckCircle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { GlassCard } from '@/components/effects/GlassCard';
@@ -26,6 +30,9 @@ import { useUserDashboard } from '@/lib/hooks/dashboard/useUserDashboard';
 import { useBNBBalance } from '@/lib/hooks/useBNBBalance';
 import { useReputation } from '@/lib/hooks/reputation/useReputation';
 import { useClaimWinnings } from '@/lib/hooks/betting/usePlaceBet';
+import { useInsuranceClaims } from '@/lib/hooks/insurance/useInsuranceClaims';
+import { analyzePortfolioRebalance } from '@/lib/services/ai/gemini';
+import { formatModelName } from '@/lib/utils/model-formatter';
 import Link from 'next/link';
 import { formatAddress } from '@/lib/utils/blockchain';
 import { MARKET_STATUS } from '@/lib/config/constants';
@@ -36,7 +43,50 @@ export default function DashboardPage() {
   const { balance } = useBNBBalance();
   const { stakedAmount, reputationScore, tier } = useReputation();
   const { userMarkets, userPositions, stats, loading, refresh } = useUserDashboard();
+  const { claims } = useInsuranceClaims();
   const [refreshing, setRefreshing] = useState(false);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [analysisResult, setAnalysisResult] = useState<any>(null);
+
+  // Filtrar posiciones activas vs resueltas
+  const activePositions = userPositions.filter((pos) => {
+    return pos.market?.status === MARKET_STATUS.ACTIVE || pos.market?.status === MARKET_STATUS.RESOLVING;
+  });
+
+  const resolvedPositions = userPositions.filter((pos) => {
+    return pos.market?.status === MARKET_STATUS.RESOLVED;
+  });
+
+  const handleAnalyzePortfolio = async () => {
+    if (activePositions.length === 0) {
+      toast.error('No active positions to analyze');
+      return;
+    }
+
+    setAnalyzing(true);
+    try {
+      const positionsData = activePositions.map(p => ({
+        marketId: p.marketId,
+        question: p.market?.question || `Market #${p.marketId}`,
+        yesShares: Number(p.yesShares) / 1e18,
+        noShares: Number(p.noShares) / 1e18,
+        totalValue: Number(p.totalInvested) / 1e18,
+      }));
+
+      const result = await analyzePortfolioRebalance(positionsData);
+      if (result.success && result.data) {
+        setAnalysisResult(result.data);
+        toast.success(`Analysis completed with ${formatModelName(result.modelUsed)}`);
+      } else {
+        toast.error(result.error || 'Error analyzing portfolio');
+      }
+    } catch (error: any) {
+      toast.error('Error analyzing portfolio');
+      console.error(error);
+    } finally {
+      setAnalyzing(false);
+    }
+  };
 
   const handleRefresh = async () => {
     setRefreshing(true);
@@ -221,6 +271,14 @@ export default function DashboardPage() {
                   {loading ? <Skeleton className="h-5 sm:h-6 w-10 sm:w-12" /> : stats.resolvedPositions}
                 </span>
               </div>
+              {stats.expiredPendingResolution > 0 && (
+                <div className="flex items-center justify-between">
+                  <span className="text-xs sm:text-sm text-yellow-400">Pending Resolution</span>
+                  <span className="text-base sm:text-lg font-semibold text-yellow-400">
+                    {loading ? <Skeleton className="h-5 sm:h-6 w-10 sm:w-12" /> : stats.expiredPendingResolution}
+                  </span>
+                </div>
+              )}
               <div className="flex items-center justify-between">
                 <span className="text-xs sm:text-sm text-gray-400">Potential Winnings</span>
                 <span className="text-base sm:text-lg font-semibold text-green-400 truncate ml-2">
@@ -285,26 +343,108 @@ export default function DashboardPage() {
                   Explore Markets
                 </Button>
               </Link>
-              <Link href="/portfolio">
-                <Button variant="outline" className="w-full justify-start gap-1.5 sm:gap-2 text-xs sm:text-sm">
-                  <Wallet className="w-3 h-3 sm:w-4 sm:h-4" />
-                  View Portfolio
-                </Button>
-              </Link>
             </div>
           </GlassCard>
         </div>
 
-        {/* Tabs for Markets and Positions */}
+        {/* AI Analysis Button */}
+        {activePositions.length > 0 && (
+          <div className="mb-6">
+            <Button
+              onClick={handleAnalyzePortfolio}
+              disabled={analyzing}
+              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+            >
+              {analyzing ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Analyzing...
+                </>
+              ) : (
+                <>
+                  <Brain className="mr-2 h-4 w-4" />
+                  Analyze Portfolio with AI
+                </>
+              )}
+            </Button>
+          </div>
+        )}
+
+        {/* Analysis Results */}
+        {analysisResult && (
+          <GlassCard className="p-6 mb-6 border-purple-500/30">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold flex items-center gap-2">
+                <Brain className="h-5 w-5 text-purple-400" />
+                Portfolio Analysis
+              </h3>
+              <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                analysisResult.riskScore < 30 ? 'bg-green-500/20 text-green-400' :
+                analysisResult.riskScore < 70 ? 'bg-yellow-500/20 text-yellow-400' :
+                'bg-red-500/20 text-red-400'
+              }`}>
+                Risk: {analysisResult.riskScore}/100
+              </span>
+            </div>
+            <p className="text-sm text-gray-300 mb-4">{analysisResult.overallRecommendation}</p>
+            {analysisResult.allocations && analysisResult.allocations.length > 0 && (
+              <div className="space-y-2">
+                <h4 className="text-sm font-medium text-gray-400 mb-2">Recommendations:</h4>
+                {analysisResult.allocations.map((allocation: any, idx: number) => (
+                  <div key={idx} className="p-3 rounded-lg bg-white/5 border border-white/10">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-white">Market #{allocation.marketId}</span>
+                      <span className={`px-2 py-1 rounded text-xs font-medium ${
+                        allocation.recommendedAction === 'increase' ? 'bg-green-500/20 text-green-400' :
+                        allocation.recommendedAction === 'decrease' ? 'bg-red-500/20 text-red-400' :
+                        'bg-gray-500/20 text-gray-400'
+                      }`}>
+                        {allocation.recommendedAction === 'increase' ? 'Increase' :
+                         allocation.recommendedAction === 'decrease' ? 'Decrease' : 'Maintain'}
+                        {allocation.recommendedAction === 'increase' && <TrendingUp className="inline ml-1 h-3 w-3" />}
+                        {allocation.recommendedAction === 'decrease' && <TrendingDown className="inline ml-1 h-3 w-3" />}
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-400 mt-1">{allocation.reasoning}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </GlassCard>
+        )}
+
+        {/* Tabs for Markets, Positions, Portfolio, History, and Claims */}
         <Tabs defaultValue="markets" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="markets" className="gap-2">
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="markets" className="gap-2 text-xs">
               <TrendingUp className="w-4 h-4" />
-              My Markets ({userMarkets.length})
+              <span className="hidden sm:inline">Markets</span>
+              <span className="sm:hidden">Mkts</span>
+              ({userMarkets.length})
             </TabsTrigger>
-            <TabsTrigger value="positions" className="gap-2">
+            <TabsTrigger value="positions" className="gap-2 text-xs">
               <Target className="w-4 h-4" />
-              My Bets ({userPositions.length})
+              <span className="hidden sm:inline">Bets</span>
+              <span className="sm:hidden">Bets</span>
+              ({userPositions.length})
+            </TabsTrigger>
+            <TabsTrigger value="portfolio" className="gap-2 text-xs">
+              <Wallet className="w-4 h-4" />
+              <span className="hidden sm:inline">Portfolio</span>
+              <span className="sm:hidden">Port</span>
+              ({activePositions.length})
+            </TabsTrigger>
+            <TabsTrigger value="history" className="gap-2 text-xs">
+              <Clock className="w-4 h-4" />
+              <span className="hidden sm:inline">History</span>
+              <span className="sm:hidden">Hist</span>
+              ({resolvedPositions.length})
+            </TabsTrigger>
+            <TabsTrigger value="claims" className="gap-2 text-xs">
+              <CheckCircle className="w-4 h-4" />
+              <span className="hidden sm:inline">Claims</span>
+              <span className="sm:hidden">Claims</span>
+              ({claims.length})
             </TabsTrigger>
           </TabsList>
 
@@ -333,24 +473,47 @@ export default function DashboardPage() {
                     <div className="space-y-1.5 sm:space-y-2 mb-3 sm:mb-4">
                       <div className="flex items-center justify-between text-xs sm:text-sm">
                         <span className="text-gray-400">Status</span>
-                        <Badge
-                          variant="outline"
-                          className={`text-xs ${
-                            market.status === MARKET_STATUS.ACTIVE
-                              ? 'border-green-500/30 text-green-400'
-                              : market.status === MARKET_STATUS.RESOLVED
-                              ? 'border-blue-500/30 text-blue-400'
-                              : 'border-gray-500/30 text-gray-400'
-                          }`}
-                        >
-                          {market.status === MARKET_STATUS.ACTIVE
-                            ? 'Active'
-                            : market.status === MARKET_STATUS.RESOLVING
-                            ? 'Resolving'
-                            : market.status === MARKET_STATUS.RESOLVED
-                            ? 'Resolved'
-                            : 'Unknown'}
-                        </Badge>
+                        {(() => {
+                          const currentTime = Math.floor(Date.now() / 1000);
+                          const hasExpired = market.resolutionTime <= currentTime;
+                          const isResolved = market.status === MARKET_STATUS.RESOLVED;
+                          const isResolving = market.status === MARKET_STATUS.RESOLVING;
+                          const isActive = market.status === MARKET_STATUS.ACTIVE;
+                          
+                          // Si venció pero aún está marcado como Active en el contrato
+                          if (hasExpired && isActive && !isResolved) {
+                            return (
+                              <Badge variant="outline" className="text-xs border-orange-500/30 text-orange-400">
+                                ⏰ Expired
+                              </Badge>
+                            );
+                          }
+                          
+                          return (
+                            <Badge
+                              variant="outline"
+                              className={`text-xs ${
+                                isResolved
+                                  ? 'border-blue-500/30 text-blue-400'
+                                  : isResolving
+                                  ? 'border-yellow-500/30 text-yellow-400'
+                                  : isActive && !hasExpired
+                                  ? 'border-green-500/30 text-green-400'
+                                  : 'border-gray-500/30 text-gray-400'
+                              }`}
+                            >
+                              {isResolved
+                                ? 'Resolved'
+                                : isResolving
+                                ? 'Resolving'
+                                : isActive && !hasExpired
+                                ? 'Active'
+                                : hasExpired
+                                ? 'Expired'
+                                : 'Unknown'}
+                            </Badge>
+                          );
+                        })()}
                       </div>
                       <div className="flex items-center justify-between text-xs sm:text-sm">
                         <span className="text-gray-400">Volume</span>
@@ -409,22 +572,48 @@ export default function DashboardPage() {
                           <h3 className="text-base sm:text-lg font-semibold text-white break-words">
                             {position.market?.question || `Market #${position.marketId}`}
                           </h3>
-                          <Badge
-                            variant="outline"
-                            className={
-                              position.market?.status === MARKET_STATUS.ACTIVE
-                                ? 'border-green-500/30 text-green-400'
-                                : position.market?.status === MARKET_STATUS.RESOLVED
-                                ? 'border-blue-500/30 text-blue-400'
-                                : 'border-gray-500/30 text-gray-400'
+                          {(() => {
+                            const currentTime = Math.floor(Date.now() / 1000);
+                            const hasExpired = position.market?.resolutionTime && position.market.resolutionTime <= currentTime;
+                            const isResolved = position.market?.status === MARKET_STATUS.RESOLVED;
+                            const isResolving = position.market?.status === MARKET_STATUS.RESOLVING;
+                            const isActive = position.market?.status === MARKET_STATUS.ACTIVE;
+                            
+                            // Si venció pero aún está marcado como Active en el contrato, mostrar como "Expired"
+                            if (hasExpired && isActive && !isResolved) {
+                              return (
+                                <Badge variant="outline" className="border-orange-500/30 text-orange-400">
+                                  ⏰ Expired - Pending Resolution
+                                </Badge>
+                              );
                             }
-                          >
-                            {position.market?.status === MARKET_STATUS.ACTIVE
-                              ? 'Active'
-                              : position.market?.status === MARKET_STATUS.RESOLVED
-                              ? 'Resolved'
-                              : 'Unknown'}
-                          </Badge>
+                            
+                            // Estado normal del contrato
+                            return (
+                              <Badge
+                                variant="outline"
+                                className={
+                                  isResolved
+                                    ? 'border-blue-500/30 text-blue-400'
+                                    : isResolving
+                                    ? 'border-yellow-500/30 text-yellow-400'
+                                    : isActive && !hasExpired
+                                    ? 'border-green-500/30 text-green-400'
+                                    : 'border-gray-500/30 text-gray-400'
+                                }
+                              >
+                                {isResolved
+                                  ? 'Resolved'
+                                  : isResolving
+                                  ? 'Resolving'
+                                  : isActive && !hasExpired
+                                  ? 'Active'
+                                  : hasExpired
+                                  ? 'Expired'
+                                  : 'Unknown'}
+                              </Badge>
+                            );
+                          })()}
                           {position.claimed && (
                             <Badge variant="outline" className="border-green-500/30 text-green-400">
                               Claimed
@@ -455,16 +644,30 @@ export default function DashboardPage() {
                           {(Number(position.totalInvested) / 1e18).toFixed(4)} BNB
                         </p>
                       </div>
-                      {position.market?.status === MARKET_STATUS.RESOLVED && position.potentialPayout > 0 && (
-                        <div>
-                          <p className="text-xs text-gray-400 mb-1">Winnings</p>
-                          <p className="text-xs sm:text-sm font-semibold text-green-400 truncate">
-                            {!position.claimed
-                              ? `${(Number(position.potentialPayout) / 1e18).toFixed(4)} BNB`
-                              : 'Claimed'}
-                          </p>
-                        </div>
-                      )}
+                      {(() => {
+                        const currentTime = Math.floor(Date.now() / 1000);
+                        const hasExpired = position.market?.resolutionTime && position.market.resolutionTime <= currentTime;
+                        const isResolved = position.market?.status === MARKET_STATUS.RESOLVED;
+                        const showWinnings = (isResolved || (hasExpired && position.potentialPayout > 0)) && position.potentialPayout > 0;
+                        
+                        if (showWinnings) {
+                          return (
+                            <div>
+                              <p className="text-xs text-gray-400 mb-1">
+                                {isResolved ? 'Winnings' : 'Est. Winnings'}
+                              </p>
+                              <p className={`text-xs sm:text-sm font-semibold truncate ${
+                                isResolved ? 'text-green-400' : 'text-yellow-400'
+                              }`}>
+                                {!position.claimed
+                                  ? `${(Number(position.potentialPayout) / 1e18).toFixed(4)} BNB`
+                                  : 'Claimed'}
+                              </p>
+                            </div>
+                          );
+                        }
+                        return null;
+                      })()}
                     </div>
                     <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                       <Link href={`/markets/${position.marketId}`} className="flex-1 sm:flex-initial">
@@ -497,6 +700,213 @@ export default function DashboardPage() {
                     <ArrowRight className="w-4 h-4" />
                   </Button>
                 </Link>
+              </GlassCard>
+            )}
+          </TabsContent>
+
+          {/* Portfolio Tab - Active Positions */}
+          <TabsContent value="portfolio">
+            {loading ? (
+              <div className="space-y-4">
+                {[...Array(3)].map((_, i) => (
+                  <Skeleton key={i} className="h-32 w-full" />
+                ))}
+              </div>
+            ) : activePositions.length > 0 ? (
+              activePositions.map((position) => (
+                <GlassCard key={position.marketId} className="p-6">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <h3 className="text-xl font-semibold">{position.market?.question || `Market #${position.marketId}`}</h3>
+                        <Badge
+                          variant="outline"
+                          className={
+                            position.market?.status === MARKET_STATUS.ACTIVE
+                              ? 'border-green-500/30 text-green-400'
+                              : position.market?.status === MARKET_STATUS.RESOLVING
+                              ? 'border-yellow-500/30 text-yellow-400'
+                              : 'border-gray-500/30 text-gray-400'
+                          }
+                        >
+                          {position.market?.status === MARKET_STATUS.ACTIVE
+                            ? 'Active'
+                            : position.market?.status === MARKET_STATUS.RESOLVING
+                            ? 'Resolving'
+                            : 'Unknown'}
+                        </Badge>
+                      </div>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mt-4">
+                        <div>
+                          <span className="text-gray-400">YES Shares:</span>
+                          <span className="ml-2 text-white font-semibold">
+                            {(Number(position.yesShares) / 1e18).toFixed(4)}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-gray-400">NO Shares:</span>
+                          <span className="ml-2 text-white font-semibold">
+                            {(Number(position.noShares) / 1e18).toFixed(4)}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-gray-400">Total Invested:</span>
+                          <span className="ml-2 text-white font-semibold">
+                            {(Number(position.totalInvested) / 1e18).toFixed(4)} BNB
+                          </span>
+                        </div>
+                        {position.market?.status === MARKET_STATUS.RESOLVED && position.potentialPayout > 0 && (
+                          <div>
+                            <span className="text-gray-400">Potential Payout:</span>
+                            <span className="ml-2 text-green-400 font-semibold">
+                              {position.claimed ? 'Claimed' : `${(Number(position.potentialPayout) / 1e18).toFixed(4)} BNB`}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <Link href={`/markets/${position.marketId}`}>
+                        <Button variant="outline" size="sm" className="gap-2">
+                          View Market
+                          <ExternalLink className="w-4 h-4" />
+                        </Button>
+                      </Link>
+                      {position.market?.status === MARKET_STATUS.RESOLVED &&
+                        position.potentialPayout > 0 &&
+                        !position.claimed && (
+                          <ClaimButton marketId={position.marketId} />
+                        )}
+                    </div>
+                  </div>
+                </GlassCard>
+              ))
+            ) : (
+              <GlassCard className="p-12 text-center">
+                <TrendingUp className="w-16 h-16 text-gray-500 mx-auto mb-4" />
+                <p className="text-gray-400 text-lg">No active positions</p>
+                <p className="text-gray-500 text-sm mt-2">Explore markets and place your first bet</p>
+                <Link href="/markets" className="mt-4 inline-block">
+                  <Button>Explore Markets</Button>
+                </Link>
+              </GlassCard>
+            )}
+          </TabsContent>
+
+          {/* History Tab - Resolved Positions */}
+          <TabsContent value="history">
+            {loading ? (
+              <div className="space-y-4">
+                {[...Array(3)].map((_, i) => (
+                  <Skeleton key={i} className="h-32 w-full" />
+                ))}
+              </div>
+            ) : resolvedPositions.length > 0 ? (
+              resolvedPositions.map((position) => (
+                <GlassCard key={position.marketId} className="p-6">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <h3 className="text-xl font-semibold">{position.market?.question || `Market #${position.marketId}`}</h3>
+                        <Badge variant="outline" className="border-blue-500/30 text-blue-400">
+                          Resolved
+                        </Badge>
+                        {position.claimed && (
+                          <Badge variant="outline" className="border-green-500/30 text-green-400">
+                            Claimed
+                          </Badge>
+                        )}
+                      </div>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mt-4">
+                        <div>
+                          <span className="text-gray-400">Total Invested:</span>
+                          <span className="ml-2 text-white font-semibold">
+                            {(Number(position.totalInvested) / 1e18).toFixed(4)} BNB
+                          </span>
+                        </div>
+                        {position.potentialPayout > 0 && (
+                          <div>
+                            <span className="text-gray-400">Payout:</span>
+                            <span className="ml-2 text-green-400 font-semibold">
+                              {position.claimed ? 'Claimed' : `${(Number(position.potentialPayout) / 1e18).toFixed(4)} BNB`}
+                            </span>
+                          </div>
+                        )}
+                        <div>
+                          <span className="text-gray-400">Outcome:</span>
+                          <span className="ml-2 text-white font-semibold">
+                            {position.market?.outcome === 1 ? 'YES' : position.market?.outcome === 2 ? 'NO' : 'Invalid'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <Link href={`/markets/${position.marketId}`}>
+                      <Button variant="outline" size="sm" className="gap-2">
+                        View Market
+                        <ExternalLink className="w-4 h-4" />
+                      </Button>
+                    </Link>
+                  </div>
+                </GlassCard>
+              ))
+            ) : (
+              <GlassCard className="p-12 text-center">
+                <Clock className="w-16 h-16 text-gray-500 mx-auto mb-4" />
+                <p className="text-gray-400 text-lg">No resolved positions yet</p>
+              </GlassCard>
+            )}
+          </TabsContent>
+
+          {/* Claims Tab */}
+          <TabsContent value="claims">
+            {loading ? (
+              <div className="space-y-4">
+                {[...Array(3)].map((_, i) => (
+                  <Skeleton key={i} className="h-32 w-full" />
+                ))}
+              </div>
+            ) : claims.length > 0 ? (
+              claims.map((claim) => (
+                <GlassCard key={claim.id} className="p-6">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1">
+                      <h3 className="text-xl font-semibold mb-2">{claim.question}</h3>
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <span className="text-gray-400">Market ID:</span>
+                          <span className="ml-2 text-white font-semibold">#{claim.marketId}</span>
+                        </div>
+                        <div>
+                          <span className="text-gray-400">Amount:</span>
+                          <span className="ml-2 text-white font-semibold">
+                            {(Number(claim.invested) / 1e18).toFixed(4)} BNB
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-gray-400">Status:</span>
+                          <Badge className="ml-2 bg-yellow-500/20 text-yellow-400 border-yellow-500/30">
+                            {claim.status}
+                          </Badge>
+                        </div>
+                        <div>
+                          <span className="text-gray-400">Reason:</span>
+                          <span className="ml-2 text-gray-300">{claim.reason}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <Link href="/insurance">
+                      <Button variant="outline" size="sm">
+                        Claim Insurance
+                      </Button>
+                    </Link>
+                  </div>
+                </GlassCard>
+              ))
+            ) : (
+              <GlassCard className="p-12 text-center">
+                <CheckCircle className="w-16 h-16 text-green-400 mx-auto mb-4" />
+                <p className="text-gray-400 text-lg">No pending claims</p>
+                <p className="text-gray-500 text-sm mt-2">All your positions are protected</p>
               </GlassCard>
             )}
           </TabsContent>

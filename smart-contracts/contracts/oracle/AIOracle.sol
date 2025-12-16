@@ -77,6 +77,15 @@ contract AIOracle is FunctionsClient, OwnerIsCreator {
     }
     
     /**
+     * @notice Actualiza el subscriptionId de Chainlink Functions
+     * @dev Si se establece en 0, el contrato usará modo manual automáticamente
+     * @param _subscriptionId Nuevo subscription ID (0 para desactivar Chainlink Functions)
+     */
+    function setSubscriptionId(uint64 _subscriptionId) external onlyOwner {
+        subscriptionId = _subscriptionId;
+    }
+    
+    /**
      * @notice Solicita resolución multi-AI vía backend
      * @param _marketId ID del mercado
      * @param _question Pregunta a resolver
@@ -135,10 +144,10 @@ contract AIOracle is FunctionsClient, OwnerIsCreator {
         args[1] = Strings.toString(_pythPriceId);
         req.setArgs(args);
         
-        // In test environment, if router is ZeroAddress, skip Chainlink Functions call
+        // If router is ZeroAddress or subscriptionId is 0, skip Chainlink Functions call
         // and return a zero requestId (will be handled by fulfillResolutionManual)
         bytes32 requestId;
-        if (address(i_router) == address(0)) {
+        if (address(i_router) == address(0) || subscriptionId == 0) {
             requestId = bytes32(0);
             requestToMarketId[requestId] = _marketId;
             emit ResolutionRequested(requestId, _marketId, _question);

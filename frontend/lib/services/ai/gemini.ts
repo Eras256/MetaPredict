@@ -238,7 +238,33 @@ export async function analyzePortfolioRebalance(
       throw new Error(errorMessage);
     }
 
-    const data = await response.json();
+    // Intentar parsear la respuesta JSON con manejo de errores robusto
+    let data: any;
+    try {
+      const responseText = await response.text();
+      
+      // Verificar que la respuesta no esté vacía
+      if (!responseText || responseText.trim().length === 0) {
+        throw new Error('Empty response from server');
+      }
+      
+      // Intentar parsear el JSON
+      try {
+        data = JSON.parse(responseText);
+      } catch (parseError: any) {
+        // Si falla el parseo, lanzar un error más descriptivo
+        console.error('[Gemini Client] JSON parse error:', parseError);
+        console.error('[Gemini Client] Response text:', responseText.substring(0, 500));
+        throw new Error('Error parsing AI response. The server returned invalid JSON. Please try again.');
+      }
+    } catch (parseError: any) {
+      // Si es un error de parseo que ya manejamos, re-lanzarlo
+      if (parseError.message.includes('parsing AI response') || parseError.message.includes('Empty response')) {
+        throw parseError;
+      }
+      // Para otros errores, envolverlos
+      throw new Error(`Error reading response: ${parseError.message || 'Unknown error'}`);
+    }
     
     if (!data || typeof data !== 'object') {
       throw new Error('Invalid response format from server');

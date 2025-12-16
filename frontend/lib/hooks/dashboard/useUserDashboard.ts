@@ -89,6 +89,7 @@ export interface DashboardStats {
   totalPotentialWinnings: number;
   activePositions: number;
   resolvedPositions: number;
+  expiredPendingResolution: number; // Mercados vencidos pero no resueltos
   claimedWinnings: number;
 }
 
@@ -103,6 +104,7 @@ export function useUserDashboard() {
     totalPotentialWinnings: 0,
     activePositions: 0,
     resolvedPositions: 0,
+    expiredPendingResolution: 0,
     claimedWinnings: 0,
   });
   const [loading, setLoading] = useState(true);
@@ -206,21 +208,69 @@ export function useUserDashboard() {
             contract: coreContract,
             method: 'getMarketContract',
             params: [marketIdBigInt],
+          }) as string;
+
+          // Validar que la dirección del contrato sea válida
+          const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
+          if (!marketContractAddress || 
+              marketContractAddress === ZERO_ADDRESS || 
+              marketContractAddress.toLowerCase() === ZERO_ADDRESS.toLowerCase()) {
+            console.warn(`Invalid market contract address for market ${marketIdNum}`);
+            return null;
+          }
+
+          // Obtener datos del mercado específico
+          const marketContract = getContract({
+            client,
+            chain: opBNBTestnet,
+            address: marketContractAddress as `0x${string}`,
+            abi: BinaryMarketExtendedABI as any,
           });
 
-              // Obtener datos del mercado específico
-              const marketContract = getContract({
-                client,
-                chain: opBNBTestnet,
-                address: marketContractAddress as `0x${string}`,
-                abi: BinaryMarketExtendedABI as any,
-              });
+          // Validar que el marketId sea razonable antes de llamar al contrato
+          // El error sugiere que el contrato tiene un límite de ~544 mercados
+          if (marketIdNum > 10000) {
+            console.warn(`Market ID ${marketIdNum} seems too large, skipping`);
+            return null;
+          }
 
-          const marketData = await readContract({
-            contract: marketContract,
-            method: 'getMarket',
-            params: [marketIdBigInt],
-          }) as any;
+          let marketData: any;
+          try {
+            marketData = await readContract({
+              contract: marketContract,
+              method: 'getMarket',
+              params: [marketIdBigInt],
+            }) as any;
+          } catch (error: any) {
+            // Manejar diferentes tipos de errores de decodificación
+            const errorMessage = error?.message || '';
+            const errorString = String(error || '');
+            
+            // Verificar múltiples formas del error
+            if (errorMessage.includes('PositionOutOfBounds') || 
+                errorMessage.includes('out of bounds') ||
+                errorMessage.includes('InvalidBytesBooleanError') ||
+                errorMessage.includes('not a valid boolean') ||
+                errorMessage.includes('Bytes value') ||
+                errorMessage.includes('decode') ||
+                errorString.includes('InvalidBytesBooleanError') ||
+                errorString.includes('not a valid boolean') ||
+                errorString.includes('Bytes value') ||
+                error?.name === 'InvalidBytesBooleanError' ||
+                error?.code === 'INVALID_BYTES_BOOLEAN') {
+              console.warn(`Market ${marketIdNum} not found or invalid in BinaryMarket contract, skipping`);
+              return null;
+            }
+            // Si es otro tipo de error, también lo manejamos silenciosamente para no romper el dashboard
+            console.warn(`Error fetching market ${marketIdNum} data:`, errorMessage || errorString);
+            return null;
+          }
+
+          // Validar que marketData tenga la estructura esperada
+          if (!marketData || typeof marketData !== 'object') {
+            console.warn(`Invalid market data for market ${marketIdNum}`);
+            return null;
+          }
 
           return {
             id: marketIdNum,
@@ -296,7 +346,20 @@ export function useUserDashboard() {
                 contract: coreContract,
                 method: 'getMarketContract',
                 params: [BigInt(i)],
-              });
+              }) as string;
+
+              // Validar que la dirección del contrato sea válida
+              const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
+              if (!marketContractAddress || 
+                  marketContractAddress === ZERO_ADDRESS || 
+                  marketContractAddress.toLowerCase() === ZERO_ADDRESS.toLowerCase()) {
+                return null;
+              }
+
+              // Validar que el marketId sea razonable
+              if (i > 10000) {
+                return null;
+              }
 
               // Obtener posición del usuario
               const marketContract = getContract({
@@ -306,11 +369,25 @@ export function useUserDashboard() {
                 abi: BinaryMarketExtendedABI as any,
               });
 
-              const position = await readContract({
-                contract: marketContract,
-                method: 'getPosition',
-                params: [BigInt(i), account.address],
-              }) as any;
+              let position: any;
+              try {
+                position = await readContract({
+                  contract: marketContract,
+                  method: 'getPosition',
+                  params: [BigInt(i), account.address],
+                }) as any;
+              } catch (error: any) {
+                // Si el error es sobre posición fuera de límites, el mercado puede no existir
+                const errorMsg = String(error?.message || error || '');
+                if (errorMsg.includes('PositionOutOfBounds') || 
+                    errorMsg.includes('out of bounds') ||
+                    errorMsg.includes('InvalidBytesBooleanError') ||
+                    errorMsg.includes('not a valid boolean') ||
+                    errorMsg.includes('Bytes value')) {
+                  return null;
+                }
+                return null; // Silenciosamente ignorar otros errores también
+              }
 
               // Si no tiene posición, saltar
               if (!position || (position.yesShares === BigInt(0) && position.noShares === BigInt(0))) {
@@ -318,11 +395,54 @@ export function useUserDashboard() {
               }
 
               // Obtener datos del mercado (BinaryMarket.getMarket requiere marketId)
-              const marketData = await readContract({
-                contract: marketContract,
-                method: 'getMarket',
-                params: [BigInt(i)],
-              }) as any;
+              // Envolver en try-catch más amplio para capturar cualquier error de decodificación
+              let marketData: any;
+              try {
+                marketData = await readContract({
+                  contract: marketContract,
+                  method: 'getMarket',
+                  params: [BigInt(i)],
+                }) as any;
+              } catch (error: any) {
+                // Capturar cualquier error relacionado con decodificación
+                // El error puede venir en diferentes formatos, así que verificamos todo
+                const errorObj = error || {};
+                const errorMessage = String(errorObj.message || '');
+                const errorString = String(errorObj);
+                const errorName = String(errorObj.name || '');
+                const errorCode = String(errorObj.code || '');
+                const errorType = String(errorObj.type || '');
+                const errorConstructor = String(errorObj.constructor?.name || '');
+                
+                // Lista de patrones que indican errores de decodificación que debemos ignorar
+                const isDecodeError = 
+                  errorMessage.includes('PositionOutOfBounds') || 
+                  errorMessage.includes('out of bounds') ||
+                  errorMessage.includes('InvalidBytesBooleanError') ||
+                  errorMessage.includes('not a valid boolean') ||
+                  errorMessage.includes('Bytes value') ||
+                  errorMessage.includes('decode') ||
+                  errorString.includes('InvalidBytesBooleanError') ||
+                  errorString.includes('not a valid boolean') ||
+                  errorString.includes('Bytes value') ||
+                  errorName === 'InvalidBytesBooleanError' ||
+                  errorCode === 'INVALID_BYTES_BOOLEAN' ||
+                  errorConstructor === 'InvalidBytesBooleanError' ||
+                  errorType === 'InvalidBytesBooleanError';
+                
+                if (isDecodeError) {
+                  return null;
+                }
+                
+                // Para cualquier otro error, también lo ignoramos silenciosamente
+                // para evitar romper el dashboard completo
+                return null;
+              }
+
+              // Validar que marketData tenga la estructura esperada
+              if (!marketData || typeof marketData !== 'object') {
+                return null;
+              }
 
               const market: Market = {
                 id: i,
@@ -353,23 +473,49 @@ export function useUserDashboard() {
               const noInvested = (noShares * avgNoPrice) / divisor;
               const totalInvested = yesInvested + noInvested;
 
-              // Calcular potential payout si el mercado está resuelto
+              // Calcular potential payout
               let potentialPayout = BigInt(0);
+              const yesPool = BigInt(marketData?.yesPool || 0);
+              const noPool = BigInt(marketData?.noPool || 0);
+              const totalYesShares = BigInt(marketData?.totalYesShares || 0);
+              const totalNoShares = BigInt(marketData?.totalNoShares || 0);
+              const totalPool = yesPool + noPool;
+              
+              // Si el mercado está resuelto, calcular payout real
               if (marketData?.resolved && marketData?.outcome) {
-                const yesPool = BigInt(marketData.yesPool || 0);
-                const noPool = BigInt(marketData.noPool || 0);
-                const totalYesShares = BigInt(marketData.totalYesShares || 0);
-                const totalNoShares = BigInt(marketData.totalNoShares || 0);
-                
                 if (Number(marketData.outcome) === 1 && position.yesShares > 0 && totalYesShares > 0) {
                   // YES ganó
-                  potentialPayout = (position.yesShares * (yesPool + noPool)) / totalYesShares;
+                  potentialPayout = (position.yesShares * totalPool) / totalYesShares;
                 } else if (Number(marketData.outcome) === 2 && position.noShares > 0 && totalNoShares > 0) {
                   // NO ganó
-                  potentialPayout = (position.noShares * (yesPool + noPool)) / totalNoShares;
+                  potentialPayout = (position.noShares * totalPool) / totalNoShares;
                 } else if (Number(marketData.outcome) === 3) {
                   // Invalid - refund
                   potentialPayout = totalInvested;
+                }
+              } else {
+                // Si el mercado venció pero no está resuelto, calcular payout estimado basado en pools actuales
+                const currentTime = Math.floor(Date.now() / 1000);
+                const hasExpired = market.resolutionTime <= currentTime;
+                
+                if (hasExpired && totalPool > 0) {
+                  // Calcular payout estimado basado en la proporción actual de shares
+                  // Esto es una estimación, el payout real dependerá del outcome final
+                  if (position.yesShares > 0 && totalYesShares > 0) {
+                    // Estimación si YES gana
+                    const estimatedYesPayout = (position.yesShares * totalPool) / totalYesShares;
+                    if (position.noShares > 0 && totalNoShares > 0) {
+                      // Estimación si NO gana
+                      const estimatedNoPayout = (position.noShares * totalPool) / totalNoShares;
+                      // Usar el promedio o el máximo como estimación conservadora
+                      potentialPayout = estimatedYesPayout > estimatedNoPayout ? estimatedYesPayout : estimatedNoPayout;
+                    } else {
+                      potentialPayout = estimatedYesPayout;
+                    }
+                  } else if (position.noShares > 0 && totalNoShares > 0) {
+                    // Solo tiene NO shares
+                    potentialPayout = (position.noShares * totalPool) / totalNoShares;
+                  }
                 }
               }
 
@@ -410,8 +556,18 @@ export function useUserDashboard() {
     }, 0);
 
     const totalPotentialWinnings = userPositions.reduce((sum, pos) => {
+      // Incluir winnings de mercados resueltos
       if (pos.market?.status === 2 && pos.potentialPayout > 0 && !pos.claimed) {
         return sum + Number(pos.potentialPayout) / 1e18;
+      }
+      // También incluir estimaciones de mercados vencidos pero no resueltos
+      if (pos.market && pos.potentialPayout > 0 && !pos.claimed) {
+        const currentTime = Math.floor(Date.now() / 1000);
+        const hasExpired = pos.market.resolutionTime <= currentTime;
+        const isNotResolved = pos.market.status !== 2;
+        if (hasExpired && isNotResolved) {
+          return sum + Number(pos.potentialPayout) / 1e18;
+        }
       }
       return sum;
     }, 0);
@@ -424,6 +580,15 @@ export function useUserDashboard() {
       return pos.market?.status === 2; // Resolved
     }).length;
 
+    // Contar mercados vencidos pero no resueltos
+    const currentTime = Math.floor(Date.now() / 1000);
+    const expiredPendingResolution = userPositions.filter((pos) => {
+      if (!pos.market) return false;
+      const hasExpired = pos.market.resolutionTime <= currentTime;
+      const isNotResolved = pos.market.status !== 2; // No está resuelto
+      return hasExpired && isNotResolved;
+    }).length;
+
     const claimedWinnings = userPositions.filter((pos) => pos.claimed).length;
 
     setStats({
@@ -433,6 +598,7 @@ export function useUserDashboard() {
       totalPotentialWinnings,
       activePositions,
       resolvedPositions,
+      expiredPendingResolution,
       claimedWinnings,
     });
   };

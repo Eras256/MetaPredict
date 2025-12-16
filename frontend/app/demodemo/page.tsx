@@ -1332,16 +1332,16 @@ function MarketOperations({
 }) {
   const [binaryQuestion, setBinaryQuestion] = useState('Will BTC reach $100K?');
   const [binaryDescription, setBinaryDescription] = useState('Bitcoin price prediction');
-  const [binaryResolutionTime, setBinaryResolutionTime] = useState('2024-12-31T23:59');
+  const [binaryResolutionTime, setBinaryResolutionTime] = useState('2026-12-31T23:59');
 
   const [conditionalParentId, setConditionalParentId] = useState('1');
   const [conditionalCondition, setConditionalCondition] = useState('if YES on parent');
   const [conditionalQuestion, setConditionalQuestion] = useState('Will ETH follow?');
-  const [conditionalResolutionTime, setConditionalResolutionTime] = useState('2024-12-31T23:59');
+  const [conditionalResolutionTime, setConditionalResolutionTime] = useState('2026-12-31T23:59');
 
   const [subjectiveQuestion, setSubjectiveQuestion] = useState('Is this movie good?');
   const [subjectiveDescription, setSubjectiveDescription] = useState('Movie review');
-  const [subjectiveResolutionTime, setSubjectiveResolutionTime] = useState('2024-12-31T23:59');
+  const [subjectiveResolutionTime, setSubjectiveResolutionTime] = useState('2026-12-31T23:59');
   const [subjectiveExpertise, setSubjectiveExpertise] = useState('film critics');
 
   const [resolutionMarketId, setResolutionMarketId] = useState('1');

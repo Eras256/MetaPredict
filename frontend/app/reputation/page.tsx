@@ -34,7 +34,7 @@ const tierColors = {
 
 export default function ReputationPage() {
   const [stakeAmount, setStakeAmount] = useState('');
-  const { stakedAmount, reputationScore, tier, correctVotes, totalVotes, isLoading } = useReputation();
+  const { stakedAmount, reputationScore, tier, correctVotes, totalVotes, slashedAmount, isLoading } = useReputation();
   const { leaderboard, isLoading: leaderboardLoading } = useLeaderboard();
   const { stake, loading: isStaking } = useStakeReputation();
   const [analyzing, setAnalyzing] = useState(false);
@@ -59,7 +59,7 @@ export default function ReputationPage() {
         accuracy: reputationScore,
         totalVotes,
         correctVotes,
-        slashes: 0, // TODO: obtener del contrato
+        slashes: slashedAmount || 0,
         stakes: stakedAmount,
       };
 

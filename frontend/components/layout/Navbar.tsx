@@ -29,7 +29,6 @@ import { cn } from '@/lib/utils';
 const navigation = [
   { name: 'Home', href: '/', icon: Home },
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'Portfolio', href: '/portfolio', icon: Wallet },
 ];
 
 // Markets submenu

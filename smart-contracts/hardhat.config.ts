@@ -61,44 +61,48 @@ const config: HardhatUserConfig = {
   etherscan: {
     // opBNBScan uses NodeReal API for contract verification
     // Get your API key from: https://nodereal.io/ (Login with GitHub/Discord)
-    // According to official opBNBScan documentation
+    // According to official opBNBScan documentation (December 2025)
     apiKey: {
-      opbnb: process.env.NODEREAL_API_KEY || process.env.ETHERSCAN_API_KEY || process.env.BSCSCAN_API_KEY || "J437RFU1KXCPYIPUI4238QC7Y87HC8ADKS",
-      opBNBTestnet: process.env.NODEREAL_API_KEY || process.env.ETHERSCAN_API_KEY || process.env.BSCSCAN_API_KEY || "J437RFU1KXCPYIPUI4238QC7Y87HC8ADKS",
+      // Prefer BSCSCAN_API_KEY for opBNBScan (more reliable), then NODEREAL_API_KEY
+      // BSCScan API works directly with opBNBScan
+      opbnb: process.env.BSCSCAN_API_KEY || process.env.NODEREAL_API_KEY || process.env.ETHERSCAN_API_KEY || "",
+      opBNBTestnet: process.env.BSCSCAN_API_KEY || process.env.NODEREAL_API_KEY || process.env.ETHERSCAN_API_KEY || "",
     },
     customChains: [
       {
-        network: "opbnbMainnet",
-        chainId: 204,
-        urls: {
-          // opBNB Mainnet - NodeReal API
-          apiURL: process.env.NODEREAL_API_KEY 
-            ? `https://open-platform.nodereal.io/${process.env.NODEREAL_API_KEY}/op-bnb-mainnet/contract/`
-            : "https://api.etherscan.io/v2/api",
-          browserURL: "https://opbnbscan.com/",
-        },
-      },
-      {
-        network: "opbnbTestnet",
-        chainId: 5611,
+        network: "opbnb",
+        chainId: 5611, // opBNB Testnet
         urls: {
           // opBNB Testnet - NodeReal API (official opBNBScan documentation)
+          // Format: https://open-platform.nodereal.io/{API_KEY}/op-bnb-testnet/contract/
           apiURL: process.env.NODEREAL_API_KEY 
             ? `https://open-platform.nodereal.io/${process.env.NODEREAL_API_KEY}/op-bnb-testnet/contract/`
-            : "https://api.etherscan.io/v2/api",
+            : "https://api-testnet.opbnbscan.com/api",
           browserURL: "https://testnet.opbnbscan.com/",
         },
       },
       {
         network: "opBNBTestnet",
-        chainId: 5611,
+        chainId: 5611, // opBNB Testnet
         urls: {
           // opBNB Testnet - NodeReal API (official opBNBScan documentation)
-          // This is the correct API endpoint according to opBNBScan docs
+          // Format: https://open-platform.nodereal.io/{API_KEY}/op-bnb-testnet/contract/
+          // IMPORTANT: La API key debe estar en NODEREAL_API_KEY en .env.local
           apiURL: process.env.NODEREAL_API_KEY 
             ? `https://open-platform.nodereal.io/${process.env.NODEREAL_API_KEY}/op-bnb-testnet/contract/`
-            : `https://open-platform.nodereal.io/${process.env.NODEREAL_API_KEY || 'your_nodereal_api_key'}/op-bnb-testnet/contract/`,
+            : "https://open-platform.nodereal.io/your-api-key/op-bnb-testnet/contract/",
           browserURL: "https://testnet.opbnbscan.com/",
+        },
+      },
+      {
+        network: "opbnbMainnet",
+        chainId: 204, // opBNB Mainnet
+        urls: {
+          // opBNB Mainnet - NodeReal API
+          apiURL: process.env.NODEREAL_API_KEY 
+            ? `https://open-platform.nodereal.io/${process.env.NODEREAL_API_KEY}/op-bnb-mainnet/contract/`
+            : "https://api.opbnbscan.com/api",
+          browserURL: "https://opbnbscan.com/",
         },
       },
     ],

@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { GlassCard } from '@/components/effects/GlassCard';
-import { ArrowLeft, Clock, Users, TrendingUp, Shield, Brain, ExternalLink, Loader2 } from 'lucide-react';
+import { ArrowLeft, Clock, Users, TrendingUp, Shield, Brain, ExternalLink, Loader2, Zap } from 'lucide-react';
 import Link from 'next/link';
 import { formatDistanceToNow, format } from 'date-fns';
 import { MARKET_STATUS, MARKET_TYPES } from '@/lib/config/constants';
@@ -19,6 +19,7 @@ import { toast } from 'sonner';
 import { useState } from 'react';
 import { useBNBBalance } from '@/lib/hooks/useBNBBalance';
 import { formatModelName } from '@/lib/utils/model-formatter';
+import { useInitiateResolution } from '@/lib/hooks/markets/useCreateMarket';
 
 
 export default function MarketDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -29,6 +30,7 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
   const { balance: userBalance } = useBNBBalance();
   const [analyzingMarket, setAnalyzingMarket] = useState(false);
   const [marketAnalysis, setMarketAnalysis] = useState<any>(null);
+  const { initiateResolution, isPending: isInitiatingResolution } = useInitiateResolution();
 
   const handleAnalyzeMarket = async () => {
     if (!market?.question) {
@@ -67,7 +69,19 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
   const totalPool = market ? Number(market.yesPool) + Number(market.noPool) : 0;
   const yesOdds = market && totalPool > 0 ? (Number(market.yesPool) / totalPool) * 100 : 50;
   const noOdds = market && totalPool > 0 ? (Number(market.noPool) / totalPool) * 100 : 50;
-  const timeRemaining = market ? formatDistanceToNow(new Date(Number(market.resolutionTime) * 1000), { addSuffix: true }) : '';
+  
+  // Verificar si el mercado venció
+  const currentTime = Math.floor(Date.now() / 1000);
+  const hasExpired = market && market.resolutionTime <= currentTime;
+  const isResolved = market?.status === MARKET_STATUS.RESOLVED;
+  const isResolving = market?.status === MARKET_STATUS.RESOLVING;
+  const isActive = market?.status === MARKET_STATUS.ACTIVE;
+  
+  const timeRemaining = market 
+    ? (hasExpired 
+        ? 'Expired' 
+        : formatDistanceToNow(new Date(Number(market.resolutionTime) * 1000), { addSuffix: true }))
+    : '';
   const resolutionDate = market ? format(new Date(Number(market.resolutionTime) * 1000), 'PPP p') : '';
 
   return (
@@ -89,9 +103,39 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                   <Badge variant="outline" className="text-xs">
                     Binary Market
                   </Badge>
-                  <Badge className="text-xs bg-green-500/20 text-green-300">
-                    {market?.status === 0 ? 'Active' : market?.status === 2 ? 'Resolved' : 'Pending'}
-                  </Badge>
+                  {(() => {
+                    // Si venció pero aún está marcado como Active en el contrato
+                    if (hasExpired && isActive && !isResolved) {
+                      return (
+                        <Badge className="text-xs bg-orange-500/20 text-orange-300 border-orange-500/30">
+                          ⏰ Expired - Pending Resolution
+                        </Badge>
+                      );
+                    }
+                    
+                    // Estado normal del contrato
+                    return (
+                      <Badge className={`text-xs ${
+                        isResolved
+                          ? 'bg-blue-500/20 text-blue-300'
+                          : isResolving
+                          ? 'bg-yellow-500/20 text-yellow-300'
+                          : isActive && !hasExpired
+                          ? 'bg-green-500/20 text-green-300'
+                          : 'bg-gray-500/20 text-gray-300'
+                      }`}>
+                        {isResolved
+                          ? 'Resolved'
+                          : isResolving
+                          ? 'Resolving'
+                          : isActive && !hasExpired
+                          ? 'Active'
+                          : hasExpired
+                          ? 'Expired'
+                          : 'Pending'}
+                      </Badge>
+                    );
+                  })()}
                 </div>
                 <div className="flex items-center gap-2">
                   <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-purple-400" />
@@ -104,12 +148,22 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
               </h1>
 
               <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
-                <div className="p-3 sm:p-4 rounded-lg bg-purple-500/5 border border-purple-500/10">
+                <div className={`p-3 sm:p-4 rounded-lg border ${
+                  hasExpired && !isResolved
+                    ? 'bg-orange-500/5 border-orange-500/20'
+                    : 'bg-purple-500/5 border-purple-500/10'
+                }`}>
                   <div className="flex items-center gap-1.5 sm:gap-2 text-gray-400 text-xs sm:text-sm mb-1">
-                    <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
-                    <span className="truncate">Closes</span>
+                    <Clock className={`w-3 h-3 sm:w-4 sm:h-4 ${hasExpired && !isResolved ? 'text-orange-400' : ''}`} />
+                    <span className="truncate">{hasExpired && !isResolved ? 'Expired' : 'Closes'}</span>
                   </div>
-                  <div className="text-white font-semibold text-sm sm:text-base truncate">{timeRemaining}</div>
+                  <div className={`font-semibold text-sm sm:text-base truncate ${
+                    hasExpired && !isResolved ? 'text-orange-300' : 'text-white'
+                  }`}>
+                    {hasExpired && !isResolved 
+                      ? `${formatDistanceToNow(new Date(Number(market?.resolutionTime) * 1000), { addSuffix: true })}`
+                      : timeRemaining}
+                  </div>
                 </div>
 
                 <div className="p-3 sm:p-4 rounded-lg bg-purple-500/5 border border-purple-500/10">
@@ -144,8 +198,37 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                 </div>
               )}
 
-              {/* AI Analysis Button */}
-              <div className="mt-6 pt-6 border-t border-white/10">
+              {/* Action Buttons */}
+              <div className="mt-6 pt-6 border-t border-white/10 space-y-3">
+                {/* Show Initiate Resolution button if market expired but not resolved */}
+                {hasExpired && isActive && !isResolved && account && (
+                  <Button
+                    onClick={async () => {
+                      try {
+                        await initiateResolution(marketId);
+                        toast.success('Resolution initiated! The AI Oracle will process it shortly.');
+                      } catch (error: any) {
+                        toast.error(error?.message || 'Failed to initiate resolution');
+                      }
+                    }}
+                    disabled={isInitiatingResolution}
+                    className="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700"
+                  >
+                    {isInitiatingResolution ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Initiating Resolution...
+                      </>
+                    ) : (
+                      <>
+                        <Zap className="mr-2 h-4 w-4" />
+                        Initiate Resolution
+                      </>
+                    )}
+                  </Button>
+                )}
+                
+                {/* AI Analysis Button */}
                 <Button
                   onClick={handleAnalyzeMarket}
                   disabled={analyzingMarket || !market?.question}

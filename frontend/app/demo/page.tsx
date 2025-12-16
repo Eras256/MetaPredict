@@ -1125,7 +1125,7 @@ function OracleOperations() {
     priceIsYes,
     priceAmount || '0'
   );
-  const { chains, isLoading: chainsLoading } = useSupportedChains();
+  const { chains, chainsWithDetails, isLoading: chainsLoading } = useSupportedChains();
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -1305,15 +1305,33 @@ function OracleOperations() {
               <Loader2 className="w-8 h-8 animate-spin text-blue-400" />
             </div>
           ) : (
-            <div className="flex flex-wrap gap-2">
+            <div className="space-y-4">
               {chains && chains.length > 0 ? (
-                chains.map((chainId: bigint, index: number) => (
-                  <Badge key={index} variant="outline" className="px-3 py-1">
-                    Chain ID: {chainId.toString()}
-                  </Badge>
-                ))
+                <div className="flex flex-wrap gap-2">
+                  {chainsWithDetails?.map((chain, index: number) => (
+                    <Badge 
+                      key={index} 
+                      variant="outline" 
+                      className="px-3 py-1.5 flex items-center gap-2"
+                    >
+                      <span className="font-semibold">{chain.name}</span>
+                      <span className="text-xs text-gray-400">({chain.chainId})</span>
+                    </Badge>
+                  ))}
+                </div>
               ) : (
-                <p className="text-sm text-gray-400">No chains configured</p>
+                <div className="p-4 bg-yellow-500/10 rounded-lg border border-yellow-500/20 space-y-2">
+                  <p className="text-sm text-yellow-400 font-semibold">⚠️ No hay cadenas configuradas</p>
+                  <p className="text-sm text-gray-400">
+                    El contrato OmniRouter necesita que el owner agregue cadenas soportadas usando la función <code className="text-xs bg-gray-800 px-1 py-0.5 rounded">addChain</code>.
+                  </p>
+                  <p className="text-sm text-gray-400">
+                    Para configurar las cadenas, ejecuta el script:
+                  </p>
+                  <code className="block text-xs bg-gray-900 p-2 rounded mt-2 text-gray-300">
+                    npx hardhat run scripts/configure-omni-router.ts --network opBNBTestnet
+                  </code>
+                </div>
               )}
             </div>
           )}

@@ -40,8 +40,13 @@ export function BettingPanel({ marketId, yesOdds, noOdds, userBalance }: Betting
       // BNB nativo no requiere approval
       await placeBet(marketId, side === 'yes', amount);
       setAmount('');
-    } catch (error) {
-      console.error('Betting error:', error);
+    } catch (error: any) {
+      // El error ya se maneja y muestra en usePlaceBet con toast.error
+      // Solo loguear para debugging si es necesario
+      // No necesitamos hacer nada más aquí porque usePlaceBet ya muestra el error al usuario
+      if (process.env.NODE_ENV === 'development') {
+        console.error('[BettingPanel] Error caught (already handled by usePlaceBet):', error);
+      }
     }
   };
 
