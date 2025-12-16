@@ -43,35 +43,63 @@ const nextConfig = {
       },
     ];
   },
-  webpack: (config, { isServer }) => {
+  webpack: (config, { isServer, webpack }) => {
     // Fix para Thirdweb y ethers
-    if (!isServer) {
-      config.resolve.fallback = {
-        ...config.resolve.fallback,
-        fs: false,
-        net: false,
-        tls: false,
-        crypto: false,
-        stream: false,
-        url: false,
-        zlib: false,
-        http: false,
-        https: false,
-        assert: false,
-        os: false,
-        path: false,
-        // Módulos opcionales de React Native y pino (warnings normales, ignorar)
-        '@react-native-async-storage/async-storage': false,
-        'pino-pretty': false,
-      };
-      
-      // Ignorar warnings de módulos opcionales
-      config.ignoreWarnings = [
-        { module: /@react-native-async-storage\/async-storage/ },
-        { module: /pino-pretty/ },
-      ];
-    }
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      fs: false,
+      net: false,
+      tls: false,
+      crypto: false,
+      stream: false,
+      url: false,
+      zlib: false,
+      http: false,
+      https: false,
+      assert: false,
+      os: false,
+      path: false,
+      // Módulos opcionales de React Native y pino (warnings normales, ignorar)
+      '@react-native-async-storage/async-storage': false,
+      'pino-pretty': false,
+    };
+    
+    // Crear plugins para reemplazar módulos de React Native con stubs
+    config.plugins.push(
+      new webpack.NormalModuleReplacementPlugin(
+        /@react-native-async-storage\/async-storage/,
+        require.resolve('./webpack-stubs/async-storage-stub.js')
+      ),
+      new webpack.NormalModuleReplacementPlugin(
+        /^pino-pretty$/,
+        require.resolve('./webpack-stubs/pino-pretty-stub.js')
+      )
+    );
+    
+    // Ignorar warnings de módulos opcionales de forma más agresiva
+    config.ignoreWarnings = [
+      { module: /@react-native-async-storage\/async-storage/ },
+      { module: /pino-pretty/ },
+      { file: /@react-native-async-storage\/async-storage/ },
+      { file: /pino-pretty/ },
+      // Ignorar warnings de MetaMask SDK
+      { module: /@metamask\/sdk/ },
+      // Ignorar warnings de pino
+      { module: /pino\/lib\/tools/ },
+    ];
+    
     return config;
+  },
+  // Suprimir warnings de compilación en la consola
+  onDemandEntries: {
+    maxInactiveAge: 25 * 1000,
+    pagesBufferLength: 2,
+  },
+  // Logging reducido
+  logging: {
+    fetches: {
+      fullUrl: false,
+    },
   },
 };
 
