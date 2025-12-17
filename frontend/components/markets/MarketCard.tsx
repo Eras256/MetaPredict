@@ -105,10 +105,16 @@ export function MarketCard({ market }: MarketCardProps) {
             </div>
           </div>
 
-          {market.totalVolume !== undefined && (
+          {market.totalVolume !== undefined && market.totalVolume > 0 && (
             <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-white/10">
               <div className="text-xs sm:text-sm text-gray-400">
-                Total Volume: <span className="text-white font-semibold">${market.totalVolume.toLocaleString()}</span>
+                Total Volume: <span className="text-white font-semibold">
+                  ${market.totalVolume < 0.01 
+                    ? market.totalVolume.toFixed(4) 
+                    : market.totalVolume < 1 
+                    ? market.totalVolume.toFixed(2) 
+                    : market.totalVolume.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                </span>
               </div>
             </div>
           )}

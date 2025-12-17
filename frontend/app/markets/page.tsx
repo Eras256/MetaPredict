@@ -229,9 +229,25 @@ Respond with a JSON in this format:
               </div>
             ) : filteredMarkets && filteredMarkets.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                {filteredMarkets.map((market: any) => (
-                  <MarketCard key={market.id} market={market} />
-                ))}
+                {filteredMarkets.map((market: any) => {
+                  // Calcular volumen y odds para cada mercado en tiempo real
+                  const totalPool = Number(market.yesPool || 0) + Number(market.noPool || 0);
+                  const yesOdds = totalPool > 0 ? (Number(market.yesPool || 0) / totalPool) * 100 : 50;
+                  const noOdds = totalPool > 0 ? (Number(market.noPool || 0) / totalPool) * 100 : 50;
+                  const volume = totalPool / 1e18; // Convertir de wei a BNB
+                  
+                  return (
+                    <MarketCard 
+                      key={market.id} 
+                      market={{
+                        ...market,
+                        yesOdds: Math.round(yesOdds),
+                        noOdds: Math.round(noOdds),
+                        totalVolume: volume,
+                      }} 
+                    />
+                  );
+                })}
               </div>
             ) : (
               <GlassCard className="p-8 sm:p-12 text-center">

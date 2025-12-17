@@ -141,6 +141,15 @@ export default function CreateMarketPage() {
     }
     try {
       const resolutionTimestamp = Math.floor(new Date(binaryResolutionTime).getTime() / 1000);
+      const currentTimestamp = Math.floor(Date.now() / 1000);
+      const minResolutionTime = currentTimestamp + 3600 + 300; // 1 hora + 5 minutos buffer
+      
+      if (resolutionTimestamp < minResolutionTime) {
+        const minDate = new Date(minResolutionTime * 1000);
+        toast.error(`Resolution time must be at least 1 hour 5 minutes in the future. Minimum time: ${minDate.toLocaleString()}`);
+        return;
+      }
+      
       await createBinary(binaryQuestion, binaryDescription, resolutionTimestamp, binaryMetadata);
       setBinaryQuestion('');
       setBinaryDescription('');
@@ -205,6 +214,16 @@ export default function CreateMarketPage() {
       const parentResolutionTime = Number(parentMarket.resolutionTime);
       const resolutionTimestamp = Math.floor(new Date(conditionalResolutionTime).getTime() / 1000);
       
+      // Validar que el tiempo sea al menos 1 hora + buffer desde ahora
+      const currentTimestamp = Math.floor(Date.now() / 1000);
+      const minResolutionTime = currentTimestamp + 3600 + 300; // 1 hora + 5 minutos buffer
+      
+      if (resolutionTimestamp < minResolutionTime) {
+        const minDate = new Date(minResolutionTime * 1000);
+        toast.error(`Resolution time must be at least 1 hour 5 minutes in the future. Minimum time: ${minDate.toLocaleString()}`);
+        return;
+      }
+      
       if (resolutionTimestamp <= parentResolutionTime) {
         toast.error(`Resolution time must be after the parent market's resolution time (${new Date(parentResolutionTime * 1000).toLocaleString()}).`);
         return;
@@ -248,6 +267,15 @@ export default function CreateMarketPage() {
     }
     try {
       const resolutionTimestamp = Math.floor(new Date(subjectiveResolutionTime).getTime() / 1000);
+      const currentTimestamp = Math.floor(Date.now() / 1000);
+      const minResolutionTime = currentTimestamp + 3600 + 300; // 1 hora + 5 minutos buffer
+      
+      if (resolutionTimestamp < minResolutionTime) {
+        const minDate = new Date(minResolutionTime * 1000);
+        toast.error(`Resolution time must be at least 1 hour 5 minutes in the future. Minimum time: ${minDate.toLocaleString()}`);
+        return;
+      }
+      
       await createSubjective(
         subjectiveQuestion,
         subjectiveDescription,
@@ -426,7 +454,7 @@ export default function CreateMarketPage() {
                     onChange={(e) => setBinaryResolutionTime(e.target.value)}
                     className="w-full text-xs sm:text-base"
                   />
-                  <p className="mt-1 text-xs sm:text-sm text-gray-500">Must be at least 1 hour in the future</p>
+                  <p className="mt-1 text-xs sm:text-sm text-gray-500">Must be at least 1 hour 5 minutes in the future (to account for blockchain time differences)</p>
                 </div>
 
                 <div>
@@ -516,6 +544,7 @@ export default function CreateMarketPage() {
                     onChange={(e) => setConditionalResolutionTime(e.target.value)}
                     className="w-full text-xs sm:text-base"
                   />
+                  <p className="mt-1 text-xs sm:text-sm text-gray-500">Must be at least 1 hour 5 minutes in the future and after the parent market's resolution time</p>
                 </div>
 
                 <div>
@@ -676,6 +705,7 @@ export default function CreateMarketPage() {
                     onChange={(e) => setSubjectiveResolutionTime(e.target.value)}
                     className="w-full text-xs sm:text-base"
                   />
+                  <p className="mt-1 text-xs sm:text-sm text-gray-500">Must be at least 1 hour 5 minutes in the future (to account for blockchain time differences)</p>
                 </div>
 
                 <div>

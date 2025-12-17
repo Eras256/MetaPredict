@@ -96,13 +96,23 @@ export function usePlaceBet() {
       await waitForReceipt({ client, chain: opBNBTestnet, transactionHash: betHash });
       console.log('✅ Transaction confirmed');
       
+      // Emitir evento personalizado para actualizar la actividad del mercado
+      window.dispatchEvent(new CustomEvent('betPlaced', {
+        detail: {
+          marketId,
+          isYes,
+          amount: amountBigInt.toString(),
+          transactionHash: betHash,
+        },
+      }));
+      
       const txUrl = getTransactionUrl(betHash);
       toast.success(
-        `Apuesta colocada exitosamente! Ver transacción: ${formatTxHash(betHash)}`,
+        `Bet placed successfully! View transaction: ${formatTxHash(betHash)}`,
         {
           duration: 10000,
           action: {
-            label: 'Ver en opBNBScan',
+            label: 'View on opBNBScan',
             onClick: () => window.open(txUrl, '_blank'),
           },
         }
@@ -138,35 +148,35 @@ export function usePlaceBet() {
       const normalizedMessage = errorMessage.toLowerCase();
       
       if (normalizedMessage.includes('only core') || normalizedMessage.includes('onlycore')) {
-        errorMessage = 'Error de configuración: Los contratos no están correctamente vinculados.\n\n';
-        errorMessage += 'El error "Only core" indica que uno de los contratos secundarios (InsurancePool, BinaryMarket, ConditionalMarket, SubjectiveMarket) no tiene configurado correctamente el Core contract.\n\n';
-        errorMessage += 'SOLUCIÓN:\n';
-        errorMessage += '1. Ejecuta el script de configuración:\n';
+        errorMessage = 'Configuration error: Contracts are not properly linked.\n\n';
+        errorMessage += 'The "Only core" error indicates that one of the secondary contracts (InsurancePool, BinaryMarket, ConditionalMarket, SubjectiveMarket) does not have the Core contract properly configured.\n\n';
+        errorMessage += 'SOLUTION:\n';
+        errorMessage += '1. Run the configuration script:\n';
         errorMessage += '   cd smart-contracts\n';
         errorMessage += '   npx hardhat run scripts/fix-contract-config.ts --network opbnb-testnet\n\n';
-        errorMessage += '2. Si el error persiste, verifica que los Market Contracts (BinaryMarket, ConditionalMarket, SubjectiveMarket) fueron desplegados con la dirección correcta del Core.\n';
-        errorMessage += '   Estos contratos tienen coreContract como immutable y no se pueden actualizar después del despliegue.';
+        errorMessage += '2. If the error persists, verify that the Market Contracts (BinaryMarket, ConditionalMarket, SubjectiveMarket) were deployed with the correct Core address.\n';
+        errorMessage += '   These contracts have coreContract as immutable and cannot be updated after deployment.';
         
         if (errorContract) {
-          errorMessage += `\n\nContrato que falló: ${errorContract}`;
+          errorMessage += `\n\nFailed contract: ${errorContract}`;
         }
       } else if (errorMessage.includes('Not active') || errorMessage.includes('not active')) {
-        errorMessage = 'El mercado no está activo. Solo puedes apostar en mercados activos.';
+        errorMessage = 'Market is not active. You can only bet on active markets.';
       } else if (errorMessage.includes('Invalid amount') || errorMessage.includes('invalid amount')) {
-        errorMessage = 'Monto inválido. El monto debe estar entre el mínimo (0.001 BNB) y máximo (100 BNB) permitido.';
+        errorMessage = 'Invalid amount. The amount must be between the minimum (0.001 BNB) and maximum (100 BNB) allowed.';
       } else if (errorMessage.includes('Market expired') || errorMessage.includes('expired')) {
-        errorMessage = 'El mercado ha expirado. No puedes apostar en mercados expirados.';
+        errorMessage = 'Market has expired. You cannot bet on expired markets.';
       } else if (normalizedMessage.includes('user rejected') || normalizedMessage.includes('user rejected')) {
-        errorMessage = 'Transacción rechazada por el usuario';
+        errorMessage = 'Transaction rejected by user';
       } else if (normalizedMessage.includes('insufficient funds') || normalizedMessage.includes('insufficient funds')) {
-        errorMessage = 'Fondos insuficientes. Asegúrate de tener suficiente BNB en tu wallet para la apuesta y el gas.';
+        errorMessage = 'Insufficient funds. Make sure you have enough BNB in your wallet for the bet and gas.';
       } else if (normalizedMessage.includes('execution reverted') || normalizedMessage.includes('revert')) {
         // Intentar extraer el mensaje de revert si está disponible
         const revertReason = errorData || errorInfo.reason;
         if (revertReason) {
           errorMessage = `Error en la transacción: ${revertReason}`;
         } else {
-          errorMessage = 'La transacción fue revertida. Verifica que el mercado esté activo y que tengas fondos suficientes.';
+          errorMessage = 'Transaction was reverted. Verify that the market is active and you have sufficient funds.';
         }
       }
       
@@ -311,6 +321,14 @@ export function useClaimWinnings(marketId: number, marketType: 'binary' | 'condi
       console.log('[ClaimWinnings] Waiting for confirmation...');
       await waitForReceipt({ client, chain: opBNBTestnet, transactionHash: txHash });
       console.log('[ClaimWinnings] Transaction confirmed');
+      
+      // Emitir evento personalizado para actualizar la actividad del mercado
+      window.dispatchEvent(new CustomEvent('winningsClaimed', {
+        detail: {
+          marketId,
+          transactionHash: txHash,
+        },
+      }));
       
       const txUrl = getTransactionUrl(txHash);
       toast.success(

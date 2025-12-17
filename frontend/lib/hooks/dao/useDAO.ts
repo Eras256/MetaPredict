@@ -212,27 +212,27 @@ export function useVoteOnProposal() {
         // Verificar que la propuesta existe (el ID debe ser mayor a 0)
         const proposalIdFromContract = Number(proposalData[0]);
         if (!proposalIdFromContract || proposalIdFromContract === 0 || proposalIdFromContract !== proposalId) {
-          throw new Error(`La propuesta #${proposalId} no existe en el contrato`);
+          throw new Error(`Proposal #${proposalId} does not exist in the contract`);
         }
 
         const proposalStatus = Number(proposalData[8]);
         
         // Verificar que la propuesta esté en estado Active (1)
         if (proposalStatus !== ProposalStatus.Active) {
-          const statusLabel = ProposalStatusLabels[proposalStatus] || 'Desconocido';
-          throw new Error(`La propuesta #${proposalId} no está activa. Estado actual: ${statusLabel}. Solo puedes votar en propuestas con estado Active.`);
+          const statusLabel = ProposalStatusLabels[proposalStatus] || 'Unknown';
+          throw new Error(`Proposal #${proposalId} is not active. Current status: ${statusLabel}. You can only vote on proposals with Active status.`);
         }
 
         // Verificar que no haya sido ejecutada
         if (proposalData[9] === true) {
-          throw new Error('Esta propuesta ya ha sido ejecutada');
+          throw new Error('This proposal has already been executed');
         }
       } catch (validationError: any) {
         // Si es un error de validación personalizado, mostrarlo y no continuar
         if (validationError.message && 
-            (validationError.message.includes('no existe') || 
-             validationError.message.includes('no está activa') || 
-             validationError.message.includes('ya ha sido ejecutada'))) {
+            (validationError.message.includes('does not exist') || 
+             validationError.message.includes('is not active') || 
+             validationError.message.includes('already been executed'))) {
           toast.error(validationError.message);
           throw validationError;
         }
@@ -259,11 +259,11 @@ export function useVoteOnProposal() {
       }, 3000);
       
       toast.success(
-        `Voto emitido exitosamente! Ver transacción: ${formatTxHash(txHash)}`,
+        `Vote cast successfully! View transaction: ${formatTxHash(txHash)}`,
         {
           duration: 10000,
           action: {
-            label: 'Ver en opBNBScan',
+            label: 'View on opBNBScan',
             onClick: () => window.open(txUrl, '_blank'),
           },
         }
@@ -277,13 +277,13 @@ export function useVoteOnProposal() {
       let errorMessage = error?.message || 'Error casting vote';
       
       if (errorMessage.includes('Not active')) {
-        errorMessage = 'La propuesta no está activa. Solo puedes votar en propuestas con estado Active.';
+        errorMessage = 'Proposal is not active. You can only vote on proposals with Active status.';
       } else if (errorMessage.includes('Voting ended')) {
-        errorMessage = 'El período de votación ha terminado para esta propuesta.';
+        errorMessage = 'Voting period has ended for this proposal.';
       } else if (errorMessage.includes('Already voted')) {
-        errorMessage = 'Ya has votado en esta propuesta.';
+        errorMessage = 'You have already voted on this proposal.';
       } else if (errorMessage.includes('No voting power')) {
-        errorMessage = 'No tienes poder de voto suficiente. Necesitas tener BNB en el contrato.';
+        errorMessage = 'You do not have sufficient voting power. You need to have BNB in the contract.';
       }
       
       toast.error(errorMessage);
@@ -336,11 +336,11 @@ export function useExecuteProposal() {
       
       const txUrl = getTransactionUrl(txHash);
       toast.success(
-        `Propuesta ejecutada exitosamente! Ver transacción: ${formatTxHash(txHash)}`,
+        `Proposal executed successfully! View transaction: ${formatTxHash(txHash)}`,
         {
           duration: 10000,
           action: {
-            label: 'Ver en opBNBScan',
+            label: 'View on opBNBScan',
             onClick: () => window.open(txUrl, '_blank'),
           },
         }

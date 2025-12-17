@@ -58,7 +58,7 @@ export async function testGeminiConnection(): Promise<ApiResponse<{ response: st
   } catch (error: any) {
     return {
       success: false,
-      error: error.message || 'Error al conectar con Gemini',
+      error: error.message || 'Error connecting to Gemini',
     };
   }
 }
@@ -109,13 +109,13 @@ export async function analyzeMarket(
   } catch (error: any) {
     console.error('[Gemini Client] Error en analyzeMarket:', error);
     
-    let userMessage = error.message || 'Error al analizar mercado';
+    let userMessage = error.message || 'Error analyzing market';
     if (userMessage.includes('timeout')) {
-      userMessage = 'La solicitud tardó demasiado. Por favor, intenta de nuevo.';
+      userMessage = 'Request timed out. Please try again.';
     } else if (userMessage.includes('Network error')) {
-      userMessage = 'Error de conexión. Verifica tu conexión a internet.';
+      userMessage = 'Connection error. Please check your internet connection.';
     } else if (userMessage.includes('API key')) {
-      userMessage = '⚠️ API Key de Gemini no configurada. Verifica tu archivo .env';
+      userMessage = '⚠️ Gemini API Key not configured. Check your .env file';
     }
     
     return {
@@ -178,13 +178,15 @@ export async function suggestMarketCreation(
     console.error('[Gemini Client] Error en suggestMarketCreation:', error);
     
     // Mensajes de error más amigables para el usuario
-    let userMessage = error.message || 'Error al generar sugerencias';
+    let userMessage = error.message || 'Error generating suggestions';
     if (userMessage.includes('timeout')) {
-      userMessage = 'La solicitud tardó demasiado. Por favor, intenta de nuevo.';
+      userMessage = 'Request timed out. Please try again.';
     } else if (userMessage.includes('Network error')) {
-      userMessage = 'Error de conexión. Verifica tu conexión a internet.';
+      userMessage = 'Connection error. Please check your internet connection.';
     } else if (userMessage.includes('API key')) {
-      userMessage = '⚠️ API Key de Gemini no configurada. Verifica tu archivo .env';
+      userMessage = '⚠️ Gemini API Key not configured. Check your .env file';
+    } else if (userMessage.includes('parsing') || userMessage.includes('parse')) {
+      userMessage = 'Error parsing AI response. Please try again.';
     }
     
     return {
@@ -274,13 +276,13 @@ export async function analyzePortfolioRebalance(
   } catch (error: any) {
     console.error('[Gemini Client] Error en analyzePortfolioRebalance:', error);
     
-    let userMessage = error.message || 'Error al analizar portfolio';
+    let userMessage = error.message || 'Error analyzing portfolio';
     if (userMessage.includes('timeout')) {
-      userMessage = 'La solicitud tardó demasiado. Por favor, intenta de nuevo.';
+      userMessage = 'Request timed out. Please try again.';
     } else if (userMessage.includes('Network error')) {
-      userMessage = 'Error de conexión. Verifica tu conexión a internet.';
+      userMessage = 'Connection error. Please check your internet connection.';
     } else if (userMessage.includes('API key')) {
-      userMessage = '⚠️ API Key de Gemini no configurada. Verifica tu archivo .env';
+      userMessage = '⚠️ Gemini API Key not configured. Check your .env file';
     }
     
     return {
@@ -315,7 +317,7 @@ export async function analyzeReputation(
   } catch (error: any) {
     return {
       success: false,
-      error: error.message || 'Error al analizar reputación',
+      error: error.message || 'Error analyzing reputation',
     };
   }
 }
@@ -345,7 +347,7 @@ export async function analyzeInsuranceRisk(
   } catch (error: any) {
     return {
       success: false,
-      error: error.message || 'Error al analizar riesgo',
+      error: error.message || 'Error analyzing risk',
     };
   }
 }
@@ -376,7 +378,7 @@ export async function analyzeDAOProposal(
   } catch (error: any) {
     return {
       success: false,
-      error: error.message || 'Error al analizar propuesta',
+      error: error.message || 'Error analyzing proposal',
     };
   }
 }
@@ -403,7 +405,7 @@ export async function callGemini(
   } catch (error: any) {
     return {
       success: false,
-      error: error.message || 'Error al llamar a Gemini',
+      error: error.message || 'Error calling Gemini',
     };
   }
 }

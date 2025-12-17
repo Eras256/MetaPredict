@@ -64,11 +64,11 @@ export function useBetting() {
       // ✅ Mostrar toast con enlace al scanner
       const txUrl = getTransactionUrl(txHash);
       toast.success(
-        `Apuesta colocada exitosamente! Ver transacción: ${formatTxHash(txHash)}`,
+        `Bet placed successfully! View transaction: ${formatTxHash(txHash)}`,
         {
           duration: 10000,
           action: {
-            label: 'Ver en opBNBScan',
+            label: 'View on opBNBScan',
             onClick: () => window.open(txUrl, '_blank'),
           },
         }
@@ -109,11 +109,11 @@ export function useBetting() {
       // ✅ Mostrar toast con enlace al scanner
       const txUrl = getTransactionUrl(txHash);
       toast.success(
-        `Ganancias reclamadas exitosamente! Ver transacción: ${formatTxHash(txHash)}`,
+        `Winnings claimed successfully! View transaction: ${formatTxHash(txHash)}`,
         {
           duration: 10000,
           action: {
-            label: 'Ver en opBNBScan',
+            label: 'View on opBNBScan',
             onClick: () => window.open(txUrl, '_blank'),
           },
         }

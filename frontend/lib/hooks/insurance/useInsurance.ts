@@ -230,11 +230,11 @@ export function useInsurance() {
       
       const txUrl = getTransactionUrl(txHash);
       toast.success(
-        `Reclamo de seguro exitoso! Ver transacción: ${formatTxHash(txHash)}`,
+        `Insurance claim successful! View transaction: ${formatTxHash(txHash)}`,
         {
           duration: 10000,
           action: {
-            label: 'Ver en opBNBScan',
+            label: 'View on opBNBScan',
             onClick: () => window.open(txUrl, '_blank'),
           },
         }

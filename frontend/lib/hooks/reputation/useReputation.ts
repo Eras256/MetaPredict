@@ -194,11 +194,11 @@ export function useStakeReputation() {
       console.log('✅ Transaction confirmed');
       const txUrl = getTransactionUrl(txHash);
       toast.success(
-        `Stake exitoso! Ver transacción: ${formatTxHash(txHash)}`,
+        `Stake successful! View transaction: ${formatTxHash(txHash)}`,
         {
           duration: 10000,
           action: {
-            label: 'Ver en opBNBScan',
+            label: 'View on opBNBScan',
             onClick: () => window.open(txUrl, '_blank'),
           },
         }
@@ -218,15 +218,15 @@ export function useStakeReputation() {
       let errorMessage = error?.message || 'Error staking';
       
       if (errorMessage.includes('Only core') || errorMessage.includes('only core')) {
-        errorMessage = 'Error: El contrato Core no está configurado correctamente en ReputationStaking. Por favor, verifica la configuración del contrato.';
+        errorMessage = 'Error: Core contract is not properly configured in ReputationStaking. Please verify the contract configuration.';
       } else if (errorMessage.includes('Amount must be > 0') || errorMessage.includes('amount must be')) {
-        errorMessage = 'El monto debe ser mayor que 0';
+        errorMessage = 'Amount must be greater than 0';
       } else if (errorMessage.includes('Below min stake') || errorMessage.includes('below min')) {
-        errorMessage = 'El monto está por debajo del mínimo requerido (0.1 BNB)';
+        errorMessage = 'Amount is below the minimum required (0.1 BNB)';
       } else if (errorMessage.includes('user rejected') || errorMessage.includes('User rejected')) {
-        errorMessage = 'Transacción rechazada por el usuario';
+        errorMessage = 'Transaction rejected by user';
       } else if (errorMessage.includes('insufficient funds') || errorMessage.includes('Insufficient funds')) {
-        errorMessage = 'Fondos insuficientes. Asegúrate de tener suficiente BNB en tu wallet.';
+        errorMessage = 'Insufficient funds. Make sure you have enough BNB in your wallet.';
       }
       
       toast.error(errorMessage);

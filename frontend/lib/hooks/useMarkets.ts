@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { readContract } from 'thirdweb';
 import { defineChain } from 'thirdweb/chains';
 import { getContract } from 'thirdweb';
@@ -6,6 +6,7 @@ import { CONTRACT_ADDRESSES } from '@/lib/contracts/addresses';
 import PREDICTION_MARKET_CORE_ABI from '@/lib/contracts/abi/PredictionMarketCore.json';
 import BINARY_MARKET_ABI from '@/lib/contracts/abi/BinaryMarket.json';
 import { client } from '@/lib/config/thirdweb';
+import { MARKET_STATUS } from '@/lib/config/constants';
 
 // ✅ FIX #7: Configurar opBNB testnet para Thirdweb
 const opBNBTestnet = defineChain({
@@ -21,6 +22,7 @@ const opBNBTestnet = defineChain({
 
 export interface Market {
   id: number;
+  marketType: number; // 0=Binary, 1=Conditional, 2=Subjective
   question: string;
   description: string;
   creator: string;
@@ -214,7 +216,7 @@ export function useMarkets() {
     }
   }, [marketCounter, contract]);
 
-  // Escuchar eventos de creación de mercados
+  // Escuchar eventos de creación de mercados y apuestas
   useEffect(() => {
     if (!contract) return;
     
@@ -228,10 +230,49 @@ export function useMarkets() {
       }, 2000); // Esperar 2 segundos para que el bloque se confirme
     };
 
+    const handleBetPlaced = async (event: CustomEvent) => {
+      // Actualizar mercados cuando se coloca una apuesta para reflejar nuevo volumen
+      const eventMarketId = event.detail?.marketId;
+      if (eventMarketId) {
+        console.log(`📢 Bet placed on market #${eventMarketId}, refreshing markets...`);
+        setTimeout(async () => {
+          await fetchMarkets();
+        }, 2000); // Esperar confirmación del bloque
+      }
+    };
+
+    const handleWinningsClaimed = async (event: CustomEvent) => {
+      // Actualizar cuando se reclaman ganancias
+      const eventMarketId = event.detail?.marketId;
+      if (eventMarketId) {
+        console.log(`📢 Winnings claimed on market #${eventMarketId}, refreshing markets...`);
+        setTimeout(async () => {
+          await fetchMarkets();
+        }, 2000);
+      }
+    };
+
     window.addEventListener('marketCreated', handleMarketCreated);
+    window.addEventListener('betPlaced' as any, handleBetPlaced);
+    window.addEventListener('winningsClaimed' as any, handleWinningsClaimed);
+    
     return () => {
       window.removeEventListener('marketCreated', handleMarketCreated);
+      window.removeEventListener('betPlaced' as any, handleBetPlaced);
+      window.removeEventListener('winningsClaimed' as any, handleWinningsClaimed);
     };
+  }, [contract, marketCounter]);
+  
+  // Auto-refresh activo cada 10 segundos para actualizar volumen y participantes
+  useEffect(() => {
+    if (!contract || marketCounter === null) return;
+    
+    const refreshInterval = setInterval(() => {
+      console.log('🔄 Auto-refreshing markets for real-time volume updates...');
+      fetchMarkets();
+    }, 10000); // 10 segundos para actualizaciones en tiempo real
+    
+    return () => clearInterval(refreshInterval);
   }, [contract, marketCounter]);
 
   // Función para refrescar manualmente
@@ -258,28 +299,194 @@ export function useMarket(marketId: number) {
     });
   }, []);
 
-  useEffect(() => {
-    if (contract) {
-      const fetchMarket = async () => {
-        try {
-          setLoading(true);
+  const fetchMarket = useCallback(async () => {
+    if (!contract) return;
+    
+    try {
+      setLoading(true);
+      // Obtener MarketInfo del Core contract
+      const marketInfo = await readContract({
+        contract,
+        method: 'getMarket',
+        params: [BigInt(marketId)],
+      });
+      
+      // Obtener el contrato del mercado específico para datos completos
+      try {
+        const marketContractAddress = await readContract({
+          contract,
+          method: 'getMarketContract',
+          params: [BigInt(marketId)],
+        });
+        
+        if (marketContractAddress && marketContractAddress !== '0x0000000000000000000000000000000000000000') {
+          const marketContract = getContract({
+            client,
+            chain: opBNBTestnet,
+            address: marketContractAddress as `0x${string}`,
+            abi: BINARY_MARKET_ABI as any,
+          });
+          
+          // Obtener datos completos del mercado (incluyendo pools)
           const marketData = await readContract({
-            contract,
+            contract: marketContract,
             method: 'getMarket',
             params: [BigInt(marketId)],
           });
-          setMarket(marketData as Market);
-        } catch (error) {
-          console.error('Error fetching market:', error);
-          setMarket(null);
-        } finally {
-          setLoading(false);
+          
+          // Combinar MarketInfo del Core con datos del contrato específico
+          const fullMarket: Market = {
+            id: marketId,
+            marketType: Number(marketInfo.marketType),
+            creator: marketInfo.creator,
+            createdAt: Number(marketInfo.createdAt),
+            resolutionTime: Number(marketInfo.resolutionTime),
+            status: Number(marketInfo.status),
+            metadata: marketInfo.metadata,
+            question: marketData.question || marketInfo.metadata || `Market ${marketId}`,
+            description: marketData.description || '',
+            totalYesShares: marketData.totalYesShares || BigInt(0),
+            totalNoShares: marketData.totalNoShares || BigInt(0),
+            yesPool: marketData.yesPool || BigInt(0),
+            noPool: marketData.noPool || BigInt(0),
+            insuranceReserve: BigInt(0),
+            outcome: marketData.outcome || 0,
+            pythPriceId: BigInt(0),
+          };
+          
+          setMarket(fullMarket);
+        } else {
+          // Si no hay contrato específico, usar solo MarketInfo
+          setMarket({
+            id: marketId,
+            marketType: Number(marketInfo.marketType),
+            creator: marketInfo.creator,
+            createdAt: Number(marketInfo.createdAt),
+            resolutionTime: Number(marketInfo.resolutionTime),
+            status: Number(marketInfo.status),
+            metadata: marketInfo.metadata,
+            question: marketInfo.metadata || `Market ${marketId}`,
+            description: '',
+            totalYesShares: BigInt(0),
+            totalNoShares: BigInt(0),
+            yesPool: BigInt(0),
+            noPool: BigInt(0),
+            insuranceReserve: BigInt(0),
+            outcome: 0,
+            pythPriceId: BigInt(0),
+          } as Market);
         }
-      };
-      
-      fetchMarket();
+      } catch (error) {
+        console.warn('Error fetching market contract data:', error);
+        // Fallback a solo MarketInfo
+        setMarket({
+          id: marketId,
+          marketType: Number(marketInfo.marketType),
+          creator: marketInfo.creator,
+          createdAt: Number(marketInfo.createdAt),
+          resolutionTime: Number(marketInfo.resolutionTime),
+          status: Number(marketInfo.status),
+          metadata: marketInfo.metadata,
+          question: marketInfo.metadata || `Market ${marketId}`,
+          description: '',
+          totalYesShares: BigInt(0),
+          totalNoShares: BigInt(0),
+          yesPool: BigInt(0),
+          noPool: BigInt(0),
+          insuranceReserve: BigInt(0),
+          outcome: 0,
+          pythPriceId: BigInt(0),
+        } as Market);
+      }
+    } catch (error) {
+      console.error('Error fetching market:', error);
+      setMarket(null);
+    } finally {
+      setLoading(false);
     }
   }, [contract, marketId]);
 
-  return { market, loading };
+  // Fetch inicial
+  useEffect(() => {
+    if (contract) {
+      fetchMarket();
+    }
+  }, [contract, marketId, fetchMarket]);
+
+  // Polling automático cuando el mercado está activo o resolviendo
+  useEffect(() => {
+    if (!market) return;
+    
+    // Poll automáticamente si el mercado está activo o resolviendo
+    const shouldPoll = market.status === MARKET_STATUS.ACTIVE || market.status === MARKET_STATUS.RESOLVING;
+    
+    if (!shouldPoll) return;
+
+    console.log(`🔄 Market #${marketId} is ${market.status === MARKET_STATUS.ACTIVE ? 'active' : 'resolving'}, starting polling...`);
+    
+    // Poll cada 30 segundos para actualizar volumen y participantes en tiempo real
+    const pollInterval = setInterval(() => {
+      console.log(`🔄 Polling market #${marketId} for real-time updates...`);
+      fetchMarket();
+    }, 30000); // 30 segundos para actualizaciones en tiempo real
+
+    return () => {
+      console.log(`⏹️ Stopping polling for market #${marketId}`);
+      clearInterval(pollInterval);
+    };
+  }, [market?.status, marketId, fetchMarket]);
+
+  // Escuchar eventos personalizados de window para actualizaciones en tiempo real
+  useEffect(() => {
+    const handleBetPlaced = (event: CustomEvent) => {
+      const eventMarketId = event.detail?.marketId;
+      if (eventMarketId === marketId) {
+        console.log(`📢 Market #${marketId} bet placed event received, refetching...`);
+        // Refetch inmediatamente para actualizar volumen y participantes
+        fetchMarket();
+        setTimeout(() => fetchMarket(), 2000); // Refetch después de confirmación
+      }
+    };
+
+    const handleWinningsClaimed = (event: CustomEvent) => {
+      const eventMarketId = event.detail?.marketId;
+      if (eventMarketId === marketId) {
+        console.log(`📢 Market #${marketId} winnings claimed event received, refetching...`);
+        fetchMarket();
+        setTimeout(() => fetchMarket(), 2000);
+      }
+    };
+
+    const handleResolutionInitiated = (event: CustomEvent) => {
+      const eventMarketId = event.detail?.marketId;
+      if (eventMarketId === marketId) {
+        console.log(`📢 Market #${marketId} resolution initiated event received, refetching...`);
+        fetchMarket();
+        setTimeout(() => fetchMarket(), 2000);
+      }
+    };
+
+    const handleMarketResolved = (event: CustomEvent) => {
+      const eventMarketId = event.detail?.marketId;
+      if (eventMarketId === marketId) {
+        console.log(`📢 Market #${marketId} resolved event received, refetching...`);
+        fetchMarket();
+        setTimeout(() => fetchMarket(), 2000);
+      }
+    };
+
+    window.addEventListener('betPlaced' as any, handleBetPlaced);
+    window.addEventListener('winningsClaimed' as any, handleWinningsClaimed);
+    window.addEventListener('marketResolutionInitiated' as any, handleResolutionInitiated);
+    window.addEventListener('marketResolved' as any, handleMarketResolved);
+
+    return () => {
+      window.removeEventListener('betPlaced' as any, handleBetPlaced);
+      window.removeEventListener('winningsClaimed' as any, handleWinningsClaimed);
+      window.removeEventListener('marketResolutionInitiated' as any, handleResolutionInitiated);
+      window.removeEventListener('marketResolved' as any, handleMarketResolved);
+    };
+  }, [marketId, fetchMarket]);
+
+  return { market, loading, refetch: fetchMarket };
 }

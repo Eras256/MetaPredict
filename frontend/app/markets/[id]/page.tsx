@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { GlassCard } from '@/components/effects/GlassCard';
-import { ArrowLeft, Clock, Users, TrendingUp, Shield, Brain, ExternalLink, Loader2, Zap } from 'lucide-react';
+import { ArrowLeft, Clock, Users, TrendingUp, TrendingDown, Shield, Brain, ExternalLink, Loader2, Zap, CheckCircle2, XCircle, DollarSign } from 'lucide-react';
 import Link from 'next/link';
 import { formatDistanceToNow, format } from 'date-fns';
 import { MARKET_STATUS, MARKET_TYPES } from '@/lib/config/constants';
@@ -16,21 +16,73 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useActiveAccount } from 'thirdweb/react';
 import { analyzeMarket } from '@/lib/services/ai/gemini';
 import { toast } from 'sonner';
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useBNBBalance } from '@/lib/hooks/useBNBBalance';
 import { formatModelName } from '@/lib/utils/model-formatter';
 import { useInitiateResolution } from '@/lib/hooks/markets/useCreateMarket';
+import { useMarketActivity } from '@/lib/hooks/useMarketActivity';
 
 
 export default function MarketDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const marketId = parseInt(id);
-  const { market, loading: isLoading } = useMarket(marketId);
+  const { market, loading: isLoading, refetch: refetchMarket } = useMarket(marketId);
   const account = useActiveAccount();
   const { balance: userBalance } = useBNBBalance();
   const [analyzingMarket, setAnalyzingMarket] = useState(false);
   const [marketAnalysis, setMarketAnalysis] = useState<any>(null);
   const { initiateResolution, isPending: isInitiatingResolution } = useInitiateResolution();
+  const { activities, loading: activitiesLoading } = useMarketActivity(marketId);
+  
+  // Calcular número de participantes únicos basado en actividades
+  // Si hay volumen pero no actividades, estimamos que hay al menos 1 participante
+  const participantsCount = useMemo(() => {
+    const totalPool = market ? Number(market.yesPool) + Number(market.noPool) : 0;
+    const hasVolume = totalPool > 0;
+    
+    if (!activities || activities.length === 0) {
+      // Si hay volumen pero no actividades cargadas aún, retornar al menos 1
+      return hasVolume ? 1 : 0;
+    }
+    
+    const uniqueParticipants = new Set<string>();
+    activities.forEach((activity) => {
+      if (activity.user && (activity.type === 'bet' || activity.type === 'claim')) {
+        uniqueParticipants.add(activity.user.toLowerCase());
+      }
+    });
+    
+    // Si hay volumen pero el conteo de participantes es 0, asegurar al menos 1
+    const count = uniqueParticipants.size;
+    return hasVolume && count === 0 ? 1 : count;
+  }, [activities, market]);
+
+  // Refetch actividad cuando se actualiza el mercado
+  useEffect(() => {
+    if (market) {
+      // El hook useMarketActivity ya se actualiza automáticamente cada 10 segundos
+      // pero también podemos forzar un refresh cuando el mercado cambia
+    }
+  }, [market]);
+
+  // Escuchar cuando se completa la resolución manualmente
+  useEffect(() => {
+    const handleMarketResolved = (event: CustomEvent) => {
+      const eventMarketId = event.detail?.marketId;
+      if (eventMarketId === marketId) {
+        console.log(`✅ Market #${marketId} resolved! Refetching...`);
+        refetchMarket();
+        toast.success(`Market #${marketId} has been resolved!`, {
+          duration: 5000,
+        });
+      }
+    };
+
+    window.addEventListener('marketResolved' as any, handleMarketResolved);
+    return () => {
+      window.removeEventListener('marketResolved' as any, handleMarketResolved);
+    };
+  }, [marketId, refetchMarket]);
 
   const handleAnalyzeMarket = async () => {
     if (!market?.question) {
@@ -171,7 +223,7 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                     <Users className="w-3 h-3 sm:w-4 sm:h-4" />
                     <span className="truncate">Participants</span>
                   </div>
-                  <div className="text-white font-semibold text-sm sm:text-base">0</div>
+                  <div className="text-white font-semibold text-sm sm:text-base">{participantsCount}</div>
                 </div>
 
                 <div className="p-3 sm:p-4 rounded-lg bg-purple-500/5 border border-purple-500/10">
@@ -179,7 +231,9 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                     <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4" />
                     <span className="truncate">Volume</span>
                   </div>
-                  <div className="text-white font-semibold text-sm sm:text-base">$0</div>
+                  <div className="text-white font-semibold text-sm sm:text-base">
+                    {market ? `$${((Number(market.yesPool || 0) + Number(market.noPool || 0)) / 1e18).toFixed(2)}` : '$0.00'}
+                  </div>
                 </div>
 
                 <div className="p-3 sm:p-4 rounded-lg bg-purple-500/5 border border-purple-500/10">
@@ -206,9 +260,12 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                     onClick={async () => {
                       try {
                         await initiateResolution(marketId);
-                        toast.success('Resolution initiated! The AI Oracle will process it shortly.');
+                        // Refetch inmediatamente después de iniciar la resolución
+                        setTimeout(() => {
+                          refetchMarket();
+                        }, 2000);
                       } catch (error: any) {
-                        toast.error(error?.message || 'Failed to initiate resolution');
+                        // Error already handled by hook
                       }
                     }}
                     disabled={isInitiatingResolution}
@@ -226,6 +283,22 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                       </>
                     )}
                   </Button>
+                )}
+
+                {/* Show Resolving status with auto-refresh indicator */}
+                {isResolving && (
+                  <div className="w-full p-4 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin text-yellow-400" />
+                        <span className="text-yellow-400 font-semibold">Resolving...</span>
+                      </div>
+                      <span className="text-xs text-gray-400">Auto-refreshing every 3s</span>
+                    </div>
+                    <p className="text-sm text-gray-400 mt-2">
+                      The AI Oracle is processing the resolution. This page will update automatically when complete.
+                    </p>
+                  </div>
                 )}
                 
                 {/* AI Analysis Button */}
@@ -286,9 +359,119 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                 <GlassCard className="p-6">
                   <h3 className="text-lg font-semibold text-white mb-4">Recent Activity</h3>
                   <div className="space-y-4">
-                    <div className="text-center py-12 text-gray-400">
-                      No activity yet. Be the first to bet!
-                    </div>
+                    {activitiesLoading ? (
+                      <div className="text-center py-12 text-gray-400">
+                        <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2" />
+                        Loading activity...
+                      </div>
+                    ) : activities.length === 0 ? (
+                      <div className="text-center py-12 text-gray-400">
+                        No activity yet. Be the first to bet!
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {activities.map((activity) => (
+                          <div
+                            key={activity.id}
+                            className="p-4 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-colors"
+                          >
+                            <div className="flex items-start justify-between gap-4">
+                              <div className="flex items-start gap-3 flex-1 min-w-0">
+                                {activity.type === 'bet' && (
+                                  <div className={`p-2 rounded-lg ${
+                                    activity.isYes 
+                                      ? 'bg-green-500/20 text-green-400' 
+                                      : 'bg-red-500/20 text-red-400'
+                                  }`}>
+                                    {activity.isYes ? (
+                                      <TrendingUp className="w-4 h-4" />
+                                    ) : (
+                                      <TrendingDown className="w-4 h-4" />
+                                    )}
+                                  </div>
+                                )}
+                                {activity.type === 'resolution' && (
+                                  <div className="p-2 rounded-lg bg-blue-500/20 text-blue-400">
+                                    <CheckCircle2 className="w-4 h-4" />
+                                  </div>
+                                )}
+                                {activity.type === 'claim' && (
+                                  <div className="p-2 rounded-lg bg-purple-500/20 text-purple-400">
+                                    <DollarSign className="w-4 h-4" />
+                                  </div>
+                                )}
+                                {activity.type === 'resolution_initiated' && (
+                                  <div className="p-2 rounded-lg bg-yellow-500/20 text-yellow-400">
+                                    <Clock className="w-4 h-4" />
+                                  </div>
+                                )}
+                                
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <span className="text-sm font-semibold text-white">
+                                      {activity.type === 'bet' && (
+                                        <>
+                                          {activity.isYes ? 'YES' : 'NO'} Bet Placed
+                                        </>
+                                      )}
+                                      {activity.type === 'resolution' && (
+                                        <>
+                                          Market Resolved: {
+                                            activity.outcome === 1 ? 'YES' :
+                                            activity.outcome === 2 ? 'NO' :
+                                            'INVALID'
+                                          }
+                                        </>
+                                      )}
+                                      {activity.type === 'claim' && (
+                                        <>Winnings Claimed</>
+                                      )}
+                                      {activity.type === 'resolution_initiated' && (
+                                        <>Resolution Initiated</>
+                                      )}
+                                    </span>
+                                  </div>
+                                  
+                                  {activity.user && (
+                                    <div className="text-xs text-gray-400 mb-1">
+                                      {activity.user.slice(0, 6)}...{activity.user.slice(-4)}
+                                    </div>
+                                  )}
+                                  
+                                  {activity.amount && (
+                                    <div className="text-sm text-gray-300">
+                                      Amount: {(Number(activity.amount) / 1e18).toFixed(4)} BNB
+                                      {activity.shares && (
+                                        <span className="text-gray-500 ml-2">
+                                          ({Number(activity.shares) / 1e18} shares)
+                                        </span>
+                                      )}
+                                    </div>
+                                  )}
+                                  
+                                  <div className="flex items-center gap-2 mt-2">
+                                    <span className="text-xs text-gray-500">
+                                      {formatDistanceToNow(new Date(activity.timestamp * 1000), { addSuffix: true })}
+                                    </span>
+                                    {activity.transactionHash && (
+                                      <a
+                                        href={`https://testnet.opbnbscan.com/tx/${activity.transactionHash}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-xs text-purple-400 hover:text-purple-300 flex items-center gap-1"
+                                      >
+                                        View TX
+                                        <ExternalLink className="w-3 h-3" />
+                                      </a>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </GlassCard>
               </TabsContent>

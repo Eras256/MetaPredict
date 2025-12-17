@@ -17,13 +17,15 @@ const genAI = GEMINI_API_KEY
   ? new GoogleGenerativeAI(GEMINI_API_KEY)
   : null;
 
-// Modelos en orden de preferencia con fallback (gemini-2.5-flash es el principal)
+// Modelos en orden de preferencia con fallback
+// Flash-Lite primero: más rápido, más barato (71% ahorro), suficiente calidad para mercados de predicción
 const modelsToTry = [
-  'gemini-2.5-flash',
-  'gemini-2.5-pro',
-  'gemini-2.0-flash',
-  'gemini-1.5-flash',
-  'gemini-1.5-pro',
+  'gemini-2.5-flash-lite',  // ✅ PRIMERO: Más rápido y económico (prueba completada 17/12/2025)
+  'gemini-2.5-flash',        // Fallback: Si Flash-Lite falla
+  'gemini-2.5-pro',          // Fallback: Modelo más potente
+  'gemini-2.0-flash',         // Fallback: Versión anterior
+  'gemini-1.5-flash',         // Fallback: Versión legacy
+  'gemini-1.5-pro',           // Fallback: Versión legacy pro
 ];
 
 export interface GeminiResponse<T = any> {
@@ -320,7 +322,7 @@ Be precise and objective. Answer INVALID if the question is ambiguous, unverifia
     prompt,
     {
       temperature: 0.4,
-      maxOutputTokens: 256,
+      maxOutputTokens: 512, // Increase tokens to prevent truncation (was 256)
     }
   );
 }
@@ -358,7 +360,7 @@ Remember: Return ONLY the JSON object, nothing else. No markdown, no code blocks
     prompt,
     {
       temperature: 0.7,
-      maxOutputTokens: 2048, // Increase tokens for more detailed suggestions
+      maxOutputTokens: 4096, // Increase tokens to prevent JSON truncation (was 2048)
     }
   );
 }
@@ -390,7 +392,9 @@ ${JSON.stringify(positionsSummary, null, 2)}
 Constraints:
 ${constraints ? JSON.stringify(constraints, null, 2) : 'None specified'}
 
-Provide a structured JSON response:
+CRITICAL: You MUST respond with ONLY a valid JSON object. Do NOT include markdown code blocks, backticks, or any other formatting. Only the raw JSON object.
+
+Required JSON format (respond with exactly this structure):
 {
   "riskScore": 0-100,
   "allocations": [
@@ -404,7 +408,9 @@ Provide a structured JSON response:
   "confidence": 0-100
 }
 
-Consider diversification, risk concentration, market maturity, and liquidity.`;
+Consider diversification, risk concentration, market maturity, and liquidity.
+
+Remember: Return ONLY the JSON object, nothing else. No markdown, no code blocks, no explanations.`;
 
   return callGeminiJSON<{
     riskScore: number;
@@ -413,7 +419,7 @@ Consider diversification, risk concentration, market maturity, and liquidity.`;
     confidence: number;
   }>(prompt, {
     temperature: 0.5,
-    maxOutputTokens: 2048, // Aumentar tokens para análisis más detallados
+    maxOutputTokens: 4096, // Increase tokens to prevent JSON truncation (was 2048)
   });
 }
 
@@ -433,7 +439,9 @@ export async function analyzeReputation(
 User Data:
 ${JSON.stringify(userData, null, 2)}
 
-Provide a structured JSON response:
+CRITICAL: You MUST respond with ONLY a valid JSON object. Do NOT include markdown code blocks, backticks, or any other formatting. Only the raw JSON object.
+
+Required JSON format:
 {
   "reputationScore": 0-100,
   "riskLevel": "low" | "medium" | "high",
@@ -441,7 +449,9 @@ Provide a structured JSON response:
   "confidence": 0-100
 }
 
-Consider accuracy, consistency, stake size, and slashing history.`;
+Consider accuracy, consistency, stake size, and slashing history.
+
+Remember: Return ONLY the JSON object, nothing else. No markdown, no code blocks, no explanations.`;
 
   return callGeminiJSON<{
     reputationScore: number;
@@ -450,7 +460,7 @@ Consider accuracy, consistency, stake size, and slashing history.`;
     confidence: number;
   }>(prompt, {
     temperature: 0.4,
-    maxOutputTokens: 512,
+    maxOutputTokens: 1024, // Increase tokens to prevent truncation (was 512)
   });
 }
 
@@ -470,7 +480,9 @@ export async function analyzeInsuranceRisk(
 Market Data:
 ${JSON.stringify(marketData, null, 2)}
 
-Provide a structured JSON response:
+CRITICAL: You MUST respond with ONLY a valid JSON object. Do NOT include markdown code blocks, backticks, or any other formatting. Only the raw JSON object.
+
+Required JSON format:
 {
   "riskScore": 0-100,
   "recommendedCoverage": percentage (0-100),
@@ -478,7 +490,9 @@ Provide a structured JSON response:
   "confidence": 0-100
 }
 
-Consider market size, balance, question clarity, and resolution timeline.`;
+Consider market size, balance, question clarity, and resolution timeline.
+
+Remember: Return ONLY the JSON object, nothing else. No markdown, no code blocks, no explanations.`;
 
   return callGeminiJSON<{
     riskScore: number;
@@ -487,7 +501,7 @@ Consider market size, balance, question clarity, and resolution timeline.`;
     confidence: number;
   }>(prompt, {
     temperature: 0.4,
-    maxOutputTokens: 512,
+    maxOutputTokens: 1024, // Increase tokens to prevent truncation (was 512)
   });
 }
 
@@ -508,7 +522,9 @@ export async function analyzeDAOProposal(
 Proposal:
 ${JSON.stringify(proposalData, null, 2)}
 
-Provide a structured JSON response:
+CRITICAL: You MUST respond with ONLY a valid JSON object. Do NOT include markdown code blocks, backticks, or any other formatting. Only the raw JSON object.
+
+Required JSON format:
 {
   "qualityScore": 0-100,
   "recommendation": "approve" | "reject" | "amend",
@@ -517,7 +533,9 @@ Provide a structured JSON response:
   "confidence": 0-100
 }
 
-Consider clarity, feasibility, impact, and proposer reputation.`;
+Consider clarity, feasibility, impact, and proposer reputation.
+
+Remember: Return ONLY the JSON object, nothing else. No markdown, no code blocks, no explanations.`;
 
   return callGeminiJSON<{
     qualityScore: number;
@@ -527,7 +545,7 @@ Consider clarity, feasibility, impact, and proposer reputation.`;
     confidence: number;
   }>(prompt, {
     temperature: 0.5,
-    maxOutputTokens: 1024,
+    maxOutputTokens: 2048, // Increase tokens to prevent truncation (was 1024)
   });
 }
 

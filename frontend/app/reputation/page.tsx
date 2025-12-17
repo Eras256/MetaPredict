@@ -48,8 +48,8 @@ export default function ReputationPage() {
   };
 
   const handleAnalyzeReputation = async () => {
-    if (totalVotes === 0) {
-      toast.error('Insufficient data to analyze');
+    if (totalVotes === 0 && stakedAmount === 0) {
+      toast.error('Stake tokens or vote on disputes to enable AI analysis');
       return;
     }
 
@@ -100,26 +100,25 @@ export default function ReputationPage() {
                 <Award className="w-6 h-6 text-purple-400" />
                 Your Reputation
               </h2>
-              {totalVotes > 0 && (
-                <Button
-                  onClick={handleAnalyzeReputation}
-                  disabled={analyzing}
-                  size="sm"
-                  variant="outline"
-                >
-                  {analyzing ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Analyzing...
-                    </>
-                  ) : (
-                    <>
-                      <Brain className="mr-2 h-4 w-4" />
-                      Analyze with AI
-                    </>
-                  )}
-                </Button>
-              )}
+              <Button
+                onClick={handleAnalyzeReputation}
+                disabled={analyzing || (totalVotes === 0 && stakedAmount === 0)}
+                size="sm"
+                variant="outline"
+                title={totalVotes === 0 && stakedAmount === 0 ? "Stake tokens or vote to enable AI analysis" : "Analyze your reputation with AI"}
+              >
+                {analyzing ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Analyzing...
+                  </>
+                ) : (
+                  <>
+                    <Brain className="mr-2 h-4 w-4" />
+                    Analyze with AI
+                  </>
+                )}
+              </Button>
             </div>
             
             {isLoading ? (
@@ -257,7 +256,11 @@ export default function ReputationPage() {
                 ))}
               </div>
             ) : (
-              <p className="text-gray-400 text-sm">No leaderboard data yet</p>
+              <div className="text-center py-8">
+                <Trophy className="w-12 h-12 text-gray-600 mx-auto mb-3" />
+                <p className="text-gray-400 text-sm mb-2">No leaderboard data yet</p>
+                <p className="text-gray-500 text-xs">Leaderboard will appear once users start staking and voting</p>
+              </div>
             )}
           </GlassCard>
         </div>
