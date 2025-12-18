@@ -149,67 +149,72 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
           <div className="lg:col-span-2 space-y-4 sm:space-y-6">
             {/* Market Header */}
-            <GlassCard className="p-4 sm:p-6 md:p-8">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 gap-3 sm:gap-0">
-                <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-                  <Badge variant="outline" className="text-xs">
-                    Binary Market
-                  </Badge>
-                  {(() => {
-                    // Si venció pero aún está marcado como Active en el contrato
-                    if (hasExpired && isActive && !isResolved) {
+            <GlassCard className="p-6 sm:p-8 md:p-10 relative overflow-hidden">
+              {/* Background gradient effect */}
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-pink-500/5 to-blue-500/5 pointer-events-none" />
+              <div className="absolute top-0 right-0 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl pointer-events-none" />
+              
+              <div className="relative z-10">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8 gap-4 sm:gap-0">
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <Badge variant="outline" className="text-xs sm:text-sm px-3 py-1.5 border-purple-400/30 text-purple-300 bg-purple-500/10 backdrop-blur-sm">
+                      Binary Market
+                    </Badge>
+                    {(() => {
+                      // Si venció pero aún está marcado como Active en el contrato
+                      if (hasExpired && isActive && !isResolved) {
+                        return (
+                          <Badge className="text-xs sm:text-sm px-3 py-1.5 bg-gradient-to-r from-orange-500/30 to-red-500/30 text-orange-200 border-orange-500/40 backdrop-blur-sm shadow-lg shadow-orange-500/20 animate-pulse">
+                            ⏰ Expired - Pending Resolution
+                          </Badge>
+                        );
+                      }
+                      
+                      // Estado normal del contrato
                       return (
-                        <Badge className="text-xs bg-orange-500/20 text-orange-300 border-orange-500/30">
-                          ⏰ Expired - Pending Resolution
+                        <Badge className={`text-xs sm:text-sm px-3 py-1.5 backdrop-blur-sm shadow-lg ${
+                          isResolved
+                            ? 'bg-gradient-to-r from-blue-500/30 to-cyan-500/30 text-blue-200 border-blue-500/40 shadow-blue-500/20'
+                            : isResolving
+                            ? 'bg-gradient-to-r from-yellow-500/30 to-amber-500/30 text-yellow-200 border-yellow-500/40 shadow-yellow-500/20 animate-pulse'
+                            : isActive && !hasExpired
+                            ? 'bg-gradient-to-r from-green-500/30 to-emerald-500/30 text-green-200 border-green-500/40 shadow-green-500/20'
+                            : 'bg-gray-500/20 text-gray-300 border-gray-500/30'
+                        }`}>
+                          {isResolved
+                            ? 'Resolved'
+                            : isResolving
+                            ? 'Resolving'
+                            : isActive && !hasExpired
+                            ? 'Active'
+                            : hasExpired
+                            ? 'Expired'
+                            : 'Pending'}
                         </Badge>
                       );
-                    }
-                    
-                    // Estado normal del contrato
-                    return (
-                      <Badge className={`text-xs ${
-                        isResolved
-                          ? 'bg-blue-500/20 text-blue-300'
-                          : isResolving
-                          ? 'bg-yellow-500/20 text-yellow-300'
-                          : isActive && !hasExpired
-                          ? 'bg-green-500/20 text-green-300'
-                          : 'bg-gray-500/20 text-gray-300'
-                      }`}>
-                        {isResolved
-                          ? 'Resolved'
-                          : isResolving
-                          ? 'Resolving'
-                          : isActive && !hasExpired
-                          ? 'Active'
-                          : hasExpired
-                          ? 'Expired'
-                          : 'Pending'}
-                      </Badge>
-                    );
-                  })()}
+                    })()}
+                  </div>
+                  <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-400/30 backdrop-blur-sm">
+                    <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-purple-300" />
+                    <span className="text-xs sm:text-sm font-semibold text-purple-200">Insured</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-purple-400" />
-                  <span className="text-xs sm:text-sm text-purple-300">Insured</span>
-                </div>
-              </div>
 
-              <h1 className="text-2xl sm:text-3xl font-bold text-white mb-4 sm:mb-6 break-words">
-                {market?.question || `Market #${marketId}`}
-              </h1>
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-6 sm:mb-8 break-words leading-tight bg-gradient-to-r from-white via-purple-100 to-pink-100 bg-clip-text text-transparent">
+                  {market?.question || `Market #${marketId}`}
+                </h1>
 
-              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
-                <div className={`p-3 sm:p-4 rounded-lg border ${
+                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-5 mb-6 sm:mb-8">
+                <div className={`group p-4 sm:p-5 rounded-xl border backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:shadow-xl ${
                   hasExpired && !isResolved
-                    ? 'bg-orange-500/5 border-orange-500/20'
-                    : 'bg-purple-500/5 border-purple-500/10'
+                    ? 'bg-gradient-to-br from-orange-500/10 to-red-500/10 border-orange-500/30 hover:border-orange-500/50 hover:shadow-orange-500/20'
+                    : 'bg-gradient-to-br from-purple-500/10 to-pink-500/10 border-purple-500/30 hover:border-purple-500/50 hover:shadow-purple-500/20'
                 }`}>
-                  <div className="flex items-center gap-1.5 sm:gap-2 text-gray-400 text-xs sm:text-sm mb-1">
-                    <Clock className={`w-3 h-3 sm:w-4 sm:h-4 ${hasExpired && !isResolved ? 'text-orange-400' : ''}`} />
+                  <div className="flex items-center gap-2 text-gray-300 text-xs sm:text-sm mb-2 font-medium">
+                    <Clock className={`w-4 h-4 sm:w-5 sm:h-5 transition-transform group-hover:scale-110 ${hasExpired && !isResolved ? 'text-orange-400' : 'text-purple-400'}`} />
                     <span className="truncate">{hasExpired && !isResolved ? 'Expired' : 'Closes'}</span>
                   </div>
-                  <div className={`font-semibold text-sm sm:text-base truncate ${
+                  <div className={`font-bold text-base sm:text-lg md:text-xl truncate ${
                     hasExpired && !isResolved ? 'text-orange-300' : 'text-white'
                   }`}>
                     {hasExpired && !isResolved 
@@ -218,42 +223,45 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                   </div>
                 </div>
 
-                <div className="p-3 sm:p-4 rounded-lg bg-purple-500/5 border border-purple-500/10">
-                  <div className="flex items-center gap-1.5 sm:gap-2 text-gray-400 text-xs sm:text-sm mb-1">
-                    <Users className="w-3 h-3 sm:w-4 sm:h-4" />
+                <div className="group p-4 sm:p-5 rounded-xl bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-500/30 backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-blue-500/20">
+                  <div className="flex items-center gap-2 text-gray-300 text-xs sm:text-sm mb-2 font-medium">
+                    <Users className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400 transition-transform group-hover:scale-110" />
                     <span className="truncate">Participants</span>
                   </div>
-                  <div className="text-white font-semibold text-sm sm:text-base">{participantsCount}</div>
+                  <div className="text-white font-bold text-base sm:text-lg md:text-xl">{participantsCount}</div>
                 </div>
 
-                <div className="p-3 sm:p-4 rounded-lg bg-purple-500/5 border border-purple-500/10">
-                  <div className="flex items-center gap-1.5 sm:gap-2 text-gray-400 text-xs sm:text-sm mb-1">
-                    <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4" />
+                <div className="group p-4 sm:p-5 rounded-xl bg-gradient-to-br from-green-500/10 to-emerald-500/10 border border-green-500/30 backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-green-500/20">
+                  <div className="flex items-center gap-2 text-gray-300 text-xs sm:text-sm mb-2 font-medium">
+                    <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-green-400 transition-transform group-hover:scale-110" />
                     <span className="truncate">Volume</span>
                   </div>
-                  <div className="text-white font-semibold text-sm sm:text-base">
+                  <div className="text-white font-bold text-base sm:text-lg md:text-xl">
                     {market ? `$${((Number(market.yesPool || 0) + Number(market.noPool || 0)) / 1e18).toFixed(2)}` : '$0.00'}
                   </div>
                 </div>
 
-                <div className="p-3 sm:p-4 rounded-lg bg-purple-500/5 border border-purple-500/10">
-                  <div className="flex items-center gap-1.5 sm:gap-2 text-gray-400 text-xs sm:text-sm mb-1">
-                    <Brain className="w-3 h-3 sm:w-4 sm:h-4" />
+                <div className="group p-4 sm:p-5 rounded-xl bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/30 backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-purple-500/20">
+                  <div className="flex items-center gap-2 text-gray-300 text-xs sm:text-sm mb-2 font-medium">
+                    <Brain className="w-4 h-4 sm:w-5 sm:h-5 text-purple-400 transition-transform group-hover:scale-110" />
                     <span className="truncate">Oracle</span>
                   </div>
-                  <div className="text-white font-semibold text-sm sm:text-base">AI 5x</div>
+                  <div className="text-white font-bold text-base sm:text-lg md:text-xl bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">AI 5x</div>
                 </div>
               </div>
 
               {market?.description && (
-                <div className="p-4 rounded-lg bg-white/5 border border-white/10">
-                  <h3 className="text-sm font-semibold text-gray-400 mb-2">Description</h3>
-                  <p className="text-gray-300">{market.description}</p>
+                <div className="p-5 sm:p-6 rounded-xl bg-gradient-to-br from-white/5 to-purple-500/5 border border-white/10 backdrop-blur-sm">
+                  <h3 className="text-sm font-semibold text-purple-300 mb-3 flex items-center gap-2">
+                    <div className="w-1 h-4 bg-gradient-to-b from-purple-400 to-pink-400 rounded-full" />
+                    Description
+                  </h3>
+                  <p className="text-gray-200 leading-relaxed text-xs sm:text-sm">{market.description}</p>
                 </div>
               )}
 
               {/* Action Buttons */}
-              <div className="mt-6 pt-6 border-t border-white/10 space-y-3">
+              <div className="mt-8 pt-6 border-t border-white/10 space-y-4">
                 {/* Show Initiate Resolution button if market expired but not resolved */}
                 {hasExpired && isActive && !isResolved && account && (
                   <Button
@@ -269,16 +277,16 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                       }
                     }}
                     disabled={isInitiatingResolution}
-                    className="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700"
+                    className="w-full h-12 bg-gradient-to-r from-orange-600 via-red-600 to-orange-600 hover:from-orange-700 hover:via-red-700 hover:to-orange-700 text-white font-semibold shadow-lg shadow-orange-500/30 hover:shadow-xl hover:shadow-orange-500/40 transition-all duration-300 hover:scale-[1.02]"
                   >
                     {isInitiatingResolution ? (
                       <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                         Initiating Resolution...
                       </>
                     ) : (
                       <>
-                        <Zap className="mr-2 h-4 w-4" />
+                        <Zap className="mr-2 h-5 w-5" />
                         Initiate Resolution
                       </>
                     )}
@@ -287,15 +295,15 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
 
                 {/* Show Resolving status with auto-refresh indicator */}
                 {isResolving && (
-                  <div className="w-full p-4 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin text-yellow-400" />
-                        <span className="text-yellow-400 font-semibold">Resolving...</span>
+                  <div className="w-full p-5 rounded-xl bg-gradient-to-br from-yellow-500/10 to-amber-500/10 border border-yellow-500/30 backdrop-blur-sm">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-3">
+                        <Loader2 className="w-5 h-5 animate-spin text-yellow-400" />
+                        <span className="text-yellow-300 font-bold text-base">Resolving...</span>
                       </div>
-                      <span className="text-xs text-gray-400">Auto-refreshing every 3s</span>
+                      <span className="text-xs text-gray-400 bg-white/5 px-2 py-1 rounded">Auto-refreshing every 30s</span>
                     </div>
-                    <p className="text-sm text-gray-400 mt-2">
+                    <p className="text-sm text-gray-300 leading-relaxed">
                       The AI Oracle is processing the resolution. This page will update automatically when complete.
                     </p>
                   </div>
@@ -305,16 +313,16 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                 <Button
                   onClick={handleAnalyzeMarket}
                   disabled={analyzingMarket || !market?.question}
-                  className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                  className="w-full h-12 bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 hover:from-purple-700 hover:via-pink-700 hover:to-purple-700 text-white font-semibold shadow-lg shadow-purple-500/30 hover:shadow-xl hover:shadow-purple-500/40 transition-all duration-300 hover:scale-[1.02] bg-[length:200%_auto] hover:bg-[position:100%_center]"
                 >
                   {analyzingMarket ? (
                     <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                       Analyzing with AI...
                     </>
                   ) : (
                     <>
-                      <Brain className="mr-2 h-4 w-4" />
+                      <Brain className="mr-2 h-5 w-5" />
                       Analyze Market with AI
                     </>
                   )}
@@ -323,134 +331,148 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
 
               {/* AI Analysis Results */}
               {marketAnalysis && (
-                <div className="mt-6 p-4 rounded-lg bg-purple-500/10 border border-purple-500/20">
-                  <div className="flex items-center justify-between mb-3">
-                    <h4 className="text-sm font-semibold flex items-center gap-2 text-purple-400">
-                      <Brain className="h-4 w-4" />
+                <div className="mt-6 p-5 sm:p-6 rounded-xl bg-gradient-to-br from-purple-500/10 via-pink-500/10 to-purple-500/10 border border-purple-500/30 backdrop-blur-sm shadow-lg shadow-purple-500/10">
+                  <div className="flex items-center justify-between mb-4">
+                    <h4 className="text-base font-bold flex items-center gap-2 text-purple-300">
+                      <Brain className="h-5 w-5 text-purple-400" />
                       AI Analysis
                     </h4>
-                    <div className="flex items-center gap-2">
-                      <span className={`px-2 py-1 rounded text-xs font-medium ${
-                        marketAnalysis.answer === 'YES' ? 'bg-green-500/20 text-green-400' :
-                        marketAnalysis.answer === 'NO' ? 'bg-red-500/20 text-red-400' :
-                        'bg-yellow-500/20 text-yellow-400'
+                    <div className="flex items-center gap-3">
+                      <span className={`px-3 py-1.5 rounded-lg text-xs font-bold backdrop-blur-sm shadow-lg ${
+                        marketAnalysis.answer === 'YES' ? 'bg-gradient-to-r from-green-500/30 to-emerald-500/30 text-green-200 border border-green-500/40 shadow-green-500/20' :
+                        marketAnalysis.answer === 'NO' ? 'bg-gradient-to-r from-red-500/30 to-rose-500/30 text-red-200 border border-red-500/40 shadow-red-500/20' :
+                        'bg-gradient-to-r from-yellow-500/30 to-amber-500/30 text-yellow-200 border border-yellow-500/40 shadow-yellow-500/20'
                       }`}>
                         {marketAnalysis.answer}
                       </span>
-                      <span className="text-xs text-gray-400">
+                      <span className="text-xs text-gray-300 bg-white/5 px-2 py-1 rounded font-medium">
                         {marketAnalysis.confidence}% confidence
                       </span>
                     </div>
                   </div>
-                  <p className="text-sm text-gray-300">{marketAnalysis.reasoning}</p>
+                  <p className="text-sm text-gray-200 leading-relaxed">{marketAnalysis.reasoning}</p>
                 </div>
               )}
+              </div>
             </GlassCard>
 
             {/* Tabs */}
             <Tabs defaultValue="activity" className="w-full">
-              <TabsList className="w-full">
-                <TabsTrigger value="activity" className="flex-1">Activity</TabsTrigger>
-                <TabsTrigger value="resolution" className="flex-1">Resolution</TabsTrigger>
-                <TabsTrigger value="info" className="flex-1">Info</TabsTrigger>
+              <TabsList className="w-full bg-white/5 backdrop-blur-sm border border-white/10">
+                <TabsTrigger value="activity" className="flex-1 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500/20 data-[state=active]:to-pink-500/20 data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-purple-400 transition-all">Activity</TabsTrigger>
+                <TabsTrigger value="resolution" className="flex-1 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500/20 data-[state=active]:to-pink-500/20 data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-purple-400 transition-all">Resolution</TabsTrigger>
+                <TabsTrigger value="info" className="flex-1 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500/20 data-[state=active]:to-pink-500/20 data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-purple-400 transition-all">Info</TabsTrigger>
               </TabsList>
 
               <TabsContent value="activity" className="mt-6">
-                <GlassCard className="p-6">
-                  <h3 className="text-lg font-semibold text-white mb-4">Recent Activity</h3>
-                  <div className="space-y-4">
-                    {activitiesLoading ? (
-                      <div className="text-center py-12 text-gray-400">
-                        <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2" />
-                        Loading activity...
-                      </div>
-                    ) : activities.length === 0 ? (
-                      <div className="text-center py-12 text-gray-400">
-                        No activity yet. Be the first to bet!
+                <GlassCard className="p-6 sm:p-8 relative overflow-hidden">
+                  {/* Background gradient effect */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-pink-500/5 to-blue-500/5 pointer-events-none" />
+                  
+                  <div className="relative z-10">
+                    <h3 className="text-xl sm:text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                      <div className="w-1 h-6 bg-gradient-to-b from-purple-400 to-pink-400 rounded-full" />
+                      Recent Activity
+                    </h3>
+                    <div className="space-y-4">
+                      {activitiesLoading ? (
+                        <div className="text-center py-16 text-gray-400">
+                          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-3 text-purple-400" />
+                          <p className="text-sm">Loading activity...</p>
+                        </div>
+                      ) : !activities || activities.length === 0 ? (
+                      <div className="text-center py-16">
+                        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 mb-4">
+                          <TrendingUp className="w-8 h-8 text-purple-400" />
+                        </div>
+                        <p className="text-gray-300 font-medium mb-1">No activity yet</p>
+                        <p className="text-sm text-gray-500">Be the first to bet!</p>
                       </div>
                     ) : (
-                      <div className="space-y-3">
+                      <div className="space-y-4">
                         {activities.map((activity) => (
                           <div
                             key={activity.id}
-                            className="p-4 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-colors"
+                            className="group p-5 sm:p-6 rounded-xl bg-gradient-to-br from-white/5 via-purple-500/5 to-pink-500/5 border border-white/10 hover:border-purple-500/40 hover:bg-gradient-to-br hover:from-white/10 hover:via-purple-500/10 hover:to-pink-500/10 transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/20 hover:scale-[1.01] backdrop-blur-sm"
                           >
                             <div className="flex items-start justify-between gap-4">
                               <div className="flex items-start gap-3 flex-1 min-w-0">
                                 {activity.type === 'bet' && (
-                                  <div className={`p-2 rounded-lg ${
+                                  <div className={`p-3 rounded-xl backdrop-blur-sm shadow-lg transition-transform group-hover:scale-110 ${
                                     activity.isYes 
-                                      ? 'bg-green-500/20 text-green-400' 
-                                      : 'bg-red-500/20 text-red-400'
+                                      ? 'bg-gradient-to-br from-green-500/30 to-emerald-500/30 text-green-300 border border-green-500/40 shadow-green-500/20' 
+                                      : 'bg-gradient-to-br from-red-500/30 to-rose-500/30 text-red-300 border border-red-500/40 shadow-red-500/20'
                                   }`}>
                                     {activity.isYes ? (
-                                      <TrendingUp className="w-4 h-4" />
+                                      <TrendingUp className="w-5 h-5" />
                                     ) : (
-                                      <TrendingDown className="w-4 h-4" />
+                                      <TrendingDown className="w-5 h-5" />
                                     )}
                                   </div>
                                 )}
                                 {activity.type === 'resolution' && (
-                                  <div className="p-2 rounded-lg bg-blue-500/20 text-blue-400">
-                                    <CheckCircle2 className="w-4 h-4" />
+                                  <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500/30 to-cyan-500/30 text-blue-300 border border-blue-500/40 shadow-lg shadow-blue-500/20 backdrop-blur-sm transition-transform group-hover:scale-110">
+                                    <CheckCircle2 className="w-5 h-5" />
                                   </div>
                                 )}
                                 {activity.type === 'claim' && (
-                                  <div className="p-2 rounded-lg bg-purple-500/20 text-purple-400">
-                                    <DollarSign className="w-4 h-4" />
+                                  <div className="p-3 rounded-xl bg-gradient-to-br from-purple-500/30 to-pink-500/30 text-purple-300 border border-purple-500/40 shadow-lg shadow-purple-500/20 backdrop-blur-sm transition-transform group-hover:scale-110">
+                                    <DollarSign className="w-5 h-5" />
                                   </div>
                                 )}
                                 {activity.type === 'resolution_initiated' && (
-                                  <div className="p-2 rounded-lg bg-yellow-500/20 text-yellow-400">
-                                    <Clock className="w-4 h-4" />
+                                  <div className="p-3 rounded-xl bg-gradient-to-br from-yellow-500/30 to-amber-500/30 text-yellow-300 border border-yellow-500/40 shadow-lg shadow-yellow-500/20 backdrop-blur-sm transition-transform group-hover:scale-110">
+                                    <Clock className="w-5 h-5" />
                                   </div>
                                 )}
                                 
                                 <div className="flex-1 min-w-0">
-                                  <div className="flex items-center gap-2 mb-1">
-                                    <span className="text-sm font-semibold text-white">
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <span className="text-base font-bold text-white">
                                       {activity.type === 'bet' && (
                                         <>
-                                          {activity.isYes ? 'YES' : 'NO'} Bet Placed
+                                          <span className={activity.isYes ? 'text-green-400' : 'text-red-400'}>
+                                            {activity.isYes ? 'YES' : 'NO'}
+                                          </span> Bet Placed
                                         </>
                                       )}
                                       {activity.type === 'resolution' && (
                                         <>
-                                          Market Resolved: {
+                                          Market Resolved: <span className="text-blue-400">{
                                             activity.outcome === 1 ? 'YES' :
                                             activity.outcome === 2 ? 'NO' :
                                             'INVALID'
-                                          }
+                                          }</span>
                                         </>
                                       )}
                                       {activity.type === 'claim' && (
-                                        <>Winnings Claimed</>
+                                        <span className="text-purple-400">Winnings Claimed</span>
                                       )}
                                       {activity.type === 'resolution_initiated' && (
-                                        <>Resolution Initiated</>
+                                        <span className="text-yellow-400">Resolution Initiated</span>
                                       )}
                                     </span>
                                   </div>
                                   
                                   {activity.user && (
-                                    <div className="text-xs text-gray-400 mb-1">
+                                    <div className="text-xs text-gray-400 mb-2 font-mono bg-white/5 px-2 py-1 rounded inline-block">
                                       {activity.user.slice(0, 6)}...{activity.user.slice(-4)}
                                     </div>
                                   )}
                                   
                                   {activity.amount && (
-                                    <div className="text-sm text-gray-300">
-                                      Amount: {(Number(activity.amount) / 1e18).toFixed(4)} BNB
+                                    <div className="text-sm text-gray-200 mb-2">
+                                      <span className="font-semibold text-white">Amount:</span> <span className="text-green-400 font-bold">{(Number(activity.amount) / 1e18).toFixed(4)} BNB</span>
                                       {activity.shares && (
-                                        <span className="text-gray-500 ml-2">
+                                        <span className="text-gray-400 ml-2 text-xs">
                                           ({Number(activity.shares) / 1e18} shares)
                                         </span>
                                       )}
                                     </div>
                                   )}
                                   
-                                  <div className="flex items-center gap-2 mt-2">
-                                    <span className="text-xs text-gray-500">
+                                  <div className="flex items-center gap-3 mt-3 pt-3 border-t border-white/10">
+                                    <span className="text-xs text-gray-400 bg-white/5 px-2 py-1 rounded">
                                       {formatDistanceToNow(new Date(activity.timestamp * 1000), { addSuffix: true })}
                                     </span>
                                     {activity.transactionHash && (
@@ -458,7 +480,7 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                                         href={`https://testnet.opbnbscan.com/tx/${activity.transactionHash}`}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="text-xs text-purple-400 hover:text-purple-300 flex items-center gap-1"
+                                        className="text-xs text-purple-400 hover:text-purple-300 flex items-center gap-1.5 bg-purple-500/10 hover:bg-purple-500/20 px-2 py-1 rounded transition-colors border border-purple-500/20 hover:border-purple-500/40"
                                       >
                                         View TX
                                         <ExternalLink className="w-3 h-3" />
@@ -472,6 +494,7 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                         ))}
                       </div>
                     )}
+                    </div>
                   </div>
                 </GlassCard>
               </TabsContent>
