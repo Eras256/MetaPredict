@@ -446,6 +446,7 @@ export function useUserDashboard() {
 
               const market: Market = {
                 id: i,
+                marketType: Number(marketInfo.marketType) || 0,
                 creator: marketInfo.creator,
                 createdAt: Number(marketInfo.createdAt),
                 resolutionTime: Number(marketInfo.resolutionTime),
