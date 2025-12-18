@@ -57,7 +57,7 @@ export function NeuralBackground() {
         if (!ctx) return;
         ctx.beginPath();
         ctx.arc(this.x, this.y, 2, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(139, 92, 246, 0.5)';
+        ctx.fillStyle = 'rgba(139, 92, 246, 0.4)';
         ctx.fill();
       }
     }
@@ -89,7 +89,7 @@ export function NeuralBackground() {
             ctx.beginPath();
             ctx.moveTo(particles[i].x, particles[i].y);
             ctx.lineTo(particles[j].x, particles[j].y);
-            ctx.strokeStyle = `rgba(139, 92, 246, ${opacity})`;
+            ctx.strokeStyle = `rgba(139, 92, 246, ${opacity * 0.7})`;
             ctx.lineWidth = 1;
             ctx.stroke();
           }

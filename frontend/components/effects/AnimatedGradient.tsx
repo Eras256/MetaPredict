@@ -7,7 +7,7 @@ export function AnimatedGradient() {
     <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
       {/* Gradient orbs */}
       <motion.div
-        className="absolute top-0 left-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl"
+        className="absolute top-0 left-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"
         animate={{
           x: [0, 100, 0],
           y: [0, 50, 0],
@@ -20,7 +20,7 @@ export function AnimatedGradient() {
         }}
       />
       <motion.div
-        className="absolute bottom-0 right-1/4 w-96 h-96 bg-pink-500/20 rounded-full blur-3xl"
+        className="absolute bottom-0 right-1/4 w-96 h-96 bg-pink-500/10 rounded-full blur-3xl"
         animate={{
           x: [0, -100, 0],
           y: [0, -50, 0],
@@ -33,7 +33,7 @@ export function AnimatedGradient() {
         }}
       />
       <motion.div
-        className="absolute top-1/2 left-1/2 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"
+        className="absolute top-1/2 left-1/2 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl"
         animate={{
           x: [0, 150, 0],
           y: [0, -100, 0],
