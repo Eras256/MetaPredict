@@ -170,40 +170,105 @@ export function ConnectButtonWrapper(props: ConnectButtonProps) {
 
   // Interceptar errores de hidratación relacionados con botones anidados
   useEffect(() => {
+    let rafScheduled = false;
+    let timeoutId: NodeJS.Timeout | null = null;
+
     const originalError = console.error;
     const originalWarn = console.warn;
     
-    // Interceptar console.error
-    console.error = (...args: any[]) => {
+    // Función para ejecutar la corrección de forma segura, evitando ejecutar durante el renderizado
+    const scheduleFix = () => {
+      if (rafScheduled) return;
+      rafScheduled = true;
+      
+      // Cancelar timeout anterior si existe
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+      
+      // Usar múltiples delays para asegurar que no se ejecute durante el renderizado
+      // Primero esperar el siguiente frame de animación
+      requestAnimationFrame(() => {
+        // Luego esperar un microtask adicional para asegurar que React termine el renderizado
+        queueMicrotask(() => {
+          // Finalmente usar setTimeout para asegurar que no estamos en medio de un renderizado
+          timeoutId = setTimeout(() => {
+            try {
+              fixNestedButtons();
+            } catch (e) {
+              // Silenciar errores durante la corrección
+            }
+            rafScheduled = false;
+            timeoutId = null;
+          }, 0);
+        });
+      });
+    };
+    
+    // Interceptar console.error de forma segura
+    const wrappedError = (...args: any[]) => {
       const message = args[0]?.toString() || '';
       // Suprimir errores de botones anidados durante la hidratación
       if (message.includes('cannot be a descendant of <button>') || 
           message.includes('cannot contain a nested <button>')) {
-        // Ejecutar la corrección inmediatamente
-        requestAnimationFrame(() => {
-          fixNestedButtons();
-        });
+        // Ejecutar la corrección de forma asíncrona y segura
+        scheduleFix();
         return;
       }
-      originalError.apply(console, args);
+      // Llamar al original de forma segura, evitando errores durante el renderizado
+      try {
+        originalError.apply(console, args);
+      } catch (e) {
+        // Silenciar errores si ocurren durante el renderizado
+      }
     };
 
     // Interceptar console.warn también
-    console.warn = (...args: any[]) => {
+    const wrappedWarn = (...args: any[]) => {
       const message = args[0]?.toString() || '';
       if (message.includes('cannot be a descendant of <button>') || 
           message.includes('cannot contain a nested <button>')) {
-        requestAnimationFrame(() => {
-          fixNestedButtons();
-        });
+        scheduleFix();
         return;
       }
-      originalWarn.apply(console, args);
+      try {
+        originalWarn.apply(console, args);
+      } catch (e) {
+        // Silenciar errores si ocurren durante el renderizado
+      }
     };
 
+    // Asignar los wrappers después de que React termine el renderizado inicial
+    // Usar setTimeout para asegurar que no estamos en medio de un renderizado
+    const setupTimeout = setTimeout(() => {
+      // Verificar que el original no haya sido cambiado por otro componente
+      if (console.error === originalError || console.error === wrappedError) {
+        console.error = wrappedError;
+      }
+      if (console.warn === originalWarn || console.warn === wrappedWarn) {
+        console.warn = wrappedWarn;
+      }
+    }, 0);
+
     return () => {
-      console.error = originalError;
-      console.warn = originalWarn;
+      // Limpiar timeout de setup
+      clearTimeout(setupTimeout);
+      
+      // Limpiar timeout de fix si existe
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+      
+      // Restaurar de forma asíncrona para evitar problemas durante el unmount
+      queueMicrotask(() => {
+        // Solo restaurar si todavía estamos usando nuestros wrappers
+        if (console.error === wrappedError) {
+          console.error = originalError;
+        }
+        if (console.warn === wrappedWarn) {
+          console.warn = originalWarn;
+        }
+      });
     };
   }, [fixNestedButtons]);
 

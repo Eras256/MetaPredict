@@ -32,10 +32,25 @@ export async function GET(request: NextRequest) {
     await eventMonitorService.initialize();
     const result = await eventMonitorService.checkPendingResolutions();
 
+    // Log summary for monitoring
+    console.log(`[Cron] Oracle check completed:`, {
+      checked: result.checked,
+      processed: result.processed,
+      errors: result.errors,
+      timestamp: new Date().toISOString(),
+    });
+
     return NextResponse.json({
       success: true,
       timestamp: new Date().toISOString(),
       result,
+      message: result.errors > 0 
+        ? `${result.errors} error(s) occurred. Check logs for details.`
+        : result.processed > 0
+        ? `Successfully processed ${result.processed} market(s).`
+        : result.checked > 0
+        ? `Checked ${result.checked} market(s), all already resolved.`
+        : 'No pending resolutions found.',
     });
   } catch (error: any) {
     console.error('[Cron] Oracle check error:', error);

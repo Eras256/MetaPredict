@@ -36,7 +36,11 @@ export const reputationService = {
   },
 
   async getLeaderboard() {
-    // TODO: Implement with Prisma
+    // For now, return empty array as the contract doesn't have a direct getAllStakers function
+    // This would need to be implemented by:
+    // 1. Listening to Stake events and storing in DB
+    // 2. Or implementing a view function in the contract
+    // 3. Or using The Graph to index events
     return [];
   },
 };

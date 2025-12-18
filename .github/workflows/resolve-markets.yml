@@ -10,6 +10,13 @@ jobs:
   resolve-markets:
     name: Resolve Pending Markets
     runs-on: ubuntu-latest
+    env:
+      # Estos secrets deben estar configurados en GitHub Settings > Secrets and variables > Actions
+      PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+      RPC_URL_TESTNET: ${{ secrets.RPC_URL_TESTNET }}
+      # Variables con valores por defecto (pueden configurarse como vars en GitHub)
+      AI_ORACLE_ADDRESS: ${{ vars.AI_ORACLE_ADDRESS || '0xA65bE35D25B09F7326ab154E154572dB90F67081' }}
+      BACKEND_URL: ${{ vars.BACKEND_URL || 'https://www.metapredict.fun/api' }}
     
     steps:
       - name: Checkout repository
@@ -32,11 +39,6 @@ jobs:
           pnpm install
 
       - name: Resolve pending markets
-        env:
-          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
-          RPC_URL_TESTNET: ${{ secrets.RPC_URL_TESTNET }}
-          AI_ORACLE_ADDRESS: ${{ secrets.AI_ORACLE_ADDRESS || '0xA65bE35D25B09F7326ab154E154572dB90F67081' }}
-          BACKEND_URL: ${{ secrets.BACKEND_URL || 'https://www.metapredict.fun/api' }}
         run: |
           echo "🕐 Workflow ejecutado automáticamente: $(date)"
           echo "📅 Trigger: ${{ github.event_name }}"

@@ -1380,6 +1380,15 @@ function MarketOperations() {
     }
     try {
       const resolutionTimestamp = Math.floor(new Date(binaryResolutionTime).getTime() / 1000);
+      const currentTimestamp = Math.floor(Date.now() / 1000);
+      const minResolutionTime = currentTimestamp + 3600 + 300; // 1 hora + 5 minutos buffer
+      
+      if (resolutionTimestamp < minResolutionTime) {
+        const minDate = new Date(minResolutionTime * 1000);
+        toast.error(`Resolution time must be at least 1 hour 5 minutes in the future. Minimum time: ${minDate.toLocaleString()}`);
+        return;
+      }
+      
       await createBinary(binaryQuestion, binaryDescription, resolutionTimestamp);
       setBinaryQuestion('');
       setBinaryDescription('');
@@ -1400,6 +1409,15 @@ function MarketOperations() {
     }
     try {
       const resolutionTimestamp = Math.floor(new Date(conditionalResolutionTime).getTime() / 1000);
+      const currentTimestamp = Math.floor(Date.now() / 1000);
+      const minResolutionTime = currentTimestamp + 3600 + 300; // 1 hora + 5 minutos buffer
+      
+      if (resolutionTimestamp < minResolutionTime) {
+        const minDate = new Date(minResolutionTime * 1000);
+        toast.error(`Resolution time must be at least 1 hour 5 minutes in the future. Minimum time: ${minDate.toLocaleString()}`);
+        return;
+      }
+      
       await createConditional(
         parseInt(conditionalParentId),
         conditionalCondition,
@@ -1426,6 +1444,15 @@ function MarketOperations() {
     }
     try {
       const resolutionTimestamp = Math.floor(new Date(subjectiveResolutionTime).getTime() / 1000);
+      const currentTimestamp = Math.floor(Date.now() / 1000);
+      const minResolutionTime = currentTimestamp + 3600 + 300; // 1 hora + 5 minutos buffer
+      
+      if (resolutionTimestamp < minResolutionTime) {
+        const minDate = new Date(minResolutionTime * 1000);
+        toast.error(`Resolution time must be at least 1 hour 5 minutes in the future. Minimum time: ${minDate.toLocaleString()}`);
+        return;
+      }
+      
       await createSubjective(subjectiveQuestion, subjectiveDescription, resolutionTimestamp, subjectiveExpertise);
       setSubjectiveQuestion('');
       setSubjectiveDescription('');

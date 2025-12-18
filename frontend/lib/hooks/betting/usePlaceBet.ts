@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { useSendTransaction, useActiveAccount } from 'thirdweb/react';
+import { useSendTransaction, useActiveAccount, useReadContract } from 'thirdweb/react';
 import { defineChain } from 'thirdweb/chains';
 import { getContract, prepareContractCall } from 'thirdweb';
 import { waitForReceipt } from 'thirdweb';
@@ -219,28 +219,34 @@ export function useClaimWinnings(marketId: number, marketType: 'binary' | 'condi
   const [loading, setLoading] = useState(false);
   const account = useActiveAccount();
   
-  // Determinar qué contrato usar según el tipo de mercado
-  const contractAddress = useMemo(() => {
-    switch (marketType) {
-      case 'binary':
-        return CONTRACT_ADDRESSES.BINARY_MARKET;
-      case 'conditional':
-        return CONTRACT_ADDRESSES.CONDITIONAL_MARKET;
-      case 'subjective':
-        return CONTRACT_ADDRESSES.SUBJECTIVE_MARKET;
-      default:
-        return CONTRACT_ADDRESSES.BINARY_MARKET;
-    }
-  }, [marketType]);
-  
-  const contract = useMemo(() => {
+  // Obtener el contrato del Core para obtener la dirección del contrato del mercado específico
+  const coreContract = useMemo(() => {
     return getContract({
       client,
       chain: opBNBTestnet,
-      address: contractAddress,
+      address: CONTRACT_ADDRESSES.PREDICTION_MARKET,
+      abi: PREDICTION_MARKET_CORE_ABI as any,
+    });
+  }, []);
+  
+  // Obtener la dirección del contrato del mercado específico
+  const { data: marketContractAddress } = useReadContract({
+    contract: coreContract,
+    method: 'getMarketContract',
+    params: [BigInt(marketId)],
+  });
+  
+  const contract = useMemo(() => {
+    if (!marketContractAddress || marketContractAddress === '0x0000000000000000000000000000000000000000') {
+      return null;
+    }
+    return getContract({
+      client,
+      chain: opBNBTestnet,
+      address: marketContractAddress as `0x${string}`,
       abi: BinaryMarketABI as any,
     });
-  }, [contractAddress]);
+  }, [marketContractAddress]);
 
   const { mutateAsync: sendTransaction, isPending: isSending } = useSendTransaction();
 
@@ -300,10 +306,16 @@ export function useClaimWinnings(marketId: number, marketType: 'binary' | 'condi
     try {
       setLoading(true);
       
+      if (!contract) {
+        const errorMsg = 'Market contract not found. Please try refreshing the page.';
+        toast.error(errorMsg);
+        throw new Error(errorMsg);
+      }
+      
       console.log('[ClaimWinnings] Starting claim:', {
         marketId,
         marketType,
-        contractAddress,
+        contractAddress: marketContractAddress,
         userAddress: account.address,
       });
       
@@ -344,19 +356,44 @@ export function useClaimWinnings(marketId: number, marketType: 'binary' | 'condi
       
       return { transactionHash: txHash, receipt: result };
     } catch (error: any) {
-      console.error('[ClaimWinnings] Complete error:', {
-        error,
-        message: error?.message,
-        code: error?.code,
-        data: error?.data,
-        reason: error?.reason,
+      // Mejor manejo de errores con información más detallada
+      const errorInfo: any = {
         marketId,
         marketType,
-        contractAddress,
-      });
+        contractAddress: marketContractAddress,
+      };
+      
+      try {
+        // Intentar extraer información del error de forma segura
+        if (error) {
+          errorInfo.errorType = error?.constructor?.name || typeof error;
+          errorInfo.errorString = String(error);
+          
+          if (error?.message) errorInfo.message = String(error.message);
+          if (error?.code) errorInfo.code = String(error.code);
+          if (error?.data) errorInfo.data = String(error.data);
+          if (error?.reason) errorInfo.reason = String(error.reason);
+          if (error?.shortMessage) errorInfo.shortMessage = String(error.shortMessage);
+          if (error?.cause) errorInfo.cause = String(error.cause);
+          
+          // Para errores de thirdweb
+          if (error?.toString) {
+            try {
+              errorInfo.errorToString = error.toString();
+            } catch (e) {
+              // Ignorar si toString falla
+            }
+          }
+        }
+      } catch (e) {
+        // Si hay un error al extraer información, solo guardar el string básico
+        errorInfo.fallbackError = String(error || 'Unknown error');
+      }
+      
+      console.error('[ClaimWinnings] Complete error:', errorInfo);
       
       const errorMessage = parseContractError(error);
-      toast.error(errorMessage);
+      toast.error(errorMessage || 'Failed to claim winnings. Please try again.');
       throw error;
     } finally {
       setLoading(false);

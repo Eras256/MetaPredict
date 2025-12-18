@@ -5,6 +5,11 @@ import { motion } from 'framer-motion';
 import { Brain, Shield, Zap, TrendingUp, Lock, Users, ArrowRight, CheckCircle, BarChart3, Globe, Award, Link2, Code, ExternalLink, Activity } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { GlassCard } from '@/components/effects/GlassCard';
+import { CONTRACT_ADDRESSES } from '@/lib/contracts/addresses';
+
+// Helper function to generate opBNBScan link
+const getContractLink = (address: string) => 
+  `https://testnet.opbnbscan.com/address/${address}#code`;
 
 const features = [
   {
@@ -12,14 +17,14 @@ const features = [
     title: 'Multi-AI Oracle Consensus',
     description: '5 AI models from 3 providers (Gemini, Llama, Mistral) working in sequential priority. 80%+ consensus required. Automatic fallback ensures 95%+ accuracy.',
     gradient: 'from-purple-500 to-pink-500',
-    link: 'https://testnet.opbnbscan.com/address/0xcc10a98Aa285E7bD16be1Ef8420315725C3dB66c#code'
+    link: getContractLink(CONTRACT_ADDRESSES.AI_ORACLE)
   },
   {
     icon: Shield,
     title: 'Insurance Protected (ERC-4626)',
     description: 'First prediction market with financial guarantee. 100% refund if oracle fails. Yield-generating insurance pool with native BNB. All deposits and yields transparent on-chain.',
     gradient: 'from-blue-500 to-cyan-500',
-    link: 'https://testnet.opbnbscan.com/address/0xD30B71e1Af743cD93b3b1d7d314822Bc4cd860dA#code'
+    link: getContractLink(CONTRACT_ADDRESSES.INSURANCE_POOL)
   },
   {
     icon: Zap,
@@ -33,21 +38,21 @@ const features = [
     title: 'Chainlink Data Streams',
     description: 'Sub-second price feeds (up to 100ms) for 8 trading pairs (BTC, ETH, USDT, BNB, SOL, XRP, DOGE). Real-time updates for price-based predictions.',
     gradient: 'from-green-500 to-emerald-500',
-    link: 'https://testnet.opbnbscan.com/address/0x1758d4da0bAd4DB90Dfd56Be259C19cabDcF03fd#code'
+    link: getContractLink(CONTRACT_ADDRESSES.DATA_STREAMS_INTEGRATION)
   },
   {
     icon: Award,
     title: 'Reputation System',
     description: 'Stake to earn, vote in disputes, climb tiers, earn NFT badges. Economic incentives for honesty. On-chain reputation as tradeable assets.',
     gradient: 'from-red-500 to-rose-500',
-    link: 'https://testnet.opbnbscan.com/address/0x5935C4002Bf11eCD4525d60Ef7e2B949421E15E7#code'
+    link: getContractLink(CONTRACT_ADDRESSES.REPUTATION_STAKING)
   },
   {
     icon: Users,
     title: 'DAO Governance',
     description: 'Quadratic voting with expertise weighting. Community-driven resolution for subjective markets. Transparent on-chain governance.',
     gradient: 'from-indigo-500 to-purple-500',
-    link: 'https://testnet.opbnbscan.com/address/0xC2eD64e39cD7A6Ab9448f14E1f965E1D1e819123#code'
+    link: getContractLink(CONTRACT_ADDRESSES.DAO_GOVERNANCE)
   }
 ];
 
@@ -96,19 +101,19 @@ const marketTypes = [
   {
     title: 'Binary Markets',
     description: 'Simple YES/NO predictions on any future event',
-    contract: '0x41A5CFeEf9C7fc50e68E13bAbB11b3B8872a0b6d',
+    contract: CONTRACT_ADDRESSES.BINARY_MARKET,
     examples: ['Will Bitcoin reach $100K by EOY?', 'Will there be snow in NYC on Christmas?', 'Will SpaceX launch Starship in Q1?']
   },
   {
     title: 'Conditional Markets',
     description: 'If-then predictions that depend on parent market outcomes',
-    contract: '0x41C2b1FB595Ad18cb111c3a3Fc1B2d6307e43741',
+    contract: CONTRACT_ADDRESSES.CONDITIONAL_MARKET,
     examples: ['IF Bitcoin hits $100K, THEN will Ethereum reach $5K?', 'IF Fed cuts rates, THEN will S&P 500 rally 10%?', 'IF Trump wins, THEN will crypto regulation ease?']
   },
   {
     title: 'Subjective Markets',
     description: 'Opinion-based predictions resolved by expert DAO voting',
-    contract: '0xAE88cE8f797FCBD36b0Ae78f80FDb11774d766f8',
+    contract: CONTRACT_ADDRESSES.SUBJECTIVE_MARKET,
     examples: ['Was Oppenheimer better than Barbie?', 'Is GPT-5 a significant improvement over GPT-4?', 'Will 2025 be the year of AI agents?']
   }
 ];
@@ -159,7 +164,7 @@ export default function HomePage() {
                 </Button>
               </Link>
 
-              <a href="https://testnet.opbnbscan.com/address/0x5eaa77CC135b82c254F1144c48f4d179964fA0b1#code" target="_blank" rel="noopener noreferrer">
+              <a href={getContractLink(CONTRACT_ADDRESSES.CORE_CONTRACT)} target="_blank" rel="noopener noreferrer">
                 <Button size="lg" variant="outline" className="border-blue-500/50 text-blue-300 hover:bg-blue-500/10 gap-2">
                   <ExternalLink className="w-4 h-4" />
                   View Contracts

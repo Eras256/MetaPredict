@@ -1,5 +1,6 @@
 const getAddress = (envVar: string | undefined, defaultAddr: `0x${string}`): `0x${string}` => {
   const address = envVar || defaultAddr;
+  
   // Asegurar que la dirección comience con 0x
   if (!address.startsWith('0x')) {
     return defaultAddr;
@@ -7,30 +8,23 @@ const getAddress = (envVar: string | undefined, defaultAddr: `0x${string}`): `0x
   
   // Validar formato de dirección (42 caracteres: 0x + 40 hex)
   if (address.length !== 42) {
-    console.warn(`Invalid address length: ${address} (${address.length} chars)`);
     return defaultAddr;
   }
   
   // Validar que solo contenga caracteres hexadecimales después de 0x
   if (!/^0x[a-fA-F0-9]{40}$/.test(address)) {
-    console.warn(`Invalid address format: ${address}`);
     return defaultAddr;
   }
   
-  // Validación especial para CORE_CONTRACT_ADDRESS
-  // Si se detecta la dirección antigua, automáticamente usar la correcta
+  // Lista de direcciones antiguas que deben ser reemplazadas automáticamente
   const oldAddresses = [
     '0x46ca523e51783a378fba0d06d05929652d04b19e', // Core anterior (muy antiguo)
     '0x0bb2643ace44bbb4fdcc3a4fc50eecbe3ab4a76b', // Core anterior (reciente)
     '0x3ee41d06739ab1fb90fb6718ce579e84b00ffa99', // Dirección problemática reportada (posible contrato antiguo)
   ];
   
+  // Si se detecta una dirección antigua, usar automáticamente la correcta sin warnings
   if (oldAddresses.includes(address.toLowerCase())) {
-    console.warn('⚠️  ADVERTENCIA: Se detectó la dirección antigua del contrato core');
-    console.warn('   Dirección antigua:', address);
-    console.warn('   Usando dirección correcta automáticamente:', defaultAddr);
-    console.warn('   💡 Solución permanente: Actualiza NEXT_PUBLIC_CORE_CONTRACT_ADDRESS en Vercel o .env.local');
-    // Retornar la dirección correcta en lugar de la antigua
     return defaultAddr;
   }
   
@@ -55,7 +49,7 @@ export const CONTRACT_ADDRESSES: {
   // Updated addresses from opbnb-testnet.json deployment (2025-11-18)
   PREDICTION_MARKET: getAddress(process.env.NEXT_PUBLIC_CORE_CONTRACT_ADDRESS, '0x5eaa77CC135b82c254F1144c48f4d179964fA0b1'),
   CORE_CONTRACT: getAddress(process.env.NEXT_PUBLIC_CORE_CONTRACT_ADDRESS, '0x5eaa77CC135b82c254F1144c48f4d179964fA0b1'),
-  AI_ORACLE: getAddress(process.env.NEXT_PUBLIC_AI_ORACLE_ADDRESS, '0xA65bE35D25B09F7326ab154E154572dB90F67081'),
+  AI_ORACLE: getAddress(process.env.NEXT_PUBLIC_AI_ORACLE_ADDRESS, '0xcc10a98Aa285E7bD16be1Ef8420315725C3dB66c'),
   INSURANCE_POOL: getAddress(process.env.NEXT_PUBLIC_INSURANCE_POOL_ADDRESS, '0xD30B71e1Af743cD93b3b1d7d314822Bc4cd860dA'),
   REPUTATION_STAKING: getAddress(process.env.NEXT_PUBLIC_REPUTATION_STAKING_ADDRESS, '0x5935C4002Bf11eCD4525d60Ef7e2B949421E15E7'),
   DAO_GOVERNANCE: getAddress(process.env.NEXT_PUBLIC_DAO_GOVERNANCE_ADDRESS, '0xC2eD64e39cD7A6Ab9448f14E1f965E1D1e819123'),

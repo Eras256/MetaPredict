@@ -181,12 +181,40 @@ export function useCreateBinaryMarket() {
     } catch (error: any) {
       console.error('Error creating binary market:', error);
       
-      // More descriptive error message for "Only core"
-      let errorMessage = error?.message || 'Error creating binary market';
-      if (errorMessage.includes('Only core') || errorMessage.includes('onlyCore')) {
-        errorMessage = 'Configuration error: The BinaryMarket contract does not have the coreContract correctly configured. The contract needs to be redeployed with the correct Core Contract address.';
-      }
+      // Helper function to parse contract errors
+      const parseContractError = (error: any): string => {
+        if (!error) return 'Unknown error creating binary market';
+        
+        const errorString = error.toString?.() || error.message || String(error);
+        
+        // Common contract errors
+        if (errorString.includes('Invalid time') || errorString.includes('invalid time')) {
+          return 'Resolution time must be at least 1 hour in the future from the current blockchain time. Please select a time that is at least 1 hour 5 minutes from now to account for block time differences.';
+        }
+        if (errorString.includes('Only core') || errorString.includes('onlyCore')) {
+          return 'Configuration error: The BinaryMarket contract does not have the coreContract correctly configured. The contract needs to be redeployed with the correct Core Contract address.';
+        }
+        if (errorString.includes('user rejected') || errorString.includes('User rejected')) {
+          return 'Transaction cancelled by user.';
+        }
+        if (errorString.includes('insufficient funds') || errorString.includes('Insufficient funds')) {
+          return 'Insufficient funds to pay gas fee.';
+        }
+        
+        // Try to extract error message from object
+        if (error.message) {
+          return error.message;
+        }
+        
+        // If it's a string, return it directly (limited to 200 characters)
+        if (typeof errorString === 'string') {
+          return errorString.length > 200 ? errorString.substring(0, 200) + '...' : errorString;
+        }
+        
+        return 'Unknown error creating binary market';
+      };
       
+      const errorMessage = parseContractError(error);
       toast.error(errorMessage);
       throw error;
     } finally {
@@ -354,12 +382,40 @@ export function useCreateSubjectiveMarket() {
     } catch (error: any) {
       console.error('Error creating subjective market:', error);
       
-      // More descriptive error message for "Only core"
-      let errorMessage = error?.message || 'Error creating subjective market';
-      if (errorMessage.includes('Only core') || errorMessage.includes('onlyCore')) {
-        errorMessage = 'Configuration error: The SubjectiveMarket contract does not have the coreContract correctly configured. The contract needs to be redeployed with the correct Core Contract address.';
-      }
+      // Helper function to parse contract errors
+      const parseContractError = (error: any): string => {
+        if (!error) return 'Unknown error creating subjective market';
+        
+        const errorString = error.toString?.() || error.message || String(error);
+        
+        // Common contract errors
+        if (errorString.includes('Invalid time') || errorString.includes('invalid time')) {
+          return 'Resolution time must be at least 1 hour in the future from the current blockchain time. Please select a time that is at least 1 hour 5 minutes from now to account for block time differences.';
+        }
+        if (errorString.includes('Only core') || errorString.includes('onlyCore')) {
+          return 'Configuration error: The SubjectiveMarket contract does not have the coreContract correctly configured. The contract needs to be redeployed with the correct Core Contract address.';
+        }
+        if (errorString.includes('user rejected') || errorString.includes('User rejected')) {
+          return 'Transaction cancelled by user.';
+        }
+        if (errorString.includes('insufficient funds') || errorString.includes('Insufficient funds')) {
+          return 'Insufficient funds to pay gas fee.';
+        }
+        
+        // Try to extract error message from object
+        if (error.message) {
+          return error.message;
+        }
+        
+        // If it's a string, return it directly (limited to 200 characters)
+        if (typeof errorString === 'string') {
+          return errorString.length > 200 ? errorString.substring(0, 200) + '...' : errorString;
+        }
+        
+        return 'Unknown error creating subjective market';
+      };
       
+      const errorMessage = parseContractError(error);
       toast.error(errorMessage);
       throw error;
     } finally {
@@ -715,9 +771,15 @@ export function useInitiateResolution() {
       const txHash = result.transactionHash;
       await waitForReceipt({ client, chain: opBNBTestnet, transactionHash: txHash });
 
+      // Emitir evento personalizado para notificar a otros componentes
+      window.dispatchEvent(new CustomEvent('marketResolutionInitiated', {
+        detail: { marketId, transactionHash: txHash }
+      }));
+
       const txUrl = getTransactionUrl(txHash);
-      toast.success(`Resolution initiated! View transaction: ${formatTxHash(txHash)}`, {
+      toast.success(`Resolution initiated! The AI Oracle will process it shortly.`, {
         duration: 10000,
+        description: `Transaction: ${formatTxHash(txHash)}`,
         action: {
           label: 'View on opBNBScan',
           onClick: () => window.open(txUrl, '_blank'),

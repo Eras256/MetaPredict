@@ -19,6 +19,7 @@ import {
   Loader2,
   TrendingDown,
   CheckCircle,
+  Shield,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { GlassCard } from '@/components/effects/GlassCard';
@@ -55,6 +56,11 @@ export default function DashboardPage() {
 
   const resolvedPositions = userPositions.filter((pos) => {
     return pos.market?.status === MARKET_STATUS.RESOLVED;
+  });
+
+  // Winnings claims pendientes (mercados resueltos con payout no reclamado)
+  const pendingWinningsClaims = resolvedPositions.filter((pos) => {
+    return pos.potentialPayout > 0 && !pos.claimed;
   });
 
   const handleAnalyzePortfolio = async () => {
@@ -94,8 +100,13 @@ export default function DashboardPage() {
     setRefreshing(false);
   };
 
-  const ClaimButton = ({ marketId }: { marketId: number }) => {
-    const { claim, isPending } = useClaimWinnings(marketId);
+  const ClaimButton = ({ marketId, marketType }: { marketId: number; marketType?: number }) => {
+    // Determinar el tipo de mercado (0=Binary, 1=Conditional, 2=Subjective)
+    const marketTypeStr: 'binary' | 'conditional' | 'subjective' = 
+      marketType === 1 ? 'conditional' : 
+      marketType === 2 ? 'subjective' : 
+      'binary';
+    const { claim, isPending } = useClaimWinnings(marketId, marketTypeStr);
     
     const handleClaim = async () => {
       if (!account) {
@@ -444,7 +455,7 @@ export default function DashboardPage() {
               <CheckCircle className="w-4 h-4" />
               <span className="hidden sm:inline">Claims</span>
               <span className="sm:hidden">Claims</span>
-              ({claims.length})
+              ({pendingWinningsClaims.length + claims.length})
             </TabsTrigger>
           </TabsList>
 
@@ -680,7 +691,7 @@ export default function DashboardPage() {
                         position.potentialPayout > 0 &&
                         !position.claimed && (
                           <div className="flex-1 sm:flex-initial">
-                            <ClaimButton marketId={position.marketId} />
+                            <ClaimButton marketId={position.marketId} marketType={position.market?.marketType} />
                           </div>
                         )}
                     </div>
@@ -775,7 +786,7 @@ export default function DashboardPage() {
                       {position.market?.status === MARKET_STATUS.RESOLVED &&
                         position.potentialPayout > 0 &&
                         !position.claimed && (
-                          <ClaimButton marketId={position.marketId} />
+                          <ClaimButton marketId={position.marketId} marketType={position.market?.marketType} />
                         )}
                     </div>
                   </div>
@@ -840,12 +851,19 @@ export default function DashboardPage() {
                         </div>
                       </div>
                     </div>
+                    <div className="flex flex-col gap-2">
                     <Link href={`/markets/${position.marketId}`}>
                       <Button variant="outline" size="sm" className="gap-2">
                         View Market
                         <ExternalLink className="w-4 h-4" />
                       </Button>
                     </Link>
+                      {position.market?.status === MARKET_STATUS.RESOLVED &&
+                        position.potentialPayout > 0 &&
+                        !position.claimed && (
+                          <ClaimButton marketId={position.marketId} marketType={position.market?.marketType} />
+                        )}
+                    </div>
                   </div>
                 </GlassCard>
               ))
@@ -865,8 +883,65 @@ export default function DashboardPage() {
                   <Skeleton key={i} className="h-32 w-full" />
                 ))}
               </div>
-            ) : claims.length > 0 ? (
-              claims.map((claim) => (
+            ) : pendingWinningsClaims.length > 0 || claims.length > 0 ? (
+              <div className="space-y-4">
+                {/* Winnings Claims (mercados resueltos con payout pendiente) */}
+                {pendingWinningsClaims.length > 0 && (
+                  <div>
+                    <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                      <DollarSign className="w-5 h-5 text-green-400" />
+                      Winnings to Claim ({pendingWinningsClaims.length})
+                    </h3>
+                    <div className="space-y-3">
+                      {pendingWinningsClaims.map((position) => (
+                        <GlassCard key={`winnings-${position.marketId}`} className="p-6">
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="flex-1">
+                              <h3 className="text-xl font-semibold mb-2">{position.market?.question || `Market #${position.marketId}`}</h3>
+                              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+                                <div>
+                                  <span className="text-gray-400">Market ID:</span>
+                                  <span className="ml-2 text-white font-semibold">#{position.marketId}</span>
+                                </div>
+                                <div>
+                                  <span className="text-gray-400">Payout:</span>
+                                  <span className="ml-2 text-green-400 font-semibold">
+                                    {(Number(position.potentialPayout) / 1e18).toFixed(4)} BNB
+                                  </span>
+                                </div>
+                                <div>
+                                  <span className="text-gray-400">Outcome:</span>
+                                  <span className="ml-2 text-white font-semibold">
+                                    {position.market?.outcome === 1 ? 'YES' : position.market?.outcome === 2 ? 'NO' : 'Invalid'}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex flex-col gap-2">
+                              <ClaimButton marketId={position.marketId} marketType={position.market?.marketType} />
+                              <Link href={`/markets/${position.marketId}`}>
+                                <Button variant="outline" size="sm" className="gap-2">
+                                  View Market
+                                  <ExternalLink className="w-4 h-4" />
+                                </Button>
+                              </Link>
+                            </div>
+                          </div>
+                        </GlassCard>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Insurance Claims */}
+                {claims.length > 0 && (
+                  <div className={pendingWinningsClaims.length > 0 ? 'mt-6' : ''}>
+                    <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                      <Shield className="w-5 h-5 text-yellow-400" />
+                      Insurance Claims ({claims.length})
+                    </h3>
+                    <div className="space-y-3">
+                      {claims.map((claim) => (
                 <GlassCard key={claim.id} className="p-6">
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1">
@@ -901,12 +976,16 @@ export default function DashboardPage() {
                     </Link>
                   </div>
                 </GlassCard>
-              ))
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             ) : (
               <GlassCard className="p-12 text-center">
                 <CheckCircle className="w-16 h-16 text-green-400 mx-auto mb-4" />
                 <p className="text-gray-400 text-lg">No pending claims</p>
-                <p className="text-gray-500 text-sm mt-2">All your positions are protected</p>
+                <p className="text-gray-500 text-sm mt-2">All your positions are protected and winnings are claimed</p>
               </GlassCard>
             )}
           </TabsContent>

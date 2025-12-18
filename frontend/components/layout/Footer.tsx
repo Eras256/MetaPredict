@@ -3,6 +3,11 @@
 import Link from 'next/link';
 import { Twitter, MessageCircle, FileText, ExternalLink, Brain, Code, Shield, Zap, Activity } from 'lucide-react';
 import { GlassCard } from '@/components/effects/GlassCard';
+import { CONTRACT_ADDRESSES } from '@/lib/contracts/addresses';
+
+// Helper function to generate opBNBScan link
+const getContractLink = (address: string) => 
+  `https://testnet.opbnbscan.com/address/${address}#code`;
 
 const footerLinks = {
   product: [
@@ -15,22 +20,22 @@ const footerLinks = {
   contracts: [
     { 
       name: 'Prediction Market Core', 
-      href: 'https://testnet.opbnbscan.com/address/0x5eaa77CC135b82c254F1144c48f4d179964fA0b1#code',
+      href: getContractLink(CONTRACT_ADDRESSES.CORE_CONTRACT),
       external: true 
     },
     { 
       name: 'AI Oracle', 
-      href: 'https://testnet.opbnbscan.com/address/0xcc10a98Aa285E7bD16be1Ef8420315725C3dB66c#code',
+      href: getContractLink(CONTRACT_ADDRESSES.AI_ORACLE),
       external: true 
     },
     { 
       name: 'Insurance Pool', 
-      href: 'https://testnet.opbnbscan.com/address/0xD30B71e1Af743cD93b3b1d7d314822Bc4cd860dA#code',
+      href: getContractLink(CONTRACT_ADDRESSES.INSURANCE_POOL),
       external: true 
     },
     { 
       name: 'Chainlink Data Streams', 
-      href: 'https://testnet.opbnbscan.com/address/0x1758d4da0bAd4DB90Dfd56Be259C19cabDcF03fd#code',
+      href: getContractLink(CONTRACT_ADDRESSES.DATA_STREAMS_INTEGRATION),
       external: true 
     },
     { 

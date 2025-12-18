@@ -29,7 +29,9 @@ class GelatoService {
   private rpcUrl: string | null;
 
   constructor() {
-    this.apiKey = process.env.GELATO_AUTOMATE_API_KEY || process.env.GELATO_RELAY_API_KEY || "";
+    // Gelato Relay API Key (preferred for sponsored calls)
+    // Gelato Automate API Key (for scheduled tasks)
+    this.apiKey = process.env.GELATO_RELAY_API_KEY || process.env.GELATO_AUTOMATE_API_KEY || "";
     // Gelato API endpoints
     this.baseUrl = "https://api.gelato.digital";
     this.testnetBaseUrl = "https://api.gelato.digital";
@@ -167,17 +169,30 @@ class GelatoService {
   }): Promise<{ taskId: string }> {
     try {
       if (!this.apiKey) {
-        throw new Error("GELATO_RELAY_API_KEY not configured");
+        throw new Error("GELATO_RELAY_API_KEY or GELATO_AUTOMATE_API_KEY not configured");
       }
 
+      // Gelato Relay v2 endpoint for sponsored calls
+      // Note: Gelato Relay may not support all chains. For opBNB Testnet (5611),
+      // you may need to use a different approach or check Gelato's supported chains
+      const endpoint = `${this.getBaseUrl()}/relays/v2/sponsored-call`;
+      
+      const payload = {
+        chainId: transaction.chainId,
+        target: transaction.target,
+        data: transaction.data,
+        ...(transaction.user && { user: transaction.user }),
+      };
+
+      console.log(`[GelatoService] Relaying transaction to chainId ${transaction.chainId}:`, {
+        target: transaction.target,
+        dataLength: transaction.data.length,
+        endpoint,
+      });
+
       const response = await axios.post(
-        `${this.getBaseUrl()}/relays/v2/sponsored-call`,
-        {
-          chainId: transaction.chainId,
-          target: transaction.target,
-          data: transaction.data,
-          user: transaction.user,
-        },
+        endpoint,
+        payload,
         {
           headers: {
             "X-API-KEY": this.apiKey,
@@ -191,7 +206,21 @@ class GelatoService {
     } catch (error: any) {
       console.error("[GelatoService] Error relaying transaction:", error.message);
       if (error.response) {
-        console.error("[GelatoService] Response:", error.response.data);
+        console.error("[GelatoService] Response status:", error.response.status);
+        console.error("[GelatoService] Response data:", JSON.stringify(error.response.data, null, 2));
+        
+        // Provide helpful error messages
+        if (error.response.status === 401) {
+          throw new Error("Gelato API key is invalid or expired. Please check your GELATO_RELAY_API_KEY.");
+        } else if (error.response.status === 400) {
+          const errorMsg = error.response.data?.message || error.response.data?.error || "Invalid request";
+          if (errorMsg.includes("chain") || errorMsg.includes("network")) {
+            throw new Error(`Gelato Relay may not support opBNB Testnet (chainId: ${transaction.chainId}). ${errorMsg}`);
+          }
+          throw new Error(`Invalid request to Gelato: ${errorMsg}`);
+        } else if (error.response.status === 403) {
+          throw new Error("Gelato API key does not have permission for this operation. Check your API key permissions.");
+        }
       }
       throw new Error(`Failed to relay transaction: ${error.message}`);
     }
@@ -286,32 +315,61 @@ class GelatoService {
     configured: boolean;
     apiKeyPresent: boolean;
     message: string;
+    details?: {
+      relayKeyPresent: boolean;
+      automateKeyPresent: boolean;
+      rpcUrlPresent: boolean;
+      apiKeyLength: number;
+      apiKeyPrefix: string;
+    };
+    warnings?: string[];
   }> {
+    const relayKey = process.env.GELATO_RELAY_API_KEY;
+    const automateKey = process.env.GELATO_AUTOMATE_API_KEY;
+    const rpcUrl = process.env.GELATO_RPC_URL_TESTNET;
     const apiKeyPresent = !!this.apiKey;
     
+    const details = {
+      relayKeyPresent: !!relayKey,
+      automateKeyPresent: !!automateKey,
+      rpcUrlPresent: !!rpcUrl,
+      apiKeyLength: this.apiKey.length,
+      apiKeyPrefix: this.apiKey.substring(0, 10) + "...",
+    };
+
+    const warnings: string[] = [];
+
     if (!apiKeyPresent) {
       return {
         configured: false,
         apiKeyPresent: false,
-        message: "GELATO_AUTOMATE_API_KEY or GELATO_RELAY_API_KEY not configured",
+        message: "GELATO_RELAY_API_KEY or GELATO_AUTOMATE_API_KEY not configured",
+        details,
+        warnings: [
+          "Configure GELATO_RELAY_API_KEY in Vercel environment variables",
+          "Get your API key from https://relay.gelato.network/",
+        ],
       };
     }
 
-    // Try to make a test call (optional)
-    try {
-      // We could make a test call here
-      return {
-        configured: true,
-        apiKeyPresent: true,
-        message: "Gelato is configured and ready",
-      };
-    } catch (error: any) {
-      return {
-        configured: false,
-        apiKeyPresent: true,
-        message: `Gelato API key present but test failed: ${error.message}`,
-      };
+    // Check if API key looks valid (Gelato keys are usually long strings)
+    if (this.apiKey.length < 20) {
+      warnings.push("API key seems too short. Verify it's correct.");
     }
+
+    // Check for opBNB Testnet support
+    warnings.push(
+      "Note: Gelato Relay may not support opBNB Testnet (chainId: 5611). " +
+      "If transactions fail, use the manual resolution script instead."
+    );
+
+    return {
+      configured: true,
+      apiKeyPresent: true,
+      message: "Gelato is configured. Note: opBNB Testnet support may be limited.",
+      details,
+      warnings,
+    };
   }
 }
 

@@ -1,5 +1,6 @@
 import * as dotenv from "dotenv";
 import * as path from "path";
+// @ts-expect-error - hardhat exports ethers but TypeScript types may not reflect it
 import { ethers } from "hardhat";
 
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });

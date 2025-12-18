@@ -43,11 +43,13 @@ class EventMonitorService {
    */
   async initialize(): Promise<void> {
     try {
-      const rpcUrl = process.env.GELATO_RPC_URL_TESTNET || 
-                    process.env.RPC_URL_TESTNET || 
+      // Prefer standard RPC over Gelato RPC (Gelato RPC may not be available for opBNB Testnet)
+      const rpcUrl = process.env.RPC_URL_TESTNET || 
                     process.env.NEXT_PUBLIC_OPBNB_TESTNET_RPC || 
+                    process.env.GELATO_RPC_URL_TESTNET || 
                     "https://opbnb-testnet-rpc.bnbchain.org";
 
+      console.log(`[EventMonitor] Initializing with RPC: ${rpcUrl.replace(/\/rpc\/[^/]+/, '/rpc/***')}`);
       this.provider = new ethers.JsonRpcProvider(rpcUrl);
       
       if (this.aiOracleAddress) {
@@ -165,21 +167,63 @@ class EventMonitorService {
         `[EventMonitor] Backend resolved: outcome=${outcome}, confidence=${confidence}`
       );
 
-      // Step 2: Use Gelato Relay to execute resolution on AIOracle contract
-      const gelatoResult = await gelatoService.fulfillResolution(
-        this.aiOracleAddress,
-        request.marketId,
-        outcome,
-        confidence,
-        this.chainId
-      );
+      // Step 2: Try to use Gelato Relay to execute resolution on AIOracle contract
+      // If Gelato fails (e.g., doesn't support opBNB Testnet), log the error but don't fail completely
+      // The market will need to be resolved manually using the script
+      try {
+        const gelatoResult = await gelatoService.fulfillResolution(
+          this.aiOracleAddress,
+          request.marketId,
+          outcome,
+          confidence,
+          this.chainId
+        );
 
-      console.log(
-        `[EventMonitor] Gelato Relay task created: taskId=${gelatoResult.taskId} for marketId=${request.marketId}`
-      );
+        console.log(
+          `[EventMonitor] ✅ Gelato Relay task created: taskId=${gelatoResult.taskId} for marketId=${request.marketId}`
+        );
+        console.log(
+          `[EventMonitor] Market ${request.marketId} will be resolved via Gelato Relay`
+        );
+      } catch (gelatoError: any) {
+        // Gelato failed - log detailed error but don't throw
+        // This allows the cron job to continue processing other markets
+        const errorMsg = gelatoError.message || String(gelatoError);
+        console.error(
+          `[EventMonitor] ⚠️ Gelato Relay failed for marketId=${request.marketId}: ${errorMsg}`
+        );
+        
+        // Check if it's a chain support issue
+        if (errorMsg.includes("chain") || errorMsg.includes("network") || errorMsg.includes("not support")) {
+          console.error(
+            `[EventMonitor] 💡 Gelato Relay does not support opBNB Testnet (chainId: ${this.chainId})`
+          );
+          console.error(
+            `[EventMonitor] 💡 Market ${request.marketId} needs manual resolution. Run: pnpm hardhat run scripts/resolve-all-pending-markets.ts --network opBNBTestnet`
+          );
+        } else if (errorMsg.includes("API key") || errorMsg.includes("401") || errorMsg.includes("403")) {
+          console.error(
+            `[EventMonitor] 💡 Gelato API key issue. Check GELATO_RELAY_API_KEY configuration.`
+          );
+        }
+        
+        // Don't throw - allow cron job to continue and log this for manual resolution
+        // The market will remain in "Resolving" state until manually resolved
+        throw new Error(
+          `Gelato Relay failed: ${errorMsg}. Market ${request.marketId} needs manual resolution. ` +
+          `Backend consensus obtained: outcome=${outcome}, confidence=${confidence}. ` +
+          `Use script: resolve-all-pending-markets.ts`
+        );
+      }
     } catch (error: any) {
+      // Re-throw Gelato errors with context
+      if (error.message.includes("Gelato Relay failed")) {
+        throw error;
+      }
+      
+      // Other errors (backend, etc.)
       console.error(
-        `[EventMonitor] Error processing resolution for marketId=${request.marketId}: ${error.message}`
+        `[EventMonitor] ❌ Error processing resolution for marketId=${request.marketId}: ${error.message}`
       );
       throw error;
     }

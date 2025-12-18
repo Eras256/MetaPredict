@@ -1,0 +1,358 @@
+﻿# ============================================
+# Comandos para configurar variables en Vercel
+# ============================================
+# Generado automÃ¡ticamente el 2025-12-16 13:46:09
+#
+# INSTRUCCIONES:
+# 1. Revisa cada comando y actualiza los valores [CONFIGURAR_EN_VERCEL]
+# 2. Ejecuta los comandos uno por uno:
+#    vercel env add VARIABLE_NAME production
+# 3. O mejor aÃºn, usa el Dashboard de Vercel:
+#    https://vercel.com/dashboard -> Tu Proyecto -> Settings -> Environment Variables
+# ============================================
+
+
+# ============================================
+# Smart Contracts
+# ============================================
+
+# Variable: USDC_ADDRESS
+vercel env add USDC_ADDRESS production
+# Valor sugerido/ejemplo: 0x845E27B8A4ad1Fe3dc0b41b900dC8C1Bb45141C3
+
+# Variable: LINK_TOKEN_ADDRESS
+vercel env add LINK_TOKEN_ADDRESS production
+# Valor sugerido/ejemplo: 0x56E16E648c51609A14Eb14B99BAB771Bee797045
+
+# Variable: VENUS_VUSDC_ADDRESS
+vercel env add VENUS_VUSDC_ADDRESS production
+# Valor sugerido/ejemplo: 0xe3923805f6E117E51f5387421240a86EF1570abC
+
+# Variable: USDC_ADDRESS
+vercel env add USDC_ADDRESS production
+# Valor sugerido/ejemplo: 0x845E27B8A4ad1Fe3dc0b41b900dC8C1Bb45141C3
+
+
+# ============================================
+# Security
+# ============================================
+
+# Variable: OWNER_PRIVATE_KEY
+vercel env add OWNER_PRIVATE_KEY production
+# Valor sugerido/ejemplo: [OCULTO - Configurar en Vercel Dashboard]
+
+# Variable: PRIVATE_KEY
+vercel env add PRIVATE_KEY production
+# Valor sugerido/ejemplo: [OCULTO - Configurar en Vercel Dashboard]
+
+# Variable: JWT_SECRET
+vercel env add JWT_SECRET production
+# Valor sugerido/ejemplo: [CONFIGURAR_EN_VERCEL]
+
+# Variable: CRON_SECRET
+vercel env add CRON_SECRET production
+# Valor sugerido/ejemplo: [CONFIGURAR_EN_VERCEL]
+
+
+# ============================================
+# AI Services
+# ============================================
+
+# Variable: GEMINI_API_KEY
+vercel env add GEMINI_API_KEY production
+# Valor sugerido/ejemplo: [OCULTO - Configurar en Vercel Dashboard]
+
+# Variable: GROQ_API_KEY
+vercel env add GROQ_API_KEY production
+# Valor sugerido/ejemplo: [OCULTO - Configurar en Vercel Dashboard]
+
+# Variable: OPENROUTER_API_KEY
+vercel env add OPENROUTER_API_KEY production
+# Valor sugerido/ejemplo: [OCULTO - Configurar en Vercel Dashboard]
+
+# Variable: HUGGINGFACE_API_KEY
+vercel env add HUGGINGFACE_API_KEY production
+# Valor sugerido/ejemplo: [CONFIGURAR_EN_VERCEL]
+
+
+# ============================================
+# Backend API Keys
+# ============================================
+
+# Variable: PORT
+vercel env add PORT production
+# Valor sugerido/ejemplo: 3001
+
+# Variable: CORS_ORIGIN
+vercel env add CORS_ORIGIN production
+# Valor sugerido/ejemplo: [CONFIGURAR_EN_VERCEL]
+
+# Variable: THIRDWEB_SECRET_KEY
+vercel env add THIRDWEB_SECRET_KEY production
+# Valor sugerido/ejemplo: [OCULTO - Configurar en Vercel Dashboard]
+
+# Variable: BACKEND_URL
+vercel env add BACKEND_URL production
+# Valor sugerido/ejemplo: https://your-backend-url.com/api/oracle/resolve
+
+
+# ============================================
+# Gelato
+# ============================================
+
+# Variable: GELATO_RPC_API_KEY
+vercel env add GELATO_RPC_API_KEY production
+# Valor sugerido/ejemplo: [OCULTO - Configurar en Vercel Dashboard]
+
+# Variable: GELATO_RPC_URL_TESTNET
+vercel env add GELATO_RPC_URL_TESTNET production
+# Valor sugerido/ejemplo: https://opbnb-testnet.gelato.digital/rpc/9204798d9d704f239b47867f60092ab1
+
+# Variable: GELATO_RELAY_API_KEY
+vercel env add GELATO_RELAY_API_KEY production
+# Valor sugerido/ejemplo: [OCULTO - Configurar en Vercel Dashboard]
+
+# Variable: GELATO_AUTOMATE_API_KEY
+vercel env add GELATO_AUTOMATE_API_KEY production
+# Valor sugerido/ejemplo: [OCULTO - Configurar en Vercel Dashboard]
+
+
+# ============================================
+# Chainlink
+# ============================================
+
+# Variable: CHAINLINK_CCIP_ROUTER
+vercel env add CHAINLINK_CCIP_ROUTER production
+# Valor sugerido/ejemplo: 0xD9182959D9771cc77e228cB3caFe671f45A37630
+
+# Variable: CHAINLINK_CCIP_CHAIN_SELECTOR
+vercel env add CHAINLINK_CCIP_CHAIN_SELECTOR production
+# Valor sugerido/ejemplo: 13274425992935471758
+
+# Variable: CHAINLINK_DATA_STREAMS_VERIFIER_PROXY
+vercel env add CHAINLINK_DATA_STREAMS_VERIFIER_PROXY production
+# Valor sugerido/ejemplo: 0x001225Aca0efe49Dbb48233aB83a9b4d177b581A
+
+# Variable: CHAINLINK_DATA_STREAMS_BTC_USD_STREAM_ID
+vercel env add CHAINLINK_DATA_STREAMS_BTC_USD_STREAM_ID production
+# Valor sugerido/ejemplo: 0x00039d9e45394f473ab1f050a1b963e6b05351e52d71e507509ada0c95ed75b8
+
+# Variable: CHAINLINK_DATA_STREAMS_ETH_USD_STREAM_ID
+vercel env add CHAINLINK_DATA_STREAMS_ETH_USD_STREAM_ID production
+# Valor sugerido/ejemplo: 0x000362205e10b3a147d02792eccee483dca6c7b44ecce7012cb8c6e0b68b3ae9
+
+# Variable: CHAINLINK_DATA_STREAMS_USDT_USD_STREAM_ID
+vercel env add CHAINLINK_DATA_STREAMS_USDT_USD_STREAM_ID production
+# Valor sugerido/ejemplo: 0x0003a910a43485e0685ff5d6d366541f5c21150f0634c5b14254392d1a1c06db
+
+# Variable: CHAINLINK_DATA_STREAMS_BNB_USD_STREAM_ID
+vercel env add CHAINLINK_DATA_STREAMS_BNB_USD_STREAM_ID production
+# Valor sugerido/ejemplo: 0x000335fd3f3ffa06cfd9297b97367f77145d7a5f132e84c736cc471dd98621fe
+
+# Variable: CHAINLINK_DATA_STREAMS_SOL_USD_STREAM_ID
+vercel env add CHAINLINK_DATA_STREAMS_SOL_USD_STREAM_ID production
+# Valor sugerido/ejemplo: 0x0003b778d3f6b2ac4991302b89cb313f99a42467d6c9c5f96f57c29c0d2bc24f
+
+# Variable: CHAINLINK_DATA_STREAMS_USDC_USD_STREAM_ID
+vercel env add CHAINLINK_DATA_STREAMS_USDC_USD_STREAM_ID production
+# Valor sugerido/ejemplo: 0x00038f83323b6b08116d1614cf33a9bd71ab5e0abf0c9f1b783a74a43e7bd992
+
+# Variable: CHAINLINK_DATA_STREAMS_XRP_USD_STREAM_ID
+vercel env add CHAINLINK_DATA_STREAMS_XRP_USD_STREAM_ID production
+# Valor sugerido/ejemplo: 0x0003c16c6aed42294f5cb4741f6e59ba2d728f0eae2eb9e6d3f555808c59fc45
+
+# Variable: CHAINLINK_DATA_STREAMS_DOGE_USD_STREAM_ID
+vercel env add CHAINLINK_DATA_STREAMS_DOGE_USD_STREAM_ID production
+# Valor sugerido/ejemplo: 0x000356ca64d3b32135e17dc0dc721a645bf50d0303be8ceb2cdca0a50bab8fdc
+
+
+# ============================================
+# RPC & Network
+# ============================================
+
+# Variable: RPC_URL_TESTNET
+vercel env add RPC_URL_TESTNET production
+# Valor sugerido/ejemplo: https://opbnb-testnet-rpc.bnbchain.org
+
+# Variable: OPBNB_RPC_URL
+vercel env add OPBNB_RPC_URL production
+# Valor sugerido/ejemplo: https://opbnb-testnet-rpc.bnbchain.org
+
+# Variable: OPBNB_CHAIN_ID
+vercel env add OPBNB_CHAIN_ID production
+# Valor sugerido/ejemplo: 5611
+
+# Variable: RPC_URL
+vercel env add RPC_URL production
+# Valor sugerido/ejemplo: https://opbnb-mainnet-rpc.bnbchain.org
+
+# Variable: RPC_URL_TESTNET
+vercel env add RPC_URL_TESTNET production
+# Valor sugerido/ejemplo: https://opbnb-testnet-rpc.bnbchain.org
+
+# Variable: CHAIN_ID
+vercel env add CHAIN_ID production
+# Valor sugerido/ejemplo: 5611
+
+# Variable: CHAIN_ID_TESTNET
+vercel env add CHAIN_ID_TESTNET production
+# Valor sugerido/ejemplo: 5611
+
+
+# ============================================
+# Other
+# ============================================
+
+# Variable: NODE_ENV
+vercel env add NODE_ENV production
+# Valor sugerido/ejemplo: development
+
+# Variable: ETHERSCAN_API_KEY
+vercel env add ETHERSCAN_API_KEY production
+# Valor sugerido/ejemplo: [OCULTO - Configurar en Vercel Dashboard]
+
+# Variable: NODEREAL_API_KEY
+vercel env add NODEREAL_API_KEY production
+# Valor sugerido/ejemplo: [OCULTO - Configurar en Vercel Dashboard]
+
+# Variable: JWT_EXPIRES_IN
+vercel env add JWT_EXPIRES_IN production
+# Valor sugerido/ejemplo: 7d
+
+# Variable: GOOGLE_API_KEY
+vercel env add GOOGLE_API_KEY production
+# Valor sugerido/ejemplo: [OCULTO - Configurar en Vercel Dashboard]
+
+# Variable: HUGGINGFACE_ENDPOINT_URL
+vercel env add HUGGINGFACE_ENDPOINT_URL production
+# Valor sugerido/ejemplo: [CONFIGURAR_EN_VERCEL]
+
+# Variable: IPFS_GATEWAY_URL
+vercel env add IPFS_GATEWAY_URL production
+# Valor sugerido/ejemplo: https://ipfs.io/ipfs/
+
+# Variable: IPFS_API_URL
+vercel env add IPFS_API_URL production
+# Valor sugerido/ejemplo: https://ipfs.infura.io:5001/api/v0
+
+# Variable: LOG_LEVEL
+vercel env add LOG_LEVEL production
+# Valor sugerido/ejemplo: info
+
+# Variable: BSCSCAN_API_KEY
+vercel env add BSCSCAN_API_KEY production
+# Valor sugerido/ejemplo: [CONFIGURAR_EN_VERCEL]
+
+# Variable: VENUS_API_URL
+vercel env add VENUS_API_URL production
+# Valor sugerido/ejemplo: https://api.venus.io
+
+# Variable: VENUS_TESTNET_API_URL
+vercel env add VENUS_TESTNET_API_URL production
+# Valor sugerido/ejemplo: https://testnetapi.venus.io
+
+# Variable: VENUS_USE_TESTNET
+vercel env add VENUS_USE_TESTNET production
+# Valor sugerido/ejemplo: true
+
+# Variable: VENUS_VTOKEN
+vercel env add VENUS_VTOKEN production
+# Valor sugerido/ejemplo: 0xe3923805f6E117E51f5387421240a86EF1570abC
+
+
+# ============================================
+# Frontend (NEXT_PUBLIC_*)
+# ============================================
+
+# Variable: NEXT_PUBLIC_THIRDWEB_CLIENT_ID
+vercel env add NEXT_PUBLIC_THIRDWEB_CLIENT_ID production
+# Valor sugerido/ejemplo: 3631641b29eb64f9b3e1b22a6a8d1a0f
+
+# Variable: NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID
+vercel env add NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID production
+# Valor sugerido/ejemplo: [CONFIGURAR_EN_VERCEL]
+
+# Variable: NEXT_PUBLIC_CHAIN_ID
+vercel env add NEXT_PUBLIC_CHAIN_ID production
+# Valor sugerido/ejemplo: 5611
+
+# Variable: NEXT_PUBLIC_OPBNB_TESTNET_RPC
+vercel env add NEXT_PUBLIC_OPBNB_TESTNET_RPC production
+# Valor sugerido/ejemplo: https://opbnb-testnet-rpc.bnbchain.org
+
+# Variable: NEXT_PUBLIC_OPBNB_MAINNET_RPC
+vercel env add NEXT_PUBLIC_OPBNB_MAINNET_RPC production
+# Valor sugerido/ejemplo: https://opbnb-mainnet-rpc.bnbchain.org
+
+# Variable: NEXT_PUBLIC_CORE_CONTRACT_ADDRESS
+vercel env add NEXT_PUBLIC_CORE_CONTRACT_ADDRESS production
+# Valor sugerido/ejemplo: 0xCB6a24b349c96526B6e7b79a87B2c4009d25D7AC
+
+# Variable: NEXT_PUBLIC_AI_ORACLE_ADDRESS
+vercel env add NEXT_PUBLIC_AI_ORACLE_ADDRESS production
+# Valor sugerido/ejemplo: 0xcc10a98Aa285E7bD16be1Ef8420315725C3dB66c
+
+# Variable: NEXT_PUBLIC_INSURANCE_POOL_ADDRESS
+vercel env add NEXT_PUBLIC_INSURANCE_POOL_ADDRESS production
+# Valor sugerido/ejemplo: 0xD30B71e1Af743cD93b3b1d7d314822Bc4cd860dA
+
+# Variable: NEXT_PUBLIC_REPUTATION_STAKING_ADDRESS
+vercel env add NEXT_PUBLIC_REPUTATION_STAKING_ADDRESS production
+# Valor sugerido/ejemplo: 0x5935C4002Bf11eCD4525d60Ef7e2B949421E15E7
+
+# Variable: NEXT_PUBLIC_DAO_GOVERNANCE_ADDRESS
+vercel env add NEXT_PUBLIC_DAO_GOVERNANCE_ADDRESS production
+# Valor sugerido/ejemplo: 0xC2eD64e39cD7A6Ab9448f14E1f965E1D1e819123
+
+# Variable: NEXT_PUBLIC_OMNI_ROUTER_ADDRESS
+vercel env add NEXT_PUBLIC_OMNI_ROUTER_ADDRESS production
+# Valor sugerido/ejemplo: 0x11C1124384e463d99Ba84348280e318FbeE544d0
+
+# Variable: NEXT_PUBLIC_BINARY_MARKET_ADDRESS
+vercel env add NEXT_PUBLIC_BINARY_MARKET_ADDRESS production
+# Valor sugerido/ejemplo: 0x44bF3De950526d5BDbfaA284F6430c72Ea99163B
+
+# Variable: NEXT_PUBLIC_CONDITIONAL_MARKET_ADDRESS
+vercel env add NEXT_PUBLIC_CONDITIONAL_MARKET_ADDRESS production
+# Valor sugerido/ejemplo: 0x45E223eAB99761A7E60eF7690420C178FEBD23df
+
+# Variable: NEXT_PUBLIC_SUBJECTIVE_MARKET_ADDRESS
+vercel env add NEXT_PUBLIC_SUBJECTIVE_MARKET_ADDRESS production
+# Valor sugerido/ejemplo: 0xaBb50827b49E7c725B6A8B735348D3A2a34E70cE
+
+# Variable: NEXT_PUBLIC_DATA_STREAMS_INTEGRATION_ADDRESS
+vercel env add NEXT_PUBLIC_DATA_STREAMS_INTEGRATION_ADDRESS production
+# Valor sugerido/ejemplo: 0x1758d4da0bAd4DB90Dfd56Be259C19cabDcF03fd
+
+# Variable: NEXT_PUBLIC_USDC_ADDRESS
+vercel env add NEXT_PUBLIC_USDC_ADDRESS production
+# Valor sugerido/ejemplo: 0x845E27B8A4ad1Fe3dc0b41b900dC8C1Bb45141C3
+
+# Variable: NEXT_PUBLIC_API_URL
+vercel env add NEXT_PUBLIC_API_URL production
+# Valor sugerido/ejemplo: /api
+
+# Variable: NEXT_PUBLIC_APP_URL
+vercel env add NEXT_PUBLIC_APP_URL production
+# Valor sugerido/ejemplo: [CONFIGURAR_EN_VERCEL]
+
+# Variable: NEXT_PUBLIC_IPFS_GATEWAY_URL
+vercel env add NEXT_PUBLIC_IPFS_GATEWAY_URL production
+# Valor sugerido/ejemplo: https://ipfs.io/ipfs/
+
+
+# ============================================
+# Database
+# ============================================
+
+# Variable: DATABASE_URL
+vercel env add DATABASE_URL production
+# Valor sugerido/ejemplo: [OCULTO - Configurar en Vercel Dashboard]
+
+
+# ============================================
+# Total: 72 variables
+# ============================================
+
+# NOTA: DespuÃ©s de configurar las variables, redespliega el proyecto:
+# vercel --prod
