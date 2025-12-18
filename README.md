@@ -11,7 +11,7 @@
 
 [![Deployed Contracts](https://img.shields.io/badge/Contracts-10%2F10%20Verified-brightgreen?style=for-the-badge)](https://testnet.opbnbscan.com/)
 [![AI Models](https://img.shields.io/badge/AI%20Models-5%20Providers-purple?style=for-the-badge)](./docs/CONSENSUS_SYSTEM.md)
-[![Test Coverage](https://img.shields.io/badge/Tests-115%2F115%20Passing%20%7C%2011%2F11%20E2E%20Real-brightgreen?style=for-the-badge)](./README.md#-real-world-test-results--transaction-links)
+[![Test Coverage](https://img.shields.io/badge/Tests-115%2F115%20Passing%20%7C%2025%2F25%20E2E%20Real-brightgreen?style=for-the-badge)](./README.md#-real-world-test-results--transaction-links)
 
 [🚀 Quick Start](#-quick-start) • [📖 Documentation](#-documentation) • [🔗 Live Contracts](#-deployed-contracts) • [🤖 AI Oracle](#-multi-ai-oracle-consensus-system) • [🧪 Test Results](#-real-world-test-results--transaction-links)
 
@@ -42,7 +42,7 @@ We've built the **most advanced prediction market platform** on opBNB, combining
 
 | Priority | AI Model | Provider | Speed | Status |
 |:--------:|:--------|:--------:|:-----:|:------:|
-| 🥇 **1st** | **Gemini 2.5 Flash** | Google AI Studio | ⚡ Fast | ✅ Active |
+| 🥇 **1st** | **Gemini 2.5 Flash Lite** | Google AI Studio | ⚡⚡ Ultra Fast | ✅ Active |
 | 🥈 **2nd** | **Llama 3.1 Standard** | Groq | ⚡⚡ Ultra Fast | ✅ Active |
 | 🥉 **3rd** | **Mistral 7B** | OpenRouter | ⚡ Fast | ✅ Active |
 | 4️⃣ | **Llama 3.2 3B** | OpenRouter | ⚡ Fast | ✅ Active |
@@ -87,13 +87,13 @@ Real-time price feeds with **sub-second updates** (up to 100ms) for price-based 
 
 **Testing**: All Stream IDs have been tested and verified. Use `pnpm datastreams:test` to test price verification.
 
-### 🛡️ Insurance Pool (ERC-4626)
+### 🛡️ Insurance Pool (ERC-4626 Style)
 
 Protect your predictions with our **yield-generating insurance vault**:
 
 - 💰 **Automatic Refunds**: If oracle consensus fails, you get your money back
 - 📈 **Yield Farming**: Insurance funds earn yield via Venus Protocol
-- 🔒 **ERC-4626 Standard**: Industry-standard vault implementation
+- 🔒 **Native BNB**: Uses native BNB instead of ERC20 tokens
 - 📊 **Transparent**: All deposits and yields are on-chain
 
 **Contract**: [`InsurancePool`](https://testnet.opbnbscan.com/address/0xD30B71e1Af743cD93b3b1d7d314822Bc4cd860dA#code)  
@@ -211,10 +211,10 @@ pnpm dev
 
 ### 🎯 First Steps
 
-1. **Get Testnet Tokens**: Use our [faucet guide](./OBTENER_TOKENS_TESTNET.md)
-2. **Configure API Keys**: See [services setup](./SERVICES_SETUP.md)
+1. **Get Testnet Tokens**: Use opBNB testnet faucet
+2. **Configure API Keys**: Set up GEMINI_API_KEY, GROQ_API_KEY, OPENROUTER_API_KEY
 3. **Create Your First Market**: Use the frontend or interact directly with contracts
-4. **Monitor Oracle Bot**: Check [Oracle Bot status](./PRUEBA_ORACLE_BOT.md)
+4. **Monitor Oracle Bot**: Check oracle resolution events
 5. **Test Chainlink Integration**: Run `pnpm chainlink:full` to test complete workflow
 6. **View Real Test Results**: See [Test Results & Transaction Links](#-real-world-test-results--transaction-links) section below
 
@@ -253,12 +253,12 @@ pnpm update:backend-url
 
 ### ✅ **All Contracts Verified (10/10)** ✅
 
-**Last Updated**: January 4, 2025  
+**Last Updated**: January 2025  
 **Source**: Official addresses from `frontend/lib/contracts/addresses.ts` (in production use)  
 **Network**: opBNB Testnet (Chain ID: 5611)  
 **Token**: **Native BNB** (no ERC20 tokens required)  
-**Explorer**: [opBNBScan Testnet](https://testnet.opbnbscan.com/)
-**Domain**: **metapredict.fun** (migrated from metapredict.ai)  
+**Explorer**: [opBNBScan Testnet](https://testnet.opbnbscan.com/)  
+**Domain**: **metapredict.fun**  
 **Backend URL**: `https://metapredict.fun/api/oracle/resolve` (configured on-chain)  
 **Status**: ✅ **All contracts verified, tested, and connected to frontend**  
 **Test Results**: ✅ **115/115 tests passing** | ✅ **25/25 real integration tests passing** | ✅ **11/11 E2E tests passing**
@@ -306,33 +306,6 @@ pnpm update:backend-url
 - **🌐 Production Status**: ✅ **Live on metapredict.fun**
 - **📊 Real Integration Tests**: ✅ **25/25 passing** (all services verified with real data)
 
-### 📋 Verification Details
-
-All contracts have been verified on opBNBScan with source code available for public inspection:
-
-#### Core Contracts
-- ✅ **PredictionMarketCore**: [View Contract](https://testnet.opbnbscan.com/address/0x5eaa77CC135b82c254F1144c48f4d179964fA0b1#code) | [View Transactions](https://testnet.opbnbscan.com/address/0x5eaa77CC135b82c254F1144c48f4d179964fA0b1#txs) | [Read Contract](https://testnet.opbnbscan.com/address/0x5eaa77CC135b82c254F1144c48f4d179964fA0b1#readContract)
-- ✅ **AIOracle**: [View Contract](https://testnet.opbnbscan.com/address/0xcc10a98Aa285E7bD16be1Ef8420315725C3dB66c#code) | [View Transactions](https://testnet.opbnbscan.com/address/0xcc10a98Aa285E7bD16be1Ef8420315725C3dB66c#txs) | [Read Contract](https://testnet.opbnbscan.com/address/0xcc10a98Aa285E7bD16be1Ef8420315725C3dB66c#readContract)
-- ✅ **InsurancePool**: [View Contract](https://testnet.opbnbscan.com/address/0xD30B71e1Af743cD93b3b1d7d314822Bc4cd860dA#code) | [View Transactions](https://testnet.opbnbscan.com/address/0xD30B71e1Af743cD93b3b1d7d314822Bc4cd860dA#txs) | [Read Contract](https://testnet.opbnbscan.com/address/0xD30B71e1Af743cD93b3b1d7d314822Bc4cd860dA#readContract)
-- ✅ **ReputationStaking**: [View Contract](https://testnet.opbnbscan.com/address/0x5935C4002Bf11eCD4525d60Ef7e2B949421E15E7#code) | [View Transactions](https://testnet.opbnbscan.com/address/0x5935C4002Bf11eCD4525d60Ef7e2B949421E15E7#txs) | [Read Contract](https://testnet.opbnbscan.com/address/0x5935C4002Bf11eCD4525d60Ef7e2B949421E15E7#readContract)
-- ✅ **DAOGovernance**: [View Contract](https://testnet.opbnbscan.com/address/0xC2eD64e39cD7A6Ab9448f14E1f965E1D1e819123#code) | [View Transactions](https://testnet.opbnbscan.com/address/0xC2eD64e39cD7A6Ab9448f14E1f965E1D1e819123#txs) | [Read Contract](https://testnet.opbnbscan.com/address/0xC2eD64e39cD7A6Ab9448f14E1f965E1D1e819123#readContract)
-- ✅ **OmniRouter**: [View Contract](https://testnet.opbnbscan.com/address/0x11C1124384e463d99Ba84348280e318FbeE544d0#code) | [View Transactions](https://testnet.opbnbscan.com/address/0x11C1124384e463d99Ba84348280e318FbeE544d0#txs) | [Read Contract](https://testnet.opbnbscan.com/address/0x11C1124384e463d99Ba84348280e318FbeE544d0#readContract)
-
-#### Market Contracts
-- ✅ **BinaryMarket**: [View Contract](https://testnet.opbnbscan.com/address/0x41A5CFeEf9C7fc50e68E13bAbB11b3B8872a0b6d#code) | [View Transactions](https://testnet.opbnbscan.com/address/0x41A5CFeEf9C7fc50e68E13bAbB11b3B8872a0b6d#txs) | [Read Contract](https://testnet.opbnbscan.com/address/0x41A5CFeEf9C7fc50e68E13bAbB11b3B8872a0b6d#readContract)
-- ✅ **ConditionalMarket**: [View Contract](https://testnet.opbnbscan.com/address/0x41C2b1FB595Ad18cb111c3a3Fc1B2d6307e43741#code) | [View Transactions](https://testnet.opbnbscan.com/address/0x41C2b1FB595Ad18cb111c3a3Fc1B2d6307e43741#txs) | [Read Contract](https://testnet.opbnbscan.com/address/0x41C2b1FB595Ad18cb111c3a3Fc1B2d6307e43741#readContract)
-- ✅ **SubjectiveMarket**: [View Contract](https://testnet.opbnbscan.com/address/0xAE88cE8f797FCBD36b0Ae78f80FDb11774d766f8#code) | [View Transactions](https://testnet.opbnbscan.com/address/0xAE88cE8f797FCBD36b0Ae78f80FDb11774d766f8#txs) | [Read Contract](https://testnet.opbnbscan.com/address/0xAE88cE8f797FCBD36b0Ae78f80FDb11774d766f8#readContract)
-
-#### Oracle & Data Integration
-- ✅ **ChainlinkDataStreamsIntegration**: [View Contract](https://testnet.opbnbscan.com/address/0x1758d4da0bAd4DB90Dfd56Be259C19cabDcF03fd#code) | [View Transactions](https://testnet.opbnbscan.com/address/0x1758d4da0bAd4DB90Dfd56Be259C19cabDcF03fd#txs) | [Read Contract](https://testnet.opbnbscan.com/address/0x1758d4da0bAd4DB90Dfd56Be259C19cabDcF03fd#readContract)
-- ✅ **Chainlink Verifier Proxy**: [View Contract](https://testnet.opbnbscan.com/address/0x001225Aca0efe49Dbb48233aB83a9b4d177b581A) | [View Transactions](https://testnet.opbnbscan.com/address/0x001225Aca0efe49Dbb48233aB83a9b4d177b581A#txs)
-
-### 🔗 Chainlink Configuration
-
-- **Verifier Proxy**: [`0x001225Aca0efe49Dbb48233aB83a9b4d177b581A`](https://testnet.opbnbscan.com/address/0x001225Aca0efe49Dbb48233aB83a9b4d177b581A) - Configured in ChainlinkDataStreamsIntegration contract
-- **Backend URL**: `https://metapredict.fun/api/oracle/resolve` - Configured on-chain in AIOracle contract
-- **Stream IDs**: All 8 trading pairs configured and tested (BTC, ETH, BNB, USDT, SOL, XRP, USDC, DOGE)
-
 ### ✅ Integration Status
 
 All contracts are:
@@ -368,13 +341,19 @@ Our oracle system queries **5 AI models from 3 different providers** in a sequen
 
 | Priority | AI Model | Provider | API | Speed | Cost | Status |
 |:--------:|:---------|:--------:|:---:|:-----:|:----:|:------:|
-| 🥇 **1st** | **Gemini 2.5 Flash** | [Google AI Studio](https://aistudio.google.com/app/apikey) | Free | ⚡ Fast | 💰 Free | ✅ Active |
+| 🥇 **1st** | **Gemini 2.5 Flash Lite** | [Google AI Studio](https://aistudio.google.com/app/apikey) | Free | ⚡⚡ Ultra Fast | 💰 Free | ✅ Active |
 | 🥈 **2nd** | **Llama 3.1 Standard** | [Groq](https://console.groq.com/keys) | Free | ⚡⚡ Ultra Fast | 💰 Free | ✅ Active |
 | 🥉 **3rd** | **Mistral 7B** | [OpenRouter](https://openrouter.ai) | Free | ⚡ Fast | 💰 Free | ✅ Active |
 | 4️⃣ | **Llama 3.2 3B** | [OpenRouter](https://openrouter.ai) | Free | ⚡ Fast | 💰 Free | ✅ Active |
 | 5️⃣ | **Gemini (OpenRouter)** | [OpenRouter](https://openrouter.ai) | Free | ⚡ Fast | 💰 Free | ✅ Active |
 
 </div>
+
+**Why Gemini 2.5 Flash Lite?**
+- ⚡ **3x Faster** than Flash (~800ms vs ~2500ms)
+- 💰 **71% Cheaper** ($0.10/1M vs $0.35/1M input tokens)
+- ✅ **Sufficient Quality** for binary prediction markets
+- 🛡️ **Multi-AI Safety** - Other models provide backup if needed
 
 ### 🔄 How It Works
 
@@ -386,6 +365,11 @@ Our oracle system queries **5 AI models from 3 different providers** in a sequen
 3. Oracle Bot detects ResolutionRequested event
    ↓
 4. Backend queries AIs sequentially (Priority 1 → 5)
+   ├─ Gemini 2.5 Flash Lite (primary)
+   ├─ Llama 3.1 Standard (fallback)
+   ├─ Mistral 7B (fallback)
+   ├─ Llama 3.2 3B (fallback)
+   └─ Gemini via OpenRouter (fallback)
    ↓
 5. Calculate consensus (80%+ agreement required)
    ↓
@@ -399,11 +383,11 @@ Our oracle system queries **5 AI models from 3 different providers** in a sequen
 - ✅ **Diversity**: 5 models from 3 providers reduce single-point-of-failure risk
 - ✅ **Cost-Effective**: All models use free tiers (no credit card required)
 - ✅ **Reliability**: Sequential fallback ensures system continues even if some AIs fail
-- ✅ **Speed**: Prioritizes fastest models first (Gemini, Groq)
+- ✅ **Speed**: Gemini Flash Lite is ultra-fast (~800ms average)
 - ✅ **Accuracy**: 80%+ consensus requirement ensures high-quality predictions
 - ✅ **Redundancy**: Multiple models from same providers provide backup
 
-### 🚀 Post-Hackathon Roadmap
+### 🚀 Future Roadmap
 
 After the hackathon, we plan to expand the consensus system by integrating additional AI providers:
 
@@ -526,19 +510,13 @@ const { conditionMet, currentPrice, targetPrice } =
 - 📖 [Streams API Reference](https://docs.chain.link/data-streams/streams-api-reference)
 - 🌍 [Supported Networks](https://docs.chain.link/data-streams/supported-networks)
 
-### 📚 Additional Documentation
-
-- [Complete Integration Guide](./CHAINLINK_DATA_STREAMS_INTEGRATION.md)
-- [Configured Stream IDs](./STREAM_IDS_CONFIGURADOS.md)
-- [Stream ID Recommendations](./RECOMENDACIONES_STREAM_IDS.md)
-
 ---
 
 ## 🛠️ Technology Stack
 
 <div align="center">
 
-### **Built with the Best Technologies**
+### **Built with Industry-Leading Technologies**
 
 </div>
 
@@ -546,25 +524,25 @@ const { conditionMet, currentPrice, targetPrice } =
 
 | Technology | Purpose | Badge |
 |:----------|:--------|:------|
-| **opBNB** | Layer 2 network | ![opBNB](https://img.shields.io/badge/opBNB-Layer%202-orange?style=flat-square&logo=binance) |
-| **Chainlink Data Streams** | Real-time price feeds | ![Chainlink](https://img.shields.io/badge/Chainlink-Data%20Streams-375BD2?style=flat-square&logo=chainlink) |
+| **opBNB** | Layer 2 network (ultra-low gas) | ![opBNB](https://img.shields.io/badge/opBNB-Layer%202-orange?style=flat-square&logo=binance) |
+| **Chainlink Data Streams** | Real-time price feeds (sub-second) | ![Chainlink](https://img.shields.io/badge/Chainlink-Data%20Streams-375BD2?style=flat-square&logo=chainlink) |
 | **Chainlink CCIP** | Cross-chain messaging | ![Chainlink CCIP](https://img.shields.io/badge/Chainlink-CCIP-375BD2?style=flat-square&logo=chainlink) |
-| **Gelato** | Automation services | ![Gelato](https://img.shields.io/badge/Gelato-Automation-blue?style=flat-square) |
-| **Venus Protocol** | Yield farming | ![Venus](https://img.shields.io/badge/Venus-Protocol-green?style=flat-square) |
+| **Gelato** | Automation & relay services | ![Gelato](https://img.shields.io/badge/Gelato-Automation-blue?style=flat-square) |
+| **Venus Protocol** | Yield farming for insurance pool | ![Venus](https://img.shields.io/badge/Venus-Protocol-green?style=flat-square) |
 
 ### 🤖 AI & Machine Learning
 
 | Technology | Purpose | Badge |
 |:----------|:--------|:------|
-| **Google Gemini 2.5 Flash** | Primary AI model | ![Google AI](https://img.shields.io/badge/Google-Gemini-blue?style=flat-square&logo=google) |
-| **Groq Llama 3.1** | Ultra-fast inference | ![Groq](https://img.shields.io/badge/Groq-Llama-purple?style=flat-square) |
-| **OpenRouter** | AI model aggregation | ![OpenRouter](https://img.shields.io/badge/OpenRouter-Mistral-green?style=flat-square) |
+| **Google Gemini 2.5 Flash Lite** | Primary AI model (ultra-fast) | ![Google AI](https://img.shields.io/badge/Google-Gemini%202.5%20Flash%20Lite-blue?style=flat-square&logo=google) |
+| **Groq Llama 3.1** | Ultra-fast inference (Priority 2) | ![Groq](https://img.shields.io/badge/Groq-Llama%203.1-purple?style=flat-square) |
+| **OpenRouter** | AI model aggregation (Mistral, Llama, Gemini) | ![OpenRouter](https://img.shields.io/badge/OpenRouter-Multi%20Models-green?style=flat-square) |
 
 ### 🔐 Wallet & UX
 
 | Technology | Purpose | Badge |
 |:----------|:--------|:------|
-| **Thirdweb Embedded Wallets** | Gasless UX | ![Thirdweb](https://img.shields.io/badge/Thirdweb-Embedded%20Wallets-blue?style=flat-square) |
+| **Thirdweb Embedded Wallets** | Gasless UX (no wallet required) | ![Thirdweb](https://img.shields.io/badge/Thirdweb-Embedded%20Wallets-blue?style=flat-square) |
 | **Wagmi v2** | React hooks for Ethereum | ![Wagmi](https://img.shields.io/badge/Wagmi-v2-blue?style=flat-square) |
 | **Viem v2** | TypeScript Ethereum library | ![Viem](https://img.shields.io/badge/Viem-v2-blue?style=flat-square) |
 
@@ -572,32 +550,49 @@ const { conditionMet, currentPrice, targetPrice } =
 
 | Technology | Purpose | Badge |
 |:----------|:--------|:------|
-| **Solidity 0.8.20** | Contract language | ![Solidity](https://img.shields.io/badge/Solidity-0.8.20-blue?style=flat-square&logo=solidity) |
+| **Solidity 0.8.24** | Contract language | ![Solidity](https://img.shields.io/badge/Solidity-0.8.24-blue?style=flat-square&logo=solidity) |
 | **Hardhat** | Development framework | ![Hardhat](https://img.shields.io/badge/Hardhat-Development-yellow?style=flat-square&logo=ethereum) |
 | **Foundry** | Testing framework | ![Foundry](https://img.shields.io/badge/Foundry-Testing-red?style=flat-square&logo=foundry) |
-| **OpenZeppelin** | Secure contracts | ![OpenZeppelin](https://img.shields.io/badge/OpenZeppelin-Secure-blue?style=flat-square) |
+| **OpenZeppelin** | Secure contract libraries | ![OpenZeppelin](https://img.shields.io/badge/OpenZeppelin-Secure-blue?style=flat-square) |
 
 ### ⚛️ Frontend
 
 | Technology | Purpose | Badge |
 |:----------|:--------|:------|
-| **Next.js 15** | React framework | ![Next.js](https://img.shields.io/badge/Next.js-15-black?style=flat-square&logo=next.js) |
+| **Next.js 15** | React framework (App Router) | ![Next.js](https://img.shields.io/badge/Next.js-15-black?style=flat-square&logo=next.js) |
 | **React 19** | UI library | ![React](https://img.shields.io/badge/React-19-blue?style=flat-square&logo=react) |
 | **TypeScript 5** | Type safety | ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript) |
-| **Tailwind CSS** | Styling | ![Tailwind](https://img.shields.io/badge/Tailwind-CSS-38B2AC?style=flat-square&logo=tailwind-css) |
-| **Framer Motion** | Animations | ![Framer Motion](https://img.shields.io/badge/Framer-Motion-0055FF?style=flat-square&logo=framer) |
-| **TanStack Query** | Data fetching | ![TanStack Query](https://img.shields.io/badge/TanStack-Query-FF4154?style=flat-square) |
+| **Tailwind CSS 3.4** | Utility-first styling | ![Tailwind](https://img.shields.io/badge/Tailwind-CSS-38B2AC?style=flat-square&logo=tailwind-css) |
+| **Framer Motion 12** | Animations & transitions | ![Framer Motion](https://img.shields.io/badge/Framer-Motion-0055FF?style=flat-square&logo=framer) |
+| **TanStack Query 5** | Server state management | ![TanStack Query](https://img.shields.io/badge/TanStack-Query-FF4154?style=flat-square) |
+| **Radix UI** | Accessible component primitives | ![Radix UI](https://img.shields.io/badge/Radix-UI-161618?style=flat-square) |
+| **Zustand** | Client state management | ![Zustand](https://img.shields.io/badge/Zustand-State-443F48?style=flat-square) |
+| **Sonner** | Toast notifications | ![Sonner](https://img.shields.io/badge/Sonner-Toast-FFA500?style=flat-square) |
+| **Lucide React** | Icon library | ![Lucide](https://img.shields.io/badge/Lucide-Icons-FF6B6B?style=flat-square) |
+| **Zod** | Schema validation | ![Zod](https://img.shields.io/badge/Zod-Validation-3E63DD?style=flat-square) |
 
 ### 🚀 Backend
 
 | Technology | Purpose | Badge |
 |:----------|:--------|:------|
-| **Node.js 18+** | Runtime | ![Node.js](https://img.shields.io/badge/Node.js-18-green?style=flat-square&logo=node.js) |
+| **Node.js 18+** | Runtime environment | ![Node.js](https://img.shields.io/badge/Node.js-18-green?style=flat-square&logo=node.js) |
 | **Express** | Web framework | ![Express](https://img.shields.io/badge/Express-API-gray?style=flat-square&logo=express) |
-| **TypeScript** | Type safety | ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript) |
-| **Prisma** | ORM | ![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748?style=flat-square&logo=prisma) |
-| **PostgreSQL** | Database | ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-336791?style=flat-square&logo=postgresql) |
-| **Winston** | Logging | ![Winston](https://img.shields.io/badge/Winston-Logging-2C3E50?style=flat-square) |
+| **TypeScript 5** | Type safety | ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript) |
+| **Prisma** | ORM & database toolkit | ![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748?style=flat-square&logo=prisma) |
+| **PostgreSQL** | Relational database | ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-336791?style=flat-square&logo=postgresql) |
+| **Winston** | Logging library | ![Winston](https://img.shields.io/badge/Winston-Logging-2C3E50?style=flat-square) |
+| **Axios** | HTTP client | ![Axios](https://img.shields.io/badge/Axios-HTTP-5A29E4?style=flat-square) |
+
+### 🎨 UI/UX Features
+
+| Feature | Technology | Description |
+|:--------|:----------|:------------|
+| **Neural Network Background** | Canvas API | Animated particle network visualization |
+| **Animated Gradients** | Framer Motion | Smooth gradient orb animations |
+| **Glassmorphism** | CSS + Tailwind | Modern glass-effect cards |
+| **Dark Theme** | Tailwind CSS | Complete dark mode implementation |
+| **Responsive Design** | Tailwind + Next.js | Mobile-first responsive layouts |
+| **Smooth Animations** | Framer Motion | Page transitions and component animations |
 
 ---
 
@@ -620,9 +615,6 @@ const { conditionMet, currentPrice, targetPrice } =
 | 🔒 [Security Audit](./docs/SECURITY_AUDIT.md) | Security best practices |
 | 🚀 [Deployment Guide](./docs/DEPLOYMENT.md) | Deployment instructions |
 | 🪟 [Windows Setup](./docs/WINDOWS_SETUP.md) | Windows development setup |
-| ✅ [Project Status](./PROJECT_STATUS_COMPLETE.md) | Complete integration status |
-| 🔗 [Chainlink Functions vs Data Streams](./smart-contracts/docs/CHAINLINK_FUNCTIONS_VS_DATA_STREAMS.md) | Chainlink integration explanation |
-| 🌐 [Domain Migration](./DOMAIN_MIGRATION_COMPLETE.md) | Domain migration details |
 
 ---
 
@@ -640,12 +632,13 @@ const { conditionMet, currentPrice, targetPrice } =
 
 ### 🎯 Key Innovations
 
-1. **🧠 Multi-AI Oracle Consensus**: First prediction market with 5-AI consensus from 3 providers (Gemini, Groq, OpenRouter)
+1. **🧠 Multi-AI Oracle Consensus**: First prediction market with 5-AI consensus from 3 providers (Gemini Flash Lite, Groq Llama, OpenRouter)
 2. **🛡️ Insurance Guarantee**: Oracle fails = automatic refund
 3. **🎖️ Reputation NFTs**: On-chain reputation as tradeable assets
 4. **🔗 Conditional Markets**: Parent-child resolution logic
 5. **🌐 Cross-Chain Aggregator**: Save 1-5% per bet
 6. **💰 Free Tier AI Models**: All AI services use free tiers (no credit card required)
+7. **⚡ Gemini Flash Lite**: 3x faster, 71% cheaper than Flash
 
 ---
 
@@ -672,7 +665,7 @@ const { conditionMet, currentPrice, targetPrice } =
 
 We have comprehensive test suites covering all aspects of the platform:
 
-**1. Unit Tests** (`PredictionMarketCore.test.ts`) - Core functionality tests:
+**1. Unit Tests** - Core functionality tests:
 
 | Test Category | Tests | Status |
 |:-------------|:-----:|:------:|
@@ -686,7 +679,7 @@ We have comprehensive test suites covering all aspects of the platform:
 | **Cross-Chain Router** | 2 tests | ✅ All Passing |
 | **Admin Functions** | 3 tests | ✅ All Passing |
 
-**2. Security Tests** (`Security.test.ts`) - 70+ security tests:
+**2. Security Tests** - 70+ security tests:
 
 | Test Category | Tests | Status |
 |:-------------|:-----:|:------:|
@@ -696,7 +689,7 @@ We have comprehensive test suites covering all aspects of the platform:
 | **Input Validation** | 15+ tests | ✅ All Passing |
 | **Edge Cases** | 20+ tests | ✅ All Passing |
 
-**3. Chainlink Integration Tests** (`chainlink-integration.test.ts`) - 15+ tests:
+**3. Chainlink Integration Tests** - 15+ tests:
 
 | Test Category | Tests | Status |
 |:-------------|:-----:|:------:|
@@ -704,7 +697,7 @@ We have comprehensive test suites covering all aspects of the platform:
 | **Price Verification** | 5+ tests | ✅ All Passing |
 | **Stream Configuration** | 5+ tests | ✅ All Passing |
 
-**4. End-to-End Tests** (`end-to-end.test.ts`, `complete-e2e.test.ts`) - 20+ tests:
+**4. End-to-End Tests** - 20+ tests:
 
 | Test Category | Tests | Status |
 |:-------------|:-----:|:------:|
@@ -712,7 +705,7 @@ We have comprehensive test suites covering all aspects of the platform:
 | **Contract Verification** | 5+ tests | ✅ All Passing |
 | **Integration Checks** | 10+ tests | ✅ All Passing |
 
-**5. Integration Tests** (`transactions.test.ts`) - Real on-chain transactions:
+**5. Integration Tests** - Real on-chain transactions:
 
 | Test Category | Tests | Status | Description |
 |:-------------|:-----:|:------:|:------------|
@@ -836,14 +829,7 @@ Tests verify:
 - ✅ Real API integration with Chainlink Data Streams
 - ✅ Backend URL configured correctly on-chain (`https://metapredict.fun/api/oracle/resolve`)
 
-**Test Scripts Available**:
-- `test-real-chainlink.ts` - Basic Chainlink integration test
-- `test-real-datastreams-price.ts` - Data Streams price verification test
-- `test-full-chainlink-real.ts` - Complete Chainlink workflow test (5 markets)
-
 All smart contracts are thoroughly tested using **Hardhat** with **Chai** and **Mocha**. Tests use **native BNB (opBNB)** instead of USDC tokens.
-
-**Documentation**: See [TESTING_COMPLETE.md](./TESTING_COMPLETE.md) for complete testing documentation.
 
 ---
 
@@ -897,7 +883,7 @@ All smart contracts are thoroughly tested using **Hardhat** with **Chai** and **
 - ✅ **25/25 tests passing** with ALL real services
 - ✅ opBNB Network: Connected (Ultra-low gas: 0.00 Gwei)
 - ✅ Chainlink Data Streams: Real Stream IDs verified
-- ✅ Multi-AI Oracle: Gemini, Llama, Mistral APIs configured
+- ✅ Multi-AI Oracle: Gemini Flash Lite, Llama, Mistral APIs configured
 - ✅ Gelato Automation: Relay service ready
 - ✅ Venus Protocol: Yield farming ready
 - ✅ Thirdweb: Gasless wallets configured
@@ -986,11 +972,6 @@ All smart contracts are thoroughly tested using **Hardhat** with **Chai** and **
 **Market Creation Transactions (6)**:
 - [Market 68](https://testnet.opbnbscan.com/tx/0x563bc3db7e26906625ecddc0334daf3468a1db93a388d51db36b7fa53410331a) | [Market 69](https://testnet.opbnbscan.com/tx/0x531a684d2adae3dc16173da17b8789fbe6ec78883c03ad4730705af64e9f4c90) | [Market 70](https://testnet.opbnbscan.com/tx/0xd4110b77c3420b1cc41956e69d387feb6bd683f090653b1e9f93e6efe78653ea) | [Market 71](https://testnet.opbnbscan.com/tx/0x139ec98e895a56ddbc263511767e474a422c23d99d6453f058968dbd1c1802ad) | [Market 72](https://testnet.opbnbscan.com/tx/0xcdb42b62a32cb7208025b71f7294bd6e806604e1a695ca38d80feecb2c5ba8f6) | [Market 73](https://testnet.opbnbscan.com/tx/0x6c1a4e91d28ca1fa97c4b9d827b222d2a272831a587d11a7fecbdde0f55d2be4)
 
-**All Transaction Links**: See [TRANSACTION_LINKS_SUMMARY.md](./TRANSACTION_LINKS_SUMMARY.md) for complete list  
-**Test Results**: See [TEST_RESULTS_SUMMARY.md](./TEST_RESULTS_SUMMARY.md) for detailed test results  
-**Complete Real Integrations**: See [COMPLETE_REAL_INTEGRATIONS_TEST_RESULTS.md](./COMPLETE_REAL_INTEGRATIONS_TEST_RESULTS.md) - **25/25 tests passing with ALL real services**  
-**Real Data Verification**: See [REAL_CHAINLINK_DATA_VERIFICATION.md](./REAL_CHAINLINK_DATA_VERIFICATION.md) - **All tests use REAL Chainlink data from `.env.local`**
-
 ### 🚀 Commands to Create Markets & Run Tests
 
 ```bash
@@ -1013,10 +994,9 @@ pnpm test
 
 **Complete Real Integrations Test**: ✅ **25/25 Passing**
 - Tests ALL services with REAL data from `.env.local`
-- Verifies: opBNB, Chainlink, Gemini, Llama, Mistral, Gelato, Venus, Thirdweb, Next.js, Hardhat
+- Verifies: opBNB, Chainlink, Gemini Flash Lite, Llama, Mistral, Gelato, Venus, Thirdweb, Next.js, Hardhat
 - All contracts verified and accessible on-chain
 - Real transactions executed successfully (verifiable on opBNBScan)
-- See [COMPLETE_REAL_INTEGRATIONS_TEST_RESULTS.md](./COMPLETE_REAL_INTEGRATIONS_TEST_RESULTS.md) for full results
 
 **Key Test Results**:
 - ✅ **Contract Verification**: All 10 contracts deployed and accessible
@@ -1049,12 +1029,17 @@ pnpm test
 |:----------|:------:|:--------|
 | **Frontend ↔ Smart Contracts** | ✅ Complete | All contract addresses verified and matching |
 | **Smart Contracts ↔ Backend** | ✅ Complete | Backend URL configured on-chain: `https://metapredict.fun/api/oracle/resolve` |
-| **Backend ↔ AI Services** | ✅ Complete | 5 AI models configured (Gemini, Groq, OpenRouter) |
+| **Backend ↔ AI Services** | ✅ Complete | 5 AI models configured (Gemini Flash Lite, Groq, OpenRouter) |
 | **Chainlink Data Streams** | ✅ Complete | Stream IDs configured and tested (BTC, ETH, BNB) |
 | **Domain Migration** | ✅ Complete | `metapredict.ai` → `metapredict.fun` (all references updated) |
 | **Tests** | ✅ Complete | 115/115 tests passing (100% pass rate) |
 
 ### 📋 Recent Updates
+
+**✅ Gemini Flash Lite Migration**
+- Primary AI model changed to Gemini 2.5 Flash Lite (3x faster, 71% cheaper)
+- Fallback to Gemini 2.5 Flash if Lite fails
+- All tests passing with Flash Lite
 
 **✅ Domain Migration Completed**
 - All references updated from `metapredict.ai` to `metapredict.fun`
@@ -1148,7 +1133,6 @@ MIT License - See [LICENSE](./LICENSE) file for details
 
 - 🔗 **Chainlink** - Data Streams, CCIP & Functions
 - 🎨 **Thirdweb** - Embedded Wallets
-- 📊 **Pyth Network** - Price feeds (alternative)
 - 🌐 **BNB Chain** - opBNB network
 - 💰 **Venus Protocol** - Yield farming
 - 🤖 **Gelato** - Automation services
