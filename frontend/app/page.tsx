@@ -57,7 +57,7 @@ const features = [
 ];
 
 const stats = [
-  { label: 'Hackathon Ranking', value: 'Top 20', prefix: '', suffix: '/111', description: 'Finalists out of 111 projects' },
+  { label: 'Hackathon Ranking', value: 'Top 20', prefix: '', suffix: '', description: 'Global Finalist' },
   { label: 'Smart Contracts', value: '10', prefix: '', suffix: '', description: 'Deployed on opBNB Testnet' },
   { label: 'Test Coverage', value: '115', prefix: '', suffix: '/115', description: 'All tests passing (100%)' },
   { label: 'AI Models', value: '5', prefix: '', suffix: '', description: 'From 3 providers (Gemini, Llama, Mistral)' },
@@ -143,7 +143,7 @@ export default function HomePage() {
               <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-gradient-to-r from-yellow-500/20 via-orange-500/20 to-red-500/20 border-2 border-yellow-500/50 backdrop-blur-sm shadow-[0_0_30px_rgba(251,191,36,0.3)]">
                 <Trophy className="w-5 h-5 text-yellow-400 animate-pulse" />
                 <span className="text-base sm:text-lg font-bold text-yellow-300">
-                  🏆 TOP 20 FINALIST • Seedify x BNB Chain Hackathon (111 Projects)
+                  🏆 TOP 20 FINALIST • Seedify x BNB Chain Hackathon
                 </span>
                 <Sparkles className="w-5 h-5 text-yellow-400 animate-pulse" />
               </div>
@@ -580,25 +580,21 @@ export default function HomePage() {
               </div>
               
               <h2 className="text-4xl font-bold text-white mb-4">
-                Top 20 Finalist Out of 111 Projects
+                Top 20 Global Finalist
               </h2>
               
               <p className="text-xl text-gray-300 mb-6 max-w-2xl mx-auto">
-                Selected as one of the <strong className="text-yellow-400">Top 20 finalists</strong> in the Seedify x BNB Chain Prediction Markets Hackathon from <strong className="text-orange-400">111 competing projects</strong>. Community voting starts December 23rd!
+                Selected as one of the <strong className="text-yellow-400">Top 20 finalists</strong> in the Seedify x BNB Chain Prediction Markets Hackathon. Community voting starts December 23rd!
               </p>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8 max-w-2xl mx-auto">
-                <GlassCard className="p-4 bg-purple-500/10 border-purple-500/30">
-                  <div className="text-3xl font-bold text-purple-400 mb-1">111</div>
-                  <div className="text-sm text-gray-300">Total Projects</div>
-                </GlassCard>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8 max-w-xl mx-auto">
                 <GlassCard className="p-4 bg-yellow-500/10 border-yellow-500/30">
                   <div className="text-3xl font-bold text-yellow-400 mb-1">Top 20</div>
-                  <div className="text-sm text-gray-300">Finalists</div>
+                  <div className="text-sm text-gray-300">Global Finalists</div>
                 </GlassCard>
                 <GlassCard className="p-4 bg-green-500/10 border-green-500/30">
-                  <div className="text-3xl font-bold text-green-400 mb-1">18%</div>
-                  <div className="text-sm text-gray-300">Success Rate</div>
+                  <div className="text-3xl font-bold text-green-400 mb-1">🏆</div>
+                  <div className="text-sm text-gray-300">Hackathon Winner</div>
                 </GlassCard>
               </div>
               
