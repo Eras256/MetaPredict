@@ -122,8 +122,7 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
 
   // Get current odds from contract (real-time)
   const { yesOdds: contractYesOdds, noOdds: contractNoOdds, isLoading: oddsLoading } = useCurrentOdds(
-    marketId,
-    market?.marketContractAddress
+    marketId
   );
   
   // Fallback to calculated odds if contract data not available

@@ -24,7 +24,7 @@ const opBNBTestnet = defineChain({
 /**
  * Hook to get current odds for a BinaryMarket
  */
-export function useCurrentOdds(marketId: number, marketContractAddress?: string) {
+export function useCurrentOdds(marketId: number) {
   const coreContract = useMemo(() => {
     const coreAddress = CONTRACT_ADDRESSES.PREDICTION_MARKET || CONTRACT_ADDRESSES.CORE_CONTRACT;
     if (!coreAddress) return null;
@@ -36,29 +36,28 @@ export function useCurrentOdds(marketId: number, marketContractAddress?: string)
     });
   }, []);
 
-  // Get market contract address if not provided
+  // Get market contract address
   const { data: contractAddress } = useReadContract({
     contract: coreContract!,
     method: 'getMarketContract',
     params: [BigInt(marketId)],
     queryOptions: {
-      enabled: !!coreContract && marketId > 0 && !marketContractAddress,
+      enabled: !!coreContract && marketId > 0,
       refetchInterval: 10000,
     },
   });
 
   const marketContract = useMemo(() => {
-    const address = marketContractAddress || contractAddress;
-    if (!address || address === '0x0000000000000000000000000000000000000000') {
+    if (!contractAddress || contractAddress === '0x0000000000000000000000000000000000000000') {
       return null;
     }
     return getContract({
       client,
       chain: opBNBTestnet,
-      address: address as `0x${string}`,
+      address: contractAddress as `0x${string}`,
       abi: BINARY_MARKET_ABI as any,
     });
-  }, [marketContractAddress, contractAddress]);
+  }, [contractAddress]);
 
   const { data, isLoading } = useReadContract({
     contract: marketContract!,
