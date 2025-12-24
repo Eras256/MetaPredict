@@ -34,17 +34,15 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
   const { initiateResolution, isPending: isInitiatingResolution } = useInitiateResolution();
   const { activities, loading: activitiesLoading } = useMarketActivity(marketId);
   
-  // Calcular número de participantes únicos basado en actividades
-  // Si hay volumen pero no actividades, estimamos que hay al menos 1 participante
+  // Calculate unique participants count using ONLY real activity data from contract
+  // No estimations - only count actual participants from activities
   const participantsCount = useMemo(() => {
-    const totalPool = market ? Number(market.yesPool) + Number(market.noPool) : 0;
-    const hasVolume = totalPool > 0;
-    
     if (!activities || activities.length === 0) {
-      // Si hay volumen pero no actividades cargadas aún, retornar al menos 1
-      return hasVolume ? 1 : 0;
+      // If no activities loaded yet, return 0 (not an estimation)
+      return 0;
     }
     
+    // Count unique participants from actual activities
     const uniqueParticipants = new Set<string>();
     activities.forEach((activity) => {
       if (activity.user && (activity.type === 'bet' || activity.type === 'claim')) {
@@ -52,10 +50,9 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
       }
     });
     
-    // Si hay volumen pero el conteo de participantes es 0, asegurar al menos 1
-    const count = uniqueParticipants.size;
-    return hasVolume && count === 0 ? 1 : count;
-  }, [activities, market]);
+    // Return actual count from contract activities - no estimations
+    return uniqueParticipants.size;
+  }, [activities]);
 
   // Refetch actividad cuando se actualiza el mercado
   useEffect(() => {
@@ -65,7 +62,7 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
     }
   }, [market]);
 
-  // Escuchar cuando se completa la resolución manualmente
+  // Listen when resolution is completed manually
   useEffect(() => {
     const handleMarketResolved = (event: CustomEvent) => {
       const eventMarketId = event.detail?.marketId;

@@ -43,8 +43,8 @@ export default function DemoDemoPage() {
     setTimeout(() => {
       setIsProcessing(null);
       setSuccessStates(prev => ({ ...prev, [actionId]: true }));
-      toast.success('¡Operación completada exitosamente en Testnet!', {
-        description: 'Transacción confirmada en opBNB Testnet',
+      toast.success('Operation completed successfully on Testnet!', {
+        description: 'Transaction confirmed on opBNB Testnet',
         icon: <CheckCircle2 className="w-5 h-5 text-green-400" />,
       });
       setTimeout(() => {
@@ -75,7 +75,7 @@ export default function DemoDemoPage() {
             <Sparkles className="w-8 h-8 text-purple-400" />
           </motion.div>
           <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-            🎮 Demo Demo - Simulación Completa
+            🎮 Demo Demo - Complete Simulation
           </h1>
           <motion.div
             animate={{ 
@@ -92,12 +92,12 @@ export default function DemoDemoPage() {
           </motion.div>
         </div>
         <p className="text-gray-400 text-lg mb-2">
-          Simulación completa de todas las funcionalidades en opBNB Testnet
+          Complete simulation of all functionalities on opBNB Testnet
         </p>
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-green-500/10 border border-green-500/20">
           <Rocket className="w-4 h-4 text-green-400 animate-pulse" />
           <span className="text-sm text-green-300 font-semibold">
-            ✅ 100% Funcional en Testnet
+            ✅ 100% Functional on Testnet
           </span>
         </div>
         <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/10 border border-purple-500/20">
@@ -217,7 +217,7 @@ function TokenOperations({ balance }: { balance: number }) {
             BNB Balance
           </CardTitle>
           <CardDescription>
-            Tu balance nativo de BNB en opBNB Testnet
+            Your native BNB balance on opBNB Testnet
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -229,7 +229,7 @@ function TokenOperations({ balance }: { balance: number }) {
               className="p-4 bg-purple-500/10 rounded-lg border border-purple-500/20"
             >
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-400">Balance Actual</span>
+                <span className="text-sm text-gray-400">Current Balance</span>
                 <motion.span 
                   className="text-2xl font-bold text-white"
                   animate={{ scale: [1, 1.05, 1] }}
@@ -243,10 +243,10 @@ function TokenOperations({ balance }: { balance: number }) {
               <CheckCircle2 className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
               <div className="flex-1">
                 <p className="text-xs text-green-300 mb-1 font-semibold">
-                  ✅ Conectado a opBNB Testnet
+                  ✅ Connected to opBNB Testnet
                 </p>
                 <p className="text-xs text-green-400">
-                  Balance sincronizado correctamente. Decimals: 18 (Native BNB)
+                  Balance synchronized correctly. Decimals: 18 (Native BNB)
                 </p>
               </div>
             </div>
@@ -283,7 +283,7 @@ function BettingOperations({
             Place Bet
           </CardTitle>
           <CardDescription>
-            Realizar una apuesta en un mercado de predicción
+            Place a bet on a prediction market
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -348,7 +348,7 @@ function BettingOperations({
                 >
                   <PartyPopper className="w-4 h-4 text-green-400" />
                   <span className="text-xs text-green-300">
-                    Apuesta realizada exitosamente! TX: 0x1234...5678
+                    Bet placed successfully! TX: 0x1234...5678
                   </span>
                 </motion.div>
               )}
@@ -382,7 +382,7 @@ function BettingOperations({
             Claim Winnings
           </CardTitle>
           <CardDescription>
-            Reclamar ganancias de un mercado resuelto
+            Claim winnings from a resolved market
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -407,7 +407,7 @@ function BettingOperations({
                 >
                   <CheckCircle2 className="w-4 h-4 text-green-400" />
                   <span className="text-xs text-green-300">
-                    Ganancias reclamadas: 0.25 BNB! TX: 0xabcd...efgh
+                    Winnings claimed: 0.25 BNB! TX: 0xabcd...efgh
                   </span>
                 </motion.div>
               )}
@@ -433,7 +433,7 @@ function BettingOperations({
             <div className="flex items-start gap-2 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
               <Info className="w-4 h-4 text-blue-400 mt-0.5 flex-shrink-0" />
               <p className="text-xs text-blue-300">
-                Puedes reclamar ganancias de mercados que han sido resueltos y donde tu apuesta fue ganadora
+                You can claim winnings from markets that have been resolved and where your bet was winning
               </p>
             </div>
           </div>
@@ -468,7 +468,7 @@ function InsuranceOperations({
             Deposit
           </CardTitle>
           <CardDescription>
-            Depositar BNB en el pool de seguro
+            Deposit BNB into the insurance pool
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -502,7 +502,7 @@ function InsuranceOperations({
                 >
                   <CheckCircle2 className="w-4 h-4 text-green-400" />
                   <span className="text-xs text-green-300">
-                    Depósito exitoso! TX: 0x1111...2222
+                    Deposit successful! TX: 0x1111...2222
                   </span>
                 </motion.div>
               )}
@@ -536,7 +536,7 @@ function InsuranceOperations({
             Withdraw
           </CardTitle>
           <CardDescription>
-            Retirar BNB del pool de seguro
+            Withdraw BNB from the insurance pool
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -551,7 +551,7 @@ function InsuranceOperations({
                 disabled={isProcessing === 'withdraw'}
               />
               <div className="flex items-center justify-between mt-2 text-xs text-gray-500">
-                <span>Depositado: {mockDeposited.toFixed(4)} BNB</span>
+                <span>Deposited: {mockDeposited.toFixed(4)} BNB</span>
                 <button
                   onClick={() => setWithdrawAmount(mockDeposited.toString())}
                   className="text-purple-400 hover:underline"
@@ -570,7 +570,7 @@ function InsuranceOperations({
                 >
                   <CheckCircle2 className="w-4 h-4 text-green-400" />
                   <span className="text-xs text-green-300">
-                    Retiro exitoso! TX: 0x3333...4444
+                    Withdrawal successful! TX: 0x3333...4444
                   </span>
                 </motion.div>
               )}
@@ -605,7 +605,7 @@ function InsuranceOperations({
             Claim Yield
           </CardTitle>
           <CardDescription>
-            Reclamar el yield generado por Venus Protocol
+            Claim yield generated by Venus Protocol
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -634,7 +634,7 @@ function InsuranceOperations({
                 >
                   <CheckCircle2 className="w-4 h-4 text-green-400" />
                   <span className="text-xs text-green-300">
-                    Yield reclamado: 0.0298 BNB! TX: 0x5555...6666
+                    Yield claimed: 0.0298 BNB! TX: 0x5555...6666
                   </span>
                 </motion.div>
               )}
@@ -690,7 +690,7 @@ function ReputationOperations({
             Reputation Status
           </CardTitle>
           <CardDescription>
-            Tu reputación actual en el sistema
+            Your current reputation in the system
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -732,7 +732,7 @@ function ReputationOperations({
             Stake
           </CardTitle>
           <CardDescription>
-            Stake BNB para aumentar tu reputación
+            Stake BNB to increase your reputation
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -766,7 +766,7 @@ function ReputationOperations({
                 >
                   <CheckCircle2 className="w-4 h-4 text-green-400" />
                   <span className="text-xs text-green-300">
-                    Stake exitoso! Reputación aumentada. TX: 0x7777...8888
+                    Stake successful! Reputation increased. TX: 0x7777...8888
                   </span>
                 </motion.div>
               )}
@@ -800,7 +800,7 @@ function ReputationOperations({
             Unstake
           </CardTitle>
           <CardDescription>
-            Retirar tu stake de reputación
+            Withdraw your reputation stake
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -834,7 +834,7 @@ function ReputationOperations({
                 >
                   <CheckCircle2 className="w-4 h-4 text-green-400" />
                   <span className="text-xs text-green-300">
-                    Unstake exitoso! TX: 0x9999...aaaa
+                    Unstake successful! TX: 0x9999...aaaa
                   </span>
                 </motion.div>
               )}
@@ -891,7 +891,7 @@ function DAOOperations({
   }, [checkProposalId]);
 
   const mockProposal = {
-    title: 'Aumentar el límite de apuestas a 100 BNB',
+    title: 'Increase betting limit to 100 BNB',
     forVotes: 1250,
     againstVotes: 320,
     status: 1, // Active
@@ -906,7 +906,7 @@ function DAOOperations({
             Vote on Proposal
           </CardTitle>
           <CardDescription>
-            Emitir tu voto en una propuesta DAO
+            Cast your vote on a DAO proposal
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -960,7 +960,7 @@ function DAOOperations({
                 >
                   <CheckCircle2 className="w-4 h-4 text-green-400" />
                   <span className="text-xs text-green-300">
-                    Voto registrado exitosamente! TX: 0xbbbb...cccc
+                    Vote registered successfully! TX: 0xbbbb...cccc
                   </span>
                 </motion.div>
               )}
@@ -994,7 +994,7 @@ function DAOOperations({
             Execute Proposal
           </CardTitle>
           <CardDescription>
-            Ejecutar una propuesta aprobada
+            Execute an approved proposal
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -1019,7 +1019,7 @@ function DAOOperations({
                 >
                   <CheckCircle2 className="w-4 h-4 text-green-400" />
                   <span className="text-xs text-green-300">
-                    Propuesta ejecutada exitosamente! TX: 0xdddd...eeee
+                    Proposal executed successfully! TX: 0xdddd...eeee
                   </span>
                 </motion.div>
               )}
@@ -1053,7 +1053,7 @@ function DAOOperations({
             Check Proposal
           </CardTitle>
           <CardDescription>
-            Verificar el estado de una propuesta
+            Check the status of a proposal
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -1154,7 +1154,7 @@ function OracleOperations() {
             Query Oracle Result
           </CardTitle>
           <CardDescription>
-            Consultar el resultado de un mercado resuelto por el oracle
+            Query the result of a market resolved by the oracle
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -1214,7 +1214,7 @@ function OracleOperations() {
             Compare Prices (OmniRouter)
           </CardTitle>
           <CardDescription>
-            Encontrar el mejor precio cross-chain
+            Find the best cross-chain price
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -1296,7 +1296,7 @@ function OracleOperations() {
             Supported Chains (OmniRouter)
           </CardTitle>
           <CardDescription>
-            Lista de chains soportadas por el agregador cross-chain
+            List of chains supported by the cross-chain aggregator
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -1355,7 +1355,7 @@ function MarketOperations({
             <TrendingUp className="w-5 h-5 text-green-400" />
             Create Binary Market
           </CardTitle>
-          <CardDescription>Crear un mercado de predicción YES/NO estándar</CardDescription>
+          <CardDescription>Create a standard YES/NO prediction market</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -1398,7 +1398,7 @@ function MarketOperations({
                 >
                   <CheckCircle2 className="w-4 h-4 text-green-400" />
                   <span className="text-xs text-green-300">
-                    Mercado binario creado! Market ID: 42. TX: 0xffff...0000
+                    Binary market created! Market ID: 42. TX: 0xffff...0000
                   </span>
                 </motion.div>
               )}
@@ -1432,7 +1432,7 @@ function MarketOperations({
             <Brain className="w-5 h-5 text-purple-400" />
             Create Conditional Market
           </CardTitle>
-          <CardDescription>Crear un mercado condicional if-then</CardDescription>
+          <CardDescription>Create a conditional if-then market</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -1485,7 +1485,7 @@ function MarketOperations({
                 >
                   <CheckCircle2 className="w-4 h-4 text-green-400" />
                   <span className="text-xs text-green-300">
-                    Mercado condicional creado! Market ID: 43. TX: 0x1111...2222
+                    Conditional market created! Market ID: 43. TX: 0x1111...2222
                   </span>
                 </motion.div>
               )}
@@ -1519,7 +1519,7 @@ function MarketOperations({
             <Users className="w-5 h-5 text-blue-400" />
             Create Subjective Market
           </CardTitle>
-          <CardDescription>Crear un mercado resuelto por votación DAO</CardDescription>
+          <CardDescription>Create a market resolved by DAO voting</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -1572,7 +1572,7 @@ function MarketOperations({
                 >
                   <CheckCircle2 className="w-4 h-4 text-green-400" />
                   <span className="text-xs text-green-300">
-                    Mercado subjetivo creado! Market ID: 44. TX: 0x3333...4444
+                    Subjective market created! Market ID: 44. TX: 0x3333...4444
                   </span>
                 </motion.div>
               )}
@@ -1606,7 +1606,7 @@ function MarketOperations({
             <Zap className="w-5 h-5 text-yellow-400" />
             Initiate Resolution
           </CardTitle>
-          <CardDescription>Iniciar proceso de resolución para un mercado</CardDescription>
+          <CardDescription>Initiate resolution process for a market</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -1630,7 +1630,7 @@ function MarketOperations({
                 >
                   <CheckCircle2 className="w-4 h-4 text-green-400" />
                   <span className="text-xs text-green-300">
-                    Resolución iniciada! Oracle activado. TX: 0x5555...6666
+                    Resolution initiated! Oracle activated. TX: 0x5555...6666
                   </span>
                 </motion.div>
               )}
@@ -1656,7 +1656,7 @@ function MarketOperations({
             <div className="flex items-start gap-2 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
               <Info className="w-4 h-4 text-blue-400 mt-0.5 flex-shrink-0" />
               <p className="text-xs text-blue-300">
-                Esto activará la resolución del Oracle AI para mercados binarios/condicionales, o votación DAO para mercados subjetivos
+                This will activate AI Oracle resolution for binary/conditional markets, or DAO voting for subjective markets
               </p>
             </div>
           </div>

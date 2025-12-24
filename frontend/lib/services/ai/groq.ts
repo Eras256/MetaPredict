@@ -1,9 +1,9 @@
 /**
- * Cliente para llamar a las APIs de Groq AI
- * Todas las llamadas se hacen a las API routes de Next.js (server-side)
+ * Client for calling Groq AI APIs
+ * All calls are made to Next.js API routes (server-side)
  */
 
-// Usar rutas relativas - Next.js maneja esto automáticamente
+// Use relative routes - Next.js handles this automatically
 const API_BASE_URL = '';
 
 export interface ApiResponse<T> {
@@ -58,7 +58,7 @@ export async function testGroqConnection(): Promise<ApiResponse<{ response: stri
   } catch (error: any) {
     return {
       success: false,
-      error: error.message || 'Error al conectar con Groq',
+      error: error.message || 'Error connecting to Groq',
     };
   }
 }
@@ -108,13 +108,13 @@ export async function analyzeMarketWithGroq(
   } catch (error: any) {
     console.error('[Groq Client] Error en analyzeMarketWithGroq:', error);
     
-    let userMessage = error.message || 'Error al analizar mercado';
+    let userMessage = error.message || 'Error analyzing market';
     if (userMessage.includes('timeout')) {
-      userMessage = 'La solicitud tardó demasiado. Por favor, intenta de nuevo.';
+      userMessage = 'The request took too long. Please try again.';
     } else if (userMessage.includes('Network error')) {
-      userMessage = 'Error de conexión. Verifica tu conexión a internet.';
+      userMessage = 'Connection error. Please check your internet connection.';
     } else if (userMessage.includes('API key')) {
-      userMessage = '⚠️ API Key de Groq no configurada. Verifica tu archivo .env';
+      userMessage = '⚠️ Groq API Key not configured. Check your .env file';
     }
     
     return {
@@ -146,7 +146,7 @@ export async function callGroq(
   } catch (error: any) {
     return {
       success: false,
-      error: error.message || 'Error al llamar a Groq',
+      error: error.message || 'Error calling Groq',
     };
   }
 }

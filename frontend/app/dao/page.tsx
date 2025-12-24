@@ -75,11 +75,59 @@ export default function DAOPage() {
   const handleAnalyzeProposal = async (proposal: any) => {
     setAnalyzing(proposal.id);
     try {
+      // Get proposer reputation from contract
+      let proposerReputation = 0;
+      try {
+        const { readContract } = await import('thirdweb');
+        const { getContract } = await import('thirdweb');
+        const { defineChain } = await import('thirdweb/chains');
+        const opBNBTestnet = defineChain({
+          id: 5611,
+          name: 'opBNB Testnet',
+          nativeCurrency: { name: 'tBNB', symbol: 'tBNB', decimals: 18 },
+          rpc: 'https://opbnb-testnet-rpc.bnbchain.org',
+        });
+        
+        const reputationContract = getContract({
+          client: (await import('@/lib/config/thirdweb')).client,
+          chain: opBNBTestnet,
+          address: (await import('@/lib/contracts/addresses')).CONTRACT_ADDRESSES.REPUTATION_STAKING as `0x${string}`,
+          abi: [
+            {
+              name: 'getStaker',
+              type: 'function',
+              stateMutability: 'view',
+              inputs: [{ name: '_user', type: 'address' }],
+              outputs: [
+                { name: 'stakedAmount', type: 'uint256' },
+                { name: 'reputationScore', type: 'uint256' },
+                { name: 'tier', type: 'uint8' },
+                { name: 'correctVotes', type: 'uint256' },
+                { name: 'totalVotes', type: 'uint256' },
+                { name: 'slashedAmount', type: 'uint256' },
+              ],
+            },
+          ] as any,
+        });
+        
+        const stakerData = await readContract({
+          contract: reputationContract,
+          method: 'getStaker',
+          params: [proposal.proposer],
+        }) as any;
+        
+        proposerReputation = stakerData?.[1] ? Number(stakerData[1]) : 0;
+      } catch (error) {
+        console.warn('Could not fetch proposer reputation:', error);
+        // If we can't fetch, use 0 instead of a hardcoded value
+        proposerReputation = 0;
+      }
+      
       const proposalData = {
         title: proposal.title,
         description: proposal.description,
         type: proposal.type,
-        proposerReputation: 75, // TODO: obtener del contrato
+        proposerReputation, // Real reputation from contract
       };
 
       const result = await analyzeDAOProposal(proposalData);

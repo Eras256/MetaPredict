@@ -72,11 +72,15 @@ export function useReputation() {
     contract: contract!,
     method: 'getStaker',
     params: account?.address ? [account.address] : undefined,
-    queryOptions: { enabled: !!account && !!contract },
+    queryOptions: { 
+      enabled: !!account && !!contract,
+      refetchInterval: 30000, // Auto-refresh every 30 seconds to keep values up-to-date
+    },
   });
 
   const staker = stakerData as any;
 
+  // Read all values directly from contract - no simulations
   const stakedAmount = staker?.[0] ? Number(staker[0]) / 1e18 : 0;
   const reputationScore = staker?.[1] ? Number(staker[1]) : 0;
   const tier = staker?.[2] ? Number(staker[2]) : 0;
@@ -84,21 +88,12 @@ export function useReputation() {
   const totalVotes = staker?.[4] ? Number(staker[4]) : 0;
   const slashedAmount = staker?.[5] ? Number(staker[5]) / 1e18 : 0;
   
-  // Calcular reputación basada en votos si hay votos, sino usar la del contrato
-  let calculatedReputation = reputationScore;
-  if (totalVotes > 0) {
-    // Reputación basada en votos correctos
-    calculatedReputation = (correctVotes * 100) / totalVotes;
-  } else if (stakedAmount > 0 && reputationScore === 0) {
-    // Reputación base basada en el stake (mínimo 50, máximo 70 para nuevos usuarios)
-    // Esto incentiva a los usuarios a participar en disputes para mejorar su reputación
-    const baseReputation = Math.min(50 + (stakedAmount * 2), 70);
-    calculatedReputation = baseReputation;
-  }
+  // Use reputation score directly from contract - no calculations or simulations
+  // The contract already calculates reputation based on votes and stake
 
   return {
     stakedAmount,
-    reputationScore: Math.round(calculatedReputation || reputationScore),
+    reputationScore: Math.round(reputationScore),
     tier,
     correctVotes,
     totalVotes,

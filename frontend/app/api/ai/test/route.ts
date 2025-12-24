@@ -10,7 +10,7 @@ export const runtime = 'nodejs';
  */
 export async function GET(request: NextRequest) {
   try {
-    const testPrompt = 'Responde con un JSON: {"status": "ok", "message": "Gemini está funcionando correctamente", "timestamp": "' + new Date().toISOString() + '"}';
+    const testPrompt = 'Respond with a JSON: {"status": "ok", "message": "Gemini is working correctly", "timestamp": "' + new Date().toISOString() + '"}';
     const { data, modelUsed } = await callGemini(testPrompt);
 
     // Intentar parsear JSON de la respuesta
@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
         rawResponse: data,
         modelUsed,
       },
-      message: 'Gemini AI está conectado correctamente',
+      message: 'Gemini AI is connected correctly',
       timestamp: new Date().toISOString(),
     });
   } catch (error: any) {
@@ -41,8 +41,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        error: error.message || 'Error al conectar con Gemini',
-        details: process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY ? 'API key configurada' : 'API key NO configurada',
+        error: error.message || 'Error connecting to Gemini',
+        details: process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY ? 'API key configured' : 'API key NOT configured',
       },
       { status: 500 }
     );
@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const { prompt, returnJSON } = await request.json();
-    const testPrompt = prompt || 'Responde con un JSON: {"status": "ok", "message": "Test exitoso"}';
+    const testPrompt = prompt || 'Respond with a JSON: {"status": "ok", "message": "Test successful"}';
 
     let result;
     if (returnJSON) {
@@ -72,8 +72,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        error: error.message || 'Error al conectar con Gemini',
-        details: process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY ? 'API key configurada' : 'API key NO configurada',
+        error: error.message || 'Error connecting to Gemini',
+        details: process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY ? 'API key configured' : 'API key NOT configured',
       },
       { status: 500 }
     );

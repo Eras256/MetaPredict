@@ -656,20 +656,16 @@ export default function DashboardPage() {
                         </p>
                       </div>
                       {(() => {
-                        const currentTime = Math.floor(Date.now() / 1000);
-                        const hasExpired = position.market?.resolutionTime && position.market.resolutionTime <= currentTime;
+                        // Only show winnings for markets that are actually resolved in the contract
+                        // No estimations - only real resolved outcomes
                         const isResolved = position.market?.status === MARKET_STATUS.RESOLVED;
-                        const showWinnings = (isResolved || (hasExpired && position.potentialPayout > 0)) && position.potentialPayout > 0;
+                        const showWinnings = isResolved && position.potentialPayout > 0;
                         
                         if (showWinnings) {
                           return (
                             <div>
-                              <p className="text-xs text-gray-400 mb-1">
-                                {isResolved ? 'Winnings' : 'Est. Winnings'}
-                              </p>
-                              <p className={`text-xs sm:text-sm font-semibold truncate ${
-                                isResolved ? 'text-green-400' : 'text-yellow-400'
-                              }`}>
+                              <p className="text-xs text-gray-400 mb-1">Winnings</p>
+                              <p className="text-xs sm:text-sm font-semibold truncate text-green-400">
                                 {!position.claimed
                                   ? `${(Number(position.potentialPayout) / 1e18).toFixed(4)} BNB`
                                   : 'Claimed'}

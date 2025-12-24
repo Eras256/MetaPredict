@@ -214,6 +214,13 @@ export function useInsuranceClaims() {
   useEffect(() => {
     if (account && coreContract && insurancePoolContract) {
       fetchClaims();
+      
+      // Auto-refresh every 30 seconds to keep values up-to-date
+      const interval = setInterval(() => {
+        fetchClaims();
+      }, 30000);
+      
+      return () => clearInterval(interval);
     } else {
       setClaims([]);
       setLoading(false);

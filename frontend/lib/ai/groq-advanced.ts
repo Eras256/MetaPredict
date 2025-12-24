@@ -1,8 +1,8 @@
 import axios from 'axios';
 
-// Verificar que la API key esté configurada
-// NOTA: Este archivo solo se ejecuta server-side (API routes), por lo que podemos usar
-// variables sin NEXT_PUBLIC_ para mejor seguridad.
+// Verify that the API key is configured
+// NOTE: This file only runs server-side (API routes), so we can use
+// variables without NEXT_PUBLIC_ for better security.
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
 
 if (!GROQ_API_KEY) {
@@ -12,11 +12,11 @@ if (!GROQ_API_KEY) {
 
 const baseUrl = 'https://api.groq.com/openai/v1/chat/completions';
 
-// Modelos en orden de preferencia con fallback
+// Models in order of preference with fallback
 const modelsToTry = [
-  'llama-3.1-8b-instant',    // Modelo principal (más rápido)
-  'llama-3.1-70b-versatile', // Fallback (puede estar deprecado)
-  'mixtral-8x7b-32768',      // Alternativa Mixtral
+  'llama-3.1-8b-instant',    // Main model (fastest)
+  'llama-3.1-70b-versatile', // Fallback (may be deprecated)
+  'mixtral-8x7b-32768',      // Mixtral alternative
 ];
 
 export interface GroqResponse<T = any> {
@@ -47,7 +47,7 @@ export async function callGroq(
   config: GroqConfig = {}
 ): Promise<GroqResponse<string>> {
   if (!GROQ_API_KEY) {
-    throw new Error('GROQ_API_KEY no está configurada. Por favor, configura GROQ_API_KEY en tu archivo .env');
+    throw new Error('GROQ_API_KEY is not configured. Please set GROQ_API_KEY in your .env file');
   }
 
   const generationConfig = { ...defaultConfig, ...config };
@@ -89,12 +89,12 @@ export async function callGroq(
       const errorMessage = error.response?.data?.error?.message || error.message;
       console.warn(`[AI] Groq model ${modelName} failed:`, errorMessage);
       
-      // Si el modelo está deprecado, continuar al siguiente
+      // If the model is deprecated, continue to the next one
       if (errorMessage.includes('decommissioned') || errorMessage.includes('deprecated')) {
         continue;
       }
       
-      // Si es un error de autenticación, no intentar otros modelos
+      // If it's an authentication error, don't try other models
       if (error.response?.status === 401 || error.response?.status === 403) {
         throw new Error(`Groq API authentication failed: ${errorMessage}`);
       }

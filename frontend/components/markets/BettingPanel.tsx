@@ -1,13 +1,31 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TrendingUp, TrendingDown, Info, Shield, Brain } from 'lucide-react';
 import { usePlaceBet } from '@/lib/hooks/betting/usePlaceBet';
+import { useReadContract, useActiveAccount } from 'thirdweb/react';
+import { getContract } from 'thirdweb/contract';
+import { defineChain } from 'thirdweb/chains';
+import { client } from '@/lib/config/thirdweb';
+import { CONTRACT_ADDRESSES } from '@/lib/contracts/addresses';
+import PREDICTION_MARKET_CORE_ABI from '@/lib/contracts/abi/PredictionMarketCore.json';
+import BINARY_MARKET_ABI from '@/lib/contracts/abi/BinaryMarket.json';
 import { toast } from 'sonner';
+
+const opBNBTestnet = defineChain({
+  id: 5611,
+  name: 'opBNB Testnet',
+  nativeCurrency: {
+    name: 'tBNB',
+    symbol: 'tBNB',
+    decimals: 18,
+  },
+  rpc: 'https://opbnb-testnet-rpc.bnbchain.org',
+});
 
 interface BettingPanelProps {
   marketId: number;
@@ -16,14 +34,136 @@ interface BettingPanelProps {
   userBalance: number;
 }
 
+/**
+ * Calculate shares using the real AMM formula from the contract:
+ * shares = (amount * totalShares) / pool
+ * If totalShares == 0, shares = amount (1:1 initial)
+ */
+function calculateShares(
+  amount: bigint,
+  pool: bigint,
+  totalShares: bigint
+): bigint {
+  if (totalShares === BigInt(0)) {
+    return amount; // 1:1 initial
+  }
+  // shares = (amount * totalShares) / pool
+  return (amount * totalShares) / pool;
+}
+
+/**
+ * Calculate potential return if the bet wins:
+ * return = (shares * totalPool) / totalShares
+ */
+function calculatePotentialReturn(
+  shares: bigint,
+  totalPool: bigint,
+  totalShares: bigint
+): bigint {
+  if (totalShares === BigInt(0)) {
+    return BigInt(0);
+  }
+  return (shares * totalPool) / totalShares;
+}
+
 export function BettingPanel({ marketId, yesOdds, noOdds, userBalance }: BettingPanelProps) {
   const [amount, setAmount] = useState('');
   const [side, setSide] = useState<'yes' | 'no'>('yes');
   const { placeBet, isPending: isPlacingBet } = usePlaceBet();
+  const account = useActiveAccount();
 
-  const odds = side === 'yes' ? yesOdds : noOdds;
-  const estimatedShares = amount ? (parseFloat(amount) / (odds / 100)).toFixed(2) : '0';
-  const potentialReturn = amount ? (parseFloat(amount) * (100 / odds)).toFixed(2) : '0';
+  // Get core contract
+  const coreContract = useMemo(() => {
+    const coreAddress = CONTRACT_ADDRESSES.PREDICTION_MARKET || CONTRACT_ADDRESSES.CORE_CONTRACT;
+    if (!coreAddress) return null;
+    return getContract({
+      client,
+      chain: opBNBTestnet,
+      address: coreAddress,
+      abi: PREDICTION_MARKET_CORE_ABI as any,
+    });
+  }, []);
+
+  // Get market contract address
+  const { data: marketContractAddress } = useReadContract({
+    contract: coreContract!,
+    method: 'getMarketContract',
+    params: [BigInt(marketId)],
+    queryOptions: {
+      enabled: !!coreContract && marketId > 0,
+      refetchInterval: 10000, // Refetch every 10 seconds
+    },
+  });
+
+  // Get market contract
+  const marketContract = useMemo(() => {
+    if (!marketContractAddress || marketContractAddress === '0x0000000000000000000000000000000000000000') {
+      return null;
+    }
+    return getContract({
+      client,
+      chain: opBNBTestnet,
+      address: marketContractAddress as `0x${string}`,
+      abi: BINARY_MARKET_ABI as any,
+    });
+  }, [marketContractAddress]);
+
+  // Read market data from contract
+  const { data: marketData } = useReadContract({
+    contract: marketContract!,
+    method: 'getMarket',
+    params: [BigInt(marketId)],
+    queryOptions: {
+      enabled: !!marketContract && marketId > 0,
+      refetchInterval: 10000, // Refetch every 10 seconds
+    },
+  }) as { data: any };
+
+  // Calculate real values based on contract data
+  const { estimatedShares, potentialReturn, profit } = useMemo(() => {
+    if (!amount || !marketData || parseFloat(amount) <= 0) {
+      return { estimatedShares: '0', potentialReturn: '0', profit: '0' };
+    }
+
+    const amountBigInt = BigInt(Math.floor(parseFloat(amount) * 1e18));
+    const yesPool = BigInt(marketData.yesPool || 0);
+    const noPool = BigInt(marketData.noPool || 0);
+    const totalYesShares = BigInt(marketData.totalYesShares || 0);
+    const totalNoShares = BigInt(marketData.totalNoShares || 0);
+
+    // Calculate shares using real AMM formula
+    const pool = side === 'yes' ? yesPool : noPool;
+    const totalShares = side === 'yes' ? totalYesShares : totalNoShares;
+    
+    const shares = calculateShares(amountBigInt, pool, totalShares);
+    const sharesBNB = Number(shares) / 1e18;
+    
+    // Calculate potential return if this side wins
+    // After placing the bet:
+    const newPool = side === 'yes' ? yesPool + amountBigInt : noPool + amountBigInt;
+    const newTotalShares = side === 'yes' ? totalYesShares + shares : totalNoShares + shares;
+    const newTotalPool = yesPool + noPool + amountBigInt; // Total pool after bet
+    
+    // If this side wins, you get: (yourShares * totalPool) / totalSharesOfWinningSide
+    let potentialReturnBigInt = BigInt(0);
+    if (newTotalShares > BigInt(0)) {
+      potentialReturnBigInt = (shares * newTotalPool) / newTotalShares;
+    } else {
+      // Edge case: if no shares exist, return is just the amount (shouldn't happen)
+      potentialReturnBigInt = amountBigInt;
+    }
+    
+    const potentialReturnBNB = Number(potentialReturnBigInt) / 1e18;
+    
+    // Calculate profit
+    const profitBNB = potentialReturnBNB - parseFloat(amount);
+
+    return {
+      estimatedShares: sharesBNB.toFixed(2),
+      potentialReturn: potentialReturnBNB.toFixed(2),
+      profit: profitBNB.toFixed(2),
+    };
+  }, [amount, marketData, side]);
 
   const handleBet = async () => {
     if (!amount || parseFloat(amount) <= 0) {
@@ -117,15 +257,21 @@ export function BettingPanel({ marketId, yesOdds, noOdds, userBalance }: Betting
             <div className="space-y-2.5 p-4 sm:p-5 rounded-xl bg-gradient-to-br from-green-500/10 to-emerald-500/10 border border-green-500/30 backdrop-blur-sm shadow-lg shadow-green-500/10">
               <div className="flex justify-between items-center text-sm">
                 <span className="text-gray-300">Estimated Shares</span>
-                <span className="text-white font-bold text-base truncate ml-2">{estimatedShares}</span>
+                <span className="text-white font-bold text-base truncate ml-2">
+                  {estimatedShares}
+                </span>
               </div>
               <div className="flex justify-between items-center text-sm">
                 <span className="text-gray-300">Potential Return</span>
-                <span className="text-green-400 font-bold text-base truncate ml-2">${potentialReturn}</span>
+                <span className="text-green-400 font-bold text-base truncate ml-2">
+                  ${potentialReturn}
+                </span>
               </div>
               <div className="flex justify-between items-center text-sm pt-2 border-t border-green-500/20">
                 <span className="text-gray-300 font-medium">Profit</span>
-                <span className="text-green-400 font-bold text-lg truncate ml-2">+${(parseFloat(potentialReturn) - parseFloat(amount || '0')).toFixed(2)}</span>
+                <span className="text-green-400 font-bold text-lg truncate ml-2">
+                  {parseFloat(profit) >= 0 ? '+' : ''}${profit}
+                </span>
               </div>
             </div>
 
@@ -178,15 +324,21 @@ export function BettingPanel({ marketId, yesOdds, noOdds, userBalance }: Betting
             <div className="space-y-2.5 p-4 sm:p-5 rounded-xl bg-gradient-to-br from-red-500/10 to-rose-500/10 border border-red-500/30 backdrop-blur-sm shadow-lg shadow-red-500/10">
               <div className="flex justify-between items-center text-sm">
                 <span className="text-gray-300">Estimated Shares</span>
-                <span className="text-white font-bold text-base truncate ml-2">{estimatedShares}</span>
+                <span className="text-white font-bold text-base truncate ml-2">
+                  {estimatedShares}
+                </span>
               </div>
               <div className="flex justify-between items-center text-sm">
                 <span className="text-gray-300">Potential Return</span>
-                <span className="text-red-400 font-bold text-base truncate ml-2">${potentialReturn}</span>
+                <span className="text-red-400 font-bold text-base truncate ml-2">
+                  ${potentialReturn}
+                </span>
               </div>
               <div className="flex justify-between items-center text-sm pt-2 border-t border-red-500/20">
                 <span className="text-gray-300 font-medium">Profit</span>
-                <span className="text-red-400 font-bold text-lg truncate ml-2">+${(parseFloat(potentialReturn) - parseFloat(amount || '0')).toFixed(2)}</span>
+                <span className="text-red-400 font-bold text-lg truncate ml-2">
+                  {parseFloat(profit) >= 0 ? '+' : ''}${profit}
+                </span>
               </div>
             </div>
 

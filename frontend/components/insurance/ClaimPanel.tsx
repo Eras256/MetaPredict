@@ -17,7 +17,7 @@ export function ClaimPanel() {
   const { claims, loading: claimsLoading, refresh: refreshClaims } = useInsuranceClaims();
   const [claimingMarketId, setClaimingMarketId] = useState<number | null>(null);
 
-  // Función helper para formatear BNB
+  // Helper function to format BNB
   const formatBNB = (value: bigint): string => {
     const bnbValue = Number(value) / 1e18;
     return `${bnbValue.toFixed(4)} BNB`;
@@ -25,7 +25,7 @@ export function ClaimPanel() {
 
   const handleClaim = async (marketId: number) => {
     if (!account) {
-      toast.error('Por favor conecta tu wallet primero');
+      toast.error('Please connect your wallet first');
       return;
     }
 
@@ -34,21 +34,21 @@ export function ClaimPanel() {
       const result = await claimInsurance(marketId);
       
       if (result?.transactionHash) {
-        toast.success('Reclamo procesado exitosamente!', {
+        toast.success('Claim processed successfully!', {
           duration: 5000,
           action: {
-            label: 'Ver TX',
+            label: 'View TX',
             onClick: () => window.open(getTransactionUrl(result.transactionHash), '_blank'),
           },
         });
-        // Refrescar la lista de claims después de un reclamo exitoso
+        // Refresh claims list after successful claim
         setTimeout(() => {
           refreshClaims();
         }, 2000);
       }
     } catch (error: any) {
-      // El error ya se maneja en el hook
-      console.error('Error en handleClaim:', error);
+      // Error is already handled in the hook
+      console.error('Error in handleClaim:', error);
     } finally {
       setClaimingMarketId(null);
     }
@@ -66,8 +66,8 @@ export function ClaimPanel() {
     return (
       <GlassCard className="p-12 text-center">
         <AlertCircle className="h-16 w-16 text-yellow-400 mx-auto mb-4" />
-        <p className="text-gray-400 text-lg">Conecta tu wallet</p>
-        <p className="text-gray-500 text-sm mt-2">Necesitas conectar tu wallet para ver tus reclamos de seguro</p>
+        <p className="text-gray-400 text-lg">Connect your wallet</p>
+        <p className="text-gray-500 text-sm mt-2">You need to connect your wallet to view your insurance claims</p>
       </GlassCard>
     );
   }
@@ -90,7 +90,7 @@ export function ClaimPanel() {
                       <span className="ml-2 text-white font-semibold">#{claim.marketId}</span>
                     </div>
                     <div>
-                      <span className="text-gray-400">Invertido:</span>
+                      <span className="text-gray-400">Invested:</span>
                       <span className="ml-2 text-white font-semibold">{formatBNB(claim.invested)}</span>
                     </div>
                     <div>
@@ -104,9 +104,9 @@ export function ClaimPanel() {
                     </div>
                     {claim.policyActivated && (
                       <div>
-                        <span className="text-gray-400">Póliza:</span>
+                        <span className="text-gray-400">Policy:</span>
                         <span className="ml-2 text-white font-semibold">
-                          {claim.expired ? 'Expirada' : 'Activa'}
+                          {claim.expired ? 'Expired' : 'Active'}
                         </span>
                       </div>
                     )}
@@ -117,7 +117,7 @@ export function ClaimPanel() {
                   </p>
                   {claim.policyActivated && claim.policyReserve > BigInt(0) && (
                     <p className="text-xs text-gray-500 mt-2">
-                      Reserva de póliza: {formatBNB(claim.policyReserve)}
+                      Policy Reserve: {formatBNB(claim.policyReserve)}
                     </p>
                   )}
                 </div>
@@ -130,7 +130,7 @@ export function ClaimPanel() {
                   {isClaiming ? (
                     <>
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Procesando...
+                      Processing...
                     </>
                   ) : claim.status === 'pending' ? (
                     <>
@@ -138,7 +138,7 @@ export function ClaimPanel() {
                       Claim Now
                     </>
                   ) : (
-                    'Ya Reclamado'
+                    'Already Claimed'
                   )}
                 </Button>
               </div>
@@ -148,11 +148,11 @@ export function ClaimPanel() {
       ) : (
         <GlassCard className="p-12 text-center">
           <CheckCircle className="h-16 w-16 text-green-400 mx-auto mb-4" />
-          <p className="text-gray-400 text-lg">No hay reclamos pendientes</p>
+          <p className="text-gray-400 text-lg">No pending claims</p>
           <p className="text-gray-500 text-sm mt-2">
             {account 
-              ? 'No tienes mercados disputados con inversiones elegibles para reclamar seguro'
-              : 'Conecta tu wallet para ver tus reclamos de seguro'}
+              ? 'You have no disputed markets with eligible investments to claim insurance'
+              : 'Connect your wallet to view your insurance claims'}
           </p>
         </GlassCard>
       )}

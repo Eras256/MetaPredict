@@ -10,7 +10,7 @@ export const runtime = 'nodejs';
  */
 export async function GET(request: NextRequest) {
   try {
-    const testPrompt = 'Responde con un JSON: {"status": "ok", "message": "Groq está funcionando correctamente", "timestamp": "' + new Date().toISOString() + '"}';
+    const testPrompt = 'Respond with a JSON: {"status": "ok", "message": "Groq is working correctly", "timestamp": "' + new Date().toISOString() + '"}';
     const { data, modelUsed } = await callGroq(testPrompt);
 
     // Intentar parsear JSON de la respuesta
@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
         rawResponse: data,
         modelUsed,
       },
-      message: 'Groq AI está conectado correctamente',
+      message: 'Groq AI is connected correctly',
       timestamp: new Date().toISOString(),
     });
   } catch (error: any) {
@@ -42,8 +42,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        error: error.message || 'Error al conectar con Groq',
-        details: process.env.GROQ_API_KEY ? 'API key configurada' : 'API key NO configurada',
+        error: error.message || 'Error connecting to Groq',
+        details: process.env.GROQ_API_KEY ? 'API key configured' : 'API key NOT configured',
       },
       { status: 500 }
     );
@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const { prompt, returnJSON } = await request.json();
-    const testPrompt = prompt || 'Responde con un JSON: {"status": "ok", "message": "Test exitoso"}';
+    const testPrompt = prompt || 'Respond with a JSON: {"status": "ok", "message": "Test successful"}';
 
     let result;
     if (returnJSON) {
@@ -73,8 +73,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        error: error.message || 'Error al conectar con Groq',
-        details: process.env.GROQ_API_KEY ? 'API key configurada' : 'API key NO configurada',
+        error: error.message || 'Error connecting to Groq',
+        details: process.env.GROQ_API_KEY ? 'API key configured' : 'API key NOT configured',
       },
       { status: 500 }
     );

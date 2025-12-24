@@ -474,7 +474,8 @@ export function useUserDashboard() {
               const noInvested = (noShares * avgNoPrice) / divisor;
               const totalInvested = yesInvested + noInvested;
 
-              // Calcular potential payout
+              // Calculate potential payout using ONLY real contract data
+              // No estimations or simulations - only actual resolved market outcomes
               let potentialPayout = BigInt(0);
               const yesPool = BigInt(marketData?.yesPool || 0);
               const noPool = BigInt(marketData?.noPool || 0);
@@ -482,43 +483,23 @@ export function useUserDashboard() {
               const totalNoShares = BigInt(marketData?.totalNoShares || 0);
               const totalPool = yesPool + noPool;
               
-              // Si el mercado está resuelto, calcular payout real
+              // Only calculate payout if market is actually resolved in the contract
+              // For unresolved markets, payout is 0 until resolution
               if (marketData?.resolved && marketData?.outcome) {
-                if (Number(marketData.outcome) === 1 && position.yesShares > 0 && totalYesShares > 0) {
-                  // YES ganó
+                const outcome = Number(marketData.outcome);
+                if (outcome === 1 && position.yesShares > 0 && totalYesShares > 0) {
+                  // YES won - calculate real payout from contract pools
                   potentialPayout = (position.yesShares * totalPool) / totalYesShares;
-                } else if (Number(marketData.outcome) === 2 && position.noShares > 0 && totalNoShares > 0) {
-                  // NO ganó
+                } else if (outcome === 2 && position.noShares > 0 && totalNoShares > 0) {
+                  // NO won - calculate real payout from contract pools
                   potentialPayout = (position.noShares * totalPool) / totalNoShares;
-                } else if (Number(marketData.outcome) === 3) {
-                  // Invalid - refund
+                } else if (outcome === 3) {
+                  // Invalid outcome - refund total invested
                   potentialPayout = totalInvested;
                 }
-              } else {
-                // Si el mercado venció pero no está resuelto, calcular payout estimado basado en pools actuales
-                const currentTime = Math.floor(Date.now() / 1000);
-                const hasExpired = market.resolutionTime <= currentTime;
-                
-                if (hasExpired && totalPool > 0) {
-                  // Calcular payout estimado basado en la proporción actual de shares
-                  // Esto es una estimación, el payout real dependerá del outcome final
-                  if (position.yesShares > 0 && totalYesShares > 0) {
-                    // Estimación si YES gana
-                    const estimatedYesPayout = (position.yesShares * totalPool) / totalYesShares;
-                    if (position.noShares > 0 && totalNoShares > 0) {
-                      // Estimación si NO gana
-                      const estimatedNoPayout = (position.noShares * totalPool) / totalNoShares;
-                      // Usar el promedio o el máximo como estimación conservadora
-                      potentialPayout = estimatedYesPayout > estimatedNoPayout ? estimatedYesPayout : estimatedNoPayout;
-                    } else {
-                      potentialPayout = estimatedYesPayout;
-                    }
-                  } else if (position.noShares > 0 && totalNoShares > 0) {
-                    // Solo tiene NO shares
-                    potentialPayout = (position.noShares * totalPool) / totalNoShares;
-                  }
-                }
+                // If outcome doesn't match user's position, payout remains 0
               }
+              // For unresolved markets (even if expired), payout is 0 until actual resolution
 
               return {
                 marketId: i,
@@ -556,20 +537,15 @@ export function useUserDashboard() {
       return sum + Number(pos.totalInvested) / 1e18;
     }, 0);
 
+    // Calculate total potential winnings using ONLY resolved markets from contract
+    // No estimations - only actual resolved outcomes
     const totalPotentialWinnings = userPositions.reduce((sum, pos) => {
-      // Incluir winnings de mercados resueltos
+      // Only include winnings from markets that are actually resolved in the contract
       if (pos.market?.status === 2 && pos.potentialPayout > 0 && !pos.claimed) {
         return sum + Number(pos.potentialPayout) / 1e18;
       }
-      // También incluir estimaciones de mercados vencidos pero no resueltos
-      if (pos.market && pos.potentialPayout > 0 && !pos.claimed) {
-        const currentTime = Math.floor(Date.now() / 1000);
-        const hasExpired = pos.market.resolutionTime <= currentTime;
-        const isNotResolved = pos.market.status !== 2;
-        if (hasExpired && isNotResolved) {
-          return sum + Number(pos.potentialPayout) / 1e18;
-        }
-      }
+      // Do not include estimations for expired but unresolved markets
+      // Wait for actual contract resolution
       return sum;
     }, 0);
 
@@ -615,6 +591,18 @@ export function useUserDashboard() {
       setUserPositions([]);
       setLoading(false);
     }
+  }, [account?.address, coreContract]);
+
+  // Auto-refresh data every 30 seconds to keep values up-to-date
+  useEffect(() => {
+    if (!account || !coreContract) return;
+
+    const interval = setInterval(() => {
+      fetchUserMarkets();
+      fetchUserPositions();
+    }, 30000); // Refresh every 30 seconds
+
+    return () => clearInterval(interval);
   }, [account?.address, coreContract]);
 
   useEffect(() => {

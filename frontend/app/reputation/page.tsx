@@ -142,7 +142,7 @@ export default function ReputationPage() {
                 <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/10">
                   <div>
                     <p className="text-sm text-gray-400">Staked Amount</p>
-                    <p className="text-xl font-semibold">${stakedAmount.toFixed(2)}</p>
+                    <p className="text-xl font-semibold">{stakedAmount.toFixed(4)} BNB</p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-400">Win Rate</p>

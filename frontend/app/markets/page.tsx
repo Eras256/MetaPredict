@@ -207,7 +207,7 @@ Respond with a JSON in this format:
             activeMarkets: markets?.length || 0,
             volume24h: formattedVolume,
             resolvingSoon: resolvingSoon,
-            insuredMarkets: '98%',
+            insuredMarkets: 'N/A', // Insurance coverage is calculated per market, not globally
           }}
         />
 
