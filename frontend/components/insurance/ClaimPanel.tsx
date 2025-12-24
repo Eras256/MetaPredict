@@ -115,10 +115,41 @@ export function ClaimPanel() {
                     <AlertCircle className="h-4 w-4" />
                     {claim.reason}
                   </p>
-                  {claim.policyActivated && claim.policyReserve > BigInt(0) && (
-                    <p className="text-xs text-gray-500 mt-2">
-                      Policy Reserve: {formatBNB(claim.policyReserve)}
-                    </p>
+                  {claim.policyActivated && (
+                    <div className="mt-3 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-xs text-gray-400">Policy Status</span>
+                        <Badge className={
+                          claim.expired 
+                            ? 'bg-red-500/20 text-red-400 border-red-500/30' 
+                            : 'bg-green-500/20 text-green-400 border-green-500/30'
+                        }>
+                          {claim.expired ? 'Expired' : 'Active'}
+                        </Badge>
+                      </div>
+                      {claim.policyReserve > BigInt(0) && (
+                        <div className="grid grid-cols-2 gap-2 text-xs">
+                          <div>
+                            <span className="text-gray-400">Reserve:</span>
+                            <span className="ml-1 text-white font-semibold">{formatBNB(claim.policyReserve)}</span>
+                          </div>
+                          {claim.policyClaimed > BigInt(0) && (
+                            <div>
+                              <span className="text-gray-400">Claimed:</span>
+                              <span className="ml-1 text-white font-semibold">{formatBNB(claim.policyClaimed)}</span>
+                            </div>
+                          )}
+                          {claim.expiresAt > BigInt(0) && (
+                            <div className="col-span-2">
+                              <span className="text-gray-400">Expires:</span>
+                              <span className="ml-1 text-white font-semibold">
+                                {new Date(Number(claim.expiresAt) * 1000).toLocaleDateString()}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   )}
                 </div>
                 <Button 

@@ -21,6 +21,12 @@ import { useBNBBalance } from '@/lib/hooks/useBNBBalance';
 import { formatModelName } from '@/lib/utils/model-formatter';
 import { useInitiateResolution } from '@/lib/hooks/markets/useCreateMarket';
 import { useMarketActivity } from '@/lib/hooks/useMarketActivity';
+import { CrossChainBettingPanel } from '@/components/markets/CrossChainBettingPanel';
+import { DisputeVotingPanel } from '@/components/markets/DisputeVotingPanel';
+import { ChainlinkDataStreamsPanel } from '@/components/oracle/ChainlinkDataStreamsPanel';
+import { VoteWeightsPanel } from '@/components/reputation/VoteWeightsPanel';
+import { ChildMarketsPanel } from '@/components/markets/ChildMarketsPanel';
+import { useCurrentOdds } from '@/lib/hooks/markets/useMarketData';
 
 
 export default function MarketDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -114,10 +120,20 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
     );
   }
 
-  // Calcular odds desde los pools del mercado
+  // Get current odds from contract (real-time)
+  const { yesOdds: contractYesOdds, noOdds: contractNoOdds, isLoading: oddsLoading } = useCurrentOdds(
+    marketId,
+    market?.marketContractAddress
+  );
+  
+  // Fallback to calculated odds if contract data not available
   const totalPool = market ? Number(market.yesPool) + Number(market.noPool) : 0;
-  const yesOdds = market && totalPool > 0 ? (Number(market.yesPool) / totalPool) * 100 : 50;
-  const noOdds = market && totalPool > 0 ? (Number(market.noPool) / totalPool) * 100 : 50;
+  const calculatedYesOdds = market && totalPool > 0 ? (Number(market.yesPool) / totalPool) * 100 : 50;
+  const calculatedNoOdds = market && totalPool > 0 ? (Number(market.noPool) / totalPool) * 100 : 50;
+  
+  // Use contract odds if available, otherwise use calculated
+  const yesOdds = !oddsLoading && contractYesOdds !== 50 ? contractYesOdds : calculatedYesOdds;
+  const noOdds = !oddsLoading && contractNoOdds !== 50 ? contractNoOdds : calculatedNoOdds;
   
   // Verificar si el mercado venció
   const currentTime = Math.floor(Date.now() / 1000);
@@ -496,7 +512,7 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                 </GlassCard>
               </TabsContent>
 
-              <TabsContent value="resolution" className="mt-6">
+              <TabsContent value="resolution" className="mt-6 space-y-6">
                 <GlassCard className="p-6">
                   <h3 className="text-lg font-semibold text-white mb-4">Resolution Details</h3>
                   <div className="space-y-4">
@@ -543,9 +559,23 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                     </div>
                   </div>
                 </GlassCard>
+
+                {/* Chainlink Data Streams Panel */}
+                <ChainlinkDataStreamsPanel marketId={marketId} />
+
+                {/* Dispute Voting Panel - Show if market is in dispute */}
+                {market?.status === 4 && (
+                  <>
+                    <DisputeVotingPanel 
+                      marketId={marketId} 
+                      marketQuestion={market?.question || `Market #${marketId}`}
+                    />
+                    <VoteWeightsPanel marketId={marketId} />
+                  </>
+                )}
               </TabsContent>
 
-              <TabsContent value="info" className="mt-6">
+              <TabsContent value="info" className="mt-6 space-y-6">
                 <GlassCard className="p-6">
                   <h3 className="text-lg font-semibold text-white mb-4">Market Information</h3>
                   <div className="space-y-3">
@@ -586,18 +616,29 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                     </Button>
                   </a>
                 </GlassCard>
+
+                {/* Show child markets if this is a conditional market */}
+                {market?.marketType === MARKET_TYPES.CONDITIONAL && (
+                  <ChildMarketsPanel parentMarketId={marketId} />
+                )}
               </TabsContent>
             </Tabs>
           </div>
 
           {/* Betting Panel */}
           <div className="lg:col-span-1 order-first lg:order-last">
-            <div className="sticky top-20 lg:top-24">
+            <div className="sticky top-20 lg:top-24 space-y-6">
               <BettingPanel
                 marketId={marketId}
                 yesOdds={yesOdds}
                 noOdds={noOdds}
                 userBalance={userBalance}
+              />
+              
+              {/* Cross-Chain Betting Panel */}
+              <CrossChainBettingPanel 
+                marketId={marketId} 
+                marketQuestion={market?.question || `Market #${marketId}`}
               />
             </div>
           </div>

@@ -38,6 +38,9 @@ import Link from 'next/link';
 import { formatAddress } from '@/lib/utils/blockchain';
 import { MARKET_STATUS } from '@/lib/config/constants';
 import { toast } from 'sonner';
+import { PortfolioView } from '@/components/aggregation/PortfolioView';
+import { UserProfile } from '@/components/users/UserProfile';
+import { PendingCrossChainBets } from '@/components/markets/PendingCrossChainBets';
 
 export default function DashboardPage() {
   const account = useActiveAccount();
@@ -49,7 +52,7 @@ export default function DashboardPage() {
   const [analyzing, setAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<any>(null);
 
-  // Filtrar posiciones activas vs resueltas
+  // Filter active vs resolved positions
   const activePositions = userPositions.filter((pos) => {
     return pos.market?.status === MARKET_STATUS.ACTIVE || pos.market?.status === MARKET_STATUS.RESOLVING;
   });
@@ -58,7 +61,7 @@ export default function DashboardPage() {
     return pos.market?.status === MARKET_STATUS.RESOLVED;
   });
 
-  // Winnings claims pendientes (mercados resueltos con payout no reclamado)
+  // Pending winnings claims (resolved markets with unclaimed payout)
   const pendingWinningsClaims = resolvedPositions.filter((pos) => {
     return pos.potentialPayout > 0 && !pos.claimed;
   });
@@ -713,14 +716,22 @@ export default function DashboardPage() {
 
           {/* Portfolio Tab - Active Positions */}
           <TabsContent value="portfolio">
-            {loading ? (
-              <div className="space-y-4">
-                {[...Array(3)].map((_, i) => (
-                  <Skeleton key={i} className="h-32 w-full" />
-                ))}
-              </div>
-            ) : activePositions.length > 0 ? (
-              activePositions.map((position) => (
+            <div className="space-y-6">
+              {/* Cross-Chain Portfolio View */}
+              <PortfolioView />
+              
+              {/* Active Positions */}
+              {loading ? (
+                <div className="space-y-4">
+                  {[...Array(3)].map((_, i) => (
+                    <Skeleton key={i} className="h-32 w-full" />
+                  ))}
+                </div>
+              ) : activePositions.length > 0 ? (
+                <div>
+                  <h3 className="text-lg font-semibold text-white mb-4">Active Positions</h3>
+                  <div className="space-y-3">
+                    {activePositions.map((position) => (
                 <GlassCard key={position.marketId} className="p-6">
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1">
@@ -787,17 +798,20 @@ export default function DashboardPage() {
                     </div>
                   </div>
                 </GlassCard>
-              ))
-            ) : (
-              <GlassCard className="p-12 text-center">
-                <TrendingUp className="w-16 h-16 text-gray-500 mx-auto mb-4" />
-                <p className="text-gray-400 text-lg">No active positions</p>
-                <p className="text-gray-500 text-sm mt-2">Explore markets and place your first bet</p>
-                <Link href="/markets" className="mt-4 inline-block">
-                  <Button>Explore Markets</Button>
-                </Link>
-              </GlassCard>
-            )}
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <GlassCard className="p-12 text-center">
+                  <TrendingUp className="w-16 h-16 text-gray-500 mx-auto mb-4" />
+                  <p className="text-gray-400 text-lg">No active positions</p>
+                  <p className="text-gray-500 text-sm mt-2">Explore markets and place your first bet</p>
+                  <Link href="/markets" className="mt-4 inline-block">
+                    <Button>Explore Markets</Button>
+                  </Link>
+                </GlassCard>
+              )}
+            </div>
           </TabsContent>
 
           {/* History Tab - Resolved Positions */}

@@ -1,13 +1,25 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { useActiveAccount } from 'thirdweb/react';
+import { useActiveAccount, useReadContract } from 'thirdweb/react';
 import { readContract } from 'thirdweb';
 import { defineChain } from 'thirdweb/chains';
 import { getContract } from 'thirdweb';
 import { CONTRACT_ADDRESSES } from '@/lib/contracts/addresses';
 import InsurancePoolABI from '@/lib/contracts/abi/InsurancePool.json';
 import { client } from '@/lib/config/thirdweb';
+
+// Extended ABI for additional view functions
+const InsurancePoolExtendedABI = [
+  ...InsurancePoolABI,
+  {
+    name: 'totalShares',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint256' }],
+  },
+] as any;
 
 const opBNBTestnet = defineChain({
   id: 5611,
@@ -192,6 +204,39 @@ export function useInsurancePool() {
     apy: finalAPY,
     loading,
     refresh,
+  };
+}
+
+export function useInsurancePoolDetails() {
+  const contract = useMemo(() => {
+    return getContract({
+      client,
+      chain: opBNBTestnet,
+      address: CONTRACT_ADDRESSES.INSURANCE_POOL,
+      abi: InsurancePoolExtendedABI,
+    });
+  }, []);
+
+  const { data: totalShares } = useReadContract({
+    contract: contract!,
+    method: 'totalShares',
+    params: [],
+    queryOptions: { enabled: !!contract },
+  });
+
+  const { data: totalAssets } = useReadContract({
+    contract: contract!,
+    method: 'totalAssets',
+    params: [],
+    queryOptions: { enabled: !!contract },
+  });
+
+  return {
+    totalShares: totalShares ? Number(totalShares) / 1e18 : 0,
+    totalAssets: totalAssets ? Number(totalAssets) / 1e18 : 0,
+    sharePrice: totalShares && totalAssets && Number(totalShares) > 0
+      ? Number(totalAssets) / Number(totalShares)
+      : 1,
   };
 }
 

@@ -118,7 +118,7 @@ export function useUserDashboard() {
     });
   }, []);
 
-  // Obtener mercados creados por el usuario
+  // Get markets created by the user
   const fetchUserMarkets = async () => {
     if (!account || !coreContract) {
       setUserMarkets([]);
@@ -126,7 +126,7 @@ export function useUserDashboard() {
     }
 
     try {
-      // Intentar obtener IDs de mercados del usuario
+      // Try to get user market IDs
       let marketIds: bigint[] = [];
       try {
         const result = await readContract({
@@ -143,7 +143,7 @@ export function useUserDashboard() {
         }
       } catch (error) {
         console.warn('getUserMarkets not available, will iterate all markets:', error);
-        // Fallback: iterar sobre todos los mercados y filtrar por creator
+        // Fallback: iterate over all markets and filter by creator
         const marketCounter = await readContract({
           contract: coreContract,
           method: 'marketCounter',
@@ -152,7 +152,7 @@ export function useUserDashboard() {
         
         const count = Number(marketCounter);
         if (count > 0) {
-          // Iterar sobre todos los mercados y filtrar por creator
+          // Iterate over all markets and filter by creator
           const allMarketPromises = [];
           for (let i = 1; i <= count; i++) {
             allMarketPromises.push(
@@ -178,13 +178,13 @@ export function useUserDashboard() {
         return;
       }
 
-      // Obtener información de cada mercado
+      // Get information for each market
       const marketPromises = marketIds.map(async (marketId) => {
         try {
-          // Convertir marketId a número y luego a BigInt de forma segura
+          // Convert marketId to number and then to BigInt safely
           const marketIdNum = typeof marketId === 'bigint' ? Number(marketId) : Number(marketId);
           
-          // Validar que sea un número válido
+          // Validate that it's a valid number
           if (isNaN(marketIdNum) || marketIdNum <= 0 || marketIdNum > Number.MAX_SAFE_INTEGER) {
             console.warn(`Invalid marketId: ${marketId}`);
             return null;
@@ -192,7 +192,7 @@ export function useUserDashboard() {
           
           const marketIdBigInt = BigInt(marketIdNum);
           
-          // Obtener info del Core
+          // Get info from Core
           const marketInfo = await readContract({
             contract: coreContract,
             method: 'getMarket',
@@ -203,7 +203,7 @@ export function useUserDashboard() {
             return null;
           }
 
-          // Obtener contrato del mercado
+          // Get market contract
           const marketContractAddress = await readContract({
             contract: coreContract,
             method: 'getMarketContract',
@@ -303,7 +303,7 @@ export function useUserDashboard() {
     }
   };
 
-  // Obtener posiciones/apuestas del usuario
+  // Get user positions/bets
   const fetchUserPositions = async () => {
     if (!account || !coreContract) {
       setUserPositions([]);
@@ -311,7 +311,7 @@ export function useUserDashboard() {
     }
 
     try {
-      // Obtener el marketCounter para iterar sobre todos los mercados
+      // Get marketCounter to iterate over all markets
       const marketCounter = await readContract({
         contract: coreContract,
         method: 'marketCounter',
@@ -330,7 +330,7 @@ export function useUserDashboard() {
         positionPromises.push(
           (async () => {
             try {
-              // Obtener info del mercado del Core
+              // Get market info from Core
               const marketInfo = await readContract({
                 contract: coreContract,
                 method: 'getMarket',
@@ -341,7 +341,7 @@ export function useUserDashboard() {
                 return null;
               }
 
-              // Obtener contrato del mercado
+              // Get market contract
               const marketContractAddress = await readContract({
                 contract: coreContract,
                 method: 'getMarketContract',
@@ -361,7 +361,7 @@ export function useUserDashboard() {
                 return null;
               }
 
-              // Obtener posición del usuario
+              // Get user position
               const marketContract = getContract({
                 client,
                 chain: opBNBTestnet,
@@ -394,7 +394,7 @@ export function useUserDashboard() {
                 return null;
               }
 
-              // Obtener datos del mercado (BinaryMarket.getMarket requiere marketId)
+              // Get market data (BinaryMarket.getMarket requires marketId)
               // Envolver en try-catch más amplio para capturar cualquier error de decodificación
               let marketData: any;
               try {

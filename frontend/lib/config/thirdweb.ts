@@ -21,7 +21,7 @@ const getClientId = () => {
       '   4. Configura la variable de entorno NEXT_PUBLIC_THIRDWEB_CLIENT_ID en Vercel\n' +
       '   5. Reinicia el despliegue\n' +
       '\n' +
-      '💡 Nota: El Client ID es gratuito y solo toma unos minutos obtenerlo.\n' +
+      '💡 Note: The Client ID is free and only takes a few minutes to obtain.\n' +
       '\n';
     
     throw new Error(errorMessage);

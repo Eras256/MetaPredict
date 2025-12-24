@@ -199,7 +199,7 @@ export function useInsuranceClaims() {
       const results = await Promise.all(claimPromises);
       const validClaims = results.filter((c): c is InsuranceClaim => c !== null);
 
-      // Filtrar solo los claims pendientes (no reclamados)
+      // Filter only pending claims (not yet claimed)
       const pendingClaims = validClaims.filter(c => c.status === 'pending');
 
       setClaims(pendingClaims);

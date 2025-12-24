@@ -71,6 +71,27 @@ const PredictionMarketCoreABI = [
     outputs: [],
   },
   {
+    name: 'placeBetCrossChain',
+    type: 'function',
+    stateMutability: 'payable',
+    inputs: [
+      { name: '_marketId', type: 'uint256' },
+      { name: '_isYes', type: 'bool' },
+      { name: '_targetChainId', type: 'uint256' },
+    ],
+    outputs: [],
+  },
+  {
+    name: 'voteOnDispute',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { name: '_marketId', type: 'uint256' },
+      { name: '_vote', type: 'uint8' },
+    ],
+    outputs: [],
+  },
+  {
     name: 'markets',
     type: 'function',
     stateMutability: 'view',
@@ -993,5 +1014,133 @@ export function useInitiateResolution() {
   };
 
   return { initiateResolution, isPending: loading || isSending };
+}
+
+export function usePlaceBetCrossChain() {
+  const [loading, setLoading] = useState(false);
+  const account = useActiveAccount();
+  
+  const contract = useMemo(() => {
+    return getContract({
+      client,
+      chain: opBNBTestnet,
+      address: CONTRACT_ADDRESSES.PREDICTION_MARKET,
+      abi: PredictionMarketCoreABI as any,
+    });
+  }, []);
+
+  const { mutateAsync: sendTransaction, isPending: isSending } = useSendTransaction();
+
+  const placeBetCrossChain = async (
+    marketId: number,
+    isYes: boolean,
+    amount: bigint,
+    targetChainId: number
+  ) => {
+    if (!account) {
+      throw new Error('No account connected');
+    }
+
+    try {
+      setLoading(true);
+      
+      const tx = prepareContractCall({
+        contract,
+        method: 'placeBetCrossChain',
+        params: [BigInt(marketId), isYes, BigInt(targetChainId)],
+        value: amount,
+      });
+
+      const result = await sendTransaction(tx);
+      const txHash = result.transactionHash;
+      await waitForReceipt({ client, chain: opBNBTestnet, transactionHash: txHash });
+      
+      const txUrl = getTransactionUrl(txHash);
+      toast.success(
+        `Cross-chain bet placed! View transaction: ${formatTxHash(txHash)}`,
+        {
+          duration: 10000,
+          action: {
+            label: 'View on opBNBScan',
+            onClick: () => window.open(txUrl, '_blank'),
+          },
+        }
+      );
+      
+      return { transactionHash: txHash, receipt: result };
+    } catch (error: any) {
+      console.error('Error placing cross-chain bet:', error);
+      toast.error(error?.message || 'Error placing cross-chain bet');
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { placeBetCrossChain, isPending: loading || isSending };
+}
+
+export function useVoteOnDispute() {
+  const [loading, setLoading] = useState(false);
+  const account = useActiveAccount();
+  
+  const contract = useMemo(() => {
+    return getContract({
+      client,
+      chain: opBNBTestnet,
+      address: CONTRACT_ADDRESSES.PREDICTION_MARKET,
+      abi: PredictionMarketCoreABI as any,
+    });
+  }, []);
+
+  const { mutateAsync: sendTransaction, isPending: isSending } = useSendTransaction();
+
+  const voteOnDispute = async (marketId: number, vote: 1 | 2 | 3) => {
+    if (!account) {
+      throw new Error('No account connected');
+    }
+
+    // Vote: 1 = Yes, 2 = No, 3 = Invalid
+    if (vote < 1 || vote > 3) {
+      throw new Error('Invalid vote. Must be 1 (Yes), 2 (No), or 3 (Invalid)');
+    }
+
+    try {
+      setLoading(true);
+      
+      const tx = prepareContractCall({
+        contract,
+        method: 'voteOnDispute',
+        params: [BigInt(marketId), BigInt(vote)],
+      });
+
+      const result = await sendTransaction(tx);
+      const txHash = result.transactionHash;
+      await waitForReceipt({ client, chain: opBNBTestnet, transactionHash: txHash });
+      
+      const txUrl = getTransactionUrl(txHash);
+      const voteLabels = { 1: 'Yes', 2: 'No', 3: 'Invalid' };
+      toast.success(
+        `Vote cast: ${voteLabels[vote]}! View transaction: ${formatTxHash(txHash)}`,
+        {
+          duration: 10000,
+          action: {
+            label: 'View on opBNBScan',
+            onClick: () => window.open(txUrl, '_blank'),
+          },
+        }
+      );
+      
+      return { transactionHash: txHash, receipt: result };
+    } catch (error: any) {
+      console.error('Error voting on dispute:', error);
+      toast.error(error?.message || 'Error voting on dispute');
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { voteOnDispute, isPending: loading || isSending };
 }
 

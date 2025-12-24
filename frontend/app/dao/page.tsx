@@ -9,7 +9,11 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useProposal, useVoteOnProposal, useUserProposals, useExecuteProposal, useAllProposals } from '@/lib/hooks/dao/useDAO';
+import { useProposal, useVoteOnProposal, useUserProposals, useExecuteProposal, useAllProposals, useCreateProposal, useRegisterExpertise, useAttestExpertise, useUserVote, useUserVotesList } from '@/lib/hooks/dao/useDAO';
+import { CreateProposalForm } from '@/components/dao/CreateProposalForm';
+import { ExpertiseManagement } from '@/components/dao/ExpertiseManagement';
+import { MyVotesHistory } from '@/components/dao/MyVotesHistory';
+import { DAOParametersPanel } from '@/components/dao/DAOParametersPanel';
 import { Vote, CheckCircle, XCircle, Clock, TrendingUp, Users, Brain, Loader2, RefreshCw, ExternalLink, User } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { analyzeDAOProposal } from '@/lib/services/ai/gemini';
@@ -185,6 +189,9 @@ export default function DAOPage() {
             <TabsTrigger value="active">Active Proposals</TabsTrigger>
             <TabsTrigger value="resolved">Resolved</TabsTrigger>
             <TabsTrigger value="create">Create Proposal</TabsTrigger>
+            <TabsTrigger value="expertise">Expertise</TabsTrigger>
+            <TabsTrigger value="my-votes">My Votes</TabsTrigger>
+            <TabsTrigger value="parameters">Parameters</TabsTrigger>
           </TabsList>
 
           <TabsContent value="active" className="space-y-6">
@@ -202,6 +209,39 @@ export default function DAOPage() {
 
                 const analysis = analysisResults[proposal.id];
                 const isUserProposal = proposal.proposer.toLowerCase() === account?.address?.toLowerCase();
+
+                // User's Vote Display Component
+                const UserVoteDisplay = () => {
+                  const { vote } = useUserVote(proposal.id);
+                  if (!vote || !vote.hasVoted) return null;
+                  
+                  const voteLabels = { 0: 'Against', 1: 'For', 2: 'Abstain' };
+                  const voteColors = {
+                    0: 'bg-red-500/20 text-red-400 border-red-500/30',
+                    1: 'bg-green-500/20 text-green-400 border-green-500/30',
+                    2: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
+                  };
+                  
+                  return (
+                    <div className="mt-4 p-3 rounded-lg bg-purple-500/10 border border-purple-500/20">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-xs text-gray-400">Your Vote:</span>
+                        <Badge className={voteColors[vote.support as keyof typeof voteColors]}>
+                          {voteLabels[vote.support as keyof typeof voteLabels]}
+                        </Badge>
+                        {vote.isExpert && (
+                          <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30 ml-2">
+                            🧠 Expert Boost
+                          </Badge>
+                        )}
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-gray-500">Voting Power:</span>
+                        <span className="text-xs text-white font-semibold">{vote.quadraticVotes.toLocaleString()} (quadratic)</span>
+                      </div>
+                    </div>
+                  );
+                };
 
                 return (
                   <GlassCard key={proposal.id} className="p-6 sm:p-8">
@@ -338,10 +378,20 @@ export default function DAOPage() {
                       </div>
 
                       {totalVotes > 0 && (
-                        <div className="text-xs text-gray-500 mt-2">
-                          Total voting power: {totalVotes.toLocaleString()} votes (quadratic)
+                        <div className="text-xs text-gray-500 mt-2 space-y-1">
+                          <div>Total voting power: {totalVotes.toLocaleString()} votes (quadratic)</div>
+                          <div className="text-purple-400">💡 Quadratic voting: Your voting power = √(staked BNB). Expertise weighting applies for domain-specific proposals.</div>
                         </div>
                       )}
+                    </div>
+
+                    <div className="p-4 bg-purple-500/10 rounded-lg border border-purple-500/20 mb-4">
+                      <p className="text-xs text-purple-300 mb-2">
+                        <strong>Voting System:</strong> Quadratic voting (√stake) + Expertise weighting. Users with verified expertise in the proposal domain get additional voting power boost.
+                      </p>
+                      <p className="text-xs text-gray-400">
+                        When voting, you can specify an expertise domain (e.g., "crypto", "politics", "sports") to potentially increase your voting weight if verified.
+                      </p>
                     </div>
 
                     <div className="flex flex-col sm:flex-row gap-3">
@@ -387,6 +437,9 @@ export default function DAOPage() {
                         Connect your wallet to vote on proposals
                       </p>
                     )}
+
+                    {/* User's Vote Display */}
+                    {account && <UserVoteDisplay />}
                   </GlassCard>
                 );
               })
@@ -497,8 +550,9 @@ export default function DAOPage() {
                       </div>
 
                       {totalVotes > 0 && (
-                        <div className="text-xs text-gray-500 mt-2">
-                          Total voting power: {totalVotes.toLocaleString()} votes (quadratic)
+                        <div className="text-xs text-gray-500 mt-2 space-y-1">
+                          <div>Total voting power: {totalVotes.toLocaleString()} votes (quadratic)</div>
+                          <div className="text-purple-400">💡 Quadratic voting: Your voting power = √(staked BNB). Expertise weighting applies for domain-specific proposals.</div>
                         </div>
                       )}
                     </div>
@@ -538,27 +592,19 @@ export default function DAOPage() {
           </TabsContent>
 
           <TabsContent value="create">
-            <GlassCard className="p-8">
-              <h2 className="text-2xl font-semibold mb-6">Create Proposal</h2>
-              <p className="text-gray-400 mb-4">
-                Create a new governance proposal. Requires a minimum of 0.1 BNB to create a parameter change proposal.
-              </p>
-              <p className="text-gray-500 text-sm mb-6">
-                Proposal types:
-              </p>
-              <ul className="list-disc list-inside space-y-2 text-sm text-gray-400 mb-6">
-                <li><strong>Parameter Change:</strong> Modify protocol parameters (requires 0.1 BNB)</li>
-                <li><strong>Market Resolution:</strong> Resolve subjective markets (initiated by Core contract)</li>
-                <li><strong>Treasury Spend:</strong> Propose spending from treasury</li>
-                <li><strong>Emergency Action:</strong> Emergency protocol actions</li>
-              </ul>
-              <Button disabled className="w-full sm:w-auto">
-                Coming Soon
-              </Button>
-              <p className="text-xs text-gray-500 mt-4">
-                Proposal creation interface will be available soon. For now, proposals can be created directly through the smart contract.
-              </p>
-            </GlassCard>
+            <CreateProposalForm refetchProposals={refetchProposals} />
+          </TabsContent>
+
+          <TabsContent value="expertise">
+            <ExpertiseManagement />
+          </TabsContent>
+
+          <TabsContent value="my-votes">
+            <MyVotesHistory />
+          </TabsContent>
+
+          <TabsContent value="parameters">
+            <DAOParametersPanel />
           </TabsContent>
         </Tabs>
       </div>

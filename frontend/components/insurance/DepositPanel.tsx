@@ -16,7 +16,7 @@ export function DepositPanel() {
   const { deposit, loading } = useInsurance();
   const { apy, userDeposit, loading: poolLoading, refresh } = useInsurancePool();
 
-  // Refrescar datos después de un depósito exitoso
+  // Refresh data after successful deposit
   useEffect(() => {
     if (!loading && amount === '') {
       refresh();
@@ -35,18 +35,18 @@ export function DepositPanel() {
     }
 
     try {
-      // Convertir amount a bigint (BNB tiene 18 decimales)
+      // Convert amount to bigint (BNB has 18 decimals)
       const amountBigInt = BigInt(Math.floor(parseFloat(amount) * 1e18));
       await deposit(amountBigInt, account.address);
       setAmount('');
       toast.success('Deposit successful!');
-      // Refrescar datos del pool después del depósito
+      // Refresh pool data after deposit
       setTimeout(() => {
         refresh();
       }, 2000);
     } catch (error: any) {
       console.error('Error depositing:', error);
-      // El error ya se maneja en el hook
+      // Error is already handled in the hook
     }
   };
 
@@ -67,9 +67,17 @@ export function DepositPanel() {
                 <span className="text-sm text-gray-400">Your Deposit</span>
                 <span className="text-lg font-semibold text-white">{formatBNB(userDeposit.amount)} BNB</span>
               </div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm text-gray-400">Your Shares (ERC-4626 style)</span>
+                <span className="text-sm text-white font-mono">{formatBNB(userDeposit.shares)}</span>
+              </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-400">Your Shares</span>
-                <span className="text-sm text-white">{formatBNB(userDeposit.shares)}</span>
+                <span className="text-xs text-gray-500">Share Price</span>
+                <span className="text-xs text-gray-400">
+                  {userDeposit.shares > BigInt(0) 
+                    ? `${(Number(userDeposit.amount) / Number(userDeposit.shares) * 1e18).toFixed(6)} BNB/share`
+                    : 'N/A'}
+                </span>
               </div>
             </div>
           )}
@@ -126,23 +134,27 @@ export function DepositPanel() {
       </GlassCard>
 
       <GlassCard className="p-8">
-        <h3 className="text-xl font-semibold mb-4">How Insurance Works</h3>
+        <h3 className="text-xl font-semibold mb-4">How Insurance Works (ERC-4626 Style)</h3>
         <ul className="space-y-3 text-sm text-gray-400">
           <li className="flex items-start gap-2">
             <TrendingUp className="h-5 w-5 text-purple-400 mt-0.5 flex-shrink-0" />
-            <span>Deposit BNB to earn yield. Pool generates returns through native staking and yield strategies.</span>
+            <span><strong>Share-Based System:</strong> When you deposit BNB, you receive shares proportional to your deposit. Shares represent your ownership in the pool.</span>
           </li>
           <li className="flex items-start gap-2">
             <TrendingUp className="h-5 w-5 text-purple-400 mt-0.5 flex-shrink-0" />
-            <span>Pool automatically covers oracle failures and disputes</span>
+            <span><strong>Yield Generation:</strong> Pool generates returns through native staking and yield strategies. Your shares automatically accrue value as the pool earns yield.</span>
           </li>
           <li className="flex items-start gap-2">
             <TrendingUp className="h-5 w-5 text-purple-400 mt-0.5 flex-shrink-0" />
-            <span>If oracle confidence &lt; 80%, insurance activates</span>
+            <span><strong>Oracle Protection:</strong> Pool automatically covers oracle failures and disputes. If oracle confidence &lt; 80%, insurance activates.</span>
           </li>
           <li className="flex items-start gap-2">
             <TrendingUp className="h-5 w-5 text-purple-400 mt-0.5 flex-shrink-0" />
-            <span>Users get 100% refund of their investment</span>
+            <span><strong>100% Refund:</strong> Users get 100% refund of their investment when insurance activates. All deposits and yields are transparent on-chain.</span>
+          </li>
+          <li className="flex items-start gap-2">
+            <TrendingUp className="h-5 w-5 text-purple-400 mt-0.5 flex-shrink-0" />
+            <span><strong>Withdraw Anytime:</strong> You can withdraw your shares at any time. The amount you receive = (your shares / total shares) × total pool assets.</span>
           </li>
         </ul>
       </GlassCard>

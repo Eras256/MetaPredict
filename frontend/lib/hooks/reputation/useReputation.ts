@@ -22,7 +22,7 @@ const opBNBTestnet = defineChain({
   rpc: 'https://opbnb-testnet-rpc.bnbchain.org',
 });
 
-// ABI simplificado - debería importarse del archivo ABI real
+// ABI for ReputationStaking contract
 const ReputationStakingABI = [
   {
     name: 'getStaker',
@@ -36,7 +36,40 @@ const ReputationStakingABI = [
       { name: 'correctVotes', type: 'uint256' },
       { name: 'totalVotes', type: 'uint256' },
       { name: 'slashedAmount', type: 'uint256' },
+      { name: 'lastUpdateTime', type: 'uint256' },
+      { name: 'hasNFT', type: 'bool' },
     ],
+  },
+  {
+    name: 'balanceOf',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ name: 'owner', type: 'address' }],
+    outputs: [{ name: '', type: 'uint256' }],
+  },
+  {
+    name: 'tokenOfOwnerByIndex',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { name: 'owner', type: 'address' },
+      { name: 'index', type: 'uint256' },
+    ],
+    outputs: [{ name: '', type: 'uint256' }],
+  },
+  {
+    name: 'tokenURI',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ name: 'tokenId', type: 'uint256' }],
+    outputs: [{ name: '', type: 'string' }],
+  },
+  {
+    name: 'tierRequirements',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ name: '', type: 'uint256' }],
+    outputs: [{ name: '', type: 'uint256' }],
   },
   {
     name: 'stake',
@@ -52,6 +85,68 @@ const ReputationStakingABI = [
     type: 'function',
     stateMutability: 'nonpayable',
     inputs: [{ name: '_amount', type: 'uint256' }],
+  },
+  {
+    name: 'getVote',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { name: '_user', type: 'address' },
+      { name: '_marketId', type: 'uint256' },
+    ],
+    outputs: [
+      { name: 'marketId', type: 'uint256' },
+      { name: 'vote', type: 'uint8' },
+      { name: 'stakeWeight', type: 'uint256' },
+      { name: 'rewarded', type: 'bool' },
+      { name: 'slashed', type: 'bool' },
+    ],
+  },
+  {
+    name: 'getUserVotes',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ name: '_user', type: 'address' }],
+    outputs: [{ name: '', type: 'uint256[]' }],
+  },
+  {
+    name: 'getVoteWeights',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ name: '_marketId', type: 'uint256' }],
+    outputs: [
+      { name: 'yes', type: 'uint256' },
+      { name: 'no', type: 'uint256' },
+      { name: 'invalid', type: 'uint256' },
+    ],
+  },
+  {
+    name: 'totalStaked',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint256' }],
+  },
+  {
+    name: 'totalSlashed',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint256' }],
+  },
+  {
+    name: 'minStake',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint256' }],
+  },
+  {
+    name: 'slashingPenalty',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint256' }],
   },
 ] as const;
 
@@ -80,16 +175,28 @@ export function useReputation() {
 
   const staker = stakerData as any;
 
-  // Read all values directly from contract - no simulations
+  // Read all values directly from contract
+  // Struct order: stakedAmount, reputationScore, tier, correctVotes, totalVotes, slashedAmount, lastUpdateTime, hasNFT
   const stakedAmount = staker?.[0] ? Number(staker[0]) / 1e18 : 0;
   const reputationScore = staker?.[1] ? Number(staker[1]) : 0;
   const tier = staker?.[2] ? Number(staker[2]) : 0;
   const correctVotes = staker?.[3] ? Number(staker[3]) : 0;
   const totalVotes = staker?.[4] ? Number(staker[4]) : 0;
   const slashedAmount = staker?.[5] ? Number(staker[5]) / 1e18 : 0;
-  
-  // Use reputation score directly from contract - no calculations or simulations
-  // The contract already calculates reputation based on votes and stake
+  const hasNFT = staker?.[7] ? Boolean(staker[7]) : false;
+
+  // Get NFT balance and token IDs
+  const { data: nftBalance } = useReadContract({
+    contract: contract!,
+    method: 'balanceOf',
+    params: account?.address ? [account.address] : undefined,
+    queryOptions: {
+      enabled: !!account && !!contract,
+      refetchInterval: 30000,
+    },
+  });
+
+  const nftCount = nftBalance ? Number(nftBalance) : 0;
 
   return {
     stakedAmount,
@@ -98,6 +205,8 @@ export function useReputation() {
     correctVotes,
     totalVotes,
     slashedAmount,
+    hasNFT,
+    nftCount,
     isLoading,
   };
 }
@@ -106,43 +215,14 @@ export function useStakeReputation() {
   const [loading, setLoading] = useState(false);
   const account = useActiveAccount();
   
-  // Usar el contrato Core (PREDICTION_MARKET) en lugar de ReputationStaking directamente
-  // porque stake() requiere "Only core" - debe llamarse a través de Core.stakeReputation()
   const contract = useMemo(() => {
-    // Usar PREDICTION_MARKET que es el mismo que CORE_CONTRACT pero más confiable
-    const coreAddress = CONTRACT_ADDRESSES.PREDICTION_MARKET || CONTRACT_ADDRESSES.CORE_CONTRACT;
-    if (!coreAddress) {
-      console.error('Core contract address not configured');
-      return null;
-    }
-    
-    // Importar ABI completo del Core contract
-    try {
-      const CoreABI = require('@/lib/contracts/abi/PredictionMarketCore.json');
-      return getContract({
-        client,
-        chain: opBNBTestnet,
-        address: coreAddress,
-        abi: CoreABI as any,
-      });
-    } catch (error) {
-      console.error('Error loading Core ABI:', error);
-      // Fallback a ABI mínimo
-      return getContract({
-        client,
-        chain: opBNBTestnet,
-        address: coreAddress,
-        abi: [
-          {
-            name: 'stakeReputation',
-            type: 'function',
-            stateMutability: 'payable',
-            inputs: [],
-            outputs: [],
-          },
-        ] as any,
-      });
-    }
+    if (!CONTRACT_ADDRESSES.REPUTATION_STAKING) return null;
+    return getContract({
+      client,
+      chain: opBNBTestnet,
+      address: CONTRACT_ADDRESSES.REPUTATION_STAKING as `0x${string}`,
+      abi: ReputationStakingABI as any,
+    });
   }, []);
 
   const { mutateAsync: sendTransaction, isPending: isSending } = useSendTransaction();
@@ -153,43 +233,32 @@ export function useStakeReputation() {
     }
     
     if (!contract) {
-      throw new Error('Core contract not configured');
+      throw new Error('ReputationStaking contract not configured');
     }
-    
+
     // Validar que el amount sea al menos 0.1 BNB (minStake)
     const minStake = BigInt('100000000000000000'); // 0.1 BNB
     if (amount < minStake) {
-      throw new Error('Amount is below the minimum required (0.1 BNB)');
+      throw new Error('Amount must be at least 0.1 BNB');
     }
-    
+
     try {
       setLoading(true);
       
-      // Verificar que estamos usando la dirección correcta del Core
-      const coreAddress = CONTRACT_ADDRESSES.PREDICTION_MARKET || CONTRACT_ADDRESSES.CORE_CONTRACT;
-      console.log('📝 Staking through Core contract:', coreAddress);
-      console.log('📝 Amount:', amount.toString(), 'BNB');
-      
-      // PredictionMarketCore.stakeReputation() es payable - envía BNB nativo
-      // Esta función llama internamente a ReputationStaking.stake() con el msg.sender correcto
       const tx = prepareContractCall({
         contract,
-        method: 'stakeReputation',
-        params: [],
-        value: amount, // Send BNB native
+        method: 'stake',
+        params: [account.address, amount],
+        value: amount,
       });
 
-      console.log('📤 Sending transaction...');
       const result = await sendTransaction(tx);
       const txHash = result.transactionHash;
-      
-      console.log('⏳ Waiting for receipt...');
       await waitForReceipt({ client, chain: opBNBTestnet, transactionHash: txHash });
       
-      console.log('✅ Transaction confirmed');
       const txUrl = getTransactionUrl(txHash);
       toast.success(
-        `Stake successful! View transaction: ${formatTxHash(txHash)}`,
+        `Successfully staked! View transaction: ${formatTxHash(txHash)}`,
         {
           duration: 10000,
           action: {
@@ -201,27 +270,16 @@ export function useStakeReputation() {
       
       return { transactionHash: txHash, receipt: result };
     } catch (error: any) {
-      console.error('❌ Error staking:', error);
-      console.error('Error details:', {
-        message: error?.message,
-        code: error?.code,
-        data: error?.data,
-        contract: contract?.address,
-      });
+      console.error('Error staking reputation:', error);
       
-      // Improve error messages
-      let errorMessage = error?.message || 'Error staking';
+      let errorMessage = error?.message || 'Error staking reputation';
       
-      if (errorMessage.includes('Only core') || errorMessage.includes('only core')) {
-        errorMessage = 'Error: Core contract is not properly configured in ReputationStaking. Please verify the contract configuration.';
-      } else if (errorMessage.includes('Amount must be > 0') || errorMessage.includes('amount must be')) {
-        errorMessage = 'Amount must be greater than 0';
-      } else if (errorMessage.includes('Below min stake') || errorMessage.includes('below min')) {
-        errorMessage = 'Amount is below the minimum required (0.1 BNB)';
-      } else if (errorMessage.includes('user rejected') || errorMessage.includes('User rejected')) {
-        errorMessage = 'Transaction rejected by user';
-      } else if (errorMessage.includes('insufficient funds') || errorMessage.includes('Insufficient funds')) {
-        errorMessage = 'Insufficient funds. Make sure you have enough BNB in your wallet.';
+      if (errorMessage.includes('Below min stake')) {
+        errorMessage = 'Amount must be at least 0.1 BNB';
+      } else if (errorMessage.includes('user rejected') || errorMessage.includes('user denied')) {
+        errorMessage = 'Transaction cancelled by user.';
+      } else if (errorMessage.includes('insufficient funds') || errorMessage.includes('insufficient balance')) {
+        errorMessage = 'Insufficient funds to pay gas fee. Please add more BNB to your wallet.';
       }
       
       toast.error(errorMessage);
@@ -256,9 +314,9 @@ export function useUnstakeReputation() {
     }
     
     if (!contract) {
-      throw new Error('Reputation staking contract not configured');
+      throw new Error('ReputationStaking contract not configured');
     }
-    
+
     try {
       setLoading(true);
       
@@ -270,12 +328,11 @@ export function useUnstakeReputation() {
 
       const result = await sendTransaction(tx);
       const txHash = result.transactionHash;
-      
       await waitForReceipt({ client, chain: opBNBTestnet, transactionHash: txHash });
       
       const txUrl = getTransactionUrl(txHash);
       toast.success(
-        `Unstake successful! View transaction: ${formatTxHash(txHash)}`,
+        `Successfully unstaked! View transaction: ${formatTxHash(txHash)}`,
         {
           duration: 10000,
           action: {
@@ -287,17 +344,18 @@ export function useUnstakeReputation() {
       
       return { transactionHash: txHash, receipt: result };
     } catch (error: any) {
-      console.error('Error unstaking:', error);
+      console.error('Error unstaking reputation:', error);
       
-      // Improve error messages
-      let errorMessage = error?.message || 'Error unstaking';
+      let errorMessage = error?.message || 'Error unstaking reputation';
       
-      if (errorMessage.includes('Cooldown period') || errorMessage.includes('cooldown')) {
-        errorMessage = 'You must wait 7 days from your last stake before you can unstake. This is a security period to protect the reputation system.';
-      } else if (errorMessage.includes('Insufficient stake')) {
-        errorMessage = 'You do not have enough stake to withdraw that amount';
-      } else if (errorMessage.includes('Transfer failed')) {
-        errorMessage = 'Error transferring funds. Please try again.';
+      if (errorMessage.includes('Insufficient stake')) {
+        errorMessage = 'You do not have enough staked to unstake this amount';
+      } else if (errorMessage.includes('Cooldown period')) {
+        errorMessage = 'You must wait 7 days after your last stake/unstake before unstaking again';
+      } else if (errorMessage.includes('user rejected') || errorMessage.includes('user denied')) {
+        errorMessage = 'Transaction cancelled by user.';
+      } else if (errorMessage.includes('insufficient funds') || errorMessage.includes('insufficient balance')) {
+        errorMessage = 'Insufficient funds to pay gas fee. Please add more BNB to your wallet.';
       }
       
       toast.error(errorMessage);
@@ -315,35 +373,173 @@ export function useLeaderboard() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchLeaderboard = async () => {
-      try {
-        setIsLoading(true);
-        // Intentar obtener leaderboard desde la API
-        const response = await fetch('/api/reputation/leaderboard');
-        if (response.ok) {
-          const data = await response.json();
-          if (data.leaderboard && Array.isArray(data.leaderboard)) {
-            setLeaderboard(data.leaderboard);
-          } else {
-            setLeaderboard([]);
-          }
-        } else {
-          // Si la API no está disponible, retornar array vacío
-          setLeaderboard([]);
-        }
-      } catch (error) {
-        console.error('Error fetching leaderboard:', error);
-        setLeaderboard([]);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchLeaderboard();
+    // For now, return empty array as the contract doesn't have a direct getAllStakers function
+    // This would need to be implemented by:
+    // 1. Listening to Stake events and storing in DB
+    // 2. Or implementing a view function in the contract
+    // 3. Or using The Graph to index events
+    setIsLoading(false);
+    setLeaderboard([]);
   }, []);
 
   return {
     leaderboard,
     isLoading,
+  };
+}
+
+export function useUserVotesHistory() {
+  const account = useActiveAccount();
+  const [votes, setVotes] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const contract = useMemo(() => {
+    if (!CONTRACT_ADDRESSES.REPUTATION_STAKING) return null;
+    return getContract({
+      client,
+      chain: opBNBTestnet,
+      address: CONTRACT_ADDRESSES.REPUTATION_STAKING as `0x${string}`,
+      abi: ReputationStakingABI as any,
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!account || !contract) {
+      setVotes([]);
+      setIsLoading(false);
+      return;
+    }
+
+    const fetchVotes = async () => {
+      try {
+        setIsLoading(true);
+        const { readContract } = await import('thirdweb');
+        
+        // Get user's vote market IDs
+        const marketIds = await readContract({
+          contract,
+          method: 'getUserVotes',
+          params: [account.address],
+        }) as bigint[];
+
+        if (!marketIds || marketIds.length === 0) {
+          setVotes([]);
+          setIsLoading(false);
+          return;
+        }
+
+        // Fetch vote details for each market
+        const votePromises = marketIds.map(async (marketId: bigint) => {
+          try {
+            const voteData = await readContract({
+              contract,
+              method: 'getVote',
+              params: [account.address, marketId],
+            }) as any;
+
+            return {
+              marketId: Number(marketId),
+              vote: Number(voteData[1]), // 1=Yes, 2=No, 3=Invalid
+              stakeWeight: Number(voteData[2]) / 1e18,
+              rewarded: voteData[3],
+              slashed: voteData[4],
+            };
+          } catch (error) {
+            console.error(`Error fetching vote for market ${marketId}:`, error);
+            return null;
+          }
+        });
+
+        const results = await Promise.all(votePromises);
+        setVotes(results.filter((v): v is NonNullable<typeof v> => v !== null));
+      } catch (error) {
+        console.error('Error fetching user votes:', error);
+        setVotes([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchVotes();
+  }, [account, contract]);
+
+  return { votes, isLoading };
+}
+
+export function useVoteWeights(marketId: number) {
+  const contract = useMemo(() => {
+    if (!CONTRACT_ADDRESSES.REPUTATION_STAKING) return null;
+    return getContract({
+      client,
+      chain: opBNBTestnet,
+      address: CONTRACT_ADDRESSES.REPUTATION_STAKING as `0x${string}`,
+      abi: ReputationStakingABI as any,
+    });
+  }, []);
+
+  const { data, isLoading } = useReadContract({
+    contract: contract!,
+    method: 'getVoteWeights',
+    params: [BigInt(marketId)],
+    queryOptions: { enabled: marketId > 0 && !!contract },
+  });
+
+  const result = data as any;
+
+  return {
+    yesWeight: result?.[0] ? Number(result[0]) / 1e18 : 0,
+    noWeight: result?.[1] ? Number(result[1]) / 1e18 : 0,
+    invalidWeight: result?.[2] ? Number(result[2]) / 1e18 : 0,
+    totalWeight: result
+      ? (Number(result[0]) + Number(result[1]) + Number(result[2])) / 1e18
+      : 0,
+    isLoading,
+  };
+}
+
+export function useReputationStats() {
+  const contract = useMemo(() => {
+    if (!CONTRACT_ADDRESSES.REPUTATION_STAKING) return null;
+    return getContract({
+      client,
+      chain: opBNBTestnet,
+      address: CONTRACT_ADDRESSES.REPUTATION_STAKING as `0x${string}`,
+      abi: ReputationStakingABI as any,
+    });
+  }, []);
+
+  const { data: totalStaked } = useReadContract({
+    contract: contract!,
+    method: 'totalStaked',
+    params: [],
+    queryOptions: { enabled: !!contract },
+  });
+
+  const { data: totalSlashed } = useReadContract({
+    contract: contract!,
+    method: 'totalSlashed',
+    params: [],
+    queryOptions: { enabled: !!contract },
+  });
+
+  const { data: minStake } = useReadContract({
+    contract: contract!,
+    method: 'minStake',
+    params: [],
+    queryOptions: { enabled: !!contract },
+  });
+
+  const { data: slashingPenalty } = useReadContract({
+    contract: contract!,
+    method: 'slashingPenalty',
+    params: [],
+    queryOptions: { enabled: !!contract },
+  });
+
+  return {
+    totalStaked: totalStaked ? Number(totalStaked) / 1e18 : 0,
+    totalSlashed: totalSlashed ? Number(totalSlashed) / 1e18 : 0,
+    minStake: minStake ? Number(minStake) / 1e18 : 0,
+    slashingPenalty: slashingPenalty ? Number(slashingPenalty) / 100 : 0, // Convert from basis points to percentage
   };
 }

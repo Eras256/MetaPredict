@@ -121,6 +121,80 @@ const DAOGovernanceABI = [
       { name: 'attestations', type: 'address[]' },
     ],
   },
+  {
+    name: 'createParameterProposal',
+    type: 'function',
+    stateMutability: 'payable',
+    inputs: [
+      { name: '_title', type: 'string' },
+      { name: '_description', type: 'string' },
+    ],
+    outputs: [{ name: '', type: 'uint256' }],
+  },
+  {
+    name: 'registerExpertise',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { name: '_domain', type: 'string' },
+      { name: '_evidence', type: 'string' },
+    ],
+    outputs: [],
+  },
+  {
+    name: 'attestExpertise',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { name: '_expert', type: 'address' },
+      { name: '_domain', type: 'string' },
+    ],
+    outputs: [],
+  },
+  {
+    name: 'getVote',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { name: '_proposalId', type: 'uint256' },
+      { name: '_voter', type: 'address' },
+    ],
+    outputs: [
+      { name: 'hasVoted', type: 'bool' },
+      { name: 'support', type: 'uint8' },
+      { name: 'votes', type: 'uint256' },
+      { name: 'quadraticVotes', type: 'uint256' },
+      { name: 'isExpert', type: 'bool' },
+    ],
+  },
+  {
+    name: 'getUserVotes',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ name: '_user', type: 'address' }],
+    outputs: [{ name: '', type: 'uint256[]' }],
+  },
+  {
+    name: 'votingPeriod',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint256' }],
+  },
+  {
+    name: 'minQuorum',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint256' }],
+  },
+  {
+    name: 'expertiseWeight',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint256' }],
+  },
 ] as const;
 
 export function useProposal(proposalId: number) {
@@ -550,5 +624,330 @@ export function useAllProposals() {
     isLoading: isLoading || counterLoading,
     totalProposals,
     refetch,
+  };
+}
+
+export function useCreateProposal() {
+  const [loading, setLoading] = useState(false);
+  const account = useActiveAccount();
+  
+  const contract = useMemo(() => {
+    if (!CONTRACT_ADDRESSES.DAO_GOVERNANCE) return null;
+    return getContract({
+      client,
+      chain: opBNBTestnet,
+      address: CONTRACT_ADDRESSES.DAO_GOVERNANCE,
+      abi: DAOGovernanceABI as any,
+    });
+  }, []);
+
+  const { mutateAsync: sendTransaction, isPending: isSending } = useSendTransaction();
+
+  const createProposal = async (title: string, description: string, bnbAmount: bigint) => {
+    if (!account) {
+      throw new Error('No account connected');
+    }
+    
+    if (!contract) {
+      throw new Error('DAO Governance contract not configured');
+    }
+
+    if (bnbAmount < BigInt('100000000000000000')) { // 0.1 BNB
+      throw new Error('Minimum 0.1 BNB required to create a proposal');
+    }
+
+    if (!title.trim() || !description.trim()) {
+      throw new Error('Title and description are required');
+    }
+    
+    try {
+      setLoading(true);
+      
+      const tx = prepareContractCall({
+        contract,
+        method: 'createParameterProposal',
+        params: [title, description],
+        value: bnbAmount, // Send BNB with the transaction
+      });
+
+      const result = await sendTransaction(tx);
+      const txHash = result.transactionHash;
+      await waitForReceipt({ client, chain: opBNBTestnet, transactionHash: txHash });
+      
+      const txUrl = getTransactionUrl(txHash);
+      toast.success(
+        `Proposal created successfully! View transaction: ${formatTxHash(txHash)}`,
+        {
+          duration: 10000,
+          action: {
+            label: 'View on opBNBScan',
+            onClick: () => window.open(txUrl, '_blank'),
+          },
+        }
+      );
+      
+      return { transactionHash: txHash, receipt: result };
+    } catch (error: any) {
+      console.error('Error creating proposal:', error);
+      
+      let errorMessage = error?.message || 'Error creating proposal';
+      
+      if (errorMessage.includes('Insufficient BNB')) {
+        errorMessage = 'Insufficient BNB. Minimum 0.1 BNB required to create a proposal.';
+      }
+      
+      toast.error(errorMessage);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { createProposal, isPending: loading || isSending };
+}
+
+export function useRegisterExpertise() {
+  const [loading, setLoading] = useState(false);
+  const account = useActiveAccount();
+  
+  const contract = useMemo(() => {
+    if (!CONTRACT_ADDRESSES.DAO_GOVERNANCE) return null;
+    return getContract({
+      client,
+      chain: opBNBTestnet,
+      address: CONTRACT_ADDRESSES.DAO_GOVERNANCE,
+      abi: DAOGovernanceABI as any,
+    });
+  }, []);
+
+  const { mutateAsync: sendTransaction, isPending: isSending } = useSendTransaction();
+
+  const registerExpertise = async (domain: string, evidence: string) => {
+    if (!account) {
+      throw new Error('No account connected');
+    }
+    
+    if (!contract) {
+      throw new Error('DAO Governance contract not configured');
+    }
+
+    if (!domain.trim()) {
+      throw new Error('Domain is required');
+    }
+    
+    try {
+      setLoading(true);
+      
+      const tx = prepareContractCall({
+        contract,
+        method: 'registerExpertise',
+        params: [domain, evidence],
+      });
+
+      const result = await sendTransaction(tx);
+      const txHash = result.transactionHash;
+      await waitForReceipt({ client, chain: opBNBTestnet, transactionHash: txHash });
+      
+      const txUrl = getTransactionUrl(txHash);
+      toast.success(
+        `Expertise registered successfully! View transaction: ${formatTxHash(txHash)}`,
+        {
+          duration: 10000,
+          action: {
+            label: 'View on opBNBScan',
+            onClick: () => window.open(txUrl, '_blank'),
+          },
+        }
+      );
+      
+      return { transactionHash: txHash, receipt: result };
+    } catch (error: any) {
+      console.error('Error registering expertise:', error);
+      toast.error(error?.message || 'Error registering expertise');
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { registerExpertise, isPending: loading || isSending };
+}
+
+export function useAttestExpertise() {
+  const [loading, setLoading] = useState(false);
+  const account = useActiveAccount();
+  
+  const contract = useMemo(() => {
+    if (!CONTRACT_ADDRESSES.DAO_GOVERNANCE) return null;
+    return getContract({
+      client,
+      chain: opBNBTestnet,
+      address: CONTRACT_ADDRESSES.DAO_GOVERNANCE,
+      abi: DAOGovernanceABI as any,
+    });
+  }, []);
+
+  const { mutateAsync: sendTransaction, isPending: isSending } = useSendTransaction();
+
+  const attestExpertise = async (expertAddress: string, domain: string) => {
+    if (!account) {
+      throw new Error('No account connected');
+    }
+    
+    if (!contract) {
+      throw new Error('DAO Governance contract not configured');
+    }
+
+    if (!expertAddress || !domain.trim()) {
+      throw new Error('Expert address and domain are required');
+    }
+    
+    try {
+      setLoading(true);
+      
+      const tx = prepareContractCall({
+        contract,
+        method: 'attestExpertise',
+        params: [expertAddress as `0x${string}`, domain],
+      });
+
+      const result = await sendTransaction(tx);
+      const txHash = result.transactionHash;
+      await waitForReceipt({ client, chain: opBNBTestnet, transactionHash: txHash });
+      
+      const txUrl = getTransactionUrl(txHash);
+      toast.success(
+        `Expertise attested successfully! View transaction: ${formatTxHash(txHash)}`,
+        {
+          duration: 10000,
+          action: {
+            label: 'View on opBNBScan',
+            onClick: () => window.open(txUrl, '_blank'),
+          },
+        }
+      );
+      
+      return { transactionHash: txHash, receipt: result };
+    } catch (error: any) {
+      console.error('Error attesting expertise:', error);
+      
+      let errorMessage = error?.message || 'Error attesting expertise';
+      
+      if (errorMessage.includes('Not verified yourself')) {
+        errorMessage = 'You must be verified in this domain to attest others';
+      } else if (errorMessage.includes('Insufficient score')) {
+        errorMessage = 'You need a score of at least 70 to attest expertise';
+      } else if (errorMessage.includes('Not registered')) {
+        errorMessage = 'The expert has not registered expertise in this domain';
+      }
+      
+      toast.error(errorMessage);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { attestExpertise, isPending: loading || isSending };
+}
+
+export function useUserVote(proposalId: number) {
+  const account = useActiveAccount();
+  
+  const contract = useMemo(() => {
+    if (!CONTRACT_ADDRESSES.DAO_GOVERNANCE) return null;
+    return getContract({
+      client,
+      chain: opBNBTestnet,
+      address: CONTRACT_ADDRESSES.DAO_GOVERNANCE,
+      abi: DAOGovernanceABI as any,
+    });
+  }, []);
+
+  const { data, isLoading } = useReadContract({
+    contract: contract!,
+    method: 'getVote',
+    params: account?.address ? [BigInt(proposalId), account.address] : undefined,
+    queryOptions: { enabled: proposalId > 0 && !!account && !!contract },
+  });
+
+  const result = data as any;
+
+  return {
+    vote: result
+      ? {
+          hasVoted: result[0],
+          support: Number(result[1]),
+          votes: Number(result[2]),
+          quadraticVotes: Number(result[3]),
+          isExpert: result[4],
+        }
+      : null,
+    isLoading,
+  };
+}
+
+export function useUserVotesList() {
+  const account = useActiveAccount();
+  
+  const contract = useMemo(() => {
+    if (!CONTRACT_ADDRESSES.DAO_GOVERNANCE) return null;
+    return getContract({
+      client,
+      chain: opBNBTestnet,
+      address: CONTRACT_ADDRESSES.DAO_GOVERNANCE,
+      abi: DAOGovernanceABI as any,
+    });
+  }, []);
+
+  const { data, isLoading } = useReadContract({
+    contract: contract!,
+    method: 'getUserVotes',
+    params: account?.address ? [account.address] : undefined,
+    queryOptions: { enabled: !!account && !!contract },
+  });
+
+  return {
+    proposalIds: (data as any) || [],
+    isLoading,
+  };
+}
+
+export function useDAOParameters() {
+  const contract = useMemo(() => {
+    if (!CONTRACT_ADDRESSES.DAO_GOVERNANCE) return null;
+    return getContract({
+      client,
+      chain: opBNBTestnet,
+      address: CONTRACT_ADDRESSES.DAO_GOVERNANCE,
+      abi: DAOGovernanceABI as any,
+    });
+  }, []);
+
+  const { data: votingPeriod } = useReadContract({
+    contract: contract!,
+    method: 'votingPeriod',
+    params: [],
+    queryOptions: { enabled: !!contract },
+  });
+
+  const { data: minQuorum } = useReadContract({
+    contract: contract!,
+    method: 'minQuorum',
+    params: [],
+    queryOptions: { enabled: !!contract },
+  });
+
+  const { data: expertiseWeight } = useReadContract({
+    contract: contract!,
+    method: 'expertiseWeight',
+    params: [],
+    queryOptions: { enabled: !!contract },
+  });
+
+  return {
+    votingPeriod: votingPeriod ? Number(votingPeriod) : 0,
+    minQuorum: minQuorum ? Number(minQuorum) / 1e18 : 0,
+    expertiseWeight: expertiseWeight ? Number(expertiseWeight) : 0,
   };
 }

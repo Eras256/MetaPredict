@@ -2,13 +2,16 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Shield, TrendingUp, DollarSign, AlertCircle, Brain, Loader2, RefreshCw } from 'lucide-react';
+import { Shield, TrendingUp, DollarSign, AlertCircle, Brain, Loader2, RefreshCw, ArrowDownCircle } from 'lucide-react';
 import { GlassCard } from '@/components/effects/GlassCard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { InsuranceStats } from '@/components/insurance/InsuranceStats';
 import { DepositPanel } from '@/components/insurance/DepositPanel';
+import { WithdrawPanel } from '@/components/insurance/WithdrawPanel';
 import { ClaimPanel } from '@/components/insurance/ClaimPanel';
+import { InsurancePoolDetailsPanel } from '@/components/insurance/InsurancePoolDetailsPanel';
+import { VenusMarketsPanel } from '@/components/venus/VenusMarketsPanel';
 import { analyzeInsuranceRisk } from '@/lib/services/ai/gemini';
 import { toast } from 'sonner';
 import { formatModelName } from '@/lib/utils/model-formatter';
@@ -129,6 +132,7 @@ export default function InsurancePage() {
           {[
             { id: 'stats', label: 'Pool Stats', icon: Shield },
             { id: 'deposit', label: 'Deposit', icon: DollarSign },
+            { id: 'withdraw', label: 'Withdraw', icon: ArrowDownCircle },
             { id: 'claims', label: 'Claims', icon: AlertCircle },
           ].map((tab) => (
             <button
@@ -177,8 +181,10 @@ export default function InsurancePage() {
         {/* Content */}
         <div>
           {activeTab === 'stats' && (
-            <div>
+            <div className="space-y-6">
               <InsuranceStats />
+              <InsurancePoolDetailsPanel />
+              <VenusMarketsPanel />
               {loading ? (
                 <GlassCard className="p-6 mt-6">
                   <div className="flex items-center justify-center py-8">
@@ -255,6 +261,7 @@ export default function InsurancePage() {
             </div>
           )}
           {activeTab === 'deposit' && <DepositPanel />}
+          {activeTab === 'withdraw' && <WithdrawPanel />}
           {activeTab === 'claims' && <ClaimPanel />}
         </div>
       </div>
