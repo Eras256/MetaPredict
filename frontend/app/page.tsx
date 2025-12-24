@@ -21,7 +21,7 @@ const features = [
   },
   {
     icon: Shield,
-    title: 'Insurance Protected (ERC-4626)',
+    title: 'Insurance Protected (ERC-4626 Compatible)',
     description: 'First prediction market with financial guarantee. 100% refund if oracle fails. Yield-generating insurance pool with native BNB. All deposits and yields transparent on-chain.',
     gradient: 'from-blue-500 to-cyan-500',
     link: getContractLink(CONTRACT_ADDRESSES.INSURANCE_POOL)

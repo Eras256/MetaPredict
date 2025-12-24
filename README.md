@@ -85,7 +85,7 @@ Real-time price feeds with **sub-second updates** (up to 100ms) for price-based 
 **Backend URL**: `https://metapredict.fun/api/oracle/resolve` (configured on-chain in AIOracle contract)  
 **Status**: ✅ **Fully configured, tested, and verified with real data**
 
-### 🛡️ Insurance Pool (ERC-4626 Style)
+### 🛡️ Insurance Pool (ERC-4626 Compatible)
 
 Protect your predictions with our **yield-generating insurance vault**:
 

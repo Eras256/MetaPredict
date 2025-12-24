@@ -12,7 +12,7 @@ export function InsurancePoolDetailsPanel() {
     <GlassCard className="p-6">
       <div className="flex items-center gap-2 mb-4">
         <PieChart className="w-5 h-5 text-green-400" />
-        <h3 className="text-lg font-semibold">Pool Details (ERC-4626 Style)</h3>
+        <h3 className="text-lg font-semibold">Pool Details (ERC-4626 Compatible)</h3>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
@@ -45,7 +45,7 @@ export function InsurancePoolDetailsPanel() {
           </span>
         </div>
         <p className="text-xs text-purple-300 mt-2">
-          <strong>ERC-4626 Style:</strong> Your shares represent your proportional ownership of the pool. 
+          <strong>ERC-4626 Compatible:</strong> Your shares represent your proportional ownership of the pool. 
           Share price = Total Assets / Total Shares. As the pool generates yield, share price increases.
         </p>
       </div>

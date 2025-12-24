@@ -111,16 +111,34 @@ class VenusService {
         return [];
       }
       
-      // Normalize data: convert string APY values to numbers (Venus API returns them as strings)
-      return markets.map((market: any) => ({
-        ...market,
-        supplyApy: typeof market.supplyApy === 'string' 
-          ? parseFloat(market.supplyApy) || 0 
-          : (typeof market.supplyApy === 'number' ? market.supplyApy : 0),
-        borrowApy: typeof market.borrowApy === 'string' 
-          ? parseFloat(market.borrowApy) || 0 
-          : (typeof market.borrowApy === 'number' ? market.borrowApy : 0),
-      }));
+      // Normalize data: convert string APY values to numbers and map Venus API fields
+      // Venus API v4 returns: totalSupplyMantissa, cashMantissa (available liquidity), totalBorrowsMantissa, etc.
+      return markets.map((market: any) => {
+        // Map Venus API fields to our interface
+        // totalSupplyMantissa is in wei (1e18), use directly
+        const totalSupply = market.totalSupplyMantissa || market.totalSupply || "0";
+        // cashMantissa is the available liquidity in wei (1e18)
+        // liquidityCents is in USD cents, but we prefer cashMantissa for actual token liquidity
+        const liquidity = market.cashMantissa || market.liquidity || "0";
+        const totalBorrows = market.totalBorrowsMantissa || market.totalBorrows || "0";
+        
+        return {
+          ...market,
+          supplyApy: typeof market.supplyApy === 'string' 
+            ? parseFloat(market.supplyApy) || 0 
+            : (typeof market.supplyApy === 'number' ? market.supplyApy : 0),
+          borrowApy: typeof market.borrowApy === 'string' 
+            ? parseFloat(market.borrowApy) || 0 
+            : (typeof market.borrowApy === 'number' ? market.borrowApy : 0),
+          totalSupply: String(totalSupply),
+          totalBorrows: String(totalBorrows),
+          liquidity: String(liquidity),
+          // Ensure other fields are strings
+          collateralFactor: String(market.collateralFactorMantissa || market.collateralFactor || "0"),
+          exchangeRate: String(market.exchangeRateMantissa || market.exchangeRate || "0"),
+          underlyingPrice: String(market.underlyingPriceMantissa || market.underlyingPrice || "0"),
+        };
+      });
     } catch (error: any) {
       console.error("[VenusService] Error fetching markets:", error.message);
       

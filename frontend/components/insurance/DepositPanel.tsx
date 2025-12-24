@@ -68,7 +68,7 @@ export function DepositPanel() {
                 <span className="text-lg font-semibold text-white">{formatBNB(userDeposit.amount)} BNB</span>
               </div>
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-gray-400">Your Shares (ERC-4626 style)</span>
+                <span className="text-sm text-gray-400">Your Shares (ERC-4626 Compatible)</span>
                 <span className="text-sm text-white font-mono">{formatBNB(userDeposit.shares)}</span>
               </div>
               <div className="flex items-center justify-between">
@@ -134,7 +134,7 @@ export function DepositPanel() {
       </GlassCard>
 
       <GlassCard className="p-8">
-        <h3 className="text-xl font-semibold mb-4">How Insurance Works (ERC-4626 Style)</h3>
+        <h3 className="text-xl font-semibold mb-4">How Insurance Works (ERC-4626 Compatible)</h3>
         <ul className="space-y-3 text-sm text-gray-400">
           <li className="flex items-start gap-2">
             <TrendingUp className="h-5 w-5 text-purple-400 mt-0.5 flex-shrink-0" />

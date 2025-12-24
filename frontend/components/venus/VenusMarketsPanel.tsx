@@ -155,13 +155,17 @@ export function VenusMarketsPanel() {
                 <div>
                   <div className="text-xs text-gray-400">Total Supply</div>
                   <div className="text-xs text-white font-medium">
-                    ${(parseFloat(market.totalSupply) / 1e18).toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                    {market.totalSupply && market.totalSupply !== "0" && !isNaN(parseFloat(market.totalSupply))
+                      ? `$${(parseFloat(market.totalSupply) / 1e18).toLocaleString(undefined, { maximumFractionDigits: 2 })}`
+                      : "$0.00"}
                   </div>
                 </div>
                 <div>
                   <div className="text-xs text-gray-400">Liquidity</div>
                   <div className="text-xs text-white font-medium">
-                    ${(parseFloat(market.liquidity) / 1e18).toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                    {market.liquidity && market.liquidity !== "0" && !isNaN(parseFloat(market.liquidity))
+                      ? `$${(parseFloat(market.liquidity) / 1e18).toLocaleString(undefined, { maximumFractionDigits: 2 })}`
+                      : "$0.00"}
                   </div>
                 </div>
               </div>
