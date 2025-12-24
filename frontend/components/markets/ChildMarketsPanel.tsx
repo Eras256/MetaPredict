@@ -1,6 +1,6 @@
 'use client';
 
-import { Link } from 'next/link';
+import Link from 'next/link';
 import { ExternalLink, GitBranch } from 'lucide-react';
 import { GlassCard } from '@/components/effects/GlassCard';
 import { Badge } from '@/components/ui/badge';
