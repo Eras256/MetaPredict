@@ -1,0 +1,3 @@
+# Exclude Foundry test files from Hardhat compilation
+test/**/*.t.sol
+
