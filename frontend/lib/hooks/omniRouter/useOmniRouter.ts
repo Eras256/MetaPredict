@@ -97,21 +97,24 @@ const OmniRouterABI = [
 ] as const;
 
 export function useSupportedChains() {
+  // CONTRACT_ADDRESSES siempre tiene valores por defecto, así que siempre creamos un contrato válido
   const contract = useMemo(() => {
-    if (!CONTRACT_ADDRESSES.OMNI_ROUTER) return null;
+    const address = CONTRACT_ADDRESSES.OMNI_ROUTER || '0x0000000000000000000000000000000000000000';
     return getContract({
       client,
       chain: opBNBTestnet,
-      address: CONTRACT_ADDRESSES.OMNI_ROUTER,
+      address: address as `0x${string}`,
       abi: OmniRouterABI as any,
     });
   }, []);
 
+  const hasValidContract = !!CONTRACT_ADDRESSES.OMNI_ROUTER;
+
   const { data, isLoading } = useReadContract({
-    contract: contract!,
+    contract: contract,
     method: 'getSupportedChains',
     params: [],
-    queryOptions: { enabled: !!contract },
+    queryOptions: { enabled: hasValidContract },
   });
 
   const chainIds = (data as bigint[]) || [];
@@ -128,21 +131,24 @@ export function useSupportedChains() {
 }
 
 export function usePendingBet(betId: string) {
+  // Siempre crear un contrato válido, pero usar enabled para controlar la query
   const contract = useMemo(() => {
-    if (!CONTRACT_ADDRESSES.OMNI_ROUTER || !betId) return null;
+    const address = CONTRACT_ADDRESSES.OMNI_ROUTER || '0x0000000000000000000000000000000000000000';
     return getContract({
       client,
       chain: opBNBTestnet,
-      address: CONTRACT_ADDRESSES.OMNI_ROUTER,
+      address: address as `0x${string}`,
       abi: OmniRouterABI as any,
     });
-  }, [betId]);
+  }, []);
+
+  const hasValidContract = !!CONTRACT_ADDRESSES.OMNI_ROUTER && !!betId && betId.startsWith('0x');
 
   const { data, isLoading } = useReadContract({
-    contract: contract!,
+    contract: contract,
     method: 'getPendingBet',
     params: [betId as `0x${string}`],
-    queryOptions: { enabled: !!contract && !!betId && betId.startsWith('0x') },
+    queryOptions: { enabled: hasValidContract },
   });
 
   const result = data as any;
@@ -167,21 +173,24 @@ export function usePendingBet(betId: string) {
 
 export function useUserPendingBets() {
   const account = useActiveAccount();
+  // Siempre crear un contrato válido, pero usar enabled para controlar la query
   const contract = useMemo(() => {
-    if (!CONTRACT_ADDRESSES.OMNI_ROUTER) return null;
+    const address = CONTRACT_ADDRESSES.OMNI_ROUTER || '0x0000000000000000000000000000000000000000';
     return getContract({
       client,
       chain: opBNBTestnet,
-      address: CONTRACT_ADDRESSES.OMNI_ROUTER,
+      address: address as `0x${string}`,
       abi: OmniRouterABI as any,
     });
   }, []);
 
+  const hasValidContract = !!CONTRACT_ADDRESSES.OMNI_ROUTER && !!account;
+
   const { data, isLoading } = useReadContract({
-    contract: contract!,
+    contract: contract,
     method: 'getUserPendingBets',
     params: account?.address ? [account.address] : undefined,
-    queryOptions: { enabled: !!account && !!contract },
+    queryOptions: { enabled: hasValidContract },
   });
 
   return {
@@ -191,27 +200,30 @@ export function useUserPendingBets() {
 }
 
 export function usePriceComparison(marketQuestion: string, isYes: boolean, amount: string) {
+  // Siempre crear un contrato válido, pero usar enabled para controlar la query
   const contract = useMemo(() => {
-    if (!CONTRACT_ADDRESSES.OMNI_ROUTER || !marketQuestion || !amount || parseFloat(amount) <= 0) return null;
+    const address = CONTRACT_ADDRESSES.OMNI_ROUTER || '0x0000000000000000000000000000000000000000';
     return getContract({
       client,
       chain: opBNBTestnet,
-      address: CONTRACT_ADDRESSES.OMNI_ROUTER,
+      address: address as `0x${string}`,
       abi: OmniRouterABI as any,
     });
-  }, [marketQuestion, amount]);
+  }, []);
 
   const amountBigInt = useMemo(() => {
     if (!amount || parseFloat(amount) <= 0) return BigInt(0);
     return BigInt(Math.floor(parseFloat(amount) * 1e18));
   }, [amount]);
 
+  const hasValidContract = !!CONTRACT_ADDRESSES.OMNI_ROUTER && !!marketQuestion && parseFloat(amount) > 0;
+
   const { data, isLoading } = useReadContract({
-    contract: contract!,
+    contract: contract,
     method: 'findBestPrice',
     params: [marketQuestion, isYes, amountBigInt],
     queryOptions: {
-      enabled: !!contract && !!marketQuestion && parseFloat(amount) > 0,
+      enabled: hasValidContract,
     },
   });
 
@@ -230,12 +242,14 @@ export function usePlaceCrossChainBet() {
   const [loading, setLoading] = useState(false);
   const account = useActiveAccount();
   
+  // Siempre crear un contrato válido para usePlaceCrossChainBet
+  // (aunque puede ser con dirección cero si no está configurado)
   const contract = useMemo(() => {
-    if (!CONTRACT_ADDRESSES.OMNI_ROUTER) return null;
+    const address = CONTRACT_ADDRESSES.OMNI_ROUTER || '0x0000000000000000000000000000000000000000';
     return getContract({
       client,
       chain: opBNBTestnet,
-      address: CONTRACT_ADDRESSES.OMNI_ROUTER,
+      address: address as `0x${string}`,
       abi: OmniRouterABI as any,
     });
   }, []);
@@ -252,7 +266,7 @@ export function usePlaceCrossChainBet() {
       throw new Error('No account connected');
     }
     
-    if (!contract) {
+    if (!CONTRACT_ADDRESSES.OMNI_ROUTER) {
       throw new Error('OmniRouter contract not configured');
     }
 

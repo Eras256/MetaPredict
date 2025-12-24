@@ -25,46 +25,50 @@ const opBNBTestnet = defineChain({
  * Hook to get current odds for a BinaryMarket
  */
 export function useCurrentOdds(marketId: number) {
+  // CONTRACT_ADDRESSES siempre tiene valores por defecto, así que coreContract siempre existe
   const coreContract = useMemo(() => {
-    const coreAddress = CONTRACT_ADDRESSES.PREDICTION_MARKET || CONTRACT_ADDRESSES.CORE_CONTRACT;
-    if (!coreAddress) return null;
     return getContract({
       client,
       chain: opBNBTestnet,
-      address: coreAddress,
+      address: CONTRACT_ADDRESSES.PREDICTION_MARKET || CONTRACT_ADDRESSES.CORE_CONTRACT,
       abi: PREDICTION_MARKET_CORE_ABI as any,
     });
   }, []);
 
   // Get market contract address
   const { data: contractAddress } = useReadContract({
-    contract: coreContract!,
+    contract: coreContract,
     method: 'getMarketContract',
     params: [BigInt(marketId)],
     queryOptions: {
-      enabled: !!coreContract && marketId > 0,
+      enabled: marketId > 0,
       refetchInterval: 10000,
     },
   });
 
   const marketContract = useMemo(() => {
-    if (!contractAddress || contractAddress === '0x0000000000000000000000000000000000000000') {
-      return null;
-    }
+    // Si no hay contractAddress o es la dirección cero, crear un contrato con dirección cero
+    // que no se usará (la query estará deshabilitada)
+    const address = contractAddress && contractAddress !== '0x0000000000000000000000000000000000000000'
+      ? (contractAddress as `0x${string}`)
+      : '0x0000000000000000000000000000000000000000' as `0x${string}`;
+    
     return getContract({
       client,
       chain: opBNBTestnet,
-      address: contractAddress as `0x${string}`,
+      address,
       abi: BINARY_MARKET_ABI as any,
     });
   }, [contractAddress]);
 
+  const hasValidMarketContract = contractAddress && contractAddress !== '0x0000000000000000000000000000000000000000';
+
   const { data, isLoading } = useReadContract({
-    contract: marketContract!,
+    contract: marketContract,
     method: 'getCurrentOdds',
     params: [BigInt(marketId)],
     queryOptions: {
-      enabled: !!marketContract && marketId > 0,
+      enabled: hasValidMarketContract && marketId > 0,
       refetchInterval: 10000, // Refetch every 10 seconds for real-time odds
     },
   }) as { data: any; isLoading: boolean };
@@ -82,45 +86,49 @@ export function useCurrentOdds(marketId: number) {
  * Hook to get child markets for a ConditionalMarket parent
  */
 export function useChildMarkets(parentMarketId: number) {
+  // CONTRACT_ADDRESSES siempre tiene valores por defecto, así que coreContract siempre existe
   const coreContract = useMemo(() => {
-    const coreAddress = CONTRACT_ADDRESSES.PREDICTION_MARKET || CONTRACT_ADDRESSES.CORE_CONTRACT;
-    if (!coreAddress) return null;
     return getContract({
       client,
       chain: opBNBTestnet,
-      address: coreAddress,
+      address: CONTRACT_ADDRESSES.PREDICTION_MARKET || CONTRACT_ADDRESSES.CORE_CONTRACT,
       abi: PREDICTION_MARKET_CORE_ABI as any,
     });
   }, []);
 
   // Get market contract address
   const { data: marketContractAddress } = useReadContract({
-    contract: coreContract!,
+    contract: coreContract,
     method: 'getMarketContract',
     params: [BigInt(parentMarketId)],
     queryOptions: {
-      enabled: !!coreContract && parentMarketId > 0,
+      enabled: parentMarketId > 0,
     },
   });
 
   const conditionalMarketContract = useMemo(() => {
-    if (!marketContractAddress || marketContractAddress === '0x0000000000000000000000000000000000000000') {
-      return null;
-    }
+    // Si no hay marketContractAddress o es la dirección cero, crear un contrato con dirección cero
+    // que no se usará (la query estará deshabilitada)
+    const address = marketContractAddress && marketContractAddress !== '0x0000000000000000000000000000000000000000'
+      ? (marketContractAddress as `0x${string}`)
+      : '0x0000000000000000000000000000000000000000' as `0x${string}`;
+    
     return getContract({
       client,
       chain: opBNBTestnet,
-      address: marketContractAddress as `0x${string}`,
+      address,
       abi: CONDITIONAL_MARKET_ABI as any,
     });
   }, [marketContractAddress]);
 
+  const hasValidConditionalContract = marketContractAddress && marketContractAddress !== '0x0000000000000000000000000000000000000000';
+
   const { data, isLoading } = useReadContract({
-    contract: conditionalMarketContract!,
+    contract: conditionalMarketContract,
     method: 'getChildMarkets',
     params: [BigInt(parentMarketId)],
     queryOptions: {
-      enabled: !!conditionalMarketContract && parentMarketId > 0,
+      enabled: hasValidConditionalContract && parentMarketId > 0,
     },
   }) as { data: any; isLoading: boolean };
 

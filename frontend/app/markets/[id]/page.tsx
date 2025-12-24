@@ -87,6 +87,21 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
     };
   }, [marketId, refetchMarket]);
 
+  // Get current odds from contract (real-time)
+  // IMPORTANT: Hooks must be called before any early returns to maintain consistent hook order
+  const { yesOdds: contractYesOdds, noOdds: contractNoOdds, isLoading: oddsLoading } = useCurrentOdds(
+    marketId
+  );
+  
+  // Fallback to calculated odds if contract data not available
+  const totalPool = market ? Number(market.yesPool) + Number(market.noPool) : 0;
+  const calculatedYesOdds = market && totalPool > 0 ? (Number(market.yesPool) / totalPool) * 100 : 50;
+  const calculatedNoOdds = market && totalPool > 0 ? (Number(market.noPool) / totalPool) * 100 : 50;
+  
+  // Use contract odds if available, otherwise use calculated
+  const yesOdds = !oddsLoading && contractYesOdds !== 50 ? contractYesOdds : calculatedYesOdds;
+  const noOdds = !oddsLoading && contractNoOdds !== 50 ? contractNoOdds : calculatedNoOdds;
+
   const handleAnalyzeMarket = async () => {
     if (!market?.question) {
       toast.error('No market information to analyze');
@@ -119,20 +134,6 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
       </div>
     );
   }
-
-  // Get current odds from contract (real-time)
-  const { yesOdds: contractYesOdds, noOdds: contractNoOdds, isLoading: oddsLoading } = useCurrentOdds(
-    marketId
-  );
-  
-  // Fallback to calculated odds if contract data not available
-  const totalPool = market ? Number(market.yesPool) + Number(market.noPool) : 0;
-  const calculatedYesOdds = market && totalPool > 0 ? (Number(market.yesPool) / totalPool) * 100 : 50;
-  const calculatedNoOdds = market && totalPool > 0 ? (Number(market.noPool) / totalPool) * 100 : 50;
-  
-  // Use contract odds if available, otherwise use calculated
-  const yesOdds = !oddsLoading && contractYesOdds !== 50 ? contractYesOdds : calculatedYesOdds;
-  const noOdds = !oddsLoading && contractNoOdds !== 50 ? contractNoOdds : calculatedNoOdds;
   
   // Verificar si el mercado venció
   const currentTime = Math.floor(Date.now() / 1000);
