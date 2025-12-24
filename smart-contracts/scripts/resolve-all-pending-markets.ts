@@ -2,7 +2,8 @@ import * as dotenv from "dotenv";
 import * as path from "path";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
-import hre from "hardhat";
+// @ts-expect-error - hardhat exports ethers but TypeScript types may not reflect it in ES modules
+import { ethers } from "hardhat";
 import axios from "axios";
 
 // Get __dirname equivalent in ESM
@@ -21,16 +22,16 @@ async function main() {
   console.log("🔧 Resolviendo todos los mercados pendientes en estado 'Resolving'...\n");
   console.log("=".repeat(80));
 
-  const [deployer] = await hre.ethers.getSigners();
+  const [deployer] = await ethers.getSigners();
   console.log(`📝 Usando cuenta: ${deployer.address}`);
-  const balance = await hre.ethers.provider.getBalance(deployer.address);
-  console.log(`💰 Balance: ${hre.ethers.formatEther(balance)} BNB\n`);
+  const balance = await ethers.provider.getBalance(deployer.address);
+  console.log(`💰 Balance: ${ethers.formatEther(balance)} BNB\n`);
 
   // Conectar a contratos
-  const CoreFactory = await hre.ethers.getContractFactory("PredictionMarketCore");
+  const CoreFactory = await ethers.getContractFactory("PredictionMarketCore");
   const core = CoreFactory.attach(CORE_CONTRACT);
 
-  const AIOracle = await hre.ethers.getContractFactory("AIOracle");
+  const AIOracle = await ethers.getContractFactory("AIOracle");
   const aiOracle = AIOracle.attach(AI_ORACLE_ADDRESS);
 
   // Verificar que somos el owner del AI Oracle
