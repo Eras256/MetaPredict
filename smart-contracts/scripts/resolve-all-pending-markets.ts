@@ -2,8 +2,7 @@ import * as dotenv from "dotenv";
 import * as path from "path";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
-// @ts-expect-error - hardhat exports ethers but TypeScript types may not reflect it in ES modules
-import { ethers } from "hardhat";
+import hre from "hardhat";
 import axios from "axios";
 
 // Get __dirname equivalent in ESM
@@ -21,6 +20,16 @@ const BACKEND_URL = process.env.BACKEND_URL || process.env.NEXT_PUBLIC_API_URL |
 async function main() {
   console.log("🔧 Resolviendo todos los mercados pendientes en estado 'Resolving'...\n");
   console.log("=".repeat(80));
+
+  // Use Hardhat 3.x API - connect to network to get ethers (required for ES modules)
+  const { ethers } = await hre.network.connect();
+  
+  // Verify ethers is available
+  if (!ethers || typeof ethers.getSigners !== 'function') {
+    console.error('❌ Error: ethers is not available after network.connect()');
+    console.error('   hre keys:', Object.keys(hre));
+    throw new Error('ethers is not properly initialized');
+  }
 
   const [deployer] = await ethers.getSigners();
   console.log(`📝 Usando cuenta: ${deployer.address}`);

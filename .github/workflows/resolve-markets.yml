@@ -43,6 +43,14 @@ jobs:
           cd smart-contracts
           pnpm install
 
+      - name: Compile contracts
+        run: |
+          cd smart-contracts
+          pnpm hardhat compile
+        env:
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+          RPC_URL_TESTNET: ${{ secrets.RPC_URL_TESTNET }}
+
       - name: Resolve pending markets
         run: |
           echo "🕐 Workflow ejecutado automáticamente: $(date)"
@@ -50,6 +58,11 @@ jobs:
           echo "🔄 Ejecutando resolución de mercados pendientes..."
           cd smart-contracts
           pnpm hardhat run scripts/resolve-all-pending-markets.ts --network opBNBTestnet
+        env:
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+          RPC_URL_TESTNET: ${{ secrets.RPC_URL_TESTNET }}
+          AI_ORACLE_ADDRESS: ${{ vars.AI_ORACLE_ADDRESS || '0xA65bE35D25B09F7326ab154E154572dB90F67081' }}
+          BACKEND_URL: ${{ vars.BACKEND_URL || 'https://www.metapredict.fun/api' }}
 
       - name: Report results
         if: always()

@@ -1,5 +1,5 @@
 import { defineConfig } from "hardhat/config";
-import "@nomicfoundation/hardhat-ethers";
+import hardhatEthers from "@nomicfoundation/hardhat-ethers";
 import hardhatVerify from "@nomicfoundation/hardhat-verify";
 import * as dotenv from "dotenv";
 import * as path from "path";
@@ -32,9 +32,10 @@ function getPrivateKey(): string[] {
 const accounts = getPrivateKey();
 
 export default defineConfig({
+  // Explicitly register plugins for ES modules compatibility
   plugins: [
+    hardhatEthers,
     hardhatVerify,
-    // ...other plugins...
   ],
   solidity: {
     version: "0.8.24",
