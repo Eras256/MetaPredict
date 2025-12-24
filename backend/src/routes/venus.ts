@@ -14,20 +14,20 @@ router.get("/markets", async (req, res) => {
     
     // Return empty array if no markets (graceful degradation)
     if (!markets || markets.length === 0) {
-      return res.json({ 
+      return res.status(200).json({ 
         markets: [],
         message: "Venus Protocol API is currently unavailable. This is normal if the service is not configured or the external API is down."
       });
     }
     
-    res.json({ markets });
+    res.status(200).json({ markets });
   } catch (error: any) {
     console.error("[Venus API] Error fetching markets:", error.message);
-    // Return empty array instead of error to allow frontend to handle gracefully
-    res.json({ 
+    // Return empty array with 200 status instead of error to allow frontend to handle gracefully
+    res.status(200).json({ 
       markets: [],
       error: "Failed to fetch Venus markets",
-      message: error.message 
+      message: error.message || "Venus Protocol API is currently unavailable"
     });
   }
 });

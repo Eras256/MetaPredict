@@ -60,23 +60,46 @@ class VenusService {
 
   /**
    * Obtiene todos los mercados de Venus Protocol
+   * @param chainId - Chain ID (default: 56 for BSC mainnet, 97 for BSC testnet)
    */
-  async getMarkets(): Promise<VenusMarketData[]> {
+  async getMarkets(chainId?: number): Promise<VenusMarketData[]> {
     try {
       const baseUrl = this.getBaseUrl();
-      console.log(`[VenusService] Fetching markets from: ${baseUrl}/markets`);
+      // Default chainId: BSC mainnet (56) or testnet (97) based on environment
+      const defaultChainId = process.env.NODE_ENV === "development" || 
+                             process.env.VENUS_USE_TESTNET === "true" ? 97 : 56;
+      const targetChainId = chainId || defaultChainId;
+      
+      console.log(`[VenusService] Fetching markets from: ${baseUrl}/markets?chainId=${targetChainId}`);
       
       const response = await axios.get(`${baseUrl}/markets`, {
-        timeout: 10000,
+        params: {
+          chainId: targetChainId,
+        },
+        timeout: 15000,
+        headers: {
+          'Accept': 'application/json',
+          'accept-version': 'stable', // Venus API versioning header
+        },
         validateStatus: (status) => status < 500, // Don't throw on 4xx errors
       });
       
       if (response.status !== 200) {
-        throw new Error(`Venus API returned status ${response.status}: ${response.statusText}`);
+        const errorMsg = response.data?.error || response.data?.message || response.statusText;
+        console.warn(`[VenusService] Venus API returned status ${response.status}: ${errorMsg}`);
+        // Return empty array for 400/404 errors to allow graceful degradation
+        if (response.status === 400 || response.status === 404) {
+          console.warn("[VenusService] Venus API endpoint may not be available or requires different parameters, returning empty array");
+          return [];
+        }
+        throw new Error(`Venus API returned status ${response.status}: ${errorMsg}`);
       }
       
-      // Handle different response formats
-      if (Array.isArray(response.data)) {
+      // Handle different response formats based on Venus API v4 documentation
+      // Response can be: { result: [...], limit: 20, page: 0, total: 1 }
+      if (response.data?.result && Array.isArray(response.data.result)) {
+        return response.data.result;
+      } else if (Array.isArray(response.data)) {
         return response.data;
       } else if (response.data?.data && Array.isArray(response.data.data)) {
         return response.data.data;
@@ -84,6 +107,7 @@ class VenusService {
         return response.data.markets;
       }
       
+      console.warn("[VenusService] Unexpected response format, returning empty array");
       return [];
     } catch (error: any) {
       console.error("[VenusService] Error fetching markets:", error.message);
@@ -92,6 +116,15 @@ class VenusService {
       if (error.code === 'ECONNREFUSED' || error.code === 'ETIMEDOUT' || error.code === 'ENOTFOUND') {
         console.warn("[VenusService] Venus API is not available, returning empty array");
         return [];
+      }
+      
+      // For axios errors with response, check if it's a 400/404
+      if (error.response) {
+        const status = error.response.status;
+        if (status === 400 || status === 404) {
+          console.warn("[VenusService] Venus API endpoint returned 400/404, returning empty array");
+          return [];
+        }
       }
       
       throw new Error(`Failed to fetch Venus markets: ${error.message}`);

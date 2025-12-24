@@ -11,13 +11,24 @@ export const maxDuration = 30;
 export async function GET(request: NextRequest) {
   try {
     const markets = await venusService.getMarkets();
+    
+    // Return empty array if no markets (graceful degradation)
+    if (!markets || markets.length === 0) {
+      return NextResponse.json({ 
+        markets: [],
+        message: "Venus Protocol API is currently unavailable. This is normal if the service is not configured or the external API is down."
+      });
+    }
+    
     return NextResponse.json({ markets });
   } catch (error: any) {
     console.error('[Venus API] Error fetching markets:', error.message);
-    return NextResponse.json(
-      { error: 'Failed to fetch Venus markets', message: error.message },
-      { status: 500 }
-    );
+    // Return empty array with 200 status instead of error to allow frontend to handle gracefully
+    return NextResponse.json({ 
+      markets: [],
+      error: "Failed to fetch Venus markets",
+      message: error.message || "Venus Protocol API is currently unavailable"
+    });
   }
 }
 

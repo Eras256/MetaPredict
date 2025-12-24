@@ -42,7 +42,13 @@ export function VenusMarketsPanel() {
       }
       
       const data = await response.json();
-      setMarkets(data.markets || []);
+      // Service already normalizes APY values to numbers, but add safety check
+      const processedMarkets = (data.markets || []).map((market: any) => ({
+        ...market,
+        supplyApy: typeof market.supplyApy === 'number' ? market.supplyApy : (parseFloat(market.supplyApy) || 0),
+        borrowApy: typeof market.borrowApy === 'number' ? market.borrowApy : (parseFloat(market.borrowApy) || 0),
+      }));
+      setMarkets(processedMarkets);
     } catch (err: any) {
       // Only log to console in development
       if (process.env.NODE_ENV === 'development') {
@@ -137,7 +143,7 @@ export function VenusMarketsPanel() {
                 <div className="text-right">
                   <div className="text-sm font-semibold text-green-400 flex items-center gap-1">
                     <TrendingUp className="w-4 h-4" />
-                    {market.supplyApy.toFixed(2)}% APY
+                    {(market.supplyApy || 0).toFixed(2)}% APY
                   </div>
                   <div className="text-xs text-gray-400">
                     Supply APY
