@@ -114,8 +114,15 @@ export function useSupportedChains() {
     queryOptions: { enabled: !!contract },
   });
 
+  const chainIds = (data as bigint[]) || [];
+  const chainsWithDetails = chainIds.map((chainId) => ({
+    chainId: Number(chainId),
+    name: `Chain ${Number(chainId)}`,
+  }));
+
   return {
-    chainIds: (data as any) || [],
+    chains: chainIds.map(id => Number(id)),
+    chainsWithDetails,
     isLoading,
   };
 }
@@ -179,6 +186,42 @@ export function useUserPendingBets() {
 
   return {
     betIds: (data as any) || [],
+    isLoading,
+  };
+}
+
+export function usePriceComparison(marketQuestion: string, isYes: boolean, amount: string) {
+  const contract = useMemo(() => {
+    if (!CONTRACT_ADDRESSES.OMNI_ROUTER || !marketQuestion || !amount || parseFloat(amount) <= 0) return null;
+    return getContract({
+      client,
+      chain: opBNBTestnet,
+      address: CONTRACT_ADDRESSES.OMNI_ROUTER,
+      abi: OmniRouterABI as any,
+    });
+  }, [marketQuestion, amount]);
+
+  const amountBigInt = useMemo(() => {
+    if (!amount || parseFloat(amount) <= 0) return BigInt(0);
+    return BigInt(Math.floor(parseFloat(amount) * 1e18));
+  }, [amount]);
+
+  const { data, isLoading } = useReadContract({
+    contract: contract!,
+    method: 'findBestPrice',
+    params: [marketQuestion, isYes, amountBigInt],
+    queryOptions: {
+      enabled: !!contract && !!marketQuestion && parseFloat(amount) > 0,
+    },
+  });
+
+  const result = data as any;
+
+  return {
+    bestChainId: result?.[0] ? Number(result[0]) : null,
+    bestPrice: result?.[1] ? BigInt(result[1]) : null,
+    estimatedShares: result?.[2] ? BigInt(result[2]) : null,
+    gasCost: result?.[3] ? BigInt(result[3]) : null,
     isLoading,
   };
 }

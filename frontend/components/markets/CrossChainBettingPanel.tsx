@@ -34,7 +34,7 @@ export function CrossChainBettingPanel({ marketId, marketQuestion }: CrossChainB
   const [targetChainId, setTargetChainId] = useState<number | null>(null);
   
   const { placeBetCrossChain, isPending } = usePlaceBetCrossChain();
-  const { chains, chainsWithDetails, isLoading: chainsLoading } = useSupportedChains();
+  const { chainsWithDetails, isLoading: chainsLoading } = useSupportedChains();
   
   const { bestChainId, bestPrice, estimatedShares, gasCost, isLoading: priceLoading } = 
     usePriceComparison(marketQuestion, isYes, amount);

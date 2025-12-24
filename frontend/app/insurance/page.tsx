@@ -19,7 +19,7 @@ import { useMarkets } from '@/lib/hooks/useMarkets';
 import { MARKET_STATUS } from '@/lib/config/constants';
 
 export default function InsurancePage() {
-  const [activeTab, setActiveTab] = useState<'stats' | 'deposit' | 'claims'>('stats');
+  const [activeTab, setActiveTab] = useState<'stats' | 'deposit' | 'withdraw' | 'claims'>('stats');
   const [analyzingRisk, setAnalyzingRisk] = useState(false);
   const [riskAnalysis, setRiskAnalysis] = useState<any>(null);
   const { markets, loading, refresh } = useMarkets();
