@@ -448,28 +448,37 @@ Our oracle system queries **5 AI models from 3 different providers** in a sequen
 - ✅ **Sufficient Quality** for binary prediction markets
 - 🛡️ **Multi-AI Safety** - Other models provide backup if needed
 
-### 🔄 How It Works
+### 🔄 How It Works (Automated Workflow)
+
+**🔄 Proceso Completamente Automatizado:**
 
 ```
 1. User creates prediction market
    ↓
 2. Market reaches resolution deadline
    ↓
-3. Oracle Bot detects ResolutionRequested event
+3. 🔍 Oracle Bot automatically detects ResolutionRequested event
+   (Monitoreo continuo 24/7 - sin intervención manual)
    ↓
-4. Backend queries AIs sequentially (Priority 1 → 5)
-   ├─ Gemini 2.5 Flash Lite (primary)
-   ├─ Llama 3.1 Standard (fallback)
-   ├─ Mistral 7B (fallback)
-   ├─ Llama 3.2 3B (fallback)
-   └─ Gemini via OpenRouter (fallback)
+4. 🤖 Backend automatically queries AIs sequentially (Priority 1 → 5)
+   ├─ Gemini 2.5 Flash Lite (primary) - ~800ms
+   ├─ Llama 3.1 Standard (fallback) - ~500ms
+   ├─ Mistral 7B (fallback) - ~1s
+   ├─ Llama 3.2 3B (fallback) - ~800ms
+   └─ Gemini via OpenRouter (fallback) - ~1.5s
    ↓
-5. Calculate consensus (80%+ agreement required)
+5. ✅ Automatically calculate consensus (80%+ agreement required)
    ↓
-6. Gelato Relay executes resolution on-chain
+6. ⚡ Gelato Relay automatically executes resolution on-chain
+   (Gasless transaction - sin costo para el usuario)
    ↓
-7. Market resolves automatically
+7. 🎉 Market resolves automatically
+   (Usuarios notificados - pueden reclamar ganancias inmediatamente)
 ```
+
+**⏱️ Tiempo Total del Workflow:** <1 hora desde el deadline hasta la resolución completa
+
+**🔄 Frecuencia de Monitoreo:** El Oracle Bot verifica nuevos eventos cada pocos segundos
 
 ### ✅ Advantages
 
@@ -886,12 +895,29 @@ El backend expone 8 rutas principales con múltiples endpoints:
 - `GET /tasks` - Listar tareas
 - `GET /tasks/:taskId` - Obtener tarea específica
 
-### 🤖 Oracle Bot
+### 🤖 Oracle Bot (Automated Workflow)
 
-El backend incluye un **Oracle Bot** que se inicia automáticamente y monitorea:
-- Eventos `ResolutionRequested` en los contratos
-- Mercados pendientes de resolución
-- Ejecución automática de resoluciones vía Gelato Relay
+El backend incluye un **Oracle Bot** que funciona como un workflow completamente automatizado:
+
+**🔄 Proceso Automatizado:**
+1. **Monitoreo Continuo**: El bot se inicia automáticamente con el servidor y monitorea continuamente los eventos `ResolutionRequested` en los contratos
+2. **Detección Automática**: Cuando un mercado alcanza su deadline, el contrato emite un evento `ResolutionRequested`
+3. **Consulta Multi-AI**: El bot consulta automáticamente los 5 modelos de IA en secuencia (Gemini → Llama → Mistral → Llama → Gemini)
+4. **Cálculo de Consenso**: Se calcula automáticamente el consenso (80%+ acuerdo requerido)
+5. **Ejecución On-Chain**: Gelato Relay ejecuta automáticamente `resolveMarket()` on-chain sin intervención manual
+6. **Notificación**: Los usuarios son notificados cuando el mercado se resuelve
+
+**✅ Ventajas del Workflow Automatizado:**
+- ✅ **Sin Intervención Manual**: Todo el proceso es automático desde la detección hasta la resolución
+- ✅ **Monitoreo 24/7**: El bot está siempre activo monitoreando mercados
+- ✅ **Resolución Rápida**: Los mercados se resuelven en menos de 1 hora después del deadline
+- ✅ **Confiabilidad**: Fallback automático si algún servicio falla
+- ✅ **Transparencia**: Todo el proceso es verificable on-chain
+
+**🔧 Configuración:**
+- El Oracle Bot se inicia automáticamente al iniciar el servidor backend
+- Configurado para monitorear todos los contratos de mercado desplegados
+- Integrado con Gelato Relay para ejecución gasless de resoluciones
 
 ## ⚛️ Frontend Components & Hooks
 
