@@ -37,15 +37,23 @@ export function VenusMarketsPanel() {
       const response = await fetch('/api/venus/markets');
       
       if (!response.ok) {
-        throw new Error('Failed to fetch Venus markets');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `Failed to fetch Venus markets (${response.status})`);
       }
       
       const data = await response.json();
       setMarkets(data.markets || []);
     } catch (err: any) {
-      console.error('Error fetching Venus markets:', err);
-      setError(err.message || 'Failed to load markets');
-      toast.error('Failed to load Venus markets');
+      // Only log to console in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error fetching Venus markets:', err);
+      }
+      const errorMessage = err.message || 'Failed to load Venus markets. The backend service may be unavailable.';
+      setError(errorMessage);
+      // Only show toast if it's not a network error (to avoid spamming)
+      if (!err.message?.includes('fetch')) {
+        toast.error('Failed to load Venus markets');
+      }
     } finally {
       setLoading(false);
     }
@@ -71,9 +79,15 @@ export function VenusMarketsPanel() {
     return (
       <GlassCard className="p-6">
         <div className="text-center py-8">
-          <p className="text-red-400 text-sm mb-4">{error}</p>
-          <Button onClick={fetchMarkets} variant="outline" size="sm">
-            <RefreshCw className="w-4 h-4 mr-2" />
+          <DollarSign className="w-12 h-12 text-gray-600 mx-auto mb-3" />
+          <p className="text-gray-400 text-sm mb-2">Venus Protocol integration</p>
+          <p className="text-gray-500 text-xs mb-4">
+            {error.includes('backend') || error.includes('unavailable') 
+              ? 'Backend service is currently unavailable. This feature requires the backend API to be running.'
+              : error}
+          </p>
+          <Button onClick={fetchMarkets} variant="outline" size="sm" disabled={loading}>
+            <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
             Retry
           </Button>
         </div>
