@@ -9,7 +9,7 @@
 
 **The world's first all-in-one prediction market platform powered by multi-AI oracle consensus, real-time price feeds, and cross-chain aggregation.**
 
-[![Deployed Contracts](https://img.shields.io/badge/Contracts-10%2F10%20Verified-brightgreen?style=for-the-badge)](https://testnet.opbnbscan.com/)
+[![Deployed Contracts](https://img.shields.io/badge/Contracts-6%2F10%20Verified-yellow?style=for-the-badge)](https://testnet.opbnbscan.com/)
 [![AI Models](https://img.shields.io/badge/AI%20Models-5%20Providers-purple?style=for-the-badge)](./docs/CONSENSUS_SYSTEM.md)
 [![Test Coverage](https://img.shields.io/badge/Tests-115%2F115%20Passing%20%7C%2025%2F25%20E2E%20Real-brightgreen?style=for-the-badge)](./README.md#-real-world-test-results--transaction-links)
 
@@ -21,16 +21,18 @@
 
 ## 🌟 The Vision
 
-Imagine a world where **anyone can predict the future** and be rewarded for their accuracy. Where **AI oracles** work together to ensure fairness, where **real-time data** flows seamlessly, and where **cross-chain liquidity** makes every bet optimal.
+**MetaPredict.fun** is the world's first prediction market platform powered by **5-AI consensus oracle**, protected by **insurance**, and built on **opBNB** for ultra-low fees.
 
-**MetaPredict.fun makes this vision a reality.**
+**Live on opBNB Testnet** | **115/115 tests passing** | **84+ markets created** | **200+ transactions** | **Top 20 Global Finalist** - [DoraHacks Prediction Markets Hackathon](https://dorahacks.io/hackathon/predictionmarketshackathon)
 
-We've built the **most advanced prediction market platform** on opBNB, combining:
-- 🧠 **5 AI models** from 3 providers working in consensus
-- ⚡ **Sub-second price feeds** via Chainlink Data Streams
-- 🛡️ **Insurance protection** with automatic refunds
-- 🌐 **Cross-chain aggregation** for best prices
-- 🎯 **Multiple market types** for every prediction need
+**What Makes Us Different:**
+- 🧠 **5 AI Models** from 3 providers (Gemini, Llama, Mistral) working in sequential consensus
+- ⚡ **Sub-second price feeds** via Chainlink Data Streams (up to 100ms updates)
+- 🛡️ **100% Insurance Protection** - Automatic refunds if oracle fails
+- 🌐 **Cross-chain aggregation** via OmniRouter for optimal prices
+- 🎯 **3 Market Types** - Binary, Conditional, and Subjective markets
+- ⚡ **Ultra-low gas** - <$0.001 per transaction on opBNB
+- 🤖 **Automated Resolution** - Multi-layer system resolves markets within 1 hour
 
 ---
 
@@ -185,8 +187,8 @@ MetaPredict/
 │   │   ├── database/     # Prisma schemas
 │   │   └── utils/        # Utilities (logger, etc.)
 │   └── __tests__/        # Backend tests
-├── smart-contracts/      # Contratos Solidity + Hardhat
-│   ├── contracts/        # Contratos Solidity (22 contratos)
+├── smart-contracts/      # Solidity Contracts + Hardhat
+│   ├── contracts/        # Solidity Contracts (22 contracts)
 │   │   ├── core/         # PredictionMarketCore
 │   │   ├── markets/      # BinaryMarket, ConditionalMarket, SubjectiveMarket
 │   │   ├── oracle/       # AIOracle, ChainlinkDataStreamsIntegration
@@ -344,16 +346,16 @@ pnpm update:backend-url
 
 <div align="center">
 
-### ✅ **All Contracts Verified (10/10)** ✅
+### 📋 **Contract Verification Status: 6/10 Verified**
 
-**Last Updated**: January 2025  
+**Last Updated**: December 2025  
 **Source**: Official addresses from `frontend/lib/contracts/addresses.ts` (in production use)  
 **Network**: opBNB Testnet (Chain ID: 5611)  
 **Token**: **Native BNB** (no ERC20 tokens required)  
 **Explorer**: [opBNBScan Testnet](https://testnet.opbnbscan.com/)  
 **Domain**: **metapredict.fun**  
 **Backend URL**: `https://metapredict.fun/api/oracle/resolve` (configured on-chain)  
-**Status**: ✅ **All contracts verified, tested, and connected to frontend**  
+**Status**: ✅ **All contracts deployed, tested, and connected to frontend** | ⚠️ **6 verified, 4 pending verification**  
 **Test Results**: ✅ **115/115 tests passing** | ✅ **25/25 real integration tests passing** | ✅ **11/11 E2E tests passing**
 
 </div>
@@ -363,7 +365,7 @@ pnpm update:backend-url
 | Contract | Address | Status | Explorer |
 |:--------|:--------|:------:|:--------:|
 | **🎯 Prediction Market Core** | `0x5eaa77CC135b82c254F1144c48f4d179964fA0b1` | ✅ Verified | [View on opBNBScan](https://testnet.opbnbscan.com/address/0x5eaa77CC135b82c254F1144c48f4d179964fA0b1#code) |
-| **🤖 AI Oracle** | `0xcc10a98Aa285E7bD16be1Ef8420315725C3dB66c` | ✅ Verified | [View on opBNBScan](https://testnet.opbnbscan.com/address/0xcc10a98Aa285E7bD16be1Ef8420315725C3dB66c#code) |
+| **🤖 AI Oracle** | `0xA65bE35D25B09F7326ab154E154572dB90F67081` | ⚠️ Pending | [View on opBNBScan](https://testnet.opbnbscan.com/address/0xA65bE35D25B09F7326ab154E154572dB90F67081#code) |
 | **🛡️ Insurance Pool** | `0xD30B71e1Af743cD93b3b1d7d314822Bc4cd860dA` | ✅ Verified | [View on opBNBScan](https://testnet.opbnbscan.com/address/0xD30B71e1Af743cD93b3b1d7d314822Bc4cd860dA#code) |
 | **🏆 Reputation Staking** | `0x5935C4002Bf11eCD4525d60Ef7e2B949421E15E7` | ✅ Verified | [View on opBNBScan](https://testnet.opbnbscan.com/address/0x5935C4002Bf11eCD4525d60Ef7e2B949421E15E7#code) |
 | **🗳️ DAO Governance** | `0xC2eD64e39cD7A6Ab9448f14E1f965E1D1e819123` | ✅ Verified | [View on opBNBScan](https://testnet.opbnbscan.com/address/0xC2eD64e39cD7A6Ab9448f14E1f965E1D1e819123#code) |
@@ -373,9 +375,9 @@ pnpm update:backend-url
 
 | Contract | Address | Status | Explorer |
 |:--------|:--------|:------:|:--------:|
-| **📊 Binary Market** | `0x41A5CFeEf9C7fc50e68E13bAbB11b3B8872a0b6d` | ✅ Verified | [View on opBNBScan](https://testnet.opbnbscan.com/address/0x41A5CFeEf9C7fc50e68E13bAbB11b3B8872a0b6d#code) |
-| **🔗 Conditional Market** | `0x41C2b1FB595Ad18cb111c3a3Fc1B2d6307e43741` | ✅ Verified | [View on opBNBScan](https://testnet.opbnbscan.com/address/0x41C2b1FB595Ad18cb111c3a3Fc1B2d6307e43741#code) |
-| **🗳️ Subjective Market** | `0xAE88cE8f797FCBD36b0Ae78f80FDb11774d766f8` | ✅ Verified | [View on opBNBScan](https://testnet.opbnbscan.com/address/0xAE88cE8f797FCBD36b0Ae78f80FDb11774d766f8#code) |
+| **📊 Binary Market** | `0x41A5CFeEf9C7fc50e68E13bAbB11b3B8872a0b6d` | ⚠️ Pending | [View on opBNBScan](https://testnet.opbnbscan.com/address/0x41A5CFeEf9C7fc50e68E13bAbB11b3B8872a0b6d#code) |
+| **🔗 Conditional Market** | `0x41C2b1FB595Ad18cb111c3a3Fc1B2d6307e43741` | ⚠️ Pending | [View on opBNBScan](https://testnet.opbnbscan.com/address/0x41C2b1FB595Ad18cb111c3a3Fc1B2d6307e43741#code) |
+| **🗳️ Subjective Market** | `0xAE88cE8f797FCBD36b0Ae78f80FDb11774d766f8` | ⚠️ Pending | [View on opBNBScan](https://testnet.opbnbscan.com/address/0xAE88cE8f797FCBD36b0Ae78f80FDb11774d766f8#code) |
 
 ### ⚡ Oracle & Data Integration
 
@@ -393,7 +395,7 @@ pnpm update:backend-url
 - **📅 Deployment Date**: November 18, 2025
 - **✅ Verification Date**: November 18, 2025
 - **📄 Deployment File**: `smart-contracts/deployments/opbnb-testnet.json`
-- **🎯 Verification Status**: ✅ **10/10 contracts verified**
+- **🎯 Verification Status**: ✅ **6/10 contracts verified** | ⚠️ **4 pending verification** (AI Oracle, Binary Market, Conditional Market, Subjective Market)
 - **🧪 Test Status**: ✅ **115/115 tests passing** (unit + integration + security + chainlink)
 - **🔗 Frontend Integration**: ✅ **All contracts connected and tested**
 - **🌐 Production Status**: ✅ **Live on metapredict.fun**
@@ -402,8 +404,9 @@ pnpm update:backend-url
 ### ✅ Integration Status
 
 All contracts are:
-- ✅ **Deployed** on opBNB Testnet
-- ✅ **Verified** on opBNBScan with source code
+- ✅ **Deployed** on opBNB Testnet (10/10)
+- ✅ **Verified** on opBNBScan (6/10 - Core, Insurance Pool, Reputation Staking, DAO Governance, OmniRouter, Chainlink Data Streams)
+- ⚠️ **Pending Verification** (4/10 - AI Oracle, Binary Market, Conditional Market, Subjective Market)
 - ✅ **Connected** to frontend (`frontend/lib/contracts/addresses.ts`)
 - ✅ **Tested** with 115/115 tests passing
 - ✅ **Production Ready** - Live on metapredict.fun
@@ -493,13 +496,26 @@ Our oracle system queries **5 AI models from 3 different providers** in a sequen
 - **Phase 1 (Manual)**: Requires human intervention to initiate resolution
 - **Phase 2 (Automated)**: <1 hour from `ResolutionRequested` to complete resolution
 
-**🔄 Automated Resolution Systems (Multi-Layer):**
-- **GitHub Actions Workflow**: Configured to run every 10 minutes (`*/10 * * * *`). **Important**: According to GitHub's official documentation (as of December 2025), GitHub Actions does NOT guarantee exact execution times for scheduled workflows. Workflows may be delayed due to resource limitations and system load, resulting in irregular execution intervals (typically 30-60+ minutes in practice). Executes "Resolve Pending Markets" workflow automatically.
-- **Backend Event Monitor**: Polling every 1 minute (60000ms) when the server is running - monitors `ResolutionRequested` events in real-time and processes them automatically. **This is the most reliable automated system when the backend server is active.**
-- **Vercel Cron Jobs**: 
-  - `/api/cron/oracle-check`: Daily at midnight (00:00 UTC) - checks for pending resolutions
-  - `/api/cron`: Daily at 12 PM (12:00 UTC) - resolves markets in "Resolving" status
-- **Note**: Expired markets require manual initiation before the automated workflow can process them
+**🔄 Automated Resolution Systems (Multi-Layer Architecture):**
+
+1. **Backend Event Monitor** (Primary - Most Reliable):
+   - Polls every 1 minute (60,000ms) when backend server is running
+   - Monitors `ResolutionRequested` events in real-time
+   - Processes resolutions immediately upon detection
+   - **Reliability**: ⭐⭐⭐⭐⭐ Highest when server is active
+
+2. **GitHub Actions Workflow** (Secondary):
+   - Configured: Every 10 minutes (`*/10 * * * *`)
+   - **Reality**: Executes irregularly (30-60+ minute intervals) due to GitHub throttling
+   - **Official Note**: GitHub Actions does NOT guarantee exact execution times for scheduled workflows
+   - **Cost**: ~0.0023 BNB (~36 MXN) per resolution
+   - **Manual Trigger**: Available via GitHub Actions UI
+
+3. **Vercel Cron Jobs** (Tertiary - Daily Backup):
+   - `/api/cron/oracle-check`: Daily at midnight (00:00 UTC)
+   - `/api/cron`: Daily at 12 PM (12:00 UTC)
+
+**⚡ Resolution Speed**: <1 hour from `ResolutionRequested` event to complete resolution (when Backend Event Monitor is active)
 
 ### ✅ Advantages
 
@@ -948,24 +964,48 @@ Once resolution is manually initiated, the Oracle Bot automatically processes:
 - ✅ **Reliability**: Automatic fallback if any service fails
 - ✅ **Transparency**: The entire process is verifiable on-chain
 
-**🔧 Configuration:**
-- **GitHub Actions Workflow**: 
-  - Workflow: `.github/workflows/resolve-markets.yml`
-  - Schedule: Configured for every 10 minutes (`*/10 * * * *`)
-  - **Official Documentation Note**: According to GitHub's official documentation, GitHub Actions does NOT guarantee exact execution times for scheduled workflows. Workflows execute at the nearest possible time to the scheduled time but may experience delays due to resource limitations and system load. Actual execution intervals observed: typically 30-60+ minutes (not guaranteed).
-  - Executes: `scripts/resolve-all-pending-markets.ts`
-  - Allows manual execution from GitHub Actions UI
-  - Reference: [GitHub Actions Scheduled Events Documentation](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#schedule)
-- **Backend Event Monitor** (Most Reliable): 
-  - File: `backend/src/services/eventMonitorService.ts`
-  - Polling interval: Every 1 minute (60000ms) - **This is the most reliable automated system**
-  - Starts automatically when backend server is running
-  - Monitors `ResolutionRequested` events in real-time
-  - Processes resolutions immediately when detected
-- **Vercel Cron Jobs** (configured in `vercel.json`):
-  - `/api/cron/oracle-check`: Daily at midnight (00:00 UTC) - checks for pending resolutions
-  - `/api/cron`: Daily at 12 PM (12:00 UTC) - resolves markets in "Resolving" state
-- **Manual Scripts**: `resolve-all-pending-markets.ts` for manual resolution of pending markets
+**🔧 Automated Resolution Systems (Multi-Layer Architecture):**
+
+1. **Backend Event Monitor** (Most Reliable - Primary System):
+   - **File**: `backend/src/services/eventMonitorService.ts`
+   - **Polling Interval**: Every 1 minute (60,000ms) when backend server is running
+   - **Reliability**: ⭐⭐⭐⭐⭐ Highest - Active monitoring when server is online
+   - **Function**: Monitors `ResolutionRequested` events in real-time and processes resolutions immediately
+   - **Status**: Starts automatically when backend server is running
+   - **Execution**: Queries AI consensus → Executes `fulfillResolutionManual()` via Gelato Relay
+
+2. **GitHub Actions Workflow** (Secondary System):
+   - **Workflow File**: `.github/workflows/resolve-markets.yml`
+   - **Schedule**: Configured for every 10 minutes (`*/10 * * * *`)
+   - **Script**: Executes `smart-contracts/scripts/resolve-all-pending-markets.ts`
+   - **Node.js Version**: 22.10.0 (required for Hardhat 3.1.0 compatibility)
+   - **Execution Pattern**: 
+     - ⚠️ **Important**: According to GitHub's official documentation (December 2025), GitHub Actions does NOT guarantee exact execution times for scheduled workflows
+     - Workflows execute at the nearest possible time but may experience delays due to resource limitations and system load
+     - **Observed Intervals**: Typically 30-60+ minutes (not guaranteed 10-minute intervals)
+     - **Throttling**: GitHub Actions applies throttling to scheduled workflows, causing irregular execution
+   - **Manual Execution**: Available via GitHub Actions UI (`workflow_dispatch`)
+   - **Reference**: [GitHub Actions Scheduled Events Documentation](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#schedule)
+   - **Cost**: Each resolution consumes ~0.0023 BNB (~36 MXN at December 2025 rates)
+
+3. **Vercel Cron Jobs** (Tertiary System):
+   - **Configuration**: `.vercel/project.json` and `frontend/app/api/cron/`
+   - **Endpoints**:
+     - `/api/cron/oracle-check`: Daily at midnight (00:00 UTC) - checks for pending resolutions
+     - `/api/cron`: Daily at 12 PM (12:00 UTC) - resolves markets in "Resolving" state
+   - **Reliability**: ⭐⭐⭐ Moderate - Daily checks as backup
+
+4. **Manual Scripts** (On-Demand):
+   - **Script**: `smart-contracts/scripts/resolve-all-pending-markets.ts`
+   - **Usage**: `pnpm hardhat run scripts/resolve-all-pending-markets.ts --network opBNBTestnet`
+   - **Purpose**: Manual resolution of pending markets when needed
+
+**⚡ Resolution Timeline:**
+- **Phase 1 (Manual Initiation)**: Required - Someone must call `initiateResolution(marketId)` when market expires
+- **Phase 2 (Automated Resolution)**: <1 hour from `ResolutionRequested` event to complete resolution
+  - Backend Event Monitor: 1-2 minutes (if server running)
+  - GitHub Actions: 30-60+ minutes (irregular due to throttling)
+  - Vercel Cron: Up to 24 hours (daily checks)
 
 ## ⚛️ Frontend Components & Hooks
 
@@ -1123,11 +1163,12 @@ The frontend also exposes API routes for specific functionalities:
    - `ResolutionRequested` event emitted on-chain
    - **Without this manual call, the market will not be automatically processed**
 
-4. **Automated Resolution (Oracle Bot)**:
-   - Oracle Bot detects `ResolutionRequested` event (polling every 1 minute or daily cron)
-   - Backend queries multiple AIs sequentially
-   - Consensus calculated (80%+ agreement)
-   - Gelato Relay executes `fulfillResolutionManual()` on-chain
+4. **Automated Resolution (Multi-Layer System)**:
+   - **Backend Event Monitor** (Primary): Detects `ResolutionRequested` event within 1 minute (when server running)
+   - **GitHub Actions** (Secondary): Detects within 30-60+ minutes (irregular due to throttling)
+   - **Vercel Cron** (Tertiary): Daily checks at midnight and noon UTC
+   - Backend queries 5 AI models sequentially for consensus (80%+ agreement required)
+   - Gelato Relay executes `fulfillResolutionManual()` on-chain automatically
    - `MarketResolved` event emitted
 
 5. **Claiming**:
@@ -1180,13 +1221,15 @@ The frontend also exposes API routes for specific functionalities:
 
 <div align="center">
 
-### **Seedify x BNB Chain Prediction Markets Hackathon**
+### **[DoraHacks Prediction Markets Hackathon](https://dorahacks.io/hackathon/predictionmarketshackathon)**
+
+**Top 20 Global Finalist** 🏆
 
 </div>
 
-**Tracks**: All 5 tracks integrated  
-**Network**: opBNB (Chain ID: 5611)  
-**Prize Target**: $50-70K Grand Prize + Funding
+**Status**: ✅ **Top 20 Global Finalist**  
+**Network**: opBNB Testnet (Chain ID: 5611)  
+**Hackathon Link**: [DoraHacks Prediction Markets Hackathon](https://dorahacks.io/hackathon/predictionmarketshackathon)
 
 ### 🎯 Key Innovations
 
@@ -1740,15 +1783,15 @@ MIT License - See [LICENSE](./LICENSE) file for details
 
 **Building the future of decentralized prediction markets**
 
-**Made by Vaios**
+**Made by Vaiosx**
 
 </div>
 
-- **Lead Developer**: Vaios
-- **Smart Contracts**: Vaios
-- **Frontend**: Vaios
-- **Backend**: Vaios
-- **AI/ML Integration**: Vaios
+- **Lead Developer**: Vaiosx
+- **Smart Contracts**: Vaiosx
+- **Frontend**: Vaiosx
+- **Backend**: Vaiosx
+- **AI/ML Integration**: Vaiosx
 
 ---
 
@@ -1815,7 +1858,7 @@ This project is under active development. To contribute:
 2. Create a branch for your feature (`git checkout -b feature/AmazingFeature`)
 3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Abre un Pull Request
+5. Open a Pull Request
 
 ### 📄 License
 
@@ -1849,6 +1892,6 @@ MIT License - See [LICENSE](./LICENSE) for more details
 [![Documentation](https://img.shields.io/badge/Documentation-Read%20More-blue?style=for-the-badge)](./docs/)
 [![Contracts](https://img.shields.io/badge/Contracts-View%20on%20Explorer-orange?style=for-the-badge)](https://testnet.opbnbscan.com/)
 
-Made with ❤️ by **Vaios**
+Made with ❤️ by **Vaiosx**
 
 </div>

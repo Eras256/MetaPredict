@@ -143,7 +143,7 @@ export default function HomePage() {
               <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-gradient-to-r from-yellow-500/20 via-orange-500/20 to-red-500/20 border-2 border-yellow-500/50 backdrop-blur-sm shadow-[0_0_30px_rgba(251,191,36,0.3)]">
                 <Trophy className="w-5 h-5 text-yellow-400 animate-pulse" />
                 <span className="text-base sm:text-lg font-bold text-yellow-300">
-                  🏆 TOP 20 FINALIST • Seedify x BNB Chain Hackathon
+                  🏆 TOP 20 FINALIST • DoraHacks Prediction Markets Hackathon
                 </span>
                 <Sparkles className="w-5 h-5 text-yellow-400 animate-pulse" />
               </div>
@@ -688,7 +688,7 @@ export default function HomePage() {
               </h2>
               
               <p className="text-xl text-gray-300 mb-6 max-w-2xl mx-auto">
-                Selected as one of the <strong className="text-yellow-400">Top 20 finalists</strong> in the Seedify x BNB Chain Prediction Markets Hackathon. Community voting starts December 23rd!
+                Selected as one of the <strong className="text-yellow-400">Top 20 global finalists</strong> in the <a href="https://dorahacks.io/hackathon/predictionmarketshackathon" target="_blank" rel="noopener noreferrer" className="text-yellow-400 hover:text-yellow-300 underline">DoraHacks Prediction Markets Hackathon</a>.
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8 max-w-xl mx-auto">
@@ -703,7 +703,7 @@ export default function HomePage() {
               </div>
               
               <p className="text-lg text-gray-400 mb-8 max-w-2xl mx-auto">
-                <strong className="text-white">Help us win!</strong> Vote for MetaPredict.fun in the community voting starting December 23rd. Every vote counts! 🚀
+                <strong className="text-white">Top 20 Global Finalist</strong> in the <a href="https://dorahacks.io/hackathon/predictionmarketshackathon" target="_blank" rel="noopener noreferrer" className="text-yellow-400 hover:text-yellow-300 underline">DoraHacks Prediction Markets Hackathon</a>. 🚀
               </p>
               
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
