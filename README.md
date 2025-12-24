@@ -450,35 +450,54 @@ Our oracle system queries **5 AI models from 3 different providers** in a sequen
 
 ### 🔄 How It Works (Automated Workflow)
 
-**🔄 Proceso Completamente Automatizado:**
+**🔄 Proceso de Resolución en Dos Fases:**
 
+#### Fase 1: Iniciación Manual (Requerida)
 ```
 1. User creates prediction market
    ↓
 2. Market reaches resolution deadline
    ↓
-3. 🔍 Oracle Bot automatically detects ResolutionRequested event
-   (Monitoreo continuo 24/7 - sin intervención manual)
+3. 👤 Manual Resolution Initiation (REQUIRED)
+   - Alguien debe llamar manualmente a `initiateResolution(marketId)`
+   - Esto cambia el estado del mercado a "Resolving"
+   - Emite el evento `ResolutionRequested` on-chain
+   - Sin esta llamada, el mercado permanece en estado "Active"
+```
+
+#### Fase 2: Resolución Automática (Oracle Bot)
+```
+4. 🔍 Oracle Bot detects ResolutionRequested event
+   - Backend Event Monitor: Polling cada 1 minuto (cuando está corriendo)
+   - Vercel Cron Job: Revisa diariamente a medianoche
+   - Frontend Cron Job: Revisa diariamente a las 12 PM
    ↓
-4. 🤖 Backend automatically queries AIs sequentially (Priority 1 → 5)
+5. 🤖 Backend automatically queries AIs sequentially (Priority 1 → 5)
    ├─ Gemini 2.5 Flash Lite (primary) - ~800ms
    ├─ Llama 3.1 Standard (fallback) - ~500ms
    ├─ Mistral 7B (fallback) - ~1s
    ├─ Llama 3.2 3B (fallback) - ~800ms
    └─ Gemini via OpenRouter (fallback) - ~1.5s
    ↓
-5. ✅ Automatically calculate consensus (80%+ agreement required)
+6. ✅ Automatically calculate consensus (80%+ agreement required)
    ↓
-6. ⚡ Gelato Relay automatically executes resolution on-chain
+7. ⚡ Gelato Relay automatically executes resolution on-chain
    (Gasless transaction - sin costo para el usuario)
    ↓
-7. 🎉 Market resolves automatically
+8. 🎉 Market resolves automatically
    (Usuarios notificados - pueden reclamar ganancias inmediatamente)
 ```
 
-**⏱️ Tiempo Total del Workflow:** <1 hora desde el deadline hasta la resolución completa
+**⏱️ Tiempos del Workflow:**
+- **Fase 1 (Manual)**: Requiere intervención humana para iniciar resolución
+- **Fase 2 (Automática)**: <1 hora desde `ResolutionRequested` hasta resolución completa
 
-**🔄 Frecuencia de Monitoreo:** El Oracle Bot verifica nuevos eventos cada pocos segundos
+**🔄 Frecuencia de Monitoreo:**
+- **Backend Event Monitor**: Polling cada 1 minuto (60000ms) cuando el servidor está corriendo
+- **Vercel Cron Jobs**: 
+  - `/api/cron/oracle-check`: Diariamente a medianoche (00:00 UTC)
+  - `/api/cron`: Diariamente a las 12 PM (12:00 UTC)
+- **Nota**: Los mercados expirados requieren iniciación manual antes de que el workflow automático pueda procesarlos
 
 ### ✅ Advantages
 
@@ -897,27 +916,42 @@ El backend expone 8 rutas principales con múltiples endpoints:
 
 ### 🤖 Oracle Bot (Automated Workflow)
 
-El backend incluye un **Oracle Bot** que funciona como un workflow completamente automatizado:
+El backend incluye un **Oracle Bot** que funciona como un workflow automatizado en dos fases:
 
-**🔄 Proceso Automatizado:**
-1. **Monitoreo Continuo**: El bot se inicia automáticamente con el servidor y monitorea continuamente los eventos `ResolutionRequested` en los contratos
-2. **Detección Automática**: Cuando un mercado alcanza su deadline, el contrato emite un evento `ResolutionRequested`
-3. **Consulta Multi-AI**: El bot consulta automáticamente los 5 modelos de IA en secuencia (Gemini → Llama → Mistral → Llama → Gemini)
-4. **Cálculo de Consenso**: Se calcula automáticamente el consenso (80%+ acuerdo requerido)
-5. **Ejecución On-Chain**: Gelato Relay ejecuta automáticamente `resolveMarket()` on-chain sin intervención manual
-6. **Notificación**: Los usuarios son notificados cuando el mercado se resuelve
+**⚠️ IMPORTANTE: Resolución en Dos Fases**
 
-**✅ Ventajas del Workflow Automatizado:**
-- ✅ **Sin Intervención Manual**: Todo el proceso es automático desde la detección hasta la resolución
-- ✅ **Monitoreo 24/7**: El bot está siempre activo monitoreando mercados
-- ✅ **Resolución Rápida**: Los mercados se resuelven en menos de 1 hora después del deadline
+#### Fase 1: Iniciación Manual (Requerida)
+Antes de que el Oracle Bot pueda procesar un mercado, **se requiere iniciación manual**:
+- Cuando un mercado alcanza su deadline, permanece en estado "Active"
+- Alguien debe llamar manualmente a `initiateResolution(marketId)` en el contrato
+- Esto cambia el estado a "Resolving" y emite el evento `ResolutionRequested`
+- **Sin esta llamada manual, el mercado no será procesado automáticamente**
+
+#### Fase 2: Resolución Automática (Oracle Bot)
+Una vez iniciada la resolución manualmente, el Oracle Bot procesa automáticamente:
+
+1. **Monitoreo**: 
+   - Backend Event Monitor: Polling cada 1 minuto (60000ms) cuando el servidor está corriendo
+   - Vercel Cron Jobs: Revisa diariamente (medianoche y 12 PM)
+2. **Detección**: El bot detecta eventos `ResolutionRequested` emitidos on-chain
+3. **Consulta Multi-AI**: Consulta automáticamente los 5 modelos de IA en secuencia (Gemini → Llama → Mistral → Llama → Gemini)
+4. **Cálculo de Consenso**: Calcula automáticamente el consenso (80%+ acuerdo requerido)
+5. **Ejecución On-Chain**: Gelato Relay ejecuta automáticamente `fulfillResolutionManual()` on-chain
+6. **Notificación**: Los usuarios pueden reclamar ganancias cuando el mercado se resuelve
+
+**✅ Ventajas del Workflow:**
+- ✅ **Resolución Automática**: Una vez iniciada manualmente, todo el proceso es automático
+- ✅ **Monitoreo Activo**: Backend polling cada 1 minuto + cron jobs diarios
+- ✅ **Resolución Rápida**: <1 hora desde `ResolutionRequested` hasta resolución completa
 - ✅ **Confiabilidad**: Fallback automático si algún servicio falla
 - ✅ **Transparencia**: Todo el proceso es verificable on-chain
 
 **🔧 Configuración:**
-- El Oracle Bot se inicia automáticamente al iniciar el servidor backend
-- Configurado para monitorear todos los contratos de mercado desplegados
-- Integrado con Gelato Relay para ejecución gasless de resoluciones
+- **Backend Event Monitor**: Polling cada 1 minuto (60000ms) - se inicia con el servidor
+- **Vercel Cron Jobs**:
+  - `/api/cron/oracle-check`: Diariamente a medianoche (00:00 UTC)
+  - `/api/cron`: Diariamente a las 12 PM (12:00 UTC) - resuelve mercados en estado "Resolving"
+- **Scripts Manuales**: `resolve-all-pending-markets.ts` para resolución manual de mercados pendientes
 
 ## ⚛️ Frontend Components & Hooks
 
@@ -1068,15 +1102,21 @@ El frontend también expone API routes para funcionalidades específicas:
    - Fondos bloqueados en el contrato
    - Evento `BetPlaced` emitido
 
-3. **Resolución**:
-   - Al llegar el deadline, se emite `ResolutionRequested`
-   - Oracle Bot detecta el evento
+3. **Iniciación de Resolución (MANUAL - REQUERIDA)**:
+   - Al llegar el deadline, el mercado permanece en estado "Active"
+   - **Alguien debe llamar manualmente** a `initiateResolution(marketId)`
+   - Esto cambia el estado a "Resolving"
+   - Se emite el evento `ResolutionRequested` on-chain
+   - **Sin esta llamada manual, el mercado no será procesado automáticamente**
+
+4. **Resolución Automática (Oracle Bot)**:
+   - Oracle Bot detecta el evento `ResolutionRequested` (polling cada 1 minuto o cron diario)
    - Backend consulta múltiples AIs en secuencia
    - Se calcula consenso (80%+ acuerdo)
-   - Gelato Relay ejecuta `resolveMarket()` on-chain
+   - Gelato Relay ejecuta `fulfillResolutionManual()` on-chain
    - Evento `MarketResolved` emitido
 
-4. **Reclamación**:
+5. **Reclamación**:
    - Ganadores pueden reclamar sus ganancias
    - `claimWinnings()` distribuye fondos
    - Evento `WinningsClaimed` emitido

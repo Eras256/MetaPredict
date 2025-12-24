@@ -58,7 +58,7 @@ const features = [
 
 const stats = [
   { label: 'Hackathon Ranking', value: 'Top 20', prefix: '', suffix: '/111', description: 'Finalists out of 111 projects' },
-  { label: 'Verified Contracts', value: '10', prefix: '', suffix: '/10', description: 'All contracts verified on opBNBScan' },
+  { label: 'Smart Contracts', value: '10', prefix: '', suffix: '', description: 'Deployed on opBNB Testnet' },
   { label: 'Test Coverage', value: '115', prefix: '', suffix: '/115', description: 'All tests passing (100%)' },
   { label: 'AI Models', value: '5', prefix: '', suffix: '', description: 'From 3 providers (Gemini, Llama, Mistral)' },
   { label: 'Oracle Accuracy', value: '95', prefix: '', suffix: '%+', description: 'Multi-AI consensus rate' },
@@ -96,9 +96,9 @@ const howItWorks = [
   {
     step: 3,
     icon: Brain,
-    title: 'AI Oracle Resolves Automatically',
-    description: 'Our automated workflow monitors markets and resolves them using multi-AI consensus. Oracle Bot queries 5 models sequentially every time a market reaches its deadline. 80%+ agreement required. Automatic resolution on-chain via Gelato Relay.',
-    items: ['5 AI models (Gemini, Llama, Mistral)', '80%+ consensus required', 'Automated workflow with Oracle Bot', 'Gelato Relay executes on-chain', '<1 hour resolution time', '100% refund if oracle fails']
+    title: 'Resolution Process (Manual + Automated)',
+    description: 'Two-phase resolution: First, manual initiation is required when markets expire (call initiateResolution). Then, our automated Oracle Bot workflow monitors and resolves using multi-AI consensus. Oracle Bot queries 5 models sequentially. 80%+ agreement required. Automatic resolution on-chain via Gelato Relay.',
+    items: ['Manual initiation required first (initiateResolution)', 'Oracle Bot monitors every 1 minute + daily cron', '5 AI models (Gemini, Llama, Mistral)', '80%+ consensus required', 'Gelato Relay executes on-chain', '<1 hour resolution time after initiation', '100% refund if oracle fails']
   }
 ];
 
@@ -165,7 +165,7 @@ export default function HomePage() {
             </p>
             
             <p className="text-sm sm:text-base md:text-lg text-gray-400 mb-4 sm:mb-5 max-w-2xl mx-auto px-4">
-              Bet on anything. Trust multi-AI consensus. Get protected. Built on opBNB for ultra-low fees. <strong className="text-green-400">10/10 contracts verified</strong> | <strong className="text-green-400">115/115 tests passing</strong> | <strong className="text-yellow-400">84+ markets created</strong> | <strong className="text-blue-400">200+ transactions</strong>.
+              Bet on anything. Trust multi-AI consensus. Get protected. Built on opBNB for ultra-low fees. <strong className="text-green-400">115/115 tests passing</strong> | <strong className="text-yellow-400">84+ markets created</strong> | <strong className="text-blue-400">200+ transactions</strong>.
             </p>
 
             {/* Automated Resolution Badge */}
@@ -178,7 +178,7 @@ export default function HomePage() {
               <div className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-gradient-to-r from-purple-500/20 via-pink-500/20 to-purple-500/20 border border-purple-500/30 backdrop-blur-sm">
                 <Activity className="w-4 h-4 sm:w-5 sm:h-5 text-purple-400 animate-pulse" />
                 <span className="text-xs sm:text-sm text-purple-300">
-                  <strong className="text-white">Automated Resolution:</strong> Markets are automatically resolved by our Oracle Bot workflow when they reach their deadline. No manual intervention needed!
+                  <strong className="text-white">Two-Phase Resolution:</strong> Markets require manual initiation (initiateResolution) when they expire. Then our Oracle Bot automatically resolves them using multi-AI consensus within 1 hour.
                 </span>
               </div>
             </motion.div>
@@ -341,7 +341,7 @@ export default function HomePage() {
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/10 border border-purple-500/20 backdrop-blur-sm">
               <Activity className="w-4 h-4 text-purple-400" />
               <span className="text-sm text-purple-300">
-                <strong>Automated Workflow:</strong> Our Oracle Bot continuously monitors markets and automatically resolves them using multi-AI consensus when deadlines are reached
+                <strong>Two-Phase Resolution:</strong> Markets require manual initiation first (initiateResolution). Then our Oracle Bot automatically resolves them using multi-AI consensus (monitors every 1 minute + daily cron jobs).
               </span>
             </div>
           </div>
@@ -419,15 +419,15 @@ export default function HomePage() {
         </div>
       </section>
       
-      {/* Verified Contracts Section */}
+      {/* Smart Contracts Section */}
       <section className="py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-purple-900/10 to-transparent">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-white mb-4">
-              Verified Smart Contracts
+              Smart Contracts
             </h2>
             <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-              All 10 contracts verified and deployed on opBNB Testnet
+              All 10 contracts deployed on opBNB Testnet
             </p>
           </div>
           
@@ -704,7 +704,7 @@ export default function HomePage() {
                 <a href={getContractLink(CONTRACT_ADDRESSES.CORE_CONTRACT)} target="_blank" rel="noopener noreferrer">
                   <Button size="lg" variant="outline" className="border-yellow-500/50 text-yellow-300 hover:bg-yellow-500/10 gap-2">
                     <ExternalLink className="w-4 h-4" />
-                    View Verified Contracts
+                    View Smart Contracts
                   </Button>
                 </a>
               </div>

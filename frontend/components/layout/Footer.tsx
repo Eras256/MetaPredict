@@ -209,8 +209,6 @@ export function Footer() {
               <p className="text-xs sm:text-sm text-gray-400">© 2025 MetaPredict.fun. All rights reserved.</p>
               <div className="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-2 sm:gap-4 text-xs text-gray-500">
                 <span>Network: opBNB Testnet (5611)</span>
-                <span className="hidden sm:inline">•</span>
-                <span>10/10 Contracts Verified</span>
               </div>
             </div>
             <div className="flex flex-wrap items-center justify-center md:justify-end gap-2 sm:gap-4 text-xs sm:text-sm text-gray-400">
@@ -239,20 +237,6 @@ export function Footer() {
             </p>
           </div>
 
-          <div className="mt-3 md:mt-4 p-3 rounded-lg bg-green-500/10 border border-green-500/20">
-            <p className="text-xs sm:text-sm text-green-200/80 text-center leading-relaxed">
-              <strong>✅ All Contracts Verified:</strong> All 10 smart contracts are verified and auditable on{' '}
-              <a 
-                href="https://testnet.opbnbscan.com/" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="underline hover:text-green-300"
-              >
-                opBNBScan
-              </a>
-              . Deployed on November 18, 2025.
-            </p>
-          </div>
         </GlassCard>
       </div>
     </footer>
