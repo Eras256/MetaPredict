@@ -11,10 +11,24 @@ const router = express.Router();
 router.get("/markets", async (req, res) => {
   try {
     const markets = await venusService.getMarkets();
+    
+    // Return empty array if no markets (graceful degradation)
+    if (!markets || markets.length === 0) {
+      return res.json({ 
+        markets: [],
+        message: "Venus Protocol API is currently unavailable. This is normal if the service is not configured or the external API is down."
+      });
+    }
+    
     res.json({ markets });
   } catch (error: any) {
     console.error("[Venus API] Error fetching markets:", error.message);
-    res.status(500).json({ error: "Failed to fetch Venus markets", message: error.message });
+    // Return empty array instead of error to allow frontend to handle gracefully
+    res.json({ 
+      markets: [],
+      error: "Failed to fetch Venus markets",
+      message: error.message 
+    });
   }
 });
 

@@ -63,12 +63,37 @@ class VenusService {
    */
   async getMarkets(): Promise<VenusMarketData[]> {
     try {
-      const response = await axios.get(`${this.getBaseUrl()}/markets`, {
+      const baseUrl = this.getBaseUrl();
+      console.log(`[VenusService] Fetching markets from: ${baseUrl}/markets`);
+      
+      const response = await axios.get(`${baseUrl}/markets`, {
         timeout: 10000,
+        validateStatus: (status) => status < 500, // Don't throw on 4xx errors
       });
-      return response.data || [];
+      
+      if (response.status !== 200) {
+        throw new Error(`Venus API returned status ${response.status}: ${response.statusText}`);
+      }
+      
+      // Handle different response formats
+      if (Array.isArray(response.data)) {
+        return response.data;
+      } else if (response.data?.data && Array.isArray(response.data.data)) {
+        return response.data.data;
+      } else if (response.data?.markets && Array.isArray(response.data.markets)) {
+        return response.data.markets;
+      }
+      
+      return [];
     } catch (error: any) {
       console.error("[VenusService] Error fetching markets:", error.message);
+      
+      // Return empty array instead of throwing to allow graceful degradation
+      if (error.code === 'ECONNREFUSED' || error.code === 'ETIMEDOUT' || error.code === 'ENOTFOUND') {
+        console.warn("[VenusService] Venus API is not available, returning empty array");
+        return [];
+      }
+      
       throw new Error(`Failed to fetch Venus markets: ${error.message}`);
     }
   }
