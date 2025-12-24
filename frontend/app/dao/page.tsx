@@ -150,14 +150,14 @@ export default function DAOPage() {
   };
 
   return (
-    <div className="min-h-screen text-white pt-32 pb-20">
+    <div className="min-h-screen text-white pt-20 sm:pt-24 md:pt-32 pb-12 sm:pb-16 md:pb-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8 flex items-center justify-between">
-          <div>
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+        <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
+          <div className="flex-1 min-w-0">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-2 sm:mb-4 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
               DAO Governance
             </h1>
-            <p className="text-gray-400 text-lg">
+            <p className="text-gray-400 text-sm sm:text-base md:text-lg">
               Participate in protocol governance with quadratic voting and expertise validation
             </p>
             <div className="mt-2">
@@ -177,21 +177,21 @@ export default function DAOPage() {
             disabled={proposalsLoading}
             variant="outline"
             size="sm"
-            className="ml-4"
+            className="w-full sm:w-auto mt-3 sm:mt-0 sm:ml-4"
           >
             <RefreshCw className={`w-4 h-4 mr-2 ${proposalsLoading ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
         </div>
 
-        <Tabs defaultValue="active" className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="active">Active Proposals</TabsTrigger>
-            <TabsTrigger value="resolved">Resolved</TabsTrigger>
-            <TabsTrigger value="create">Create Proposal</TabsTrigger>
-            <TabsTrigger value="expertise">Expertise</TabsTrigger>
-            <TabsTrigger value="my-votes">My Votes</TabsTrigger>
-            <TabsTrigger value="parameters">Parameters</TabsTrigger>
+        <Tabs defaultValue="active" className="space-y-4 sm:space-y-6">
+          <TabsList className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 w-full h-auto gap-1 sm:gap-2">
+            <TabsTrigger value="active" className="text-xs sm:text-sm py-2 sm:py-2.5">Active</TabsTrigger>
+            <TabsTrigger value="resolved" className="text-xs sm:text-sm py-2 sm:py-2.5">Resolved</TabsTrigger>
+            <TabsTrigger value="create" className="text-xs sm:text-sm py-2 sm:py-2.5">Create</TabsTrigger>
+            <TabsTrigger value="expertise" className="text-xs sm:text-sm py-2 sm:py-2.5">Expertise</TabsTrigger>
+            <TabsTrigger value="my-votes" className="text-xs sm:text-sm py-2 sm:py-2.5">My Votes</TabsTrigger>
+            <TabsTrigger value="parameters" className="text-xs sm:text-sm py-2 sm:py-2.5">Parameters</TabsTrigger>
           </TabsList>
 
           <TabsContent value="active" className="space-y-6">

@@ -71,11 +71,11 @@ export function VenusMarketsPanel() {
 
   if (loading) {
     return (
-      <GlassCard className="p-6">
-        <div className="space-y-4">
-          <Skeleton className="h-8 w-48" />
-          <Skeleton className="h-32 w-full" />
-          <Skeleton className="h-32 w-full" />
+      <GlassCard className="p-4 sm:p-6">
+        <div className="space-y-3 sm:space-y-4">
+          <Skeleton className="h-6 sm:h-8 w-32 sm:w-48" />
+          <Skeleton className="h-24 sm:h-32 w-full" />
+          <Skeleton className="h-24 sm:h-32 w-full" />
         </div>
       </GlassCard>
     );
@@ -83,11 +83,11 @@ export function VenusMarketsPanel() {
 
   if (error) {
     return (
-      <GlassCard className="p-6">
-        <div className="text-center py-8">
-          <DollarSign className="w-12 h-12 text-gray-600 mx-auto mb-3" />
-          <p className="text-gray-400 text-sm mb-2">Venus Protocol integration</p>
-          <p className="text-gray-500 text-xs mb-4">
+      <GlassCard className="p-4 sm:p-6">
+        <div className="text-center py-6 sm:py-8">
+          <DollarSign className="w-8 h-8 sm:w-12 sm:h-12 text-gray-600 mx-auto mb-2 sm:mb-3" />
+          <p className="text-gray-400 text-xs sm:text-sm mb-2">Venus Protocol integration</p>
+          <p className="text-gray-500 text-xs mb-3 sm:mb-4 px-2">
             {error.includes('backend') || error.includes('unavailable') 
               ? 'Backend service is currently unavailable. This feature requires the backend API to be running.'
               : error}
@@ -102,47 +102,48 @@ export function VenusMarketsPanel() {
   }
 
   return (
-    <GlassCard className="p-6">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h3 className="text-lg font-semibold mb-1">Venus Protocol Markets</h3>
-          <p className="text-sm text-gray-400">Available lending markets for yield generation</p>
+    <GlassCard className="p-4 sm:p-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 gap-3 sm:gap-0">
+        <div className="flex-1 min-w-0">
+          <h3 className="text-base sm:text-lg font-semibold mb-1">Venus Protocol Markets</h3>
+          <p className="text-xs sm:text-sm text-gray-400">Available lending markets for yield generation</p>
         </div>
-        <Button onClick={fetchMarkets} variant="ghost" size="sm">
-          <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+        <Button onClick={fetchMarkets} variant="ghost" size="sm" className="w-full sm:w-auto">
+          <RefreshCw className={`w-3 h-3 sm:w-4 sm:h-4 ${loading ? 'animate-spin' : ''}`} />
+          <span className="ml-2 text-xs sm:text-sm">Refresh</span>
         </Button>
       </div>
 
       {markets.length === 0 ? (
-        <div className="text-center py-8">
-          <DollarSign className="w-12 h-12 text-gray-600 mx-auto mb-3" />
-          <p className="text-gray-400 text-sm mb-2">No markets available</p>
+        <div className="text-center py-6 sm:py-8">
+          <DollarSign className="w-8 h-8 sm:w-12 sm:h-12 text-gray-600 mx-auto mb-2 sm:mb-3" />
+          <p className="text-gray-400 text-xs sm:text-sm mb-2">No markets available</p>
           <p className="text-gray-500 text-xs">Venus Protocol markets will appear here</p>
         </div>
       ) : (
-        <div className="space-y-3 max-h-96 overflow-y-auto">
+        <div className="space-y-2 sm:space-y-3 max-h-96 overflow-y-auto">
           {markets.map((market) => (
             <div
               key={market.address}
-              className="p-4 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-colors"
+              className="p-3 sm:p-4 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-colors"
             >
-              <div className="flex items-start justify-between mb-2">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-sm font-medium text-white">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-2 gap-2 sm:gap-0">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1 flex-wrap">
+                    <span className="text-xs sm:text-sm font-medium text-white">
                       {market.symbol}
                     </span>
                     <Badge variant="outline" className="text-xs">
                       {market.underlyingSymbol}
                     </Badge>
                   </div>
-                  <div className="text-xs text-gray-400">
+                  <div className="text-xs text-gray-400 truncate">
                     {market.name}
                   </div>
                 </div>
-                <div className="text-right">
-                  <div className="text-sm font-semibold text-green-400 flex items-center gap-1">
-                    <TrendingUp className="w-4 h-4" />
+                <div className="text-left sm:text-right">
+                  <div className="text-xs sm:text-sm font-semibold text-green-400 flex items-center gap-1">
+                    <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4" />
                     {(market.supplyApy || 0).toFixed(2)}% APY
                   </div>
                   <div className="text-xs text-gray-400">
@@ -151,7 +152,7 @@ export function VenusMarketsPanel() {
                 </div>
               </div>
               
-              <div className="grid grid-cols-2 gap-2 mt-3 pt-3 border-t border-white/10">
+              <div className="grid grid-cols-2 gap-2 sm:gap-3 mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-white/10">
                 <div>
                   <div className="text-xs text-gray-400">Total Supply</div>
                   <div className="text-xs text-white font-medium">
@@ -168,6 +169,25 @@ export function VenusMarketsPanel() {
                       : "$0.00"}
                   </div>
                 </div>
+              </div>
+              
+              {/* Action Button */}
+              <div className="mt-3 pt-3 border-t border-white/10">
+                <a
+                  href={`https://testnet.opbnbscan.com/address/${market.address}#code`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full"
+                >
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full text-xs sm:text-sm bg-white/5 hover:bg-white/10 border-white/20"
+                  >
+                    <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
+                    View on opBNBScan
+                  </Button>
+                </a>
               </div>
             </div>
           ))}

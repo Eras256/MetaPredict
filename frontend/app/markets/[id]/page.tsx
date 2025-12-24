@@ -149,27 +149,28 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
   const resolutionDate = market ? format(new Date(Number(market.resolutionTime) * 1000), 'PPP p') : '';
 
   return (
-    <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen py-8 sm:py-10 md:py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <Link href="/markets">
-          <Button variant="ghost" className="mb-6 gap-2">
-            <ArrowLeft className="w-4 h-4" />
-            Back to Markets
+          <Button variant="ghost" className="mb-4 sm:mb-6 gap-2 text-xs sm:text-sm">
+            <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4" />
+            <span className="hidden sm:inline">Back to Markets</span>
+            <span className="sm:hidden">Back</span>
           </Button>
         </Link>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
           <div className="lg:col-span-2 space-y-4 sm:space-y-6">
             {/* Market Header */}
-            <GlassCard className="p-6 sm:p-8 md:p-10 relative overflow-hidden">
+            <GlassCard className="p-4 sm:p-6 md:p-8 lg:p-10 relative overflow-hidden">
               {/* Background gradient effect */}
               <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-pink-500/5 to-blue-500/5 pointer-events-none" />
               <div className="absolute top-0 right-0 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl pointer-events-none" />
               
               <div className="relative z-10">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8 gap-4 sm:gap-0">
-                  <div className="flex items-center gap-3 flex-wrap">
-                    <Badge variant="outline" className="text-xs sm:text-sm px-3 py-1.5 border-purple-400/30 text-purple-300 bg-purple-500/10 backdrop-blur-sm">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 md:mb-8 gap-3 sm:gap-0">
+                  <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+                    <Badge variant="outline" className="text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-1.5 border-purple-400/30 text-purple-300 bg-purple-500/10 backdrop-blur-sm">
                       Binary Market
                     </Badge>
                     {(() => {
@@ -212,11 +213,11 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                   </div>
                 </div>
 
-                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-6 sm:mb-8 break-words leading-tight bg-gradient-to-r from-white via-purple-100 to-pink-100 bg-clip-text text-transparent">
+                <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-white mb-4 sm:mb-6 md:mb-8 break-words leading-tight bg-gradient-to-r from-white via-purple-100 to-pink-100 bg-clip-text text-transparent">
                   {market?.question || `Market #${marketId}`}
                 </h1>
 
-                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-5 mb-6 sm:mb-8">
+                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-5 mb-4 sm:mb-6 md:mb-8">
                 <div className={`group p-4 sm:p-5 rounded-xl border backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:shadow-xl ${
                   hasExpired && !isResolved
                     ? 'bg-gradient-to-br from-orange-500/10 to-red-500/10 border-orange-500/30 hover:border-orange-500/50 hover:shadow-orange-500/20'
@@ -370,10 +371,10 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
 
             {/* Tabs */}
             <Tabs defaultValue="activity" className="w-full">
-              <TabsList className="w-full bg-white/5 backdrop-blur-sm border border-white/10">
-                <TabsTrigger value="activity" className="flex-1 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500/20 data-[state=active]:to-pink-500/20 data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-purple-400 transition-all">Activity</TabsTrigger>
-                <TabsTrigger value="resolution" className="flex-1 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500/20 data-[state=active]:to-pink-500/20 data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-purple-400 transition-all">Resolution</TabsTrigger>
-                <TabsTrigger value="info" className="flex-1 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500/20 data-[state=active]:to-pink-500/20 data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-purple-400 transition-all">Info</TabsTrigger>
+              <TabsList className="w-full bg-white/5 backdrop-blur-sm border border-white/10 grid grid-cols-3 h-auto">
+                <TabsTrigger value="activity" className="text-xs sm:text-sm py-2 sm:py-2.5 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500/20 data-[state=active]:to-pink-500/20 data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-purple-400 transition-all">Activity</TabsTrigger>
+                <TabsTrigger value="resolution" className="text-xs sm:text-sm py-2 sm:py-2.5 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500/20 data-[state=active]:to-pink-500/20 data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-purple-400 transition-all">Resolution</TabsTrigger>
+                <TabsTrigger value="info" className="text-xs sm:text-sm py-2 sm:py-2.5 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500/20 data-[state=active]:to-pink-500/20 data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-purple-400 transition-all">Info</TabsTrigger>
               </TabsList>
 
               <TabsContent value="activity" className="mt-6">

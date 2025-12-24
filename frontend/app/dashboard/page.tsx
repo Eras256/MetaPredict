@@ -171,16 +171,16 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen py-8 sm:py-10 md:py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+        <div className="mb-6 sm:mb-8">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-3 sm:gap-0">
+            <div className="flex-1 min-w-0">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
                 My Dashboard
               </h1>
-              <p className="text-gray-400">
+              <p className="text-gray-400 text-sm sm:text-base">
                 Manage your markets, bets, and statistics
               </p>
             </div>
@@ -188,10 +188,11 @@ export default function DashboardPage() {
               onClick={handleRefresh}
               disabled={refreshing || loading}
               variant="outline"
-              className="gap-2"
+              className="gap-2 w-full sm:w-auto"
+              size="sm"
             >
-              <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
-              Refresh
+              <RefreshCw className={`w-3 h-3 sm:w-4 sm:h-4 ${refreshing ? 'animate-spin' : ''}`} />
+              <span className="text-xs sm:text-sm">Refresh</span>
             </Button>
           </div>
           <div className="flex items-center gap-2 text-sm text-gray-400">

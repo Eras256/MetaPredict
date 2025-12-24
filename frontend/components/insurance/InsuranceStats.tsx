@@ -1,6 +1,6 @@
 'use client';
 
-import { Shield, TrendingUp, Users, DollarSign, Loader2 } from 'lucide-react';
+import { Shield, TrendingUp, Users, DollarSign, Loader2, Sparkles } from 'lucide-react';
 import { GlassCard } from '@/components/effects/GlassCard';
 import { useInsurancePool } from '@/lib/hooks/insurance/useInsurancePool';
 
@@ -44,53 +44,54 @@ export function InsuranceStats() {
   const currentAPY = apy || 0;
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <GlassCard className="p-6">
-        <div className="flex items-center justify-between mb-4">
-          <Shield className="h-8 w-8 text-purple-400" />
-          <span className="text-2xl font-bold text-white">{formatBNB(totalAssets)}</span>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+      <GlassCard className="p-4 sm:p-6">
+        <div className="flex items-center justify-between mb-3 sm:mb-4">
+          <Shield className="h-6 w-6 sm:h-8 sm:w-8 text-purple-400" />
+          <span className="text-xl sm:text-2xl font-bold text-white">{formatBNB(totalAssets)}</span>
         </div>
-        <p className="text-sm text-gray-400">Total Pool Assets</p>
+        <p className="text-xs sm:text-sm text-gray-400">Total Pool Assets</p>
       </GlassCard>
 
-      <GlassCard className="p-6">
-        <div className="flex items-center justify-between mb-4">
-          <TrendingUp className="h-8 w-8 text-green-400" />
-          <span className="text-2xl font-bold text-white">{currentAPY.toFixed(2)}%</span>
+      <GlassCard className="p-4 sm:p-6">
+        <div className="flex items-center justify-between mb-3 sm:mb-4">
+          <TrendingUp className="h-6 w-6 sm:h-8 sm:w-8 text-green-400" />
+          <span className="text-xl sm:text-2xl font-bold text-white">{currentAPY.toFixed(2)}%</span>
         </div>
-        <p className="text-sm text-gray-400">Current APY</p>
+        <p className="text-xs sm:text-sm text-gray-400">Current APY</p>
+        <p className="text-xs text-gray-500 mt-1">Via Venus Protocol</p>
       </GlassCard>
 
-      <GlassCard className="p-6">
-        <div className="flex items-center justify-between mb-4">
-          <Users className="h-8 w-8 text-blue-400" />
-          <span className="text-2xl font-bold text-white">{formatPercentage(utilizationRate)}</span>
+      <GlassCard className="p-4 sm:p-6">
+        <div className="flex items-center justify-between mb-3 sm:mb-4">
+          <Users className="h-6 w-6 sm:h-8 sm:w-8 text-blue-400" />
+          <span className="text-xl sm:text-2xl font-bold text-white">{formatPercentage(utilizationRate)}</span>
         </div>
-        <p className="text-sm text-gray-400">Utilization Rate</p>
+        <p className="text-xs sm:text-sm text-gray-400">Utilization Rate</p>
       </GlassCard>
 
-      <GlassCard className="p-6">
-        <div className="flex items-center justify-between mb-4">
-          <DollarSign className="h-8 w-8 text-yellow-400" />
-          <span className="text-2xl font-bold text-white">{formatBNB(totalInsured)}</span>
+      <GlassCard className="p-4 sm:p-6">
+        <div className="flex items-center justify-between mb-3 sm:mb-4">
+          <DollarSign className="h-6 w-6 sm:h-8 sm:w-8 text-yellow-400" />
+          <span className="text-xl sm:text-2xl font-bold text-white">{formatBNB(totalInsured)}</span>
         </div>
-        <p className="text-sm text-gray-400">Total Insured</p>
+        <p className="text-xs sm:text-sm text-gray-400">Total Insured</p>
       </GlassCard>
 
-      <GlassCard className="p-6">
-        <div className="flex items-center justify-between mb-4">
-          <DollarSign className="h-8 w-8 text-green-400" />
-          <span className="text-2xl font-bold text-white">{formatBNB(available)}</span>
+      <GlassCard className="p-4 sm:p-6">
+        <div className="flex items-center justify-between mb-3 sm:mb-4">
+          <DollarSign className="h-6 w-6 sm:h-8 sm:w-8 text-green-400" />
+          <span className="text-xl sm:text-2xl font-bold text-white">{formatBNB(available)}</span>
         </div>
-        <p className="text-sm text-gray-400">Available for Claims</p>
+        <p className="text-xs sm:text-sm text-gray-400">Available for Claims</p>
       </GlassCard>
 
-      <GlassCard className="p-6">
-        <div className="flex items-center justify-between mb-4">
-          <DollarSign className="h-8 w-8 text-red-400" />
-          <span className="text-2xl font-bold text-white">{formatBNB(totalClaimed)}</span>
+      <GlassCard className="p-4 sm:p-6">
+        <div className="flex items-center justify-between mb-3 sm:mb-4">
+          <DollarSign className="h-6 w-6 sm:h-8 sm:w-8 text-red-400" />
+          <span className="text-xl sm:text-2xl font-bold text-white">{formatBNB(totalClaimed)}</span>
         </div>
-        <p className="text-sm text-gray-400">Total Claimed</p>
+        <p className="text-xs sm:text-sm text-gray-400">Total Claimed</p>
       </GlassCard>
     </div>
   );

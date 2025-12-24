@@ -131,23 +131,23 @@ export default function ReputationPage() {
   const willGetNFT = tier < 3 && (tier + 1) >= 3;
 
   return (
-    <div className="min-h-screen text-white pt-32 pb-20">
+    <div className="min-h-screen text-white pt-20 sm:pt-24 md:pt-32 pb-12 sm:pb-16 md:pb-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-2 sm:mb-4 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
             Reputation System
           </h1>
-          <p className="text-gray-400 text-lg">
+          <p className="text-gray-400 text-sm sm:text-base md:text-lg">
             Stake BNB, vote on disputes, earn reputation, and unlock NFT badges
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
           {/* Reputation Stats */}
-          <GlassCard className="p-8">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-semibold flex items-center gap-2">
-                <Award className="w-6 h-6 text-purple-400" />
+          <GlassCard className="p-4 sm:p-6 md:p-8">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 gap-3 sm:gap-0">
+              <h2 className="text-xl sm:text-2xl font-semibold flex items-center gap-2">
+                <Award className="w-5 h-5 sm:w-6 sm:h-6 text-purple-400" />
                 Your Reputation
               </h2>
               <Button

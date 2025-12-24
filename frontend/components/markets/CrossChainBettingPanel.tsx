@@ -65,10 +65,10 @@ export function CrossChainBettingPanel({ marketId, marketQuestion }: CrossChainB
   };
 
   return (
-    <GlassCard className="p-6">
-      <div className="flex items-center gap-2 mb-4">
-        <Globe className="w-5 h-5 text-blue-400" />
-        <h3 className="text-lg font-semibold">Cross-Chain Betting</h3>
+    <GlassCard className="p-4 sm:p-6">
+      <div className="flex items-center gap-2 mb-3 sm:mb-4">
+        <Globe className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400" />
+        <h3 className="text-base sm:text-lg font-semibold">Cross-Chain Betting</h3>
       </div>
 
       {!account ? (

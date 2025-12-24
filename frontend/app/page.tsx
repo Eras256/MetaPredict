@@ -245,15 +245,15 @@ export default function HomePage() {
       {/* Features Section */}
       <section className="py-24 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-500/10 border border-purple-500/20 mb-4 backdrop-blur-sm">
-              <Target className="w-4 h-4 text-purple-400" />
-              <span className="text-sm text-purple-300">Why We're Top 20</span>
+          <div className="text-center mb-12 sm:mb-16">
+            <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-purple-500/10 border border-purple-500/20 mb-3 sm:mb-4 backdrop-blur-sm">
+              <Target className="w-3 h-3 sm:w-4 sm:h-4 text-purple-400" />
+              <span className="text-xs sm:text-sm text-purple-300">Why We're Top 20</span>
             </div>
-            <h2 className="text-4xl font-bold text-white mb-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3 sm:mb-4 px-4">
               Why MetaPredict.fun?
             </h2>
-            <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg md:text-xl text-gray-400 max-w-2xl mx-auto px-4">
               Solving the oracle manipulation problem with <strong className="text-purple-400">multi-AI consensus</strong> (Gemini, Llama, Mistral), sequential fallback, and <strong className="text-green-400">100% insurance protection</strong>
             </p>
           </div>
@@ -299,11 +299,11 @@ export default function HomePage() {
       {/* Technologies Section */}
       <section className="py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-purple-900/10 to-transparent">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-white mb-4">
+          <div className="text-center mb-12 sm:mb-16">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3 sm:mb-4 px-4">
               Built With Best-in-Class Tech
             </h2>
-            <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg md:text-xl text-gray-400 max-w-2xl mx-auto px-4">
               Powered by industry-leading protocols and AI providers
             </p>
           </div>
@@ -331,16 +331,16 @@ export default function HomePage() {
       {/* How It Works */}
       <section className="py-24 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-white mb-4">
+          <div className="text-center mb-12 sm:mb-16">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3 sm:mb-4 px-4">
               How It Works
             </h2>
-            <p className="text-xl text-gray-400 max-w-2xl mx-auto mb-4">
+            <p className="text-base sm:text-lg md:text-xl text-gray-400 max-w-2xl mx-auto mb-3 sm:mb-4 px-4">
               Simple, secure, and transparent prediction markets in three easy steps
             </p>
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/10 border border-purple-500/20 backdrop-blur-sm">
-              <Activity className="w-4 h-4 text-purple-400" />
-              <span className="text-sm text-purple-300">
+            <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg bg-purple-500/10 border border-purple-500/20 backdrop-blur-sm max-w-full mx-4">
+              <Activity className="w-3 h-3 sm:w-4 sm:h-4 text-purple-400 flex-shrink-0" />
+              <span className="text-xs sm:text-sm text-purple-300">
                 <strong>Automated Resolution System:</strong> Markets require manual initiation first (initiateResolution). Then our automated workflow resolves them using multi-AI consensus via Backend Event Monitor (1 min polling when server is running - most reliable), GitHub Actions workflow (configured for 10 min but executes irregularly), and Vercel Cron Jobs (daily at midnight and noon).
               </span>
             </div>
@@ -422,11 +422,11 @@ export default function HomePage() {
       {/* Smart Contracts Section */}
       <section className="py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-purple-900/10 to-transparent">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-white mb-4">
+          <div className="text-center mb-12 sm:mb-16">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3 sm:mb-4 px-4">
               Smart Contracts
             </h2>
-            <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg md:text-xl text-gray-400 max-w-2xl mx-auto px-4">
               All contracts deployed on opBNB Testnet
             </p>
           </div>
@@ -628,11 +628,11 @@ export default function HomePage() {
       {/* Market Types */}
       <section className="py-24 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-white mb-4">
+          <div className="text-center mb-12 sm:mb-16">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3 sm:mb-4 px-4">
               Three Types of Markets
             </h2>
-            <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg md:text-xl text-gray-400 max-w-2xl mx-auto px-4">
               From simple predictions to complex conditional logic
             </p>
           </div>
@@ -683,7 +683,7 @@ export default function HomePage() {
                 <Trophy className="w-8 h-8 text-yellow-400" />
               </div>
               
-              <h2 className="text-4xl font-bold text-white mb-4">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3 sm:mb-4 px-4">
                 Top 20 Global Finalist
               </h2>
               
@@ -733,7 +733,7 @@ export default function HomePage() {
             <div className="absolute inset-0 bg-gradient-to-br from-purple-600/20 to-pink-600/20" />
             
             <div className="relative z-10">
-              <h2 className="text-4xl font-bold text-white mb-4">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3 sm:mb-4 px-4">
                 Ready to Start?
               </h2>
               
