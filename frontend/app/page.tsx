@@ -427,12 +427,12 @@ export default function HomePage() {
               Smart Contracts
             </h2>
             <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-              All 10 contracts deployed on opBNB Testnet
+              Verified contracts deployed on opBNB Testnet
             </p>
           </div>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            {/* Core Contracts */}
+            {/* Core Contracts - Only 4 verified contracts */}
             <GlassCard className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-white">🎯 Prediction Market Core</h3>
@@ -486,110 +486,6 @@ export default function HomePage() {
 
             <GlassCard className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-white">🏆 Reputation Staking</h3>
-                <CheckCircle className="w-5 h-5 text-green-400" />
-              </div>
-              <a 
-                href={getContractLink(CONTRACT_ADDRESSES.REPUTATION_STAKING)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-sm text-purple-400 hover:text-purple-300 transition-colors break-all"
-              >
-                <Code className="w-4 h-4 flex-shrink-0" />
-                <span className="font-mono">{CONTRACT_ADDRESSES.REPUTATION_STAKING}</span>
-                <ExternalLink className="w-4 h-4 flex-shrink-0" />
-              </a>
-            </GlassCard>
-
-            <GlassCard className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-white">🗳️ DAO Governance</h3>
-                <CheckCircle className="w-5 h-5 text-green-400" />
-              </div>
-              <a 
-                href={getContractLink(CONTRACT_ADDRESSES.DAO_GOVERNANCE)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-sm text-purple-400 hover:text-purple-300 transition-colors break-all"
-              >
-                <Code className="w-4 h-4 flex-shrink-0" />
-                <span className="font-mono">{CONTRACT_ADDRESSES.DAO_GOVERNANCE}</span>
-                <ExternalLink className="w-4 h-4 flex-shrink-0" />
-              </a>
-            </GlassCard>
-
-            <GlassCard className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-white">🌐 OmniRouter (Cross-Chain)</h3>
-                <CheckCircle className="w-5 h-5 text-green-400" />
-              </div>
-              <a 
-                href={getContractLink(CONTRACT_ADDRESSES.OMNI_ROUTER)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-sm text-purple-400 hover:text-purple-300 transition-colors break-all"
-              >
-                <Code className="w-4 h-4 flex-shrink-0" />
-                <span className="font-mono">{CONTRACT_ADDRESSES.OMNI_ROUTER}</span>
-                <ExternalLink className="w-4 h-4 flex-shrink-0" />
-              </a>
-            </GlassCard>
-
-            {/* Market Contracts */}
-            <GlassCard className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-white">📊 Binary Market</h3>
-                <CheckCircle className="w-5 h-5 text-green-400" />
-              </div>
-              <a 
-                href={getContractLink(CONTRACT_ADDRESSES.BINARY_MARKET)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-sm text-purple-400 hover:text-purple-300 transition-colors break-all"
-              >
-                <Code className="w-4 h-4 flex-shrink-0" />
-                <span className="font-mono">{CONTRACT_ADDRESSES.BINARY_MARKET}</span>
-                <ExternalLink className="w-4 h-4 flex-shrink-0" />
-              </a>
-            </GlassCard>
-
-            <GlassCard className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-white">🔗 Conditional Market</h3>
-                <CheckCircle className="w-5 h-5 text-green-400" />
-              </div>
-              <a 
-                href={getContractLink(CONTRACT_ADDRESSES.CONDITIONAL_MARKET)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-sm text-purple-400 hover:text-purple-300 transition-colors break-all"
-              >
-                <Code className="w-4 h-4 flex-shrink-0" />
-                <span className="font-mono">{CONTRACT_ADDRESSES.CONDITIONAL_MARKET}</span>
-                <ExternalLink className="w-4 h-4 flex-shrink-0" />
-              </a>
-            </GlassCard>
-
-            <GlassCard className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-white">🗳️ Subjective Market</h3>
-                <CheckCircle className="w-5 h-5 text-green-400" />
-              </div>
-              <a 
-                href={getContractLink(CONTRACT_ADDRESSES.SUBJECTIVE_MARKET)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-sm text-purple-400 hover:text-purple-300 transition-colors break-all"
-              >
-                <Code className="w-4 h-4 flex-shrink-0" />
-                <span className="font-mono">{CONTRACT_ADDRESSES.SUBJECTIVE_MARKET}</span>
-                <ExternalLink className="w-4 h-4 flex-shrink-0" />
-              </a>
-            </GlassCard>
-
-            {/* Oracle & Data Integration */}
-            <GlassCard className="p-6">
-              <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-white">⚡ Chainlink Data Streams</h3>
                 <CheckCircle className="w-5 h-5 text-green-400" />
               </div>
@@ -601,6 +497,23 @@ export default function HomePage() {
               >
                 <Code className="w-4 h-4 flex-shrink-0" />
                 <span className="font-mono">{CONTRACT_ADDRESSES.DATA_STREAMS_INTEGRATION}</span>
+                <ExternalLink className="w-4 h-4 flex-shrink-0" />
+              </a>
+            </GlassCard>
+
+            {/* View All Contracts */}
+            <GlassCard className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-white">📋 View All Contracts</h3>
+                <ExternalLink className="w-5 h-5 text-purple-400" />
+              </div>
+              <a 
+                href="https://testnet.opbnbscan.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-sm text-purple-400 hover:text-purple-300 transition-colors"
+              >
+                <span>Explore all contracts on opBNBScan</span>
                 <ExternalLink className="w-4 h-4 flex-shrink-0" />
               </a>
             </GlassCard>
@@ -742,12 +655,6 @@ export default function HomePage() {
                   </Button>
                 </Link>
                 
-                <a href="https://github.com/vaiosx01/MetaPredict" target="_blank" rel="noopener noreferrer">
-                  <Button size="lg" variant="outline" className="border-blue-500/50 text-blue-300 hover:bg-blue-500/10 gap-2">
-                    <ExternalLink className="w-4 h-4" />
-                    View on GitHub
-                  </Button>
-                </a>
               </div>
             </div>
           </GlassCard>

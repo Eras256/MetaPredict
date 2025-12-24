@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Twitter, MessageCircle, FileText, ExternalLink, Brain, Code, Shield, Zap, Activity } from 'lucide-react';
+import { MessageCircle, ExternalLink, Brain, Code, Shield, Zap, Activity, Globe } from 'lucide-react';
 import { GlassCard } from '@/components/effects/GlassCard';
 import { CONTRACT_ADDRESSES } from '@/lib/contracts/addresses';
 
@@ -45,16 +45,13 @@ const footerLinks = {
     },
   ],
   resources: [
-    { name: 'GitHub Repository', href: 'https://github.com/vaiosx01/MetaPredict', external: true },
     { name: 'opBNBScan Explorer', href: 'https://testnet.opbnbscan.com/', external: true },
     { name: 'Chainlink Docs', href: 'https://docs.chain.link/', external: true },
     { name: 'opBNB Docs', href: 'https://docs.opbnb.io/', external: true },
   ],
   community: [
-    { name: 'GitHub', href: 'https://github.com/vaiosx01/MetaPredict', external: true },
-    { name: 'Twitter', href: 'https://twitter.com/metapredict', external: true },
-    { name: 'Telegram', href: 'https://t.me/metapredict', external: true },
-    { name: 'Discord', href: 'https://discord.gg/metapredict', external: true },
+    { name: 'X', href: 'https://x.com/metapredictbnb', external: true },
+    { name: 'Telegram', href: 'https://t.me/metapredictbnb', external: true },
   ],
   legal: [
     { name: 'Terms of Service', href: '/terms' },
@@ -64,8 +61,8 @@ const footerLinks = {
 };
 
 const socials = [
-  { icon: Twitter, href: 'https://x.com/metapredictbnb', label: 'Twitter' },
-  { icon: MessageCircle, href: 'https://t.me/Vaiosx', label: 'Telegram' },
+  { icon: Globe, href: 'https://x.com/metapredictbnb', label: 'X' },
+  { icon: MessageCircle, href: 'https://t.me/metapredictbnb', label: 'Telegram' },
 ];
 
 const techStack = [
