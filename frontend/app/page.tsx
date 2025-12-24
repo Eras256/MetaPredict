@@ -96,9 +96,9 @@ const howItWorks = [
   {
     step: 3,
     icon: Brain,
-    title: 'Resolution Process (Manual + Automated)',
-    description: 'Two-phase resolution: First, manual initiation is required when markets expire (call initiateResolution). Then, our automated Oracle Bot workflow monitors and resolves using multi-AI consensus. Oracle Bot queries 5 models sequentially. 80%+ agreement required. Automatic resolution on-chain via Gelato Relay.',
-    items: ['Manual initiation required first (initiateResolution)', 'Oracle Bot monitors every 1 minute + daily cron', '5 AI models (Gemini, Llama, Mistral)', '80%+ consensus required', 'Gelato Relay executes on-chain', '<1 hour resolution time after initiation', '100% refund if oracle fails']
+    title: 'Automated Resolution System',
+    description: 'Multi-layer automated resolution: First, manual initiation is required when markets expire (call initiateResolution). Then, our automated system resolves using multi-AI consensus via Backend Event Monitor (1 min polling when server is running - most reliable), GitHub Actions workflow (configured for 10 min but executes irregularly due to throttling), and Vercel Cron Jobs (daily at midnight and noon). Event Monitor queries 5 models sequentially. 80%+ agreement required. Automatic resolution on-chain via Gelato Relay.',
+    items: ['Manual initiation required first (initiateResolution)', 'Backend Event Monitor: Monitors every 1 minute (when server is running) - Most reliable', 'GitHub Actions workflow: Configured for 10 min but executes irregularly (30-60+ min intervals)', 'Vercel Cron Jobs: Daily checks at midnight (00:00 UTC) and 12 PM (12:00 UTC)', '5 AI models (Gemini, Llama, Mistral)', '80%+ consensus required', 'Gelato Relay executes on-chain', '<1 hour resolution time after initiation', '100% refund if oracle fails']
   }
 ];
 
@@ -178,7 +178,7 @@ export default function HomePage() {
               <div className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-gradient-to-r from-purple-500/20 via-pink-500/20 to-purple-500/20 border border-purple-500/30 backdrop-blur-sm">
                 <Activity className="w-4 h-4 sm:w-5 sm:h-5 text-purple-400 animate-pulse" />
                 <span className="text-xs sm:text-sm text-purple-300">
-                  <strong className="text-white">Two-Phase Resolution:</strong> Markets require manual initiation (initiateResolution) when they expire. Then our Oracle Bot automatically resolves them using multi-AI consensus within 1 hour.
+                  <strong className="text-white">Automated Resolution System:</strong> Markets require manual initiation (initiateResolution) when they expire. Then our multi-layer automation (Backend Event Monitor 1 min polling when server is running - most reliable, GitHub Actions configured for 10 min but executes irregularly due to throttling, Vercel Cron daily at midnight and noon) automatically resolves them using multi-AI consensus within 1 hour.
                 </span>
               </div>
             </motion.div>
@@ -341,7 +341,7 @@ export default function HomePage() {
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/10 border border-purple-500/20 backdrop-blur-sm">
               <Activity className="w-4 h-4 text-purple-400" />
               <span className="text-sm text-purple-300">
-                <strong>Two-Phase Resolution:</strong> Markets require manual initiation first (initiateResolution). Then our Oracle Bot automatically resolves them using multi-AI consensus (monitors every 1 minute + daily cron jobs).
+                <strong>Automated Resolution System:</strong> Markets require manual initiation first (initiateResolution). Then our automated workflow resolves them using multi-AI consensus via Backend Event Monitor (1 min polling when server is running - most reliable), GitHub Actions workflow (configured for 10 min but executes irregularly), and Vercel Cron Jobs (daily at midnight and noon).
               </span>
             </div>
           </div>
@@ -427,12 +427,12 @@ export default function HomePage() {
               Smart Contracts
             </h2>
             <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-              Verified contracts deployed on opBNB Testnet
+              All contracts deployed on opBNB Testnet
             </p>
           </div>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            {/* Core Contracts - Only 4 verified contracts */}
+            {/* Core Contracts */}
             <GlassCard className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-white">🎯 Prediction Market Core</h3>
@@ -484,6 +484,110 @@ export default function HomePage() {
               </a>
             </GlassCard>
 
+            <GlassCard className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-white">🏆 Reputation Staking</h3>
+                <CheckCircle className="w-5 h-5 text-green-400" />
+              </div>
+              <a 
+                href={getContractLink(CONTRACT_ADDRESSES.REPUTATION_STAKING)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-sm text-purple-400 hover:text-purple-300 transition-colors break-all"
+              >
+                <Code className="w-4 h-4 flex-shrink-0" />
+                <span className="font-mono">{CONTRACT_ADDRESSES.REPUTATION_STAKING}</span>
+                <ExternalLink className="w-4 h-4 flex-shrink-0" />
+              </a>
+            </GlassCard>
+
+            <GlassCard className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-white">🗳️ DAO Governance</h3>
+                <CheckCircle className="w-5 h-5 text-green-400" />
+              </div>
+              <a 
+                href={getContractLink(CONTRACT_ADDRESSES.DAO_GOVERNANCE)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-sm text-purple-400 hover:text-purple-300 transition-colors break-all"
+              >
+                <Code className="w-4 h-4 flex-shrink-0" />
+                <span className="font-mono">{CONTRACT_ADDRESSES.DAO_GOVERNANCE}</span>
+                <ExternalLink className="w-4 h-4 flex-shrink-0" />
+              </a>
+            </GlassCard>
+
+            <GlassCard className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-white">🌐 OmniRouter</h3>
+                <CheckCircle className="w-5 h-5 text-green-400" />
+              </div>
+              <a 
+                href={getContractLink(CONTRACT_ADDRESSES.OMNI_ROUTER)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-sm text-purple-400 hover:text-purple-300 transition-colors break-all"
+              >
+                <Code className="w-4 h-4 flex-shrink-0" />
+                <span className="font-mono">{CONTRACT_ADDRESSES.OMNI_ROUTER}</span>
+                <ExternalLink className="w-4 h-4 flex-shrink-0" />
+              </a>
+            </GlassCard>
+
+            {/* Market Contracts */}
+            <GlassCard className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-white">📊 Binary Market</h3>
+                <CheckCircle className="w-5 h-5 text-green-400" />
+              </div>
+              <a 
+                href={getContractLink(CONTRACT_ADDRESSES.BINARY_MARKET)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-sm text-purple-400 hover:text-purple-300 transition-colors break-all"
+              >
+                <Code className="w-4 h-4 flex-shrink-0" />
+                <span className="font-mono">{CONTRACT_ADDRESSES.BINARY_MARKET}</span>
+                <ExternalLink className="w-4 h-4 flex-shrink-0" />
+              </a>
+            </GlassCard>
+
+            <GlassCard className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-white">🔗 Conditional Market</h3>
+                <CheckCircle className="w-5 h-5 text-green-400" />
+              </div>
+              <a 
+                href={getContractLink(CONTRACT_ADDRESSES.CONDITIONAL_MARKET)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-sm text-purple-400 hover:text-purple-300 transition-colors break-all"
+              >
+                <Code className="w-4 h-4 flex-shrink-0" />
+                <span className="font-mono">{CONTRACT_ADDRESSES.CONDITIONAL_MARKET}</span>
+                <ExternalLink className="w-4 h-4 flex-shrink-0" />
+              </a>
+            </GlassCard>
+
+            <GlassCard className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-white">🗳️ Subjective Market</h3>
+                <CheckCircle className="w-5 h-5 text-green-400" />
+              </div>
+              <a 
+                href={getContractLink(CONTRACT_ADDRESSES.SUBJECTIVE_MARKET)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-sm text-purple-400 hover:text-purple-300 transition-colors break-all"
+              >
+                <Code className="w-4 h-4 flex-shrink-0" />
+                <span className="font-mono">{CONTRACT_ADDRESSES.SUBJECTIVE_MARKET}</span>
+                <ExternalLink className="w-4 h-4 flex-shrink-0" />
+              </a>
+            </GlassCard>
+
+            {/* Oracle & Data Integration */}
             <GlassCard className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-white">⚡ Chainlink Data Streams</h3>

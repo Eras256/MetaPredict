@@ -165,26 +165,26 @@ Powered by **Thirdweb Embedded Wallets**:
 
 ## 📁 Project Structure
 
-MetaPredict es un **monorepo** organizado con pnpm workspaces que contiene tres módulos principales:
+MetaPredict is a **monorepo** organized with pnpm workspaces containing three main modules:
 
 ```
 MetaPredict/
 ├── frontend/              # Next.js 15 + React 19 Frontend
-│   ├── app/              # Next.js App Router (páginas y API routes)
-│   ├── components/       # Componentes React reutilizables
-│   ├── lib/              # Utilidades, hooks, servicios
+│   ├── app/              # Next.js App Router (pages and API routes)
+│   ├── components/       # Reusable React components
+│   ├── lib/              # Utilities, hooks, services
 │   │   ├── hooks/        # Custom React hooks
-│   │   ├── contracts/    # ABIs y direcciones de contratos
-│   │   └── services/     # Servicios del frontend
+│   │   ├── contracts/    # ABIs and contract addresses
+│   │   └── services/     # Frontend services
 │   └── public/           # Assets estáticos
 ├── backend/              # Express + TypeScript Backend
 │   ├── src/
-│   │   ├── routes/       # API routes (8 rutas principales)
-│   │   ├── services/     # Lógica de negocio (25 servicios)
-│   │   ├── bots/         # Oracle Bot (monitoreo automático)
-│   │   ├── database/     # Esquemas Prisma
-│   │   └── utils/        # Utilidades (logger, etc.)
-│   └── __tests__/        # Tests del backend
+│   │   ├── routes/       # API routes (8 main routes)
+│   │   ├── services/     # Business logic (25 services)
+│   │   ├── bots/         # Oracle Bot (automatic monitoring)
+│   │   ├── database/     # Prisma schemas
+│   │   └── utils/        # Utilities (logger, etc.)
+│   └── __tests__/        # Backend tests
 ├── smart-contracts/      # Contratos Solidity + Hardhat
 │   ├── contracts/        # Contratos Solidity (22 contratos)
 │   │   ├── core/         # PredictionMarketCore
@@ -193,44 +193,44 @@ MetaPredict/
 │   │   ├── reputation/   # ReputationStaking, ReputationDAO
 │   │   ├── governance/   # DAOGovernance
 │   │   └── aggregation/  # OmniRouter
-│   ├── scripts/          # Scripts de deployment y utilidades (68 scripts)
-│   └── test/             # Tests de contratos (12 archivos de test)
-├── scripts/              # Scripts de deployment y utilidades
-├── docs/                 # Documentación adicional
-├── docker-compose.yml    # Configuración Docker para PostgreSQL
-├── pnpm-workspace.yaml   # Configuración de monorepo
-└── .env.example          # Plantilla de variables de entorno
+│   ├── scripts/          # Deployment scripts and utilities (68 scripts)
+│   └── test/             # Contract tests (12 test files)
+├── scripts/              # Deployment scripts and utilities
+├── docs/                 # Additional documentation
+├── docker-compose.yml    # Docker configuration for PostgreSQL
+├── pnpm-workspace.yaml   # Monorepo configuration
+└── .env.example          # Environment variables template
 ```
 
-### 🗂️ Componentes Principales
+### 🗂️ Main Components
 
 #### Frontend (`frontend/`)
-- **Framework**: Next.js 15 con App Router
+- **Framework**: Next.js 15 with App Router
 - **UI Library**: React 19
 - **Styling**: Tailwind CSS 3.4 + Framer Motion 12
 - **State Management**: Zustand + TanStack Query 5
 - **Web3**: Thirdweb v5 + Wagmi v2 + Viem v2
-- **Páginas**: 10 páginas principales (home, markets, create, dashboard, portfolio, reputation, DAO, insurance, etc.)
-- **API Routes**: 20+ rutas API (Next.js API Routes)
-- **Componentes**: 25+ componentes React reutilizables
-- **Hooks**: 10+ custom hooks para interacción con contratos
+- **Pages**: 10 main pages (home, markets, create, dashboard, portfolio, reputation, DAO, insurance, etc.)
+- **API Routes**: 20+ API routes (Next.js API Routes)
+- **Components**: 25+ reusable React components
+- **Hooks**: 10+ custom hooks for contract interaction
 
 #### Backend (`backend/`)
 - **Framework**: Express.js + TypeScript
 - **Database**: PostgreSQL + Prisma ORM
 - **Logging**: Winston
-- **API Routes**: 8 rutas principales (markets, oracle, reputation, aggregation, users, ai, venus, gelato)
-- **Services**: 25 servicios (LLM services, market service, oracle service, etc.)
-- **Oracle Bot**: Bot automático que monitorea eventos de resolución
-- **Tests**: 30+ tests (unitarios, integración, E2E)
+- **API Routes**: 8 main routes (markets, oracle, reputation, aggregation, users, ai, venus, gelato)
+- **Services**: 25 services (LLM services, market service, oracle service, etc.)
+- **Oracle Bot**: Automatic bot that monitors resolution events
+- **Tests**: 30+ tests (unit, integration, E2E)
 
 #### Smart Contracts (`smart-contracts/`)
 - **Language**: Solidity 0.8.24
 - **Framework**: Hardhat 3.1.0
 - **Testing**: Hardhat + Foundry
-- **Contratos**: 22 contratos principales
-- **Scripts**: 68 scripts de deployment y utilidades
-- **Tests**: 115 tests (unitarios, seguridad, integración, Chainlink)
+- **Contracts**: 22 main contracts
+- **Scripts**: 68 deployment scripts and utilities
+- **Tests**: 115 tests (unit, security, integration, Chainlink)
 
 ## 🚀 Quick Start
 
@@ -253,54 +253,54 @@ MetaPredict/
 git clone https://github.com/Vaios0x/MetaPredict.git
 cd MetaPredict
 
-# 2. Install dependencies (instala para todos los workspaces)
+# 2. Install dependencies (installs for all workspaces)
 pnpm install
 
 # 3. Setup environment
 cp env.example .env.local
-# Edita .env.local con tus API keys (ver sección de configuración abajo)
+# Edit .env.local with your API keys (see configuration section below)
 
-# 4. (Opcional) Iniciar PostgreSQL con Docker
+# 4. (Optional) Start PostgreSQL with Docker
 docker-compose up -d
 
 # 5. Compilar contratos
 cd smart-contracts
 pnpm hardhat compile
 
-# 6. Ejecutar tests (115/115 passing: unit + integration + security + chainlink)
+# 6. Run tests (115/115 passing: unit + integration + security + chainlink)
 pnpm test
 
-# 7. (Opcional) Desplegar a opBNB testnet
+# 7. (Optional) Deploy to opBNB testnet
 pnpm deploy:testnet
 
-# 8. Iniciar backend (en una terminal)
+# 8. Start backend (in one terminal)
 cd ../backend
 pnpm dev
-# Backend corre en http://localhost:3001
+# Backend runs on http://localhost:3001
 
-# 9. Iniciar frontend (en otra terminal)
+# 9. Start frontend (in another terminal)
 cd ../frontend
 pnpm dev
-# Frontend corre en http://localhost:3000
+# Frontend runs on http://localhost:3000
 ```
 
-### 🔧 Configuración de Variables de Entorno
+### 🔧 Environment Variables Configuration
 
-El proyecto usa un único archivo `.env.local` en la raíz que es compartido por todos los workspaces. Copia `env.example` a `.env.local` y configura:
+The project uses a single `.env.local` file at the root that is shared by all workspaces. Copy `env.example` to `.env.local` and configure:
 
-**Variables Requeridas:**
-- `GEMINI_API_KEY` - Google AI Studio API key (gratis)
-- `GROQ_API_KEY` - Groq API key (gratis)
-- `OPENROUTER_API_KEY` - OpenRouter API key (gratis)
+**Required Variables:**
+- `GEMINI_API_KEY` - Google AI Studio API key (free)
+- `GROQ_API_KEY` - Groq API key (free)
+- `OPENROUTER_API_KEY` - OpenRouter API key (free)
 - `NEXT_PUBLIC_THIRDWEB_CLIENT_ID` - Thirdweb Client ID
-- `PRIVATE_KEY` - Wallet private key para deployment (opcional)
+- `PRIVATE_KEY` - Wallet private key for deployment (optional)
 
-**Variables Opcionales:**
-- `DATABASE_URL` - PostgreSQL connection string (o usa Docker)
-- `GELATO_RELAY_API_KEY` - Para automatización de contratos
-- `CHAINLINK_DATA_STREAMS_*` - Stream IDs de Chainlink (ya configurados)
+**Optional Variables:**
+- `DATABASE_URL` - PostgreSQL connection string (or use Docker)
+- `GELATO_RELAY_API_KEY` - For contract automation
+- `CHAINLINK_DATA_STREAMS_*` - Chainlink Stream IDs (already configured)
 
-Ver `env.example` para la lista completa de variables.
+See `env.example` for the complete list of variables.
 
 ### 🎯 First Steps
 
@@ -450,27 +450,28 @@ Our oracle system queries **5 AI models from 3 different providers** in a sequen
 
 ### 🔄 How It Works (Automated Workflow)
 
-**🔄 Proceso de Resolución en Dos Fases:**
+**🔄 Two-Phase Resolution Process:**
 
-#### Fase 1: Iniciación Manual (Requerida)
+#### Phase 1: Manual Initiation (Required)
 ```
 1. User creates prediction market
    ↓
 2. Market reaches resolution deadline
    ↓
 3. 👤 Manual Resolution Initiation (REQUIRED)
-   - Alguien debe llamar manualmente a `initiateResolution(marketId)`
-   - Esto cambia el estado del mercado a "Resolving"
-   - Emite el evento `ResolutionRequested` on-chain
-   - Sin esta llamada, el mercado permanece en estado "Active"
+   - Someone must manually call `initiateResolution(marketId)`
+   - This changes the market state to "Resolving"
+   - Emits the `ResolutionRequested` event on-chain
+   - Without this call, the market remains in "Active" state
 ```
 
-#### Fase 2: Resolución Automática (Oracle Bot)
+#### Phase 2: Automated Resolution (Multi-Layer Automation)
 ```
-4. 🔍 Oracle Bot detects ResolutionRequested event
-   - Backend Event Monitor: Polling cada 1 minuto (cuando está corriendo)
-   - Vercel Cron Job: Revisa diariamente a medianoche
-   - Frontend Cron Job: Revisa diariamente a las 12 PM
+4. 🔍 Automated Detection Systems detect ResolutionRequested event
+   - Backend Event Monitor: Polling every 1 minute (when server is running) - **Most reliable**
+   - GitHub Actions Workflow: Configured for every 10 minutes, but actual execution is irregular (30-60+ min intervals due to GitHub throttling)
+   - Vercel Cron Job: Checks daily at midnight (00:00 UTC)
+   - Frontend Cron Job: Checks daily at 12 PM (12:00 UTC)
    ↓
 5. 🤖 Backend automatically queries AIs sequentially (Priority 1 → 5)
    ├─ Gemini 2.5 Flash Lite (primary) - ~800ms
@@ -482,22 +483,23 @@ Our oracle system queries **5 AI models from 3 different providers** in a sequen
 6. ✅ Automatically calculate consensus (80%+ agreement required)
    ↓
 7. ⚡ Gelato Relay automatically executes resolution on-chain
-   (Gasless transaction - sin costo para el usuario)
+   (Gasless transaction - no cost to the user)
    ↓
 8. 🎉 Market resolves automatically
-   (Usuarios notificados - pueden reclamar ganancias inmediatamente)
+   (Users notified - can claim winnings immediately)
 ```
 
-**⏱️ Tiempos del Workflow:**
-- **Fase 1 (Manual)**: Requiere intervención humana para iniciar resolución
-- **Fase 2 (Automática)**: <1 hora desde `ResolutionRequested` hasta resolución completa
+**⏱️ Workflow Timing:**
+- **Phase 1 (Manual)**: Requires human intervention to initiate resolution
+- **Phase 2 (Automated)**: <1 hour from `ResolutionRequested` to complete resolution
 
-**🔄 Frecuencia de Monitoreo:**
-- **Backend Event Monitor**: Polling cada 1 minuto (60000ms) cuando el servidor está corriendo
+**🔄 Automated Resolution Systems (Multi-Layer):**
+- **GitHub Actions Workflow**: Configured to run every 10 minutes (`*/10 * * * *`). **Important**: According to GitHub's official documentation (as of December 2025), GitHub Actions does NOT guarantee exact execution times for scheduled workflows. Workflows may be delayed due to resource limitations and system load, resulting in irregular execution intervals (typically 30-60+ minutes in practice). Executes "Resolve Pending Markets" workflow automatically.
+- **Backend Event Monitor**: Polling every 1 minute (60000ms) when the server is running - monitors `ResolutionRequested` events in real-time and processes them automatically. **This is the most reliable automated system when the backend server is active.**
 - **Vercel Cron Jobs**: 
-  - `/api/cron/oracle-check`: Diariamente a medianoche (00:00 UTC)
-  - `/api/cron`: Diariamente a las 12 PM (12:00 UTC)
-- **Nota**: Los mercados expirados requieren iniciación manual antes de que el workflow automático pueda procesarlos
+  - `/api/cron/oracle-check`: Daily at midnight (00:00 UTC) - checks for pending resolutions
+  - `/api/cron`: Daily at 12 PM (12:00 UTC) - resolves markets in "Resolving" status
+- **Note**: Expired markets require manual initiation before the automated workflow can process them
 
 ### ✅ Advantages
 
@@ -635,36 +637,36 @@ const { conditionMet, currentPrice, targetPrice } =
 
 ## 🐳 Docker Setup
 
-El proyecto incluye configuración Docker para desarrollo local:
+The project includes Docker configuration for local development:
 
-### PostgreSQL con Docker
+### PostgreSQL with Docker
 
 ```bash
-# Iniciar PostgreSQL
+# Start PostgreSQL
 docker-compose up -d
 
-# Ver logs
+# View logs
 docker-compose logs -f
 
-# Detener
+# Stop
 docker-compose down
 
-# Detener y eliminar volúmenes
+# Stop and remove volumes
 docker-compose down -v
 ```
 
-**Configuración:**
-- **Puerto**: 5432
-- **Usuario**: metapredict
-- **Contraseña**: metapredict123
-- **Base de datos**: metapredict
+**Configuration:**
+- **Port**: 5432
+- **User**: metapredict
+- **Password**: metapredict123
+- **Database**: metapredict
 
-Actualiza `DATABASE_URL` en `.env.local`:
+Update `DATABASE_URL` in `.env.local`:
 ```
 DATABASE_URL=postgresql://metapredict:metapredict123@localhost:5432/metapredict
 ```
 
-## 📜 Scripts Disponibles
+## 📜 Available Scripts
 
 ### 🏗️ Smart Contracts Scripts
 
@@ -672,30 +674,30 @@ DATABASE_URL=postgresql://metapredict:metapredict123@localhost:5432/metapredict
 cd smart-contracts
 
 # Deployment
-pnpm deploy:testnet          # Desplegar a opBNB Testnet
-pnpm deploy:mainnet         # Desplegar a opBNB Mainnet
+pnpm deploy:testnet          # Deploy to opBNB Testnet
+pnpm deploy:mainnet         # Deploy to opBNB Mainnet
 
 # Testing
-pnpm test                   # Todos los tests
-pnpm test:security          # Tests de seguridad
-pnpm test:chainlink         # Tests de Chainlink
-pnpm test:e2e               # Tests end-to-end
-pnpm test:all-integrations  # Tests de integración completa
+pnpm test                   # All tests
+pnpm test:security          # Security tests
+pnpm test:chainlink         # Chainlink tests
+pnpm test:e2e               # End-to-end tests
+pnpm test:all-integrations  # Complete integration tests
 
 # Chainlink
 pnpm datastreams:test       # Test Data Streams
-pnpm chainlink:full         # Test completo de Chainlink
-pnpm create:6-markets       # Crear 6 mercados con Chainlink
+pnpm chainlink:full         # Complete Chainlink test
+pnpm create:6-markets       # Create 6 markets with Chainlink
 
 # Verification
-pnpm verify:all             # Verificar todos los contratos
-pnpm verify:frontend        # Verificar integración frontend
-pnpm update:backend-url     # Actualizar URL del backend on-chain
+pnpm verify:all             # Verify all contracts
+pnpm verify:frontend        # Verify frontend integration
+pnpm update:backend-url     # Update backend URL on-chain
 
 # Utilities
-pnpm fix-all-markets        # Arreglar todos los mercados
-pnpm diagnose-core          # Diagnosticar contrato core
-pnpm balance:check          # Verificar balance de wallet
+pnpm fix-all-markets        # Fix all markets
+pnpm diagnose-core          # Diagnose core contract
+pnpm balance:check          # Check wallet balance
 ```
 
 ### 🚀 Backend Scripts
@@ -703,17 +705,17 @@ pnpm balance:check          # Verificar balance de wallet
 ```bash
 cd backend
 
-pnpm dev                    # Desarrollo con hot reload
-pnpm build                  # Compilar TypeScript
-pnpm start                  # Iniciar producción
-pnpm test                   # Ejecutar tests
-pnpm test:coverage          # Tests con cobertura
+pnpm dev                    # Development with hot reload
+pnpm build                  # Compile TypeScript
+pnpm start                  # Start production
+pnpm test                   # Run tests
+pnpm test:coverage          # Tests with coverage
 
 # Test AI Services
 pnpm test:gemini            # Test Gemini
 pnpm test:groq              # Test Groq
-pnpm test:all-ai            # Test todos los AI
-pnpm test:consensus         # Test consenso
+pnpm test:all-ai            # Test all AI services
+pnpm test:consensus         # Test consensus
 ```
 
 ### ⚛️ Frontend Scripts
@@ -721,10 +723,10 @@ pnpm test:consensus         # Test consenso
 ```bash
 cd frontend
 
-pnpm dev                    # Desarrollo (puerto 3000)
-pnpm dev:3007               # Desarrollo (puerto 3007)
-pnpm build                  # Build de producción
-pnpm start                  # Iniciar producción
+pnpm dev                    # Development (port 3000)
+pnpm dev:3007               # Development (port 3007)
+pnpm build                  # Production build
+pnpm start                  # Start production
 pnpm lint                   # Linter
 pnpm test                   # Tests
 ```
@@ -732,12 +734,12 @@ pnpm test                   # Tests
 ### 📦 Root Scripts
 
 ```bash
-# Desde la raíz del proyecto
-pnpm test                   # Tests de todos los workspaces
-pnpm test:smart-contracts   # Tests de contratos
-pnpm test:backend           # Tests del backend
-pnpm test:frontend          # Tests del frontend
-pnpm test:all               # Todos los tests
+# From project root
+pnpm test                   # Tests for all workspaces
+pnpm test:smart-contracts   # Contract tests
+pnpm test:backend           # Backend tests
+pnpm test:frontend          # Frontend tests
+pnpm test:all               # All tests
 ```
 
 ## 🛠️ Technology Stack
@@ -854,178 +856,190 @@ pnpm test:all               # Todos los tests
 
 ## 📡 Backend API Reference
 
-El backend expone 8 rutas principales con múltiples endpoints:
+The backend exposes 8 main routes with multiple endpoints:
 
-### 🛣️ Rutas Principales
+### 🛣️ Main Routes
 
-#### 1. `/api/markets` - Gestión de Mercados
-- `GET /` - Obtener todos los mercados
-- `GET /:id` - Obtener mercado por ID
-- `POST /` - Crear nuevo mercado
-- `PUT /:id` - Actualizar mercado
-- `DELETE /:id` - Eliminar mercado
+#### 1. `/api/markets` - Market Management
+- `GET /` - Get all markets
+- `GET /:id` - Get market by ID
+- `POST /` - Create new market
+- `PUT /:id` - Update market
+- `DELETE /:id` - Delete market
 
-#### 2. `/api/oracle` - Oracle y Resolución
-- `POST /resolve` - Resolver mercado con consenso multi-AI
-- `GET /status` - Estado del oracle
+#### 2. `/api/oracle` - Oracle and Resolution
+- `POST /resolve` - Resolve market with multi-AI consensus
+- `GET /status` - Oracle status
 
-#### 3. `/api/reputation` - Sistema de Reputación
-- `GET /:userId` - Obtener reputación de usuario
-- `POST /join` - Unirse al sistema de reputación
-- `POST /update` - Actualizar reputación
-- `GET /leaderboard` - Tabla de clasificación
+#### 3. `/api/reputation` - Reputation System
+- `GET /:userId` - Get user reputation
+- `POST /join` - Join reputation system
+- `POST /update` - Update reputation
+- `GET /leaderboard` - Leaderboard
 
-#### 4. `/api/aggregation` - Agregación Cross-Chain
-- `POST /compare` - Comparar precios entre chains
-- `POST /execute` - Ejecutar ruta óptima
-- `GET /portfolio/:userId` - Portfolio del usuario
+#### 4. `/api/aggregation` - Cross-Chain Aggregation
+- `POST /compare` - Compare prices between chains
+- `POST /execute` - Execute optimal route
+- `GET /portfolio/:userId` - User portfolio
 
-#### 5. `/api/users` - Gestión de Usuarios
-- `GET /` - Listar usuarios
-- `GET /:id` - Obtener usuario por ID
-- `POST /` - Crear usuario
-- `PUT /:id` - Actualizar usuario
+#### 5. `/api/users` - User Management
+- `GET /` - List users
+- `GET /:id` - Get user by ID
+- `POST /` - Create user
+- `PUT /:id` - Update user
 
-#### 6. `/api/ai` - Servicios de IA
-- `GET /test` - Probar conectividad con Gemini
-- `POST /test` - Probar con prompt personalizado
-- `POST /call` - Llamar a Gemini
-- `POST /analyze-market` - Analizar mercado con IA
-- `POST /suggest-market` - Sugerir creación de mercado
-- `POST /portfolio-analysis` - Análisis de portfolio
-- `POST /reputation-analysis` - Análisis de reputación
-- `POST /insurance-risk` - Análisis de riesgo de seguro
-- `POST /dao-analysis` - Análisis de propuestas DAO
+#### 6. `/api/ai` - AI Services
+- `GET /test` - Test connectivity with Gemini
+- `POST /test` - Test with custom prompt
+- `POST /call` - Call Gemini
+- `POST /analyze-market` - Analyze market with AI
+- `POST /suggest-market` - Suggest market creation
+- `POST /portfolio-analysis` - Portfolio analysis
+- `POST /reputation-analysis` - Reputation analysis
+- `POST /insurance-risk` - Insurance risk analysis
+- `POST /dao-analysis` - DAO proposal analysis
 
-#### 7. `/api/venus` - Integración Venus Protocol
-- `GET /markets` - Obtener mercados de Venus
-- `GET /markets/:address` - Mercado específico
-- `GET /vusdc` - Datos de vUSDC
-- `GET /apy/:address` - APY de un mercado
-- `GET /history/:address` - Historial de transacciones
-- `GET /insurance-pool/apy` - APY del pool de seguro
-- `GET /insurance-pool/transactions` - Transacciones del pool
+#### 7. `/api/venus` - Venus Protocol Integration
+- `GET /markets` - Get Venus markets
+- `GET /markets/:address` - Specific market
+- `GET /vusdc` - vUSDC data
+- `GET /apy/:address` - Market APY
+- `GET /history/:address` - Transaction history
+- `GET /insurance-pool/apy` - Insurance pool APY
+- `GET /insurance-pool/transactions` - Pool transactions
 
-#### 8. `/api/gelato` - Automatización Gelato
-- `GET /status` - Estado de Gelato
-- `GET /bot-status` - Estado del bot
-- `POST /relay` - Relay de transacción
-- `POST /setup-oracle-automation` - Configurar automatización
-- `GET /tasks` - Listar tareas
-- `GET /tasks/:taskId` - Obtener tarea específica
+#### 8. `/api/gelato` - Gelato Automation
+- `GET /status` - Gelato status
+- `GET /bot-status` - Bot status
+- `POST /relay` - Transaction relay
+- `POST /setup-oracle-automation` - Setup automation
+- `GET /tasks` - List tasks
+- `GET /tasks/:taskId` - Get specific task
 
 ### 🤖 Oracle Bot (Automated Workflow)
 
-El backend incluye un **Oracle Bot** que funciona como un workflow automatizado en dos fases:
+The backend includes an **Oracle Bot** that functions as an automated workflow in two phases:
 
-**⚠️ IMPORTANTE: Resolución en Dos Fases**
+**⚠️ IMPORTANT: Two-Phase Resolution**
 
-#### Fase 1: Iniciación Manual (Requerida)
-Antes de que el Oracle Bot pueda procesar un mercado, **se requiere iniciación manual**:
-- Cuando un mercado alcanza su deadline, permanece en estado "Active"
-- Alguien debe llamar manualmente a `initiateResolution(marketId)` en el contrato
-- Esto cambia el estado a "Resolving" y emite el evento `ResolutionRequested`
-- **Sin esta llamada manual, el mercado no será procesado automáticamente**
+#### Phase 1: Manual Initiation (Required)
+Before the Oracle Bot can process a market, **manual initiation is required**:
+- When a market reaches its deadline, it remains in "Active" state
+- Someone must manually call `initiateResolution(marketId)` on the contract
+- This changes the state to "Resolving" and emits the `ResolutionRequested` event
+- **Without this manual call, the market will not be automatically processed**
 
-#### Fase 2: Resolución Automática (Oracle Bot)
-Una vez iniciada la resolución manualmente, el Oracle Bot procesa automáticamente:
+#### Phase 2: Automated Resolution (Oracle Bot)
+Once resolution is manually initiated, the Oracle Bot automatically processes:
 
-1. **Monitoreo**: 
-   - Backend Event Monitor: Polling cada 1 minuto (60000ms) cuando el servidor está corriendo
-   - Vercel Cron Jobs: Revisa diariamente (medianoche y 12 PM)
-2. **Detección**: El bot detecta eventos `ResolutionRequested` emitidos on-chain
-3. **Consulta Multi-AI**: Consulta automáticamente los 5 modelos de IA en secuencia (Gemini → Llama → Mistral → Llama → Gemini)
-4. **Cálculo de Consenso**: Calcula automáticamente el consenso (80%+ acuerdo requerido)
-5. **Ejecución On-Chain**: Gelato Relay ejecuta automáticamente `fulfillResolutionManual()` on-chain
-6. **Notificación**: Los usuarios pueden reclamar ganancias cuando el mercado se resuelve
+1. **Monitoring**: 
+   - Backend Event Monitor: Polling every 1 minute (60000ms) when the server is running
+   - Vercel Cron Jobs: Checks daily (midnight and 12 PM)
+2. **Detection**: The bot detects `ResolutionRequested` events emitted on-chain
+3. **Multi-AI Query**: Automatically queries the 5 AI models sequentially (Gemini → Llama → Mistral → Llama → Gemini)
+4. **Consensus Calculation**: Automatically calculates consensus (80%+ agreement required)
+5. **On-Chain Execution**: Gelato Relay automatically executes `fulfillResolutionManual()` on-chain
+6. **Notification**: Users can claim winnings when the market resolves
 
-**✅ Ventajas del Workflow:**
-- ✅ **Resolución Automática**: Una vez iniciada manualmente, todo el proceso es automático
-- ✅ **Monitoreo Activo**: Backend polling cada 1 minuto + cron jobs diarios
-- ✅ **Resolución Rápida**: <1 hora desde `ResolutionRequested` hasta resolución completa
-- ✅ **Confiabilidad**: Fallback automático si algún servicio falla
-- ✅ **Transparencia**: Todo el proceso es verificable on-chain
+**✅ Workflow Advantages:**
+- ✅ **Automated Resolution**: Once manually initiated, the entire process is automatic
+- ✅ **Active Monitoring**: Backend polling every 1 minute + daily cron jobs
+- ✅ **Fast Resolution**: <1 hour from `ResolutionRequested` to complete resolution
+- ✅ **Reliability**: Automatic fallback if any service fails
+- ✅ **Transparency**: The entire process is verifiable on-chain
 
-**🔧 Configuración:**
-- **Backend Event Monitor**: Polling cada 1 minuto (60000ms) - se inicia con el servidor
-- **Vercel Cron Jobs**:
-  - `/api/cron/oracle-check`: Diariamente a medianoche (00:00 UTC)
-  - `/api/cron`: Diariamente a las 12 PM (12:00 UTC) - resuelve mercados en estado "Resolving"
-- **Scripts Manuales**: `resolve-all-pending-markets.ts` para resolución manual de mercados pendientes
+**🔧 Configuration:**
+- **GitHub Actions Workflow**: 
+  - Workflow: `.github/workflows/resolve-markets.yml`
+  - Schedule: Configured for every 10 minutes (`*/10 * * * *`)
+  - **Official Documentation Note**: According to GitHub's official documentation, GitHub Actions does NOT guarantee exact execution times for scheduled workflows. Workflows execute at the nearest possible time to the scheduled time but may experience delays due to resource limitations and system load. Actual execution intervals observed: typically 30-60+ minutes (not guaranteed).
+  - Executes: `scripts/resolve-all-pending-markets.ts`
+  - Allows manual execution from GitHub Actions UI
+  - Reference: [GitHub Actions Scheduled Events Documentation](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#schedule)
+- **Backend Event Monitor** (Most Reliable): 
+  - File: `backend/src/services/eventMonitorService.ts`
+  - Polling interval: Every 1 minute (60000ms) - **This is the most reliable automated system**
+  - Starts automatically when backend server is running
+  - Monitors `ResolutionRequested` events in real-time
+  - Processes resolutions immediately when detected
+- **Vercel Cron Jobs** (configured in `vercel.json`):
+  - `/api/cron/oracle-check`: Daily at midnight (00:00 UTC) - checks for pending resolutions
+  - `/api/cron`: Daily at 12 PM (12:00 UTC) - resolves markets in "Resolving" state
+- **Manual Scripts**: `resolve-all-pending-markets.ts` for manual resolution of pending markets
 
 ## ⚛️ Frontend Components & Hooks
 
 ### 🎣 Custom React Hooks
 
-El frontend incluye 10+ custom hooks para interacción con contratos:
+The frontend includes 10+ custom hooks for contract interaction:
 
-| Hook | Ubicación | Propósito |
+| Hook | Location | Purpose |
 |:-----|:----------|:----------|
-| `useMarkets` | `lib/hooks/useMarkets.ts` | Obtener y gestionar mercados |
-| `useMarket` | `lib/hooks/useMarkets.ts` | Obtener mercado específico |
-| `useMarketActivity` | `lib/hooks/useMarketActivity.ts` | Actividad de mercado en tiempo real |
-| `useBetting` | `lib/hooks/useBetting.ts` | Colocar apuestas y reclamar ganancias |
-| `usePlaceBet` | `lib/hooks/betting/usePlaceBet.ts` | Hook especializado para apuestas |
-| `useCreateMarket` | `lib/hooks/markets/useCreateMarket.ts` | Crear nuevos mercados |
-| `useReputation` | `lib/hooks/reputation/useReputation.ts` | Sistema de reputación |
-| `useStakeReputation` | `lib/hooks/reputation/useReputation.ts` | Stake para reputación |
-| `useInsurance` | `lib/hooks/insurance/useInsurance.ts` | Pool de seguro |
-| `useInsurancePool` | `lib/hooks/insurance/useInsurancePool.ts` | Gestión del pool |
-| `useInsuranceClaims` | `lib/hooks/insurance/useInsuranceClaims.ts` | Reclamar seguros |
-| `useDAO` | `lib/hooks/dao/useDAO.ts` | Gobernanza DAO |
-| `useOracle` | `lib/hooks/useOracle.ts` | Estado del oracle |
-| `useAggregator` | `lib/hooks/aggregator/useAggregator.ts` | Agregación cross-chain |
-| `useBNBBalance` | `lib/hooks/useBNBBalance.ts` | Balance de BNB |
-| `useUserDashboard` | `lib/hooks/dashboard/useUserDashboard.ts` | Dashboard del usuario |
+| `useMarkets` | `lib/hooks/useMarkets.ts` | Get and manage markets |
+| `useMarket` | `lib/hooks/useMarkets.ts` | Get specific market |
+| `useMarketActivity` | `lib/hooks/useMarketActivity.ts` | Real-time market activity |
+| `useBetting` | `lib/hooks/useBetting.ts` | Place bets and claim winnings |
+| `usePlaceBet` | `lib/hooks/betting/usePlaceBet.ts` | Specialized hook for betting |
+| `useCreateMarket` | `lib/hooks/markets/useCreateMarket.ts` | Create new markets |
+| `useReputation` | `lib/hooks/reputation/useReputation.ts` | Reputation system |
+| `useStakeReputation` | `lib/hooks/reputation/useReputation.ts` | Stake for reputation |
+| `useInsurance` | `lib/hooks/insurance/useInsurance.ts` | Insurance pool |
+| `useInsurancePool` | `lib/hooks/insurance/useInsurancePool.ts` | Pool management |
+| `useInsuranceClaims` | `lib/hooks/insurance/useInsuranceClaims.ts` | Claim insurance |
+| `useDAO` | `lib/hooks/dao/useDAO.ts` | DAO governance |
+| `useOracle` | `lib/hooks/useOracle.ts` | Oracle status |
+| `useAggregator` | `lib/hooks/aggregator/useAggregator.ts` | Cross-chain aggregation |
+| `useBNBBalance` | `lib/hooks/useBNBBalance.ts` | BNB balance |
+| `useUserDashboard` | `lib/hooks/dashboard/useUserDashboard.ts` | User dashboard |
 
 ### 🧩 Componentes React
 
 #### Layout Components
-- `Navbar` - Barra de navegación principal
-- `Footer` - Pie de página
-- `NeuralBackground` - Fondo animado con partículas
-- `AnimatedGradient` - Gradientes animados
-- `GlassCard` / `GlassmorphicCard` - Tarjetas con efecto glassmorphism
+- `Navbar` - Main navigation bar
+- `Footer` - Footer
+- `NeuralBackground` - Animated particle background
+- `AnimatedGradient` - Animated gradients
+- `GlassCard` / `GlassmorphicCard` - Glassmorphism effect cards
 
 #### Market Components
-- `MarketCard` - Tarjeta de mercado individual
-- `FeaturedMarkets` - Mercados destacados
-- `MarketFilters` - Filtros de búsqueda
-- `BettingPanel` - Panel de apuestas
+- `MarketCard` - Individual market card
+- `FeaturedMarkets` - Featured markets
+- `MarketFilters` - Search filters
+- `BettingPanel` - Betting panel
 
 #### Insurance Components
-- `InsuranceStats` - Estadísticas del pool
-- `DepositPanel` - Panel de depósitos
-- `ClaimPanel` - Panel de reclamaciones
+- `InsuranceStats` - Pool statistics
+- `DepositPanel` - Deposit panel
+- `ClaimPanel` - Claim panel
 
 #### UI Components (Radix UI)
 - `Button`, `Card`, `Dialog`, `Input`, `Select`, `Tabs`, `Progress`, `Badge`, `Skeleton`, `Table`, `Toaster`
 
-### 📄 Páginas (Next.js App Router)
+### 📄 Pages (Next.js App Router)
 
-- `/` - Página principal (home)
-- `/markets` - Lista de mercados
-- `/markets/[id]` - Detalle de mercado
-- `/create` - Crear nuevo mercado
-- `/dashboard` - Dashboard del usuario
-- `/portfolio` - Portfolio de apuestas
-- `/reputation` - Sistema de reputación
-- `/dao` - Gobernanza DAO
-- `/insurance` - Pool de seguro
-- `/demo` - Página de demostración
+- `/` - Home page
+- `/markets` - Market list
+- `/markets/[id]` - Market details
+- `/create` - Create new market
+- `/dashboard` - User dashboard
+- `/portfolio` - Betting portfolio
+- `/reputation` - Reputation system
+- `/dao` - DAO governance
+- `/insurance` - Insurance pool
+- `/demo` - Demo page
 
 ### 🔌 Next.js API Routes
 
-El frontend también expone API routes para funcionalidades específicas:
+The frontend also exposes API routes for specific functionalities:
 
-- `/api/markets` - Gestión de mercados
-- `/api/oracle/resolve` - Resolución de mercados
-- `/api/reputation/*` - Sistema de reputación
-- `/api/aggregation/*` - Agregación cross-chain
-- `/api/ai/*` - Servicios de IA
-- `/api/venus/*` - Integración Venus
-- `/api/gelato/*` - Automatización Gelato
-- `/api/cron/*` - Tareas programadas (Vercel Cron)
+- `/api/markets` - Market management
+- `/api/oracle/resolve` - Market resolution
+- `/api/reputation/*` - Reputation system
+- `/api/aggregation/*` - Cross-chain aggregation
+- `/api/ai/*` - AI services
+- `/api/venus/*` - Venus integration
+- `/api/gelato/*` - Gelato automation
+- `/api/cron/*` - Scheduled tasks (Vercel Cron)
 
 ## 📖 Documentation
 
@@ -1051,7 +1065,7 @@ El frontend también expone API routes para funcionalidades específicas:
 
 ## 🏗️ System Architecture
 
-### 🔄 Flujo Completo del Sistema
+### 🔄 Complete System Flow
 
 ```
 ┌─────────────┐
@@ -1074,15 +1088,15 @@ El frontend también expone API routes para funcionalidades específicas:
        │
        └───► Backend API (Express)
                  │
-                 ├──► Oracle Bot (monitorea eventos)
+                 ├──► Oracle Bot (monitors events)
                  ├──► Multi-AI Consensus Service
                  │      ├──► Gemini 2.5 Flash Lite (Priority 1)
                  │      ├──► Groq Llama 3.1 (Priority 2)
                  │      ├──► OpenRouter Models (Priority 3-5)
-                 │      └──► Fallback automático
+                 │      └──► Automatic fallback
                  │
                  ├──► Chainlink Data Streams
-                 │      └──► Price feeds en tiempo real
+                 │      └──► Real-time price feeds
                  │
                  └──► External Services
                         ├──► Venus Protocol (yield farming)
@@ -1090,75 +1104,75 @@ El frontend también expone API routes para funcionalidades específicas:
                         └──► Chainlink CCIP (cross-chain)
 ```
 
-### 📊 Flujo de Resolución de Mercado
+### 📊 Market Resolution Flow
 
-1. **Creación de Mercado**:
-   - Usuario crea mercado en frontend
-   - Frontend llama a `PredictionMarketCore.createMarket()`
-   - Evento `MarketCreated` emitido
+1. **Market Creation**:
+   - User creates market in frontend
+   - Frontend calls `PredictionMarketCore.createMarket()`
+   - `MarketCreated` event emitted
 
-2. **Apuestas**:
-   - Usuarios colocan apuestas (YES/NO)
-   - Fondos bloqueados en el contrato
-   - Evento `BetPlaced` emitido
+2. **Betting**:
+   - Users place bets (YES/NO)
+   - Funds locked in contract
+   - `BetPlaced` event emitted
 
-3. **Iniciación de Resolución (MANUAL - REQUERIDA)**:
-   - Al llegar el deadline, el mercado permanece en estado "Active"
-   - **Alguien debe llamar manualmente** a `initiateResolution(marketId)`
-   - Esto cambia el estado a "Resolving"
-   - Se emite el evento `ResolutionRequested` on-chain
-   - **Sin esta llamada manual, el mercado no será procesado automáticamente**
+3. **Resolution Initiation (MANUAL - REQUIRED)**:
+   - When deadline is reached, market remains in "Active" state
+   - **Someone must manually call** `initiateResolution(marketId)`
+   - This changes state to "Resolving"
+   - `ResolutionRequested` event emitted on-chain
+   - **Without this manual call, the market will not be automatically processed**
 
-4. **Resolución Automática (Oracle Bot)**:
-   - Oracle Bot detecta el evento `ResolutionRequested` (polling cada 1 minuto o cron diario)
-   - Backend consulta múltiples AIs en secuencia
-   - Se calcula consenso (80%+ acuerdo)
-   - Gelato Relay ejecuta `fulfillResolutionManual()` on-chain
-   - Evento `MarketResolved` emitido
+4. **Automated Resolution (Oracle Bot)**:
+   - Oracle Bot detects `ResolutionRequested` event (polling every 1 minute or daily cron)
+   - Backend queries multiple AIs sequentially
+   - Consensus calculated (80%+ agreement)
+   - Gelato Relay executes `fulfillResolutionManual()` on-chain
+   - `MarketResolved` event emitted
 
-5. **Reclamación**:
-   - Ganadores pueden reclamar sus ganancias
-   - `claimWinnings()` distribuye fondos
-   - Evento `WinningsClaimed` emitido
+5. **Claiming**:
+   - Winners can claim their winnings
+   - `claimWinnings()` distributes funds
+   - `WinningsClaimed` event emitted
 
-### 🔗 Integraciones Externas
+### 🔗 External Integrations
 
 #### Chainlink Data Streams
-- **Propósito**: Precios en tiempo real para mercados basados en precio
-- **Frecuencia**: Actualizaciones cada ~100ms
+- **Purpose**: Real-time prices for price-based markets
+- **Frequency**: Updates every ~100ms
 - **Streams**: BTC/USD, ETH/USD, BNB/USD, USDT/USD, SOL/USD, XRP/USD, USDC/USD, DOGE/USD
-- **Contrato**: `ChainlinkDataStreamsIntegration`
+- **Contract**: `ChainlinkDataStreamsIntegration`
 
 #### Venus Protocol
-- **Propósito**: Yield farming para el Insurance Pool
+- **Purpose**: Yield farming for Insurance Pool
 - **Token**: vUSDC
-- **APY**: Variable según mercado
-- **Integración**: `InsurancePool` deposita BNB → Venus → genera yield
+- **APY**: Variable by market
+- **Integration**: `InsurancePool` deposits BNB → Venus → generates yield
 
 #### Gelato
-- **Propósito**: Automatización de resoluciones
-- **Servicio**: Gelato Relay (gasless transactions)
-- **Uso**: Ejecutar `resolveMarket()` automáticamente
-- **Configuración**: On-chain en `AIOracle` contract
+- **Purpose**: Resolution automation
+- **Service**: Gelato Relay (gasless transactions)
+- **Usage**: Automatically execute `resolveMarket()`
+- **Configuration**: On-chain in `AIOracle` contract
 
 #### Thirdweb
-- **Propósito**: Gasless UX con Embedded Wallets
+- **Purpose**: Gasless UX with Embedded Wallets
 - **Features**: Session keys, fiat onramp, mobile support
-- **Integración**: Frontend usa Thirdweb SDK v5
+- **Integration**: Frontend uses Thirdweb SDK v5
 
-### 🗄️ Base de Datos
+### 🗄️ Database
 
-**Esquema Principal** (Prisma):
-- `User` - Usuarios del sistema
-- `Market` - Mercados creados
-- `Bet` - Apuestas realizadas
-- `Reputation` - Datos de reputación
-- `InsuranceDeposit` - Depósitos en pool
-- `DAOProposal` - Propuestas de gobernanza
+**Main Schema** (Prisma):
+- `User` - System users
+- `Market` - Created markets
+- `Bet` - Placed bets
+- `Reputation` - Reputation data
+- `InsuranceDeposit` - Pool deposits
+- `DAOProposal` - Governance proposals
 
 **Storage**:
-- On-chain: Datos críticos (mercados, apuestas, reputación)
-- Off-chain: Datos auxiliares (metadata, analytics)
+- On-chain: Critical data (markets, bets, reputation)
+- Off-chain: Auxiliary data (metadata, analytics)
 
 ---
 
@@ -1325,21 +1339,21 @@ pnpm verify:all
 
 ### 🔧 Backend Services
 
-El backend incluye 25+ servicios organizados por funcionalidad:
+The backend includes 25+ services organized by functionality:
 
 #### LLM Services (Multi-AI Consensus)
-- `consensus.service.ts` - Servicio principal de consenso multi-AI
-- `google.service.ts` - Integración con Google Gemini
-- `groq.service.ts` - Integración con Groq (Llama, Mixtral, etc.)
-- `groq-llama.service.ts` - Llama 3.1 específico
-- `groq-mixtral.service.ts` - Mixtral específico
-- `groq-deepseek.service.ts` - DeepSeek específico
-- `groq-qwen.service.ts` - Qwen específico
-- `openrouter.service.ts` - Servicio base OpenRouter
+- `consensus.service.ts` - Main multi-AI consensus service
+- `google.service.ts` - Google Gemini integration
+- `groq.service.ts` - Groq integration (Llama, Mixtral, etc.)
+- `groq-llama.service.ts` - Llama 3.1 specific
+- `groq-mixtral.service.ts` - Mixtral specific
+- `groq-deepseek.service.ts` - DeepSeek specific
+- `groq-qwen.service.ts` - Qwen specific
+- `openrouter.service.ts` - Base OpenRouter service
 - `openrouter-llama.service.ts` - Llama via OpenRouter
 - `openrouter-mistral.service.ts` - Mistral via OpenRouter
 - `openrouter-gemini.service.ts` - Gemini via OpenRouter
-- `openrouter-alternative.service.ts` - Modelos alternativos
+- `openrouter-alternative.service.ts` - Alternative models
 - `anthropic.service.ts` - Claude (Anthropic)
 - `openai.service.ts` - OpenAI GPT
 - `xai.service.ts` - Grok (xAI)
@@ -1347,17 +1361,17 @@ El backend incluye 25+ servicios organizados por funcionalidad:
 - `cometapi.service.ts` - Comet API
 
 #### Core Services
-- `marketService.ts` - Gestión de mercados
-- `oracleService.ts` - Servicio de oracle
-- `reputationService.ts` - Sistema de reputación
-- `aggregationService.ts` - Agregación cross-chain
-- `userService.ts` - Gestión de usuarios
-- `venusService.ts` - Integración Venus Protocol
-- `gelatoService.ts` - Automatización Gelato
-- `eventMonitorService.ts` - Monitoreo de eventos on-chain
+- `marketService.ts` - Market management
+- `oracleService.ts` - Oracle service
+- `reputationService.ts` - Reputation system
+- `aggregationService.ts` - Cross-chain aggregation
+- `userService.ts` - User management
+- `venusService.ts` - Venus Protocol integration
+- `gelatoService.ts` - Gelato automation
+- `eventMonitorService.ts` - On-chain event monitoring
 
 #### AI Services (Frontend)
-- `gemini-advanced.ts` - Funciones avanzadas de Gemini para análisis
+- `gemini-advanced.ts` - Advanced Gemini functions for analysis
 
 ### 🔧 Backend Tests
 
@@ -1365,7 +1379,7 @@ El backend incluye 25+ servicios organizados por funcionalidad:
 
 Tests complete for:
 - ✅ API Routes (8 routes): markets, oracle, reputation, aggregation, users, ai, venus, gelato
-- ✅ Services (25+ services): Todos los servicios LLM, core services, integraciones
+- ✅ Services (25+ services): All LLM services, core services, integrations
 - ✅ Integration tests with deployed contracts
 - ✅ End-to-end tests complete
 - ✅ Multi-AI consensus service tests
@@ -1681,36 +1695,36 @@ All integration checks pass ✅
 
 ### 🛡️ Security Features
 
-- ✅ **Reentrancy Protection**: Todos los contratos protegidos contra reentrancy
-- ✅ **Access Control**: Roles y permisos bien definidos
-- ✅ **Input Validation**: Validación exhaustiva de inputs
-- ✅ **Integer Overflow Protection**: Solidity 0.8.24 con checks automáticos
-- ✅ **Oracle Consensus**: 80%+ acuerdo requerido para prevenir manipulación
-- ✅ **Insurance Pool**: Refund automático si el oracle falla
-- ✅ **Slash Mechanism**: Reputación reducida para malos actores
-- ✅ **Rate Limiting**: Protección contra spam en API
-- ✅ **CORS Configuration**: CORS configurado correctamente
-- ✅ **Environment Variables**: Secrets nunca expuestos al frontend
+- ✅ **Reentrancy Protection**: All contracts protected against reentrancy
+- ✅ **Access Control**: Well-defined roles and permissions
+- ✅ **Input Validation**: Exhaustive input validation
+- ✅ **Integer Overflow Protection**: Solidity 0.8.24 with automatic checks
+- ✅ **Oracle Consensus**: 80%+ agreement required to prevent manipulation
+- ✅ **Insurance Pool**: Automatic refund if oracle fails
+- ✅ **Slash Mechanism**: Reduced reputation for bad actors
+- ✅ **Rate Limiting**: Protection against spam in API
+- ✅ **CORS Configuration**: CORS configured correctly
+- ✅ **Environment Variables**: Secrets never exposed to frontend
 
 ### 🔒 Best Practices Implemented
 
 1. **Smart Contracts**:
-   - OpenZeppelin libraries para seguridad probada
+   - OpenZeppelin libraries for proven security
    - Checks-Effects-Interactions pattern
-   - Events para auditoría completa
-   - Pausable contracts para emergencias
+   - Events for complete auditing
+   - Pausable contracts for emergencies
 
 2. **Backend**:
-   - Validación con Zod schemas
-   - Error handling robusto
-   - Logging completo con Winston
-   - Rate limiting en endpoints críticos
+   - Validation with Zod schemas
+   - Robust error handling
+   - Complete logging with Winston
+   - Rate limiting on critical endpoints
 
 3. **Frontend**:
-   - Validación de direcciones de contratos
-   - Error boundaries para manejo de errores
-   - Sanitización de inputs
-   - HTTPS only en producción
+   - Contract address validation
+   - Error boundaries for error handling
+   - Input sanitization
+   - HTTPS only in production
 
 ---
 
@@ -1751,61 +1765,61 @@ MIT License - See [LICENSE](./LICENSE) file for details
   - [Groq Console](https://console.groq.com/keys)
   - [OpenRouter](https://openrouter.ai)
 
-### 📝 Archivos de Documentación Adicional
+### 📝 Additional Documentation Files
 
-El proyecto incluye documentación detallada en varios archivos:
+The project includes detailed documentation in several files:
 
-- `ACCION_INMEDIATA.md` - Acciones inmediatas requeridas
-- `CHECK_ENV_SETUP.md` - Verificación de configuración
-- `COMPLETE_REAL_INTEGRATIONS_TEST_RESULTS.md` - Resultados de tests
-- `DEPLOYMENT_SUMMARY.md` - Resumen de deployment
-- `DOMAIN_MIGRATION_COMPLETE.md` - Migración de dominio
-- `INTEGRATION_COMPLETE.md` - Estado de integración
-- `PROJECT_STATUS_COMPLETE.md` - Estado del proyecto
-- `REAL_CHAINLINK_DATA_VERIFICATION.md` - Verificación Chainlink
-- `SECURITY_ROTATION_REQUIRED.md` - Rotación de seguridad
-- `SOLUCION_ERROR_500_ORACLE.md` - Solución de errores
-- `SOLUCION_THIRDWEB_CLIENT_ID.md` - Configuración Thirdweb
-- `TEST_RESULTS_SUMMARY.md` - Resumen de tests
-- `TRANSACTION_LINKS_SUMMARY.md` - Enlaces de transacciones
-- `VERCEL_ENV_VARIABLES_COMPLETE.md` - Variables de Vercel
+- `ACCION_INMEDIATA.md` - Immediate actions required
+- `CHECK_ENV_SETUP.md` - Configuration verification
+- `COMPLETE_REAL_INTEGRATIONS_TEST_RESULTS.md` - Test results
+- `DEPLOYMENT_SUMMARY.md` - Deployment summary
+- `DOMAIN_MIGRATION_COMPLETE.md` - Domain migration
+- `INTEGRATION_COMPLETE.md` - Integration status
+- `PROJECT_STATUS_COMPLETE.md` - Project status
+- `REAL_CHAINLINK_DATA_VERIFICATION.md` - Chainlink verification
+- `SECURITY_ROTATION_REQUIRED.md` - Security rotation
+- `SOLUCION_ERROR_500_ORACLE.md` - Error solution
+- `SOLUCION_THIRDWEB_CLIENT_ID.md` - Thirdweb configuration
+- `TEST_RESULTS_SUMMARY.md` - Test summary
+- `TRANSACTION_LINKS_SUMMARY.md` - Transaction links
+- `VERCEL_ENV_VARIABLES_COMPLETE.md` - Vercel variables
 
 ### 🛠️ Troubleshooting
 
-#### Problemas Comunes
+#### Common Issues
 
-1. **Error de conexión a contratos**:
-   - Verifica que las direcciones en `frontend/lib/contracts/addresses.ts` sean correctas
-   - Asegúrate de estar conectado a opBNB Testnet (Chain ID: 5611)
+1. **Contract connection error**:
+   - Verify that addresses in `frontend/lib/contracts/addresses.ts` are correct
+   - Make sure you're connected to opBNB Testnet (Chain ID: 5611)
 
-2. **Oracle no responde**:
-   - Verifica que `BACKEND_URL` esté configurado correctamente en `.env.local`
-   - Revisa que las API keys de AI estén configuradas
-   - Verifica logs del backend
+2. **Oracle not responding**:
+   - Verify that `BACKEND_URL` is correctly configured in `.env.local`
+   - Check that AI API keys are configured
+   - Check backend logs
 
-3. **Error de compilación de contratos**:
-   - Asegúrate de tener Node.js 18+
-   - Ejecuta `pnpm install` en `smart-contracts/`
-   - Verifica que Hardhat esté correctamente configurado
+3. **Contract compilation error**:
+   - Make sure you have Node.js 18+
+   - Run `pnpm install` in `smart-contracts/`
+   - Verify that Hardhat is correctly configured
 
-4. **Problemas con Docker**:
-   - Verifica que Docker esté corriendo
-   - Revisa logs con `docker-compose logs`
-   - Asegúrate de que el puerto 5432 no esté en uso
+4. **Docker issues**:
+   - Verify that Docker is running
+   - Check logs with `docker-compose logs`
+   - Make sure port 5432 is not in use
 
 ### 🤝 Contributing
 
-Este proyecto está en desarrollo activo. Para contribuir:
+This project is under active development. To contribute:
 
-1. Fork el repositorio
-2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
-3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
-4. Push a la rama (`git push origin feature/AmazingFeature`)
+1. Fork the repository
+2. Create a branch for your feature (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Abre un Pull Request
 
 ### 📄 License
 
-MIT License - Ver [LICENSE](./LICENSE) para más detalles
+MIT License - See [LICENSE](./LICENSE) for more details
 
 ## 🙏 Acknowledgments
 

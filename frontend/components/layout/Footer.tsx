@@ -47,7 +47,7 @@ const footerLinks = {
   resources: [
     { name: 'opBNBScan Explorer', href: 'https://testnet.opbnbscan.com/', external: true },
     { name: 'Chainlink Docs', href: 'https://docs.chain.link/', external: true },
-    { name: 'opBNB Docs', href: 'https://docs.opbnb.io/', external: true },
+    { name: 'opBNB Docs', href: 'https://docs.bnbchain.org/bnb-opbnb/overview/', external: true },
   ],
   community: [
     { name: 'X', href: 'https://x.com/metapredictbnb', external: true },
@@ -203,7 +203,7 @@ export function Footer() {
 
           <div className="pt-6 md:pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="flex flex-col gap-2 text-center md:text-left">
-              <p className="text-xs sm:text-sm text-gray-400">© 2025 MetaPredict.fun. All rights reserved.</p>
+              <p className="text-xs sm:text-sm text-gray-400">Develop by Vaiosx Made by MetaPredict Team</p>
               <div className="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-2 sm:gap-4 text-xs text-gray-500">
                 <span>Network: opBNB Testnet (5611)</span>
               </div>
