@@ -1,10 +1,17 @@
 import * as dotenv from "dotenv";
 import * as path from "path";
-// @ts-expect-error - hardhat exports ethers but TypeScript types may not reflect it
-import { ethers } from "hardhat";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
+import hre from "hardhat";
 import axios from "axios";
 
+// Get __dirname equivalent in ESM
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// Load .env from root directory
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
+dotenv.config({ path: path.resolve(__dirname, '../../.env.local') });
 
 const CORE_CONTRACT = "0x5eaa77CC135b82c254F1144c48f4d179964fA0b1";
 const AI_ORACLE_ADDRESS = process.env.AI_ORACLE_ADDRESS || "0xA65bE35D25B09F7326ab154E154572dB90F67081";
@@ -14,6 +21,7 @@ async function main() {
   console.log("🔧 Resolviendo todos los mercados pendientes en estado 'Resolving'...\n");
   console.log("=".repeat(80));
 
+  const { ethers } = hre;
   const [deployer] = await ethers.getSigners();
   console.log(`📝 Usando cuenta: ${deployer.address}`);
   const balance = await ethers.provider.getBalance(deployer.address);
