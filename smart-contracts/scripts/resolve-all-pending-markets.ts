@@ -21,17 +21,16 @@ async function main() {
   console.log("🔧 Resolviendo todos los mercados pendientes en estado 'Resolving'...\n");
   console.log("=".repeat(80));
 
-  const { ethers } = hre;
-  const [deployer] = await ethers.getSigners();
+  const [deployer] = await hre.ethers.getSigners();
   console.log(`📝 Usando cuenta: ${deployer.address}`);
-  const balance = await ethers.provider.getBalance(deployer.address);
-  console.log(`💰 Balance: ${ethers.formatEther(balance)} BNB\n`);
+  const balance = await hre.ethers.provider.getBalance(deployer.address);
+  console.log(`💰 Balance: ${hre.ethers.formatEther(balance)} BNB\n`);
 
   // Conectar a contratos
-  const CoreFactory = await ethers.getContractFactory("PredictionMarketCore");
+  const CoreFactory = await hre.ethers.getContractFactory("PredictionMarketCore");
   const core = CoreFactory.attach(CORE_CONTRACT);
 
-  const AIOracle = await ethers.getContractFactory("AIOracle");
+  const AIOracle = await hre.ethers.getContractFactory("AIOracle");
   const aiOracle = AIOracle.attach(AI_ORACLE_ADDRESS);
 
   // Verificar que somos el owner del AI Oracle
