@@ -1,6 +1,7 @@
 {
   "name": "@metapredict/smart-contracts",
   "version": "1.0.0",
+  "type": "module",
   "description": "MetaPredict.fun Smart Contracts",
   "scripts": {
     "fix-binary-market": "hardhat run scripts/fix-binary-market.ts --network opBNBTestnet",
@@ -58,10 +59,16 @@
     "ethers": "^6.15.0"
   },
   "devDependencies": {
-    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
-    "@nomicfoundation/hardhat-verify": "^2.0.14",
+    "@nomicfoundation/hardhat-chai-matchers": "^2.1.0",
+    "@nomicfoundation/hardhat-ethers": "^4.0.3",
+    "@nomicfoundation/hardhat-network-helpers": "^3.0.3",
+    "@nomicfoundation/hardhat-verify": "^3.0.8",
+    "@typechain/hardhat": "^9.1.0",
     "@types/node": "^20.0.0",
-    "hardhat": "^2.19.0",
+    "forge-std": "^1.1.2",
+    "hardhat": "^3.1.0",
+    "hardhat-gas-reporter": "^2.3.0",
+    "solidity-coverage": "^0.8.17",
     "ts-node": "^10.9.0",
     "typescript": "^5.3.0"
   }

@@ -1,8 +1,14 @@
-import { HardhatUserConfig } from "hardhat/config";
-import "@nomicfoundation/hardhat-toolbox";
-import "@nomicfoundation/hardhat-verify";
+import { defineConfig } from "hardhat/config";
+import "@nomicfoundation/hardhat-ethers";
+import hardhatVerify from "@nomicfoundation/hardhat-verify";
 import * as dotenv from "dotenv";
 import * as path from "path";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
+
+// Get __dirname equivalent in ESM
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // Load .env from root directory (1 level up from smart-contracts/)
 // .env.local tiene prioridad sobre .env
@@ -25,7 +31,11 @@ function getPrivateKey(): string[] {
 
 const accounts = getPrivateKey();
 
-const config: HardhatUserConfig = {
+export default defineConfig({
+  plugins: [
+    hardhatVerify,
+    // ...other plugins...
+  ],
   solidity: {
     version: "0.8.24",
     settings: {
@@ -34,78 +44,73 @@ const config: HardhatUserConfig = {
         runs: 200,
       },
       viaIR: true, // Enable IR-based compilation to handle stack too deep errors
+      evmVersion: "paris", // Match deployment configuration exactly
     },
   },
   networks: {
     "opbnb-mainnet": {
+      type: "http",
       url: process.env.RPC_URL || "https://opbnb-mainnet-nodereal.io",
       chainId: 204,
       accounts: accounts,
       gasPrice: 1000000000, // 1 gwei
     },
     opBNBTestnet: {
-      url: process.env.RPC_URL_TESTNET || "https://opbnb-testnet-rpc.bnbchain.org",
+      type: "http",
+      url: process.env.RPC_URL_TESTNET || "https://opbnb-testnet-rpc.bnbchain.org/",
       chainId: 5611,
       accounts: accounts,
-      gasPrice: 1000000000, // 1 gwei
+      gasPrice: 20000000000, // 20 gwei (as per official docs)
+    },
+    opbnb: {
+      type: "http",
+      url: process.env.RPC_URL_TESTNET || "https://opbnb-testnet-rpc.bnbchain.org/",
+      chainId: 5611,
+      accounts: accounts,
+      gasPrice: 20000000000, // 20 gwei (as per official docs)
     },
     opBNBMainnet: {
+      type: "http",
       url: process.env.RPC_URL || "https://opbnb-mainnet-rpc.bnbchain.org",
       chainId: 204,
       accounts: accounts,
     },
     hardhat: {
+      type: "edr-simulated",
       chainId: 1337,
     },
   },
-  etherscan: {
-    // opBNBScan uses NodeReal API for contract verification
-    // Get your API key from: https://nodereal.io/ (Login with GitHub/Discord)
-    // According to official opBNBScan documentation (December 2025)
-    apiKey: {
-      // Prefer BSCSCAN_API_KEY for opBNBScan (more reliable), then NODEREAL_API_KEY
-      // BSCScan API works directly with opBNBScan
-      opbnb: process.env.BSCSCAN_API_KEY || process.env.NODEREAL_API_KEY || process.env.ETHERSCAN_API_KEY || "",
-      opBNBTestnet: process.env.BSCSCAN_API_KEY || process.env.NODEREAL_API_KEY || process.env.ETHERSCAN_API_KEY || "",
+  // opBNBScan verification using Etherscan API v2
+  // opBNB Testnet (chainId: 5611) is supported by Etherscan API v2
+  // Official documentation: https://docs.etherscan.io/supported-chains
+  // Solution for Hardhat 3.x: Use chainDescriptors with Etherscan API v2
+  verify: {
+    etherscan: {
+      apiKey: process.env.ETHERSCAN_API_KEY || "",
     },
-    customChains: [
-      {
-        network: "opbnb",
-        chainId: 5611, // opBNB Testnet
-        urls: {
-          // opBNB Testnet - NodeReal API (official opBNBScan documentation)
-          // Format: https://open-platform.nodereal.io/{API_KEY}/op-bnb-testnet/contract/
-          apiURL: process.env.NODEREAL_API_KEY 
-            ? `https://open-platform.nodereal.io/${process.env.NODEREAL_API_KEY}/op-bnb-testnet/contract/`
-            : "https://api-testnet.opbnbscan.com/api",
-          browserURL: "https://testnet.opbnbscan.com/",
+    blockscout: {
+      enabled: false,
+    },
+  },
+  chainDescriptors: {
+    5611: {
+      name: "opbnb",
+      blockExplorers: {
+        etherscan: {
+          name: "opBNB Testnet Explorer",
+          url: "https://testnet.opbnbscan.com",
+          apiUrl: "https://api.etherscan.io/v2/api",
         },
       },
-      {
-        network: "opBNBTestnet",
-        chainId: 5611, // opBNB Testnet
-        urls: {
-          // opBNB Testnet - NodeReal API (official opBNBScan documentation)
-          // Format: https://open-platform.nodereal.io/{API_KEY}/op-bnb-testnet/contract/
-          // IMPORTANT: La API key debe estar en NODEREAL_API_KEY en .env.local
-          apiURL: process.env.NODEREAL_API_KEY 
-            ? `https://open-platform.nodereal.io/${process.env.NODEREAL_API_KEY}/op-bnb-testnet/contract/`
-            : "https://open-platform.nodereal.io/your-api-key/op-bnb-testnet/contract/",
-          browserURL: "https://testnet.opbnbscan.com/",
-        },
-      },
-      {
-        network: "opbnbMainnet",
-        chainId: 204, // opBNB Mainnet
-        urls: {
-          // opBNB Mainnet - NodeReal API
-          apiURL: process.env.NODEREAL_API_KEY 
-            ? `https://open-platform.nodereal.io/${process.env.NODEREAL_API_KEY}/op-bnb-mainnet/contract/`
-            : "https://api.opbnbscan.com/api",
-          browserURL: "https://opbnbscan.com/",
-        },
-      },
-    ],
+    },
+  },
+  // Disable Sourcify verification completely
+  sourcify: {
+    enabled: false,
+  },
+  // Disable Blockscout as well
+  blockscout: {
+    enabled: false,
   },
   paths: {
     sources: "./contracts",
@@ -113,7 +118,9 @@ const config: HardhatUserConfig = {
     cache: "./cache",
     artifacts: "./artifacts",
   },
-};
-
-export default config;
+  // Exclude Foundry test files from compilation
+  mocha: {
+    timeout: 40000,
+  },
+});
 

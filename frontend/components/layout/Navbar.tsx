@@ -73,34 +73,35 @@ export function Navbar() {
           scrolled ? "border-purple-500/30" : "border-purple-500/10"
         )}>
           <div className="max-w-7xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-14 sm:h-16">
-              <Link href="/" className="flex items-center space-x-2 sm:space-x-3 group flex-shrink-0">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <Brain className="w-4 h-4 sm:w-6 sm:h-6 text-white" />
+            <div className="flex items-center justify-between h-14 sm:h-16 min-w-0">
+              <Link href="/" className="flex items-center space-x-1.5 sm:space-x-2 md:space-x-3 group flex-shrink-0 min-w-0">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0">
+                  <Brain className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-6 md:h-6 text-white" />
                 </div>
-                <div className="flex flex-col">
-                  <span className="text-base sm:text-lg md:text-xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                    MetaPredict.fun
+                <div className="flex flex-col min-w-0">
+                  <span className="text-sm sm:text-base md:text-lg lg:text-xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent truncate">
+                    MetaPredict
                   </span>
-                  <span className="text-[9px] sm:text-[10px] text-gray-400 -mt-0.5 sm:-mt-1 hidden sm:block">opBNB Testnet</span>
+                  <span className="text-[8px] sm:text-[9px] md:text-[10px] text-gray-400 -mt-0.5 sm:-mt-1 hidden sm:block truncate">opBNB Testnet</span>
                 </div>
               </Link>
               
-              <div className="hidden lg:flex items-center space-x-1">
+              <div className="hidden lg:flex items-center space-x-0.5 xl:space-x-1 flex-shrink-0">
                 {navigation.map((item) => {
                   const isActive = pathname === item.href || (item.href === '/' && pathname === '/');
                   return (
-                    <Link key={item.name} href={item.href}>
+                    <Link key={item.name} href={item.href} className="flex-shrink-0">
                       <Button
                         variant="ghost"
+                        size="sm"
                         className={cn(
-                          "gap-1.5 sm:gap-2 transition-all duration-200 text-sm",
+                          "gap-1.5 transition-all duration-200 text-xs xl:text-sm px-2 xl:px-3",
                           isActive 
                             ? "bg-purple-500/20 text-purple-300" 
                             : "text-gray-300 hover:bg-purple-500/10 hover:text-purple-300"
                         )}
                       >
-                        <item.icon className="w-4 h-4" />
+                        <item.icon className="w-3.5 h-3.5 xl:w-4 xl:h-4" />
                         {item.name}
                       </Button>
                     </Link>
@@ -109,21 +110,22 @@ export function Navbar() {
                 
                 {/* Markets with submenu */}
                 <div 
-                  className="relative"
+                  className="relative flex-shrink-0"
                   onMouseEnter={() => setMarketsSubmenuHover(true)}
                   onMouseLeave={() => setMarketsSubmenuHover(false)}
                 >
                   <Link href="/markets">
                     <Button
                       variant="ghost"
+                      size="sm"
                       className={cn(
-                        "gap-1.5 sm:gap-2 transition-all duration-200 text-sm",
+                        "gap-1.5 transition-all duration-200 text-xs xl:text-sm px-2 xl:px-3",
                         isMarketsActive 
                           ? "bg-purple-500/20 text-purple-300" 
                           : "text-gray-300 hover:bg-purple-500/10 hover:text-purple-300"
                       )}
                     >
-                      <TrendingUp className="w-4 h-4" />
+                      <TrendingUp className="w-3.5 h-3.5 xl:w-4 xl:h-4" />
                       Markets
                       <ChevronDown className={cn(
                         "w-3 h-3 transition-transform duration-200",
@@ -171,17 +173,18 @@ export function Navbar() {
                 {secondaryNavigation.map((item) => {
                   const isActive = pathname === item.href;
                   return (
-                    <Link key={item.name} href={item.href}>
+                    <Link key={item.name} href={item.href} className="flex-shrink-0">
                       <Button
                         variant="ghost"
+                        size="sm"
                         className={cn(
-                          "gap-1.5 sm:gap-2 transition-all duration-200 text-sm",
+                          "gap-1.5 transition-all duration-200 text-xs xl:text-sm px-2 xl:px-3",
                           isActive 
                             ? "bg-purple-500/20 text-purple-300" 
                             : "text-gray-300 hover:bg-purple-500/10 hover:text-purple-300"
                         )}
                       >
-                        <item.icon className="w-4 h-4" />
+                        <item.icon className="w-3.5 h-3.5 xl:w-4 xl:h-4" />
                         {item.name}
                       </Button>
                     </Link>
@@ -232,11 +235,11 @@ export function Navbar() {
                 </div>
               </div>
               
-              <div className="hidden md:flex items-center space-x-2 lg:space-x-4">
+              <div className="hidden md:flex items-center space-x-1.5 lg:space-x-2 xl:space-x-4 flex-shrink-0">
                 {account && (
-                  <div className="hidden lg:flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg bg-purple-500/10 border border-purple-500/20">
-                    <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-green-500 animate-pulse" />
-                    <span className="text-xs sm:text-sm text-gray-300">Connected</span>
+                  <div className="hidden xl:flex items-center gap-1.5 px-2 py-1 rounded-lg bg-purple-500/10 border border-purple-500/20 flex-shrink-0">
+                    <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                    <span className="text-xs text-gray-300">Connected</span>
                   </div>
                 )}
                 <ConnectButtonWrapper
@@ -245,7 +248,7 @@ export function Navbar() {
                   theme="dark"
                   connectButton={{
                     label: "Connect",
-                    className: "!bg-gradient-to-r !from-purple-600 !to-pink-600 hover:!from-purple-700 hover:!to-pink-700 !text-white !font-semibold !px-3 sm:!px-4 lg:!px-6 !py-1.5 sm:!py-2 !lg:!py-2.5 !rounded-lg !transition-all !duration-200 !shadow-lg hover:!shadow-xl !text-xs sm:!text-sm lg:!text-base"
+                    className: "!bg-gradient-to-r !from-purple-600 !to-pink-600 hover:!from-purple-700 hover:!to-pink-700 !text-white !font-semibold !px-2 md:!px-3 lg:!px-4 xl:!px-6 !py-1 md:!py-1.5 lg:!py-2 !rounded-lg !transition-all !duration-200 !shadow-lg hover:!shadow-xl !text-xs md:!text-sm !whitespace-nowrap"
                   }}
                 />
               </div>

@@ -1,8 +1,14 @@
 import * as dotenv from "dotenv";
 import * as fs from "fs";
 import * as path from "path";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
 import hre from "hardhat";
 import { Contract } from "ethers";
+
+// Get __dirname equivalent in ESM
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // Load .env from root directory
 const envPath = path.resolve(__dirname, '../../.env');
@@ -256,6 +262,7 @@ async function verifyContract(
       verificationParams.contract = contractPaths[contractName];
     }
     
+    // Use Hardhat 3.x API - run is available on hre
     await hre.run("verify:verify", verificationParams);
     console.log(`   ✅ ${contractName} verificado exitosamente`);
   } catch (error: any) {

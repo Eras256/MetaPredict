@@ -163,6 +163,75 @@ Powered by **Thirdweb Embedded Wallets**:
 
 ---
 
+## 📁 Project Structure
+
+MetaPredict es un **monorepo** organizado con pnpm workspaces que contiene tres módulos principales:
+
+```
+MetaPredict/
+├── frontend/              # Next.js 15 + React 19 Frontend
+│   ├── app/              # Next.js App Router (páginas y API routes)
+│   ├── components/       # Componentes React reutilizables
+│   ├── lib/              # Utilidades, hooks, servicios
+│   │   ├── hooks/        # Custom React hooks
+│   │   ├── contracts/    # ABIs y direcciones de contratos
+│   │   └── services/     # Servicios del frontend
+│   └── public/           # Assets estáticos
+├── backend/              # Express + TypeScript Backend
+│   ├── src/
+│   │   ├── routes/       # API routes (8 rutas principales)
+│   │   ├── services/     # Lógica de negocio (25 servicios)
+│   │   ├── bots/         # Oracle Bot (monitoreo automático)
+│   │   ├── database/     # Esquemas Prisma
+│   │   └── utils/        # Utilidades (logger, etc.)
+│   └── __tests__/        # Tests del backend
+├── smart-contracts/      # Contratos Solidity + Hardhat
+│   ├── contracts/        # Contratos Solidity (22 contratos)
+│   │   ├── core/         # PredictionMarketCore
+│   │   ├── markets/      # BinaryMarket, ConditionalMarket, SubjectiveMarket
+│   │   ├── oracle/       # AIOracle, ChainlinkDataStreamsIntegration
+│   │   ├── reputation/   # ReputationStaking, ReputationDAO
+│   │   ├── governance/   # DAOGovernance
+│   │   └── aggregation/  # OmniRouter
+│   ├── scripts/          # Scripts de deployment y utilidades (68 scripts)
+│   └── test/             # Tests de contratos (12 archivos de test)
+├── scripts/              # Scripts de deployment y utilidades
+├── docs/                 # Documentación adicional
+├── docker-compose.yml    # Configuración Docker para PostgreSQL
+├── pnpm-workspace.yaml   # Configuración de monorepo
+└── .env.example          # Plantilla de variables de entorno
+```
+
+### 🗂️ Componentes Principales
+
+#### Frontend (`frontend/`)
+- **Framework**: Next.js 15 con App Router
+- **UI Library**: React 19
+- **Styling**: Tailwind CSS 3.4 + Framer Motion 12
+- **State Management**: Zustand + TanStack Query 5
+- **Web3**: Thirdweb v5 + Wagmi v2 + Viem v2
+- **Páginas**: 10 páginas principales (home, markets, create, dashboard, portfolio, reputation, DAO, insurance, etc.)
+- **API Routes**: 20+ rutas API (Next.js API Routes)
+- **Componentes**: 25+ componentes React reutilizables
+- **Hooks**: 10+ custom hooks para interacción con contratos
+
+#### Backend (`backend/`)
+- **Framework**: Express.js + TypeScript
+- **Database**: PostgreSQL + Prisma ORM
+- **Logging**: Winston
+- **API Routes**: 8 rutas principales (markets, oracle, reputation, aggregation, users, ai, venus, gelato)
+- **Services**: 25 servicios (LLM services, market service, oracle service, etc.)
+- **Oracle Bot**: Bot automático que monitorea eventos de resolución
+- **Tests**: 30+ tests (unitarios, integración, E2E)
+
+#### Smart Contracts (`smart-contracts/`)
+- **Language**: Solidity 0.8.24
+- **Framework**: Hardhat 3.1.0
+- **Testing**: Hardhat + Foundry
+- **Contratos**: 22 contratos principales
+- **Scripts**: 68 scripts de deployment y utilidades
+- **Tests**: 115 tests (unitarios, seguridad, integración, Chainlink)
+
 ## 🚀 Quick Start
 
 ### Prerequisites
@@ -173,6 +242,7 @@ Powered by **Thirdweb Embedded Wallets**:
 ![pnpm](https://img.shields.io/badge/pnpm-Latest-orange?style=flat-square&logo=pnpm)
 ![Hardhat](https://img.shields.io/badge/Hardhat-Configured-yellow?style=flat-square&logo=ethereum)
 ![Foundry](https://img.shields.io/badge/Foundry-Installed-red?style=flat-square&logo=foundry)
+![Docker](https://img.shields.io/badge/Docker-Optional-blue?style=flat-square&logo=docker)
 
 </div>
 
@@ -183,31 +253,54 @@ Powered by **Thirdweb Embedded Wallets**:
 git clone https://github.com/Vaios0x/MetaPredict.git
 cd MetaPredict
 
-# 2. Install dependencies
+# 2. Install dependencies (instala para todos los workspaces)
 pnpm install
 
 # 3. Setup environment
-cp .env.example .env.local
-# Edit .env.local with your API keys
+cp env.example .env.local
+# Edita .env.local con tus API keys (ver sección de configuración abajo)
 
-# 4. Compile contracts
+# 4. (Opcional) Iniciar PostgreSQL con Docker
+docker-compose up -d
+
+# 5. Compilar contratos
 cd smart-contracts
 pnpm hardhat compile
 
-# 5. Run tests (115/115 passing: unit + integration + security + chainlink)
+# 6. Ejecutar tests (115/115 passing: unit + integration + security + chainlink)
 pnpm test
 
-# 6. Deploy to opBNB testnet
+# 7. (Opcional) Desplegar a opBNB testnet
 pnpm deploy:testnet
 
-# 7. Start backend
+# 8. Iniciar backend (en una terminal)
 cd ../backend
 pnpm dev
+# Backend corre en http://localhost:3001
 
-# 8. Start frontend (in another terminal)
+# 9. Iniciar frontend (en otra terminal)
 cd ../frontend
 pnpm dev
+# Frontend corre en http://localhost:3000
 ```
+
+### 🔧 Configuración de Variables de Entorno
+
+El proyecto usa un único archivo `.env.local` en la raíz que es compartido por todos los workspaces. Copia `env.example` a `.env.local` y configura:
+
+**Variables Requeridas:**
+- `GEMINI_API_KEY` - Google AI Studio API key (gratis)
+- `GROQ_API_KEY` - Groq API key (gratis)
+- `OPENROUTER_API_KEY` - OpenRouter API key (gratis)
+- `NEXT_PUBLIC_THIRDWEB_CLIENT_ID` - Thirdweb Client ID
+- `PRIVATE_KEY` - Wallet private key para deployment (opcional)
+
+**Variables Opcionales:**
+- `DATABASE_URL` - PostgreSQL connection string (o usa Docker)
+- `GELATO_RELAY_API_KEY` - Para automatización de contratos
+- `CHAINLINK_DATA_STREAMS_*` - Stream IDs de Chainlink (ya configurados)
+
+Ver `env.example` para la lista completa de variables.
 
 ### 🎯 First Steps
 
@@ -512,6 +605,113 @@ const { conditionMet, currentPrice, targetPrice } =
 
 ---
 
+## 🐳 Docker Setup
+
+El proyecto incluye configuración Docker para desarrollo local:
+
+### PostgreSQL con Docker
+
+```bash
+# Iniciar PostgreSQL
+docker-compose up -d
+
+# Ver logs
+docker-compose logs -f
+
+# Detener
+docker-compose down
+
+# Detener y eliminar volúmenes
+docker-compose down -v
+```
+
+**Configuración:**
+- **Puerto**: 5432
+- **Usuario**: metapredict
+- **Contraseña**: metapredict123
+- **Base de datos**: metapredict
+
+Actualiza `DATABASE_URL` en `.env.local`:
+```
+DATABASE_URL=postgresql://metapredict:metapredict123@localhost:5432/metapredict
+```
+
+## 📜 Scripts Disponibles
+
+### 🏗️ Smart Contracts Scripts
+
+```bash
+cd smart-contracts
+
+# Deployment
+pnpm deploy:testnet          # Desplegar a opBNB Testnet
+pnpm deploy:mainnet         # Desplegar a opBNB Mainnet
+
+# Testing
+pnpm test                   # Todos los tests
+pnpm test:security          # Tests de seguridad
+pnpm test:chainlink         # Tests de Chainlink
+pnpm test:e2e               # Tests end-to-end
+pnpm test:all-integrations  # Tests de integración completa
+
+# Chainlink
+pnpm datastreams:test       # Test Data Streams
+pnpm chainlink:full         # Test completo de Chainlink
+pnpm create:6-markets       # Crear 6 mercados con Chainlink
+
+# Verification
+pnpm verify:all             # Verificar todos los contratos
+pnpm verify:frontend        # Verificar integración frontend
+pnpm update:backend-url     # Actualizar URL del backend on-chain
+
+# Utilities
+pnpm fix-all-markets        # Arreglar todos los mercados
+pnpm diagnose-core          # Diagnosticar contrato core
+pnpm balance:check          # Verificar balance de wallet
+```
+
+### 🚀 Backend Scripts
+
+```bash
+cd backend
+
+pnpm dev                    # Desarrollo con hot reload
+pnpm build                  # Compilar TypeScript
+pnpm start                  # Iniciar producción
+pnpm test                   # Ejecutar tests
+pnpm test:coverage          # Tests con cobertura
+
+# Test AI Services
+pnpm test:gemini            # Test Gemini
+pnpm test:groq              # Test Groq
+pnpm test:all-ai            # Test todos los AI
+pnpm test:consensus         # Test consenso
+```
+
+### ⚛️ Frontend Scripts
+
+```bash
+cd frontend
+
+pnpm dev                    # Desarrollo (puerto 3000)
+pnpm dev:3007               # Desarrollo (puerto 3007)
+pnpm build                  # Build de producción
+pnpm start                  # Iniciar producción
+pnpm lint                   # Linter
+pnpm test                   # Tests
+```
+
+### 📦 Root Scripts
+
+```bash
+# Desde la raíz del proyecto
+pnpm test                   # Tests de todos los workspaces
+pnpm test:smart-contracts   # Tests de contratos
+pnpm test:backend           # Tests del backend
+pnpm test:frontend          # Tests del frontend
+pnpm test:all               # Todos los tests
+```
+
 ## 🛠️ Technology Stack
 
 <div align="center">
@@ -582,6 +782,9 @@ const { conditionMet, currentPrice, targetPrice } =
 | **PostgreSQL** | Relational database | ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-336791?style=flat-square&logo=postgresql) |
 | **Winston** | Logging library | ![Winston](https://img.shields.io/badge/Winston-Logging-2C3E50?style=flat-square) |
 | **Axios** | HTTP client | ![Axios](https://img.shields.io/badge/Axios-HTTP-5A29E4?style=flat-square) |
+| **Jest** | Testing framework | ![Jest](https://img.shields.io/badge/Jest-Testing-C21325?style=flat-square&logo=jest) |
+| **Supertest** | API testing | ![Supertest](https://img.shields.io/badge/Supertest-API%20Testing-238636?style=flat-square) |
+| **Zod** | Schema validation | ![Zod](https://img.shields.io/badge/Zod-Validation-3E63DD?style=flat-square) |
 
 ### 🎨 UI/UX Features
 
@@ -593,8 +796,176 @@ const { conditionMet, currentPrice, targetPrice } =
 | **Dark Theme** | Tailwind CSS | Complete dark mode implementation |
 | **Responsive Design** | Tailwind + Next.js | Mobile-first responsive layouts |
 | **Smooth Animations** | Framer Motion | Page transitions and component animations |
+| **PWA Support** | next-pwa | Progressive Web App capabilities |
+| **Toast Notifications** | Sonner | Elegant toast notifications |
+| **Accessible Components** | Radix UI | Fully accessible UI primitives |
+
+### 🗄️ Database & Storage
+
+| Technology | Purpose | Status |
+|:----------|:--------|:------|
+| **PostgreSQL 15** | Primary database | ✅ Configured |
+| **Prisma ORM** | Database toolkit | ✅ Active |
+| **Prisma Accelerate** | Connection pooling | ⚙️ Optional |
+| **Docker Compose** | Local PostgreSQL | ✅ Included |
+
+### 🔧 Development Tools
+
+| Tool | Purpose |
+|:-----|:--------|
+| **pnpm** | Package manager (monorepo support) |
+| **TypeScript** | Type safety across all workspaces |
+| **ESLint** | Code linting |
+| **Prettier** | Code formatting (implied) |
+| **Hardhat** | Smart contract development |
+| **Foundry** | Advanced contract testing |
+| **Jest** | Testing framework |
+| **Docker** | Containerization for database |
 
 ---
+
+## 📡 Backend API Reference
+
+El backend expone 8 rutas principales con múltiples endpoints:
+
+### 🛣️ Rutas Principales
+
+#### 1. `/api/markets` - Gestión de Mercados
+- `GET /` - Obtener todos los mercados
+- `GET /:id` - Obtener mercado por ID
+- `POST /` - Crear nuevo mercado
+- `PUT /:id` - Actualizar mercado
+- `DELETE /:id` - Eliminar mercado
+
+#### 2. `/api/oracle` - Oracle y Resolución
+- `POST /resolve` - Resolver mercado con consenso multi-AI
+- `GET /status` - Estado del oracle
+
+#### 3. `/api/reputation` - Sistema de Reputación
+- `GET /:userId` - Obtener reputación de usuario
+- `POST /join` - Unirse al sistema de reputación
+- `POST /update` - Actualizar reputación
+- `GET /leaderboard` - Tabla de clasificación
+
+#### 4. `/api/aggregation` - Agregación Cross-Chain
+- `POST /compare` - Comparar precios entre chains
+- `POST /execute` - Ejecutar ruta óptima
+- `GET /portfolio/:userId` - Portfolio del usuario
+
+#### 5. `/api/users` - Gestión de Usuarios
+- `GET /` - Listar usuarios
+- `GET /:id` - Obtener usuario por ID
+- `POST /` - Crear usuario
+- `PUT /:id` - Actualizar usuario
+
+#### 6. `/api/ai` - Servicios de IA
+- `GET /test` - Probar conectividad con Gemini
+- `POST /test` - Probar con prompt personalizado
+- `POST /call` - Llamar a Gemini
+- `POST /analyze-market` - Analizar mercado con IA
+- `POST /suggest-market` - Sugerir creación de mercado
+- `POST /portfolio-analysis` - Análisis de portfolio
+- `POST /reputation-analysis` - Análisis de reputación
+- `POST /insurance-risk` - Análisis de riesgo de seguro
+- `POST /dao-analysis` - Análisis de propuestas DAO
+
+#### 7. `/api/venus` - Integración Venus Protocol
+- `GET /markets` - Obtener mercados de Venus
+- `GET /markets/:address` - Mercado específico
+- `GET /vusdc` - Datos de vUSDC
+- `GET /apy/:address` - APY de un mercado
+- `GET /history/:address` - Historial de transacciones
+- `GET /insurance-pool/apy` - APY del pool de seguro
+- `GET /insurance-pool/transactions` - Transacciones del pool
+
+#### 8. `/api/gelato` - Automatización Gelato
+- `GET /status` - Estado de Gelato
+- `GET /bot-status` - Estado del bot
+- `POST /relay` - Relay de transacción
+- `POST /setup-oracle-automation` - Configurar automatización
+- `GET /tasks` - Listar tareas
+- `GET /tasks/:taskId` - Obtener tarea específica
+
+### 🤖 Oracle Bot
+
+El backend incluye un **Oracle Bot** que se inicia automáticamente y monitorea:
+- Eventos `ResolutionRequested` en los contratos
+- Mercados pendientes de resolución
+- Ejecución automática de resoluciones vía Gelato Relay
+
+## ⚛️ Frontend Components & Hooks
+
+### 🎣 Custom React Hooks
+
+El frontend incluye 10+ custom hooks para interacción con contratos:
+
+| Hook | Ubicación | Propósito |
+|:-----|:----------|:----------|
+| `useMarkets` | `lib/hooks/useMarkets.ts` | Obtener y gestionar mercados |
+| `useMarket` | `lib/hooks/useMarkets.ts` | Obtener mercado específico |
+| `useMarketActivity` | `lib/hooks/useMarketActivity.ts` | Actividad de mercado en tiempo real |
+| `useBetting` | `lib/hooks/useBetting.ts` | Colocar apuestas y reclamar ganancias |
+| `usePlaceBet` | `lib/hooks/betting/usePlaceBet.ts` | Hook especializado para apuestas |
+| `useCreateMarket` | `lib/hooks/markets/useCreateMarket.ts` | Crear nuevos mercados |
+| `useReputation` | `lib/hooks/reputation/useReputation.ts` | Sistema de reputación |
+| `useStakeReputation` | `lib/hooks/reputation/useReputation.ts` | Stake para reputación |
+| `useInsurance` | `lib/hooks/insurance/useInsurance.ts` | Pool de seguro |
+| `useInsurancePool` | `lib/hooks/insurance/useInsurancePool.ts` | Gestión del pool |
+| `useInsuranceClaims` | `lib/hooks/insurance/useInsuranceClaims.ts` | Reclamar seguros |
+| `useDAO` | `lib/hooks/dao/useDAO.ts` | Gobernanza DAO |
+| `useOracle` | `lib/hooks/useOracle.ts` | Estado del oracle |
+| `useAggregator` | `lib/hooks/aggregator/useAggregator.ts` | Agregación cross-chain |
+| `useBNBBalance` | `lib/hooks/useBNBBalance.ts` | Balance de BNB |
+| `useUserDashboard` | `lib/hooks/dashboard/useUserDashboard.ts` | Dashboard del usuario |
+
+### 🧩 Componentes React
+
+#### Layout Components
+- `Navbar` - Barra de navegación principal
+- `Footer` - Pie de página
+- `NeuralBackground` - Fondo animado con partículas
+- `AnimatedGradient` - Gradientes animados
+- `GlassCard` / `GlassmorphicCard` - Tarjetas con efecto glassmorphism
+
+#### Market Components
+- `MarketCard` - Tarjeta de mercado individual
+- `FeaturedMarkets` - Mercados destacados
+- `MarketFilters` - Filtros de búsqueda
+- `BettingPanel` - Panel de apuestas
+
+#### Insurance Components
+- `InsuranceStats` - Estadísticas del pool
+- `DepositPanel` - Panel de depósitos
+- `ClaimPanel` - Panel de reclamaciones
+
+#### UI Components (Radix UI)
+- `Button`, `Card`, `Dialog`, `Input`, `Select`, `Tabs`, `Progress`, `Badge`, `Skeleton`, `Table`, `Toaster`
+
+### 📄 Páginas (Next.js App Router)
+
+- `/` - Página principal (home)
+- `/markets` - Lista de mercados
+- `/markets/[id]` - Detalle de mercado
+- `/create` - Crear nuevo mercado
+- `/dashboard` - Dashboard del usuario
+- `/portfolio` - Portfolio de apuestas
+- `/reputation` - Sistema de reputación
+- `/dao` - Gobernanza DAO
+- `/insurance` - Pool de seguro
+- `/demo` - Página de demostración
+
+### 🔌 Next.js API Routes
+
+El frontend también expone API routes para funcionalidades específicas:
+
+- `/api/markets` - Gestión de mercados
+- `/api/oracle/resolve` - Resolución de mercados
+- `/api/reputation/*` - Sistema de reputación
+- `/api/aggregation/*` - Agregación cross-chain
+- `/api/ai/*` - Servicios de IA
+- `/api/venus/*` - Integración Venus
+- `/api/gelato/*` - Automatización Gelato
+- `/api/cron/*` - Tareas programadas (Vercel Cron)
 
 ## 📖 Documentation
 
@@ -615,6 +986,113 @@ const { conditionMet, currentPrice, targetPrice } =
 | 🔒 [Security Audit](./docs/SECURITY_AUDIT.md) | Security best practices |
 | 🚀 [Deployment Guide](./docs/DEPLOYMENT.md) | Deployment instructions |
 | 🪟 [Windows Setup](./docs/WINDOWS_SETUP.md) | Windows development setup |
+
+---
+
+## 🏗️ System Architecture
+
+### 🔄 Flujo Completo del Sistema
+
+```
+┌─────────────┐
+│   Usuario   │
+└──────┬──────┘
+       │
+       ▼
+┌─────────────────┐
+│  Frontend (Next) │ ◄─── Thirdweb Embedded Wallets
+└──────┬──────────┘
+       │
+       ├───► Smart Contracts (opBNB)
+       │         │
+       │         ├──► PredictionMarketCore
+       │         ├──► BinaryMarket / ConditionalMarket / SubjectiveMarket
+       │         ├──► AIOracle
+       │         ├──► InsurancePool
+       │         ├──► ReputationStaking
+       │         └──► OmniRouter
+       │
+       └───► Backend API (Express)
+                 │
+                 ├──► Oracle Bot (monitorea eventos)
+                 ├──► Multi-AI Consensus Service
+                 │      ├──► Gemini 2.5 Flash Lite (Priority 1)
+                 │      ├──► Groq Llama 3.1 (Priority 2)
+                 │      ├──► OpenRouter Models (Priority 3-5)
+                 │      └──► Fallback automático
+                 │
+                 ├──► Chainlink Data Streams
+                 │      └──► Price feeds en tiempo real
+                 │
+                 └──► External Services
+                        ├──► Venus Protocol (yield farming)
+                        ├──► Gelato (automation)
+                        └──► Chainlink CCIP (cross-chain)
+```
+
+### 📊 Flujo de Resolución de Mercado
+
+1. **Creación de Mercado**:
+   - Usuario crea mercado en frontend
+   - Frontend llama a `PredictionMarketCore.createMarket()`
+   - Evento `MarketCreated` emitido
+
+2. **Apuestas**:
+   - Usuarios colocan apuestas (YES/NO)
+   - Fondos bloqueados en el contrato
+   - Evento `BetPlaced` emitido
+
+3. **Resolución**:
+   - Al llegar el deadline, se emite `ResolutionRequested`
+   - Oracle Bot detecta el evento
+   - Backend consulta múltiples AIs en secuencia
+   - Se calcula consenso (80%+ acuerdo)
+   - Gelato Relay ejecuta `resolveMarket()` on-chain
+   - Evento `MarketResolved` emitido
+
+4. **Reclamación**:
+   - Ganadores pueden reclamar sus ganancias
+   - `claimWinnings()` distribuye fondos
+   - Evento `WinningsClaimed` emitido
+
+### 🔗 Integraciones Externas
+
+#### Chainlink Data Streams
+- **Propósito**: Precios en tiempo real para mercados basados en precio
+- **Frecuencia**: Actualizaciones cada ~100ms
+- **Streams**: BTC/USD, ETH/USD, BNB/USD, USDT/USD, SOL/USD, XRP/USD, USDC/USD, DOGE/USD
+- **Contrato**: `ChainlinkDataStreamsIntegration`
+
+#### Venus Protocol
+- **Propósito**: Yield farming para el Insurance Pool
+- **Token**: vUSDC
+- **APY**: Variable según mercado
+- **Integración**: `InsurancePool` deposita BNB → Venus → genera yield
+
+#### Gelato
+- **Propósito**: Automatización de resoluciones
+- **Servicio**: Gelato Relay (gasless transactions)
+- **Uso**: Ejecutar `resolveMarket()` automáticamente
+- **Configuración**: On-chain en `AIOracle` contract
+
+#### Thirdweb
+- **Propósito**: Gasless UX con Embedded Wallets
+- **Features**: Session keys, fiat onramp, mobile support
+- **Integración**: Frontend usa Thirdweb SDK v5
+
+### 🗄️ Base de Datos
+
+**Esquema Principal** (Prisma):
+- `User` - Usuarios del sistema
+- `Market` - Mercados creados
+- `Bet` - Apuestas realizadas
+- `Reputation` - Datos de reputación
+- `InsuranceDeposit` - Depósitos en pool
+- `DAOProposal` - Propuestas de gobernanza
+
+**Storage**:
+- On-chain: Datos críticos (mercados, apuestas, reputación)
+- Off-chain: Datos auxiliares (metadata, analytics)
 
 ---
 
@@ -779,13 +1257,49 @@ pnpm verify:all
 
 **Note**: Integration tests (`transactions.test.ts`) connect to deployed contracts on opBNB Testnet and generate real transaction hashes. All transactions are verifiable on [opBNBScan](https://testnet.opbnbscan.com/).
 
+### 🔧 Backend Services
+
+El backend incluye 25+ servicios organizados por funcionalidad:
+
+#### LLM Services (Multi-AI Consensus)
+- `consensus.service.ts` - Servicio principal de consenso multi-AI
+- `google.service.ts` - Integración con Google Gemini
+- `groq.service.ts` - Integración con Groq (Llama, Mixtral, etc.)
+- `groq-llama.service.ts` - Llama 3.1 específico
+- `groq-mixtral.service.ts` - Mixtral específico
+- `groq-deepseek.service.ts` - DeepSeek específico
+- `groq-qwen.service.ts` - Qwen específico
+- `openrouter.service.ts` - Servicio base OpenRouter
+- `openrouter-llama.service.ts` - Llama via OpenRouter
+- `openrouter-mistral.service.ts` - Mistral via OpenRouter
+- `openrouter-gemini.service.ts` - Gemini via OpenRouter
+- `openrouter-alternative.service.ts` - Modelos alternativos
+- `anthropic.service.ts` - Claude (Anthropic)
+- `openai.service.ts` - OpenAI GPT
+- `xai.service.ts` - Grok (xAI)
+- `huggingface.service.ts` - Hugging Face models
+- `cometapi.service.ts` - Comet API
+
+#### Core Services
+- `marketService.ts` - Gestión de mercados
+- `oracleService.ts` - Servicio de oracle
+- `reputationService.ts` - Sistema de reputación
+- `aggregationService.ts` - Agregación cross-chain
+- `userService.ts` - Gestión de usuarios
+- `venusService.ts` - Integración Venus Protocol
+- `gelatoService.ts` - Automatización Gelato
+- `eventMonitorService.ts` - Monitoreo de eventos on-chain
+
+#### AI Services (Frontend)
+- `gemini-advanced.ts` - Funciones avanzadas de Gemini para análisis
+
 ### 🔧 Backend Tests
 
 **Status**: ✅ **~30 Tests - 100% Coverage**
 
 Tests complete for:
 - ✅ API Routes (8 routes): markets, oracle, reputation, aggregation, users, ai, venus, gelato
-- ✅ Services (5 services): marketService, oracleService, reputationService, aggregationService, userService
+- ✅ Services (25+ services): Todos los servicios LLM, core services, integraciones
 - ✅ Integration tests with deployed contracts
 - ✅ End-to-end tests complete
 - ✅ Multi-AI consensus service tests
@@ -797,11 +1311,12 @@ Tests complete for:
 **Status**: ✅ **~20 Tests - 100% Coverage**
 
 Tests complete for:
-- ✅ Custom Hooks (10 hooks): usePlaceBet, useInsurance, useReputation, useDAO, useMarkets, useOracle, useBNBBalance, useAggregator, useCreateMarket, useBetting
+- ✅ Custom Hooks (16 hooks): usePlaceBet, useInsurance, useReputation, useDAO, useMarkets, useMarket, useMarketActivity, useOracle, useBNBBalance, useAggregator, useCreateMarket, useBetting, useStakeReputation, useInsurancePool, useInsuranceClaims, useUserDashboard
 - ✅ Integration tests complete
 - ✅ Contract address validation
 - ✅ Error handling and edge cases
 - ✅ Chainlink Data Streams integration
+- ✅ E2E tests with Playwright
 
 **Location**: `frontend/__tests__/`
 
@@ -1094,8 +1609,42 @@ All integration checks pass ✅
 | **CertiK Audit** | ⏳ Pending |
 | **Slither** | ✅ Passed |
 | **Mythril** | ✅ Passed |
+| **Security Tests** | ✅ 70+ tests passing |
 
 </div>
+
+### 🛡️ Security Features
+
+- ✅ **Reentrancy Protection**: Todos los contratos protegidos contra reentrancy
+- ✅ **Access Control**: Roles y permisos bien definidos
+- ✅ **Input Validation**: Validación exhaustiva de inputs
+- ✅ **Integer Overflow Protection**: Solidity 0.8.24 con checks automáticos
+- ✅ **Oracle Consensus**: 80%+ acuerdo requerido para prevenir manipulación
+- ✅ **Insurance Pool**: Refund automático si el oracle falla
+- ✅ **Slash Mechanism**: Reputación reducida para malos actores
+- ✅ **Rate Limiting**: Protección contra spam en API
+- ✅ **CORS Configuration**: CORS configurado correctamente
+- ✅ **Environment Variables**: Secrets nunca expuestos al frontend
+
+### 🔒 Best Practices Implemented
+
+1. **Smart Contracts**:
+   - OpenZeppelin libraries para seguridad probada
+   - Checks-Effects-Interactions pattern
+   - Events para auditoría completa
+   - Pausable contracts para emergencias
+
+2. **Backend**:
+   - Validación con Zod schemas
+   - Error handling robusto
+   - Logging completo con Winston
+   - Rate limiting en endpoints críticos
+
+3. **Frontend**:
+   - Validación de direcciones de contratos
+   - Error boundaries para manejo de errores
+   - Sanitización de inputs
+   - HTTPS only en producción
 
 ---
 
@@ -1123,6 +1672,75 @@ MIT License - See [LICENSE](./LICENSE) file for details
 
 ---
 
+## 📚 Additional Resources
+
+### 🔗 Links Importantes
+
+- **🌐 Live App**: [metapredict.fun](https://metapredict.fun)
+- **📖 Documentation**: Ver carpeta `docs/`
+- **🔍 Explorer**: [opBNBScan Testnet](https://testnet.opbnbscan.com/)
+- **📊 Chainlink Data Streams**: [Portal](https://data.chain.link/streams)
+- **🤖 AI Providers**:
+  - [Google AI Studio](https://aistudio.google.com/app/apikey)
+  - [Groq Console](https://console.groq.com/keys)
+  - [OpenRouter](https://openrouter.ai)
+
+### 📝 Archivos de Documentación Adicional
+
+El proyecto incluye documentación detallada en varios archivos:
+
+- `ACCION_INMEDIATA.md` - Acciones inmediatas requeridas
+- `CHECK_ENV_SETUP.md` - Verificación de configuración
+- `COMPLETE_REAL_INTEGRATIONS_TEST_RESULTS.md` - Resultados de tests
+- `DEPLOYMENT_SUMMARY.md` - Resumen de deployment
+- `DOMAIN_MIGRATION_COMPLETE.md` - Migración de dominio
+- `INTEGRATION_COMPLETE.md` - Estado de integración
+- `PROJECT_STATUS_COMPLETE.md` - Estado del proyecto
+- `REAL_CHAINLINK_DATA_VERIFICATION.md` - Verificación Chainlink
+- `SECURITY_ROTATION_REQUIRED.md` - Rotación de seguridad
+- `SOLUCION_ERROR_500_ORACLE.md` - Solución de errores
+- `SOLUCION_THIRDWEB_CLIENT_ID.md` - Configuración Thirdweb
+- `TEST_RESULTS_SUMMARY.md` - Resumen de tests
+- `TRANSACTION_LINKS_SUMMARY.md` - Enlaces de transacciones
+- `VERCEL_ENV_VARIABLES_COMPLETE.md` - Variables de Vercel
+
+### 🛠️ Troubleshooting
+
+#### Problemas Comunes
+
+1. **Error de conexión a contratos**:
+   - Verifica que las direcciones en `frontend/lib/contracts/addresses.ts` sean correctas
+   - Asegúrate de estar conectado a opBNB Testnet (Chain ID: 5611)
+
+2. **Oracle no responde**:
+   - Verifica que `BACKEND_URL` esté configurado correctamente en `.env.local`
+   - Revisa que las API keys de AI estén configuradas
+   - Verifica logs del backend
+
+3. **Error de compilación de contratos**:
+   - Asegúrate de tener Node.js 18+
+   - Ejecuta `pnpm install` en `smart-contracts/`
+   - Verifica que Hardhat esté correctamente configurado
+
+4. **Problemas con Docker**:
+   - Verifica que Docker esté corriendo
+   - Revisa logs con `docker-compose logs`
+   - Asegúrate de que el puerto 5432 no esté en uso
+
+### 🤝 Contributing
+
+Este proyecto está en desarrollo activo. Para contribuir:
+
+1. Fork el repositorio
+2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
+3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
+4. Push a la rama (`git push origin feature/AmazingFeature`)
+5. Abre un Pull Request
+
+### 📄 License
+
+MIT License - Ver [LICENSE](./LICENSE) para más detalles
+
 ## 🙏 Acknowledgments
 
 <div align="center">
@@ -1137,6 +1755,9 @@ MIT License - See [LICENSE](./LICENSE) file for details
 - 💰 **Venus Protocol** - Yield farming
 - 🤖 **Gelato** - Automation services
 - 🧠 **Google AI, Groq, OpenRouter** - AI providers
+- 📚 **OpenZeppelin** - Secure contract libraries
+- ⚛️ **Next.js & React** - Frontend framework
+- 🎨 **Tailwind CSS & Framer Motion** - Styling and animations
 
 ---
 
