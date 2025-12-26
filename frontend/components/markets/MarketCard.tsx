@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { TrendingUp, TrendingDown, Clock, Users, Shield, Brain } from 'lucide-react';
 import { GlassCard } from '@/components/effects/GlassCard';
-import { formatDistanceToNow } from 'date-fns';
+import { formatDistanceToNow, format } from 'date-fns';
 import { MARKET_STATUS, MARKET_TYPES } from '@/lib/config/constants';
 import { motion } from 'framer-motion';
 
@@ -61,7 +61,19 @@ export function MarketCard({ market }: MarketCardProps) {
   const yesOdds = market.yesOdds || 50;
   const noOdds = market.noOdds || 50;
   const timeRemaining = formatDistanceToNow(new Date(market.resolutionTime * 1000), { addSuffix: true });
+  const deadlineDate = new Date(market.resolutionTime * 1000);
+  const deadlineFormatted = format(deadlineDate, 'MMM dd, yyyy HH:mm');
   const statusInfo = statusLabels[market.status as keyof typeof statusLabels];
+  
+  // Convert totalVolume from wei to BNB if needed
+  // totalVolume is already in BNB from markets/page.tsx, but handle both cases
+  const totalVolumeBNB = market.totalVolume 
+    ? (typeof market.totalVolume === 'bigint' 
+        ? Number(market.totalVolume) / 1e18 
+        : market.totalVolume > 1e15 
+        ? market.totalVolume / 1e18 
+        : market.totalVolume)
+    : 0;
 
   return (
     <Link href={`/markets/${market.id}`} className="block h-full">
@@ -117,18 +129,27 @@ export function MarketCard({ market }: MarketCardProps) {
               {market.question || `Market #${market.id}`}
             </h3>
 
-            {/* Time and participants */}
-            <div className="flex items-center gap-2 sm:gap-3 md:gap-4 mb-4 sm:mb-5 text-[10px] sm:text-xs md:text-sm text-gray-400 flex-wrap">
-              <div className="flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-lg bg-white/5 border border-white/10 flex-shrink-0">
-                <Clock className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-purple-400 flex-shrink-0" />
-                <span className="truncate font-medium max-w-[120px] sm:max-w-none">{timeRemaining}</span>
-              </div>
-              {market.participants !== undefined && (
-                <div className="flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-lg bg-white/5 border border-white/10 flex-shrink-0">
-                  <Users className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-blue-400 flex-shrink-0" />
-                  <span className="font-medium whitespace-nowrap">{market.participants}</span>
+            {/* Deadline, Time remaining, and Participants */}
+            <div className="space-y-2 mb-4 sm:mb-5">
+              <div className="flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2 py-1 sm:py-1.5 rounded-lg bg-red-500/10 border border-red-500/20 flex-shrink-0">
+                <Clock className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-red-400 flex-shrink-0" />
+                <div className="flex flex-col min-w-0">
+                  <span className="text-[9px] sm:text-[10px] text-gray-500 font-medium">Deadline</span>
+                  <span className="text-[10px] sm:text-xs text-red-300 font-semibold truncate">{deadlineFormatted}</span>
                 </div>
-              )}
+              </div>
+              <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+                <div className="flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-lg bg-white/5 border border-white/10 flex-shrink-0">
+                  <Clock className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-purple-400 flex-shrink-0" />
+                  <span className="text-[10px] sm:text-xs text-gray-300 font-medium truncate max-w-[120px] sm:max-w-none">{timeRemaining}</span>
+                </div>
+                {market.participants !== undefined && (
+                  <div className="flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-lg bg-white/5 border border-white/10 flex-shrink-0">
+                    <Users className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-blue-400 flex-shrink-0" />
+                    <span className="text-[10px] sm:text-xs text-gray-300 font-medium whitespace-nowrap">{market.participants} {market.participants === 1 ? 'participant' : 'participants'}</span>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Prediction odds with enhanced bars */}
@@ -184,17 +205,19 @@ export function MarketCard({ market }: MarketCardProps) {
               </div>
             </div>
 
-            {/* Volume */}
-            {market.totalVolume !== undefined && market.totalVolume > 0 && (
+            {/* Volume in BNB */}
+            {totalVolumeBNB > 0 && (
               <div className="mb-3 sm:mb-4 pt-3 sm:pt-4 border-t border-white/10">
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-[10px] sm:text-xs md:text-sm text-gray-400 font-medium truncate">Total Volume:</span>
                   <span className="text-xs sm:text-sm md:text-base text-white font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent whitespace-nowrap flex-shrink-0">
-                    ${market.totalVolume < 0.01 
-                      ? market.totalVolume.toFixed(4) 
-                      : market.totalVolume < 1 
-                      ? market.totalVolume.toFixed(2) 
-                      : market.totalVolume.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                    {totalVolumeBNB < 0.0001 
+                      ? totalVolumeBNB.toFixed(6) 
+                      : totalVolumeBNB < 0.01 
+                      ? totalVolumeBNB.toFixed(4) 
+                      : totalVolumeBNB < 1 
+                      ? totalVolumeBNB.toFixed(2) 
+                      : totalVolumeBNB.toLocaleString(undefined, { maximumFractionDigits: 2 })} BNB
                   </span>
                 </div>
               </div>
