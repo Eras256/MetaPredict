@@ -357,7 +357,7 @@ Respond with a JSON in this format:
 
         {/* Auto-refresh Banner */}
         <AutoRefreshBanner
-          refreshInterval={30}
+          refreshInterval={60}
           onRefresh={refresh}
           description="Markets data is automatically refreshed to show the latest odds, volumes, and market status."
           sectionName="Markets"

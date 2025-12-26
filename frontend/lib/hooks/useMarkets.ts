@@ -264,7 +264,7 @@ export function useMarkets() {
   }, [contract, marketCounter]);
   
   // Note: Auto-refresh is now controlled by AutoRefreshBanner component in pages
-  // This ensures refresh only happens at the specified intervals (e.g., 30s for markets)
+  // This ensures refresh only happens at the specified intervals (e.g., 60s for markets)
 
   // Función para refrescar manualmente
   const refresh = async () => {

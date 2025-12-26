@@ -102,36 +102,36 @@ export function AutoRefreshBanner({
         exit={{ opacity: 0, y: -10 }}
         className={className}
       >
-        <GlassCard className="p-3 sm:p-4 border-purple-500/20 bg-gradient-to-r from-purple-500/5 to-pink-500/5">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-            <div className="flex items-start sm:items-center gap-3 flex-1">
-              <div className="p-2 rounded-lg bg-purple-500/10 border border-purple-500/20">
+        <GlassCard className="p-3 sm:p-4 md:p-5 border-purple-500/20 bg-gradient-to-r from-purple-500/5 to-pink-500/5">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+            <div className="flex items-start sm:items-center gap-2 sm:gap-3 flex-1 min-w-0 w-full sm:w-auto">
+              <div className="p-1.5 sm:p-2 rounded-lg bg-purple-500/10 border border-purple-500/20 flex-shrink-0">
                 <RefreshCw
-                  className={`w-4 h-4 text-purple-400 ${isRefreshing ? 'animate-spin' : ''}`}
+                  className={`w-3.5 h-3.5 sm:w-4 sm:h-4 text-purple-400 ${isRefreshing ? 'animate-spin' : ''}`}
                 />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-xs sm:text-sm font-semibold text-purple-300">
+                <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-1">
+                  <span className="text-xs sm:text-sm font-semibold text-purple-300 truncate">
                     Auto-refresh: {sectionName}
                   </span>
-                  <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-500/10 border border-purple-500/20">
-                    <Clock className="w-3 h-3 text-purple-400" />
-                    <span className="text-xs text-purple-300 font-medium">
+                  <div className="flex items-center gap-1 px-1.5 sm:px-2 py-0.5 rounded-full bg-purple-500/10 border border-purple-500/20 flex-shrink-0">
+                    <Clock className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-purple-400" />
+                    <span className="text-xs text-purple-300 font-medium whitespace-nowrap">
                       {formatTime(timeRemaining)}
                     </span>
                   </div>
                 </div>
-                <p className="text-xs text-gray-400 leading-relaxed">
+                <p className="text-xs sm:text-sm text-gray-400 leading-relaxed break-words">
                   {description} Refreshes every <strong className="text-purple-300">{formatInterval(refreshInterval)}</strong> to keep data up-to-date.
                   {pauseRefresh && (
-                    <span className="block mt-1 text-yellow-400">
+                    <span className="block mt-1.5 sm:mt-1 text-yellow-400 text-xs">
                       ⏸️ Auto-refresh paused while you're filling forms
                     </span>
                   )}
                 </p>
                 {lastRefresh && (
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-gray-500 mt-1.5 sm:mt-1 break-words">
                     Last updated: {lastRefresh.toLocaleTimeString()}
                   </p>
                 )}
@@ -140,12 +140,12 @@ export function AutoRefreshBanner({
             <button
               onClick={handleRefresh}
               disabled={isRefreshing}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/20 hover:border-purple-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/20 hover:border-purple-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto flex-shrink-0"
             >
               <RefreshCw
-                className={`w-3.5 h-3.5 text-purple-400 ${isRefreshing ? 'animate-spin' : ''}`}
+                className={`w-3.5 h-3.5 sm:w-4 sm:h-4 text-purple-400 ${isRefreshing ? 'animate-spin' : ''}`}
               />
-              <span className="text-xs font-medium text-purple-300 hidden sm:inline">
+              <span className="text-xs sm:text-sm font-medium text-purple-300 whitespace-nowrap">
                 {isRefreshing ? 'Refreshing...' : 'Refresh Now'}
               </span>
             </button>

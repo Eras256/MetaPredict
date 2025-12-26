@@ -22,7 +22,7 @@
 
 **MetaPredict.fun** is the world's first prediction market platform powered by **5-AI consensus oracle**, protected by **insurance**, and built on **opBNB** for ultra-low fees.
 
-**Live on opBNB Testnet** | **115/115 tests passing** | **84+ markets created** | **200+ transactions** | **Top 20 Global Finalist** - [DoraHacks Prediction Markets Hackathon](https://dorahacks.io/hackathon/predictionmarketshackathon)
+**Live on opBNB Testnet** | **115/115 tests passing** | **84+ markets created** | **200+ transactions** | **Top 20 Global Finalist** - Seedify Prediction Markets Hackathon by BNB Chain
 
 **What Makes Us Different:**
 - 🧠 **5 AI Models** from 3 providers (Gemini, Llama, Mistral) working in sequential consensus
@@ -616,7 +616,7 @@ pnpm datastreams:test
 
 <div align="center">
 
-### **[DoraHacks Prediction Markets Hackathon](https://dorahacks.io/hackathon/predictionmarketshackathon)**
+### **Seedify Prediction Markets Hackathon by BNB Chain**
 
 **Top 20 Global Finalist** 🏆
 
@@ -624,7 +624,7 @@ pnpm datastreams:test
 
 **Status**: ✅ **Top 20 Global Finalist**  
 **Network**: opBNB Testnet (Chain ID: 5611)  
-**Hackathon Link**: [DoraHacks Prediction Markets Hackathon](https://dorahacks.io/hackathon/predictionmarketshackathon)
+**Hackathon**: Seedify Prediction Markets Hackathon by BNB Chain
 
 ### 🎯 Key Innovations
 

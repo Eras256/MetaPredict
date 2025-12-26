@@ -72,7 +72,7 @@ export function MarketCard({ market }: MarketCardProps) {
         whileHover={{ y: -4 }}
         className="h-full"
       >
-        <GlassCard hover className="p-5 sm:p-6 h-full transition-all duration-500 hover:scale-[1.02] hover:shadow-[0_20px_60px_rgba(139,92,246,0.3)] group relative overflow-hidden">
+        <GlassCard hover className="p-4 sm:p-5 md:p-6 h-full transition-all duration-500 hover:scale-[1.02] hover:shadow-[0_20px_60px_rgba(139,92,246,0.3)] group relative overflow-hidden">
           {/* Animated background gradient */}
           <div className="absolute inset-0 bg-gradient-to-br from-purple-500/0 via-pink-500/0 to-blue-500/0 group-hover:from-purple-500/10 group-hover:via-pink-500/5 group-hover:to-blue-500/10 transition-all duration-500" />
           
@@ -81,71 +81,72 @@ export function MarketCard({ market }: MarketCardProps) {
           
           <div className="relative z-10 flex flex-col h-full">
             {/* Header with badges */}
-            <div className="flex items-start justify-between mb-4 gap-2">
-              <div className="flex items-center gap-2 flex-wrap flex-1">
+            <div className="flex items-start justify-between mb-3 sm:mb-4 gap-2">
+              <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap flex-1 min-w-0">
                 <Badge 
                   variant="outline" 
-                  className="text-xs font-semibold border-purple-500/40 bg-purple-500/10 text-purple-300 px-2.5 py-1 rounded-full backdrop-blur-sm"
+                  className="text-[10px] sm:text-xs font-semibold border-purple-500/40 bg-purple-500/10 text-purple-300 px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full backdrop-blur-sm whitespace-nowrap"
                 >
                   {marketTypeLabels[market.marketType as keyof typeof marketTypeLabels]}
                 </Badge>
                 <Badge 
-                  className={`text-xs font-semibold px-2.5 py-1 rounded-full border backdrop-blur-sm ${statusInfo?.color} ${statusInfo?.glow}`}
+                  className={`text-[10px] sm:text-xs font-semibold px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full border backdrop-blur-sm whitespace-nowrap ${statusInfo?.color} ${statusInfo?.glow}`}
                 >
                   {statusInfo?.label}
                 </Badge>
               </div>
-              <div className="flex items-center gap-2 flex-shrink-0">
+              <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
                 {market.status === MARKET_STATUS.DISPUTED && (
                   <motion.div
                     animate={{ rotate: [0, 10, -10, 0] }}
                     transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+                    className="flex-shrink-0"
                   >
-                    <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400 drop-shadow-[0_0_8px_rgba(234,179,8,0.6)]" />
+                    <Shield className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-yellow-400 drop-shadow-[0_0_8px_rgba(234,179,8,0.6)]" />
                   </motion.div>
                 )}
-                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/30 backdrop-blur-sm group-hover:border-purple-500/50 transition-colors">
-                  <Brain className="w-3.5 h-3.5 text-purple-400 group-hover:text-purple-300 transition-colors" />
-                  <span className="text-xs text-purple-300 font-medium hidden sm:inline">AI Oracle</span>
+                <div className="flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/30 backdrop-blur-sm group-hover:border-purple-500/50 transition-colors flex-shrink-0">
+                  <Brain className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-purple-400 group-hover:text-purple-300 transition-colors" />
+                  <span className="text-[10px] sm:text-xs text-purple-300 font-medium hidden sm:inline whitespace-nowrap">AI Oracle</span>
                 </div>
               </div>
             </div>
 
             {/* Question */}
-            <h3 className="text-base sm:text-lg font-bold text-white mb-4 line-clamp-2 leading-snug group-hover:text-purple-100 transition-colors">
+            <h3 className="text-sm sm:text-base md:text-lg font-bold text-white mb-3 sm:mb-4 line-clamp-2 leading-snug group-hover:text-purple-100 transition-colors break-words">
               {market.question || `Market #${market.id}`}
             </h3>
 
             {/* Time and participants */}
-            <div className="flex items-center gap-4 mb-5 text-xs sm:text-sm text-gray-400 flex-wrap">
-              <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-white/5 border border-white/10">
-                <Clock className="w-3.5 h-3.5 text-purple-400" />
-                <span className="truncate font-medium">{timeRemaining}</span>
+            <div className="flex items-center gap-2 sm:gap-3 md:gap-4 mb-4 sm:mb-5 text-[10px] sm:text-xs md:text-sm text-gray-400 flex-wrap">
+              <div className="flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-lg bg-white/5 border border-white/10 flex-shrink-0">
+                <Clock className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-purple-400 flex-shrink-0" />
+                <span className="truncate font-medium max-w-[120px] sm:max-w-none">{timeRemaining}</span>
               </div>
               {market.participants !== undefined && (
-                <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-white/5 border border-white/10">
-                  <Users className="w-3.5 h-3.5 text-blue-400" />
-                  <span className="font-medium">{market.participants}</span>
+                <div className="flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-lg bg-white/5 border border-white/10 flex-shrink-0">
+                  <Users className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-blue-400 flex-shrink-0" />
+                  <span className="font-medium whitespace-nowrap">{market.participants}</span>
                 </div>
               )}
             </div>
 
             {/* Prediction odds with enhanced bars */}
-            <div className="space-y-3 mt-auto mb-5">
+            <div className="space-y-2.5 sm:space-y-3 mt-auto mb-4 sm:mb-5">
               {/* YES Option */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="p-1.5 rounded-lg bg-green-500/10 border border-green-500/20">
-                      <TrendingUp className="w-3.5 h-3.5 text-green-400" />
+              <div className="space-y-1.5 sm:space-y-2">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1">
+                    <div className="p-1 sm:p-1.5 rounded-lg bg-green-500/10 border border-green-500/20 flex-shrink-0">
+                      <TrendingUp className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-green-400" />
                     </div>
-                    <span className="text-sm font-semibold text-gray-300">YES</span>
+                    <span className="text-xs sm:text-sm font-semibold text-gray-300 whitespace-nowrap">YES</span>
                   </div>
-                  <span className="text-lg font-bold text-green-400 bg-green-500/10 px-2.5 py-1 rounded-lg border border-green-500/20">
+                  <span className="text-base sm:text-lg font-bold text-green-400 bg-green-500/10 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg border border-green-500/20 whitespace-nowrap flex-shrink-0">
                     {yesOdds}%
                   </span>
                 </div>
-                <div className="relative h-3 bg-gray-800/50 rounded-full overflow-hidden border border-gray-700/50">
+                <div className="relative h-2.5 sm:h-3 bg-gray-800/50 rounded-full overflow-hidden border border-gray-700/50">
                   <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: `${yesOdds}%` }}
@@ -158,19 +159,19 @@ export function MarketCard({ market }: MarketCardProps) {
               </div>
 
               {/* NO Option */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="p-1.5 rounded-lg bg-red-500/10 border border-red-500/20">
-                      <TrendingDown className="w-3.5 h-3.5 text-red-400" />
+              <div className="space-y-1.5 sm:space-y-2">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1">
+                    <div className="p-1 sm:p-1.5 rounded-lg bg-red-500/10 border border-red-500/20 flex-shrink-0">
+                      <TrendingDown className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-red-400" />
                     </div>
-                    <span className="text-sm font-semibold text-gray-300">NO</span>
+                    <span className="text-xs sm:text-sm font-semibold text-gray-300 whitespace-nowrap">NO</span>
                   </div>
-                  <span className="text-lg font-bold text-red-400 bg-red-500/10 px-2.5 py-1 rounded-lg border border-red-500/20">
+                  <span className="text-base sm:text-lg font-bold text-red-400 bg-red-500/10 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg border border-red-500/20 whitespace-nowrap flex-shrink-0">
                     {noOdds}%
                   </span>
                 </div>
-                <div className="relative h-3 bg-gray-800/50 rounded-full overflow-hidden border border-gray-700/50">
+                <div className="relative h-2.5 sm:h-3 bg-gray-800/50 rounded-full overflow-hidden border border-gray-700/50">
                   <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: `${noOdds}%` }}
@@ -185,10 +186,10 @@ export function MarketCard({ market }: MarketCardProps) {
 
             {/* Volume */}
             {market.totalVolume !== undefined && market.totalVolume > 0 && (
-              <div className="mb-4 pt-4 border-t border-white/10">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs sm:text-sm text-gray-400 font-medium">Total Volume:</span>
-                  <span className="text-sm sm:text-base text-white font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+              <div className="mb-3 sm:mb-4 pt-3 sm:pt-4 border-t border-white/10">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[10px] sm:text-xs md:text-sm text-gray-400 font-medium truncate">Total Volume:</span>
+                  <span className="text-xs sm:text-sm md:text-base text-white font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent whitespace-nowrap flex-shrink-0">
                     ${market.totalVolume < 0.01 
                       ? market.totalVolume.toFixed(4) 
                       : market.totalVolume < 1 
@@ -201,14 +202,15 @@ export function MarketCard({ market }: MarketCardProps) {
 
             {/* View Market Button */}
             <Button 
-              className="w-full mt-auto bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold border-0 shadow-lg shadow-purple-500/20 group-hover:shadow-purple-500/40 transition-all duration-300" 
+              className="w-full mt-auto bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white text-xs sm:text-sm font-semibold border-0 shadow-lg shadow-purple-500/20 group-hover:shadow-purple-500/40 transition-all duration-300 py-2 sm:py-2.5" 
               size="sm"
             >
-              <span className="flex items-center justify-center gap-2">
-                View Market
+              <span className="flex items-center justify-center gap-1.5 sm:gap-2">
+                <span className="whitespace-nowrap">View Market</span>
                 <motion.span
                   animate={{ x: [0, 4, 0] }}
                   transition={{ duration: 1.5, repeat: Infinity }}
+                  className="flex-shrink-0"
                 >
                   →
                 </motion.span>
