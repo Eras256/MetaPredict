@@ -125,12 +125,16 @@ export function MarketCard({ market }: MarketCardProps) {
   
   // Check if market is actually resolved by checking outcome
   // outcome: 0=Pending, 1=Yes, 2=No, 3=Invalid
-  // If outcome is 0 (Pending) or undefined, the market is not truly resolved even if status says Resolved
-  // If outcome is not available, we check expiration first - if expired and status is Resolved but no outcome, show expired
+  // IMPORTANT: A market is ONLY truly resolved if:
+  // 1. Status is Resolved (2) AND
+  // 2. Outcome exists AND
+  // 3. Outcome is NOT Pending (0) - must be 1, 2, or 3
+  // If outcome is missing or 0, market is NOT truly resolved, even if status says Resolved
   const hasOutcome = market.outcome !== undefined;
   const outcomeIsPending = hasOutcome && market.outcome === 0;
-  // Market is actually resolved only if: status is Resolved AND outcome exists AND outcome is not Pending (0)
-  const isActuallyResolved = isResolved && hasOutcome && !outcomeIsPending;
+  const hasValidOutcome = hasOutcome && market.outcome !== 0; // 1, 2, or 3
+  // Market is actually resolved ONLY if status is Resolved AND has valid outcome (1, 2, or 3)
+  const isActuallyResolved = isResolved && hasValidOutcome;
   
   // Determine display status: prioritize expiration check over contract status
   // CRITICAL LOGIC: 
