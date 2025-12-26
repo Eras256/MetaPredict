@@ -47,7 +47,7 @@ export const CONTRACT_ADDRESSES: {
 } = {
   // Usar CORE_CONTRACT_ADDRESS como PREDICTION_MARKET (es el contrato principal)
   // Todos los contratos ahora usan BNB nativo (no USDC)
-  // Updated addresses from opbnb-testnet.json deployment (2025-11-18)
+  // Updated addresses from opbnb-testnet.json deployment (December 2025)
   PREDICTION_MARKET: getAddress(process.env.NEXT_PUBLIC_CORE_CONTRACT_ADDRESS, '0x5eaa77CC135b82c254F1144c48f4d179964fA0b1'),
   CORE_CONTRACT: getAddress(process.env.NEXT_PUBLIC_CORE_CONTRACT_ADDRESS, '0x5eaa77CC135b82c254F1144c48f4d179964fA0b1'),
   AI_ORACLE: getAddress(process.env.NEXT_PUBLIC_AI_ORACLE_ADDRESS, '0xcc10a98Aa285E7bD16be1Ef8420315725C3dB66c'),

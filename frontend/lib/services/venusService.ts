@@ -395,11 +395,11 @@ class VenusService {
   }
 
   /**
-   * Gets historical data until November 2025 (or specified date)
+   * Gets historical data until December 2025 (or specified date)
    */
   async getHistoricalDataUntil(
     vTokenAddress: string,
-    endDate: Date = new Date("2025-11-30")
+    endDate: Date = new Date("2025-12-31")
   ): Promise<VenusHistoricalData[]> {
     try {
       // Get data from 1 year ago until specified date

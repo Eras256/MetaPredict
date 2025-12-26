@@ -6,8 +6,8 @@ export const maxDuration = 60;
 
 /**
  * GET /api/venus/history/:address/until
- * @description Gets historical data until November 2025 (or specified date)
- * @query endDate - End date (ISO string, default: 2025-11-30)
+ * @description Gets historical data until December 2025 (or specified date)
+ * @query endDate - End date (ISO string, default: 2025-12-31)
  */
 export async function GET(
   request: NextRequest,
@@ -20,7 +20,7 @@ export async function GET(
 
     const end = endDateParam 
       ? new Date(endDateParam)
-      : new Date("2025-11-30");
+      : new Date("2025-12-31");
 
     const historicalData = await venusService.getHistoricalDataUntil(address, end);
     return NextResponse.json({ 
