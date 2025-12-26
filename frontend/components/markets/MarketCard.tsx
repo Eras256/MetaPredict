@@ -126,26 +126,28 @@ export function MarketCard({ market }: MarketCardProps) {
   // Check if market is actually resolved by checking outcome
   // outcome: 0=Pending, 1=Yes, 2=No, 3=Invalid
   // If outcome is 0 (Pending) or undefined, the market is not truly resolved even if status says Resolved
-  // If outcome is not available, we can't verify, so we trust the status but still check expiration
+  // If outcome is not available, we check expiration first - if expired and status is Resolved but no outcome, show expired
   const hasOutcome = market.outcome !== undefined;
   const outcomeIsPending = hasOutcome && market.outcome === 0;
-  const isActuallyResolved = isResolved && (!hasOutcome || !outcomeIsPending);
+  // Market is actually resolved only if: status is Resolved AND outcome exists AND outcome is not Pending (0)
+  const isActuallyResolved = isResolved && hasOutcome && !outcomeIsPending;
   
   // Determine display status: prioritize expiration check over contract status
-  // CRITICAL: If deadline has passed, always show "Expired - Pending Resolution" unless:
-  // 1. Market is actually resolved (outcome is 1, 2, or 3)
-  // 2. Market is cancelled
-  // This ensures ALL expired markets are detected, regardless of contract status
+  // CRITICAL LOGIC: 
+  // 1. If deadline passed (hasExpired = true) AND market is not actually resolved AND not cancelled
+  //    → ALWAYS show "Expired - Pending Resolution"
+  // 2. This catches ALL cases: Active markets that expired, Resolved markets with outcome still Pending, etc.
+  // 3. Only show contract status if market hasn't expired OR is truly resolved (has valid outcome)
   let displayStatus;
   if (hasExpired && !isActuallyResolved && !isCancelled) {
     // Market expired but not actually resolved - ALWAYS show expired status
-    // This catches cases where status might say "Resolved" but outcome is still Pending
+    // This catches:
+    // - Active markets that expired
+    // - Resolved markets where outcome is still 0 (Pending)
+    // - Resolved markets where outcome is not available
     displayStatus = expiredStatusLabel;
-  } else if (!hasExpired) {
-    // Market hasn't expired yet - use contract status
-    displayStatus = statusLabels[market.status as keyof typeof statusLabels];
   } else {
-    // Market expired and is actually resolved or cancelled - use contract status
+    // Market hasn't expired OR is truly resolved OR is cancelled - use contract status
     displayStatus = statusLabels[market.status as keyof typeof statusLabels];
   }
   
