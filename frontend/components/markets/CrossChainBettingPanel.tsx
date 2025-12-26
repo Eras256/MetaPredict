@@ -127,7 +127,7 @@ export function CrossChainBettingPanel({ marketId, marketQuestion }: CrossChainB
               </div>
               {bestPrice && (
                 <div className="text-xs text-gray-300 space-y-1">
-                  <div>Price: {(Number(bestPrice) / 1e18).toFixed(4)}</div>
+                  <div>Price: {(Number(bestPrice) / 1e18).toFixed(4)} BNB</div>
                   {estimatedShares && (
                     <div>Estimated Shares: {(Number(estimatedShares) / 1e18).toFixed(4)}</div>
                   )}

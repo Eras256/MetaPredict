@@ -251,7 +251,7 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                     <span className="truncate">Volume</span>
                   </div>
                   <div className="text-white font-bold text-base sm:text-lg md:text-xl">
-                    {market ? `$${((Number(market.yesPool || 0) + Number(market.noPool || 0)) / 1e18).toFixed(2)}` : '$0.00'}
+                    {market ? `${((Number(market.yesPool || 0) + Number(market.noPool || 0)) / 1e18).toFixed(2)} BNB` : '0.00 BNB'}
                   </div>
                 </div>
 

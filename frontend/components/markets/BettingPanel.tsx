@@ -264,13 +264,13 @@ export function BettingPanel({ marketId, yesOdds, noOdds, userBalance }: Betting
               <div className="flex justify-between items-center text-sm">
                 <span className="text-gray-300">Potential Return</span>
                 <span className="text-green-400 font-bold text-base truncate ml-2">
-                  ${potentialReturn}
+                  {potentialReturn} BNB
                 </span>
               </div>
               <div className="flex justify-between items-center text-sm pt-2 border-t border-green-500/20">
                 <span className="text-gray-300 font-medium">Profit</span>
                 <span className="text-green-400 font-bold text-lg truncate ml-2">
-                  {parseFloat(profit) >= 0 ? '+' : ''}${profit}
+                  {parseFloat(profit) >= 0 ? '+' : ''}{profit} BNB
                 </span>
               </div>
             </div>
@@ -331,13 +331,13 @@ export function BettingPanel({ marketId, yesOdds, noOdds, userBalance }: Betting
               <div className="flex justify-between items-center text-sm">
                 <span className="text-gray-300">Potential Return</span>
                 <span className="text-red-400 font-bold text-base truncate ml-2">
-                  ${potentialReturn}
+                  {potentialReturn} BNB
                 </span>
               </div>
               <div className="flex justify-between items-center text-sm pt-2 border-t border-red-500/20">
                 <span className="text-gray-300 font-medium">Profit</span>
                 <span className="text-red-400 font-bold text-lg truncate ml-2">
-                  {parseFloat(profit) >= 0 ? '+' : ''}${profit}
+                  {parseFloat(profit) >= 0 ? '+' : ''}{profit} BNB
                 </span>
               </div>
             </div>

@@ -110,7 +110,7 @@ export function PortfolioView() {
         </div>
         <div className="text-right">
           <div className="text-2xl font-bold text-white">
-            ${totalValue.toFixed(2)}
+            {totalValue.toFixed(4)} BNB
           </div>
           <div className={`text-sm flex items-center gap-1 ${
             totalPnl >= 0 ? 'text-green-400' : 'text-red-400'
@@ -120,7 +120,7 @@ export function PortfolioView() {
             ) : (
               <TrendingDown className="w-4 h-4" />
             )}
-            {totalPnl >= 0 ? '+' : ''}{totalPnl.toFixed(2)} ({totalPnlPercentage >= 0 ? '+' : ''}{totalPnlPercentage.toFixed(2)}%)
+            {totalPnl >= 0 ? '+' : ''}{totalPnl.toFixed(4)} BNB ({totalPnlPercentage >= 0 ? '+' : ''}{totalPnlPercentage.toFixed(2)}%)
           </div>
         </div>
       </div>
@@ -157,7 +157,7 @@ export function PortfolioView() {
                 </div>
                 <div className="text-right">
                   <div className="text-sm font-semibold text-white">
-                    ${position.currentValue.toFixed(2)}
+                    {position.currentValue.toFixed(4)} BNB
                   </div>
                   <div className={`text-xs flex items-center gap-1 ${
                     position.pnl >= 0 ? 'text-green-400' : 'text-red-400'
@@ -167,7 +167,7 @@ export function PortfolioView() {
                     ) : (
                       <TrendingDown className="w-3 h-3" />
                     )}
-                    {position.pnl >= 0 ? '+' : ''}{position.pnl.toFixed(2)} ({position.pnlPercentage >= 0 ? '+' : ''}{position.pnlPercentage.toFixed(2)}%)
+                    {position.pnl >= 0 ? '+' : ''}{position.pnl.toFixed(4)} BNB ({position.pnlPercentage >= 0 ? '+' : ''}{position.pnlPercentage.toFixed(2)}%)
                   </div>
                 </div>
               </div>

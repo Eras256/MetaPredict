@@ -9,14 +9,14 @@ export function InsuranceStats() {
 
   // Función helper para formatear BNB
   const formatBNB = (value: bigint | null | undefined): string => {
-    if (!value || value === BigInt(0)) return '0.00';
+    if (!value || value === BigInt(0)) return '0.00 BNB';
     const bnbValue = Number(value) / 1e18;
     if (bnbValue >= 1000000) {
-      return `$${(bnbValue / 1000000).toFixed(2)}M`;
+      return `${(bnbValue / 1000000).toFixed(2)}M BNB`;
     } else if (bnbValue >= 1000) {
-      return `$${(bnbValue / 1000).toFixed(0)}K`;
+      return `${(bnbValue / 1000).toFixed(0)}K BNB`;
     } else {
-      return `${bnbValue.toFixed(4)}`;
+      return `${bnbValue.toFixed(4)} BNB`;
     }
   };
 
