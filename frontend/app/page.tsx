@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Brain, Shield, Zap, TrendingUp, Lock, Users, ArrowRight, CheckCircle, BarChart3, Globe, Award, Link2, Code, ExternalLink, Activity, Trophy, Sparkles, Target, TrendingDown, Search, Coins, ArrowRightCircle } from 'lucide-react';
+import { Brain, Shield, Zap, TrendingUp, Lock, Users, ArrowRight, CheckCircle, BarChart3, Globe, Award, Link2, ExternalLink, Activity, Trophy, Sparkles, Target, TrendingDown, Search, Coins, ArrowRightCircle, FileQuestion, GitBranch, Network } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { GlassCard } from '@/components/effects/GlassCard';
 import { CONTRACT_ADDRESSES } from '@/lib/contracts/addresses';
@@ -53,6 +53,34 @@ const features = [
     description: 'Quadratic voting with expertise weighting. Community-driven resolution for subjective markets. Transparent on-chain governance.',
     gradient: 'from-indigo-500 to-purple-500',
     link: getContractLink(CONTRACT_ADDRESSES.DAO_GOVERNANCE)
+  },
+  {
+    icon: FileQuestion,
+    title: 'Binary Markets',
+    description: 'Simple YES/NO predictions on any future event. Permissionless market creation with customizable resolution times. AMM-based liquidity ensures always-available trading.',
+    gradient: 'from-cyan-500 to-blue-500',
+    link: getContractLink(CONTRACT_ADDRESSES.BINARY_MARKET)
+  },
+  {
+    icon: GitBranch,
+    title: 'Conditional Markets',
+    description: 'If-then predictions that depend on parent market outcomes. Create complex prediction chains and conditional logic. Perfect for multi-event scenarios and cascading predictions.',
+    gradient: 'from-teal-500 to-cyan-500',
+    link: getContractLink(CONTRACT_ADDRESSES.CONDITIONAL_MARKET)
+  },
+  {
+    icon: Award,
+    title: 'Subjective Markets',
+    description: 'DAO-governed markets for opinion-based questions. Resolved through community voting with quadratic weighting. Ideal for subjective questions requiring expert judgment.',
+    gradient: 'from-violet-500 to-purple-500',
+    link: getContractLink(CONTRACT_ADDRESSES.SUBJECTIVE_MARKET)
+  },
+  {
+    icon: Network,
+    title: 'Cross-Chain Aggregation',
+    description: 'OmniRouter enables cross-chain price aggregation via Chainlink CCIP. Save 1-5% per bet by finding best prices across chains. Secure cross-chain messaging with automatic price discovery.',
+    gradient: 'from-pink-500 to-rose-500',
+    link: getContractLink(CONTRACT_ADDRESSES.OMNI_ROUTER)
   }
 ];
 
@@ -418,212 +446,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-      
-      {/* Smart Contracts Section */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-purple-900/10 to-transparent">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-12 sm:mb-16">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3 sm:mb-4 px-4">
-              Smart Contracts
-            </h2>
-            <p className="text-base sm:text-lg md:text-xl text-gray-400 max-w-2xl mx-auto px-4">
-              All contracts deployed on opBNB Testnet
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            {/* Core Contracts */}
-            <GlassCard className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-white">🎯 Prediction Market Core</h3>
-                <CheckCircle className="w-5 h-5 text-green-400" />
-              </div>
-              <a 
-                href={getContractLink(CONTRACT_ADDRESSES.CORE_CONTRACT)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-sm text-purple-400 hover:text-purple-300 transition-colors break-all"
-              >
-                <Code className="w-4 h-4 flex-shrink-0" />
-                <span className="font-mono">{CONTRACT_ADDRESSES.CORE_CONTRACT}</span>
-                <ExternalLink className="w-4 h-4 flex-shrink-0" />
-              </a>
-            </GlassCard>
-
-            <GlassCard className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-white">🤖 AI Oracle</h3>
-                <CheckCircle className="w-5 h-5 text-green-400" />
-              </div>
-              <a 
-                href={getContractLink(CONTRACT_ADDRESSES.AI_ORACLE)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-sm text-purple-400 hover:text-purple-300 transition-colors break-all"
-              >
-                <Code className="w-4 h-4 flex-shrink-0" />
-                <span className="font-mono">{CONTRACT_ADDRESSES.AI_ORACLE}</span>
-                <ExternalLink className="w-4 h-4 flex-shrink-0" />
-              </a>
-            </GlassCard>
-
-            <GlassCard className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-white">🛡️ Insurance Pool</h3>
-                <CheckCircle className="w-5 h-5 text-green-400" />
-              </div>
-              <a 
-                href={getContractLink(CONTRACT_ADDRESSES.INSURANCE_POOL)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-sm text-purple-400 hover:text-purple-300 transition-colors break-all"
-              >
-                <Code className="w-4 h-4 flex-shrink-0" />
-                <span className="font-mono">{CONTRACT_ADDRESSES.INSURANCE_POOL}</span>
-                <ExternalLink className="w-4 h-4 flex-shrink-0" />
-              </a>
-            </GlassCard>
-
-            <GlassCard className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-white">🏆 Reputation Staking</h3>
-                <CheckCircle className="w-5 h-5 text-green-400" />
-              </div>
-              <a 
-                href={getContractLink(CONTRACT_ADDRESSES.REPUTATION_STAKING)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-sm text-purple-400 hover:text-purple-300 transition-colors break-all"
-              >
-                <Code className="w-4 h-4 flex-shrink-0" />
-                <span className="font-mono">{CONTRACT_ADDRESSES.REPUTATION_STAKING}</span>
-                <ExternalLink className="w-4 h-4 flex-shrink-0" />
-              </a>
-            </GlassCard>
-
-            <GlassCard className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-white">🗳️ DAO Governance</h3>
-                <CheckCircle className="w-5 h-5 text-green-400" />
-              </div>
-              <a 
-                href={getContractLink(CONTRACT_ADDRESSES.DAO_GOVERNANCE)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-sm text-purple-400 hover:text-purple-300 transition-colors break-all"
-              >
-                <Code className="w-4 h-4 flex-shrink-0" />
-                <span className="font-mono">{CONTRACT_ADDRESSES.DAO_GOVERNANCE}</span>
-                <ExternalLink className="w-4 h-4 flex-shrink-0" />
-              </a>
-            </GlassCard>
-
-            <GlassCard className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-white">🌐 OmniRouter</h3>
-                <CheckCircle className="w-5 h-5 text-green-400" />
-              </div>
-              <a 
-                href={getContractLink(CONTRACT_ADDRESSES.OMNI_ROUTER)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-sm text-purple-400 hover:text-purple-300 transition-colors break-all"
-              >
-                <Code className="w-4 h-4 flex-shrink-0" />
-                <span className="font-mono">{CONTRACT_ADDRESSES.OMNI_ROUTER}</span>
-                <ExternalLink className="w-4 h-4 flex-shrink-0" />
-              </a>
-            </GlassCard>
-
-            {/* Market Contracts */}
-            <GlassCard className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-white">📊 Binary Market</h3>
-                <CheckCircle className="w-5 h-5 text-green-400" />
-              </div>
-              <a 
-                href={getContractLink(CONTRACT_ADDRESSES.BINARY_MARKET)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-sm text-purple-400 hover:text-purple-300 transition-colors break-all"
-              >
-                <Code className="w-4 h-4 flex-shrink-0" />
-                <span className="font-mono">{CONTRACT_ADDRESSES.BINARY_MARKET}</span>
-                <ExternalLink className="w-4 h-4 flex-shrink-0" />
-              </a>
-            </GlassCard>
-
-            <GlassCard className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-white">🔗 Conditional Market</h3>
-                <CheckCircle className="w-5 h-5 text-green-400" />
-              </div>
-              <a 
-                href={getContractLink(CONTRACT_ADDRESSES.CONDITIONAL_MARKET)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-sm text-purple-400 hover:text-purple-300 transition-colors break-all"
-              >
-                <Code className="w-4 h-4 flex-shrink-0" />
-                <span className="font-mono">{CONTRACT_ADDRESSES.CONDITIONAL_MARKET}</span>
-                <ExternalLink className="w-4 h-4 flex-shrink-0" />
-              </a>
-            </GlassCard>
-
-            <GlassCard className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-white">🗳️ Subjective Market</h3>
-                <CheckCircle className="w-5 h-5 text-green-400" />
-              </div>
-              <a 
-                href={getContractLink(CONTRACT_ADDRESSES.SUBJECTIVE_MARKET)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-sm text-purple-400 hover:text-purple-300 transition-colors break-all"
-              >
-                <Code className="w-4 h-4 flex-shrink-0" />
-                <span className="font-mono">{CONTRACT_ADDRESSES.SUBJECTIVE_MARKET}</span>
-                <ExternalLink className="w-4 h-4 flex-shrink-0" />
-              </a>
-            </GlassCard>
-
-            {/* Oracle & Data Integration */}
-            <GlassCard className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-white">⚡ Chainlink Data Streams</h3>
-                <CheckCircle className="w-5 h-5 text-green-400" />
-              </div>
-              <a 
-                href={getContractLink(CONTRACT_ADDRESSES.DATA_STREAMS_INTEGRATION)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-sm text-purple-400 hover:text-purple-300 transition-colors break-all"
-              >
-                <Code className="w-4 h-4 flex-shrink-0" />
-                <span className="font-mono">{CONTRACT_ADDRESSES.DATA_STREAMS_INTEGRATION}</span>
-                <ExternalLink className="w-4 h-4 flex-shrink-0" />
-              </a>
-            </GlassCard>
-
-            {/* View All Contracts */}
-            <GlassCard className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-white">📋 View All Contracts</h3>
-                <ExternalLink className="w-5 h-5 text-purple-400" />
-              </div>
-              <a 
-                href="https://testnet.opbnbscan.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-sm text-purple-400 hover:text-purple-300 transition-colors"
-              >
-                <span>Explore all contracts on opBNBScan</span>
-                <ExternalLink className="w-4 h-4 flex-shrink-0" />
-              </a>
-            </GlassCard>
-          </div>
-        </div>
-      </section>
 
       {/* Market Types */}
       <section className="py-24 px-4 sm:px-6 lg:px-8">
@@ -717,7 +539,7 @@ export default function HomePage() {
                 <a href={getContractLink(CONTRACT_ADDRESSES.CORE_CONTRACT)} target="_blank" rel="noopener noreferrer">
                   <Button size="lg" variant="outline" className="border-yellow-500/50 text-yellow-300 hover:bg-yellow-500/10 gap-2">
                     <ExternalLink className="w-4 h-4" />
-                    View Smart Contracts
+                    View on opBNBScan
                   </Button>
                 </a>
               </div>
