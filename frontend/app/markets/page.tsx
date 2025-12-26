@@ -123,7 +123,7 @@ export default function MarketsPage() {
         });
 
         const results = await Promise.all(policyChecks);
-        const count = results.reduce((sum, val) => sum + val, 0);
+        const count = results.reduce((sum: number, val) => sum + val, 0);
         setInsuredMarketsCount(count);
       } catch (error) {
         console.error('Error fetching insured markets:', error);
