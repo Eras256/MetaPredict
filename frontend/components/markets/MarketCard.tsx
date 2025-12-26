@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { TrendingUp, TrendingDown, Clock, Users, Shield, Brain } from 'lucide-react';
@@ -57,13 +58,45 @@ const statusLabels = {
   },
 };
 
+// Expired status (not in contract, but shown when deadline passed)
+const expiredStatusLabel = {
+  label: 'Expired - Pending Resolution',
+  color: 'bg-orange-500/20 text-orange-300 border-orange-500/30',
+  glow: 'shadow-[0_0_12px_rgba(249,115,22,0.3)]'
+};
+
 export function MarketCard({ market }: MarketCardProps) {
+  const [currentTime, setCurrentTime] = useState(Math.floor(Date.now() / 1000));
+  
+  // Update current time every minute to ensure accurate expiration detection
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(Math.floor(Date.now() / 1000));
+    }, 60000); // Update every minute
+    
+    return () => clearInterval(interval);
+  }, []);
+  
   const yesOdds = market.yesOdds || 50;
   const noOdds = market.noOdds || 50;
-  const timeRemaining = formatDistanceToNow(new Date(market.resolutionTime * 1000), { addSuffix: true });
   const deadlineDate = new Date(market.resolutionTime * 1000);
   const deadlineFormatted = format(deadlineDate, 'MMM dd, yyyy HH:mm');
-  const statusInfo = statusLabels[market.status as keyof typeof statusLabels];
+  
+  // Check if market has expired (deadline passed but not resolved)
+  const hasExpired = market.resolutionTime <= currentTime;
+  const isResolved = market.status === MARKET_STATUS.RESOLVED;
+  const isResolving = market.status === MARKET_STATUS.RESOLVING;
+  const isActive = market.status === MARKET_STATUS.ACTIVE;
+  
+  // Determine display status: if expired but not resolved, show "Expired - Pending Resolution"
+  const displayStatus = hasExpired && isActive && !isResolved && !isResolving
+    ? expiredStatusLabel
+    : statusLabels[market.status as keyof typeof statusLabels];
+  
+  // Format time remaining or show "Expired"
+  const timeRemaining = hasExpired && !isResolved
+    ? 'Expired'
+    : formatDistanceToNow(new Date(market.resolutionTime * 1000), { addSuffix: true });
   
   // Convert totalVolume from wei to BNB if needed
   // totalVolume is already in BNB from markets/page.tsx, but handle both cases
@@ -102,9 +135,9 @@ export function MarketCard({ market }: MarketCardProps) {
                   {marketTypeLabels[market.marketType as keyof typeof marketTypeLabels]}
                 </Badge>
                 <Badge 
-                  className={`text-[10px] sm:text-xs font-semibold px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full border backdrop-blur-sm whitespace-nowrap ${statusInfo?.color} ${statusInfo?.glow}`}
+                  className={`text-[10px] sm:text-xs font-semibold px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full border backdrop-blur-sm whitespace-nowrap ${displayStatus?.color} ${displayStatus?.glow}`}
                 >
-                  {statusInfo?.label}
+                  {displayStatus?.label}
                 </Badge>
               </div>
               <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
@@ -139,9 +172,23 @@ export function MarketCard({ market }: MarketCardProps) {
                 </div>
               </div>
               <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-                <div className="flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-lg bg-white/5 border border-white/10 flex-shrink-0">
-                  <Clock className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-purple-400 flex-shrink-0" />
-                  <span className="text-[10px] sm:text-xs text-gray-300 font-medium truncate max-w-[120px] sm:max-w-none">{timeRemaining}</span>
+                <div className={`flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-lg border flex-shrink-0 ${
+                  hasExpired && !isResolved 
+                    ? 'bg-orange-500/10 border-orange-500/20' 
+                    : 'bg-white/5 border-white/10'
+                }`}>
+                  <Clock className={`w-3 h-3 sm:w-3.5 sm:h-3.5 flex-shrink-0 ${
+                    hasExpired && !isResolved 
+                      ? 'text-orange-400' 
+                      : 'text-purple-400'
+                  }`} />
+                  <span className={`text-[10px] sm:text-xs font-medium truncate max-w-[120px] sm:max-w-none ${
+                    hasExpired && !isResolved 
+                      ? 'text-orange-300' 
+                      : 'text-gray-300'
+                  }`}>
+                    {timeRemaining}
+                  </span>
                 </div>
                 {market.participants !== undefined && (
                   <div className="flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-lg bg-white/5 border border-white/10 flex-shrink-0">
