@@ -169,7 +169,8 @@ export function useReputation() {
     params: account?.address ? [account.address] : undefined,
     queryOptions: { 
       enabled: !!account && !!contract,
-      refetchInterval: 30000, // Auto-refresh every 30 seconds to keep values up-to-date
+      // Note: Auto-refresh is now controlled by AutoRefreshBanner component in pages
+      // This ensures refresh only happens at the specified intervals (e.g., 40s for reputation)
     },
   });
 

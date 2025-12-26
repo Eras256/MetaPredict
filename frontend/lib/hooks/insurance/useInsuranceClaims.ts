@@ -215,12 +215,8 @@ export function useInsuranceClaims() {
     if (account && coreContract && insurancePoolContract) {
       fetchClaims();
       
-      // Auto-refresh every 30 seconds to keep values up-to-date
-      const interval = setInterval(() => {
-        fetchClaims();
-      }, 30000);
-      
-      return () => clearInterval(interval);
+      // Note: Auto-refresh is now controlled by AutoRefreshBanner component in pages
+      // This ensures refresh only happens at the specified intervals
     } else {
       setClaims([]);
       setLoading(false);

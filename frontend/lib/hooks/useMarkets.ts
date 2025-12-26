@@ -263,17 +263,8 @@ export function useMarkets() {
     };
   }, [contract, marketCounter]);
   
-  // Auto-refresh activo cada 10 segundos para actualizar volumen y participantes
-  useEffect(() => {
-    if (!contract || marketCounter === null) return;
-    
-    const refreshInterval = setInterval(() => {
-      console.log('🔄 Auto-refreshing markets for real-time volume updates...');
-      fetchMarkets();
-    }, 10000); // 10 segundos para actualizaciones en tiempo real
-    
-    return () => clearInterval(refreshInterval);
-  }, [contract, marketCounter]);
+  // Note: Auto-refresh is now controlled by AutoRefreshBanner component in pages
+  // This ensures refresh only happens at the specified intervals (e.g., 30s for markets)
 
   // Función para refrescar manualmente
   const refresh = async () => {

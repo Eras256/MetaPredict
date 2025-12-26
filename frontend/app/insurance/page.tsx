@@ -40,17 +40,8 @@ export default function InsurancePage() {
     });
   }, [markets]);
   
-  // Auto-refresh markets every 30 seconds
-  useEffect(() => {
-    if (activeTab !== 'stats') return; // Only refresh when on stats tab
-    
-    const refreshInterval = setInterval(() => {
-      console.log('🔄 Auto-refreshing markets in Insurance page...');
-      refresh();
-    }, 30000); // 30 seconds
-    
-    return () => clearInterval(refreshInterval);
-  }, [activeTab, refresh]);
+  // Note: Auto-refresh is now controlled by AutoRefreshBanner component
+  // This ensures refresh only happens at the specified interval (30s for insurance)
 
   const handleAnalyzeMarketRisk = async (market: any) => {
     setAnalyzingRisk(true);

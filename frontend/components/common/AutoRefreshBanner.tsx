@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { RefreshCw, Clock, Info } from 'lucide-react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { RefreshCw, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { GlassCard } from '@/components/effects/GlassCard';
 
@@ -23,33 +23,47 @@ export function AutoRefreshBanner({
   const [timeRemaining, setTimeRemaining] = useState(refreshInterval);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
+  const onRefreshRef = useRef(onRefresh);
+  const refreshIntervalRef = useRef(refreshInterval);
 
+  // Keep refs updated
+  useEffect(() => {
+    onRefreshRef.current = onRefresh;
+    refreshIntervalRef.current = refreshInterval;
+  }, [onRefresh, refreshInterval]);
+
+  const handleRefresh = useCallback(async () => {
+    setIsRefreshing((current) => {
+      if (current) return current; // Prevent multiple simultaneous refreshes
+      return true;
+    });
+    
+    try {
+      await onRefreshRef.current();
+      setLastRefresh(new Date());
+      setTimeRemaining(refreshIntervalRef.current);
+    } catch (error) {
+      console.error('Error refreshing:', error);
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, []);
+
+  // Countdown timer - updates every second
   useEffect(() => {
     const interval = setInterval(() => {
       setTimeRemaining((prev) => {
         if (prev <= 1) {
+          // Trigger refresh when countdown reaches 0
           handleRefresh();
-          return refreshInterval;
+          return refreshIntervalRef.current;
         }
         return prev - 1;
       });
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [refreshInterval]);
-
-  const handleRefresh = async () => {
-    setIsRefreshing(true);
-    try {
-      await onRefresh();
-      setLastRefresh(new Date());
-      setTimeRemaining(refreshInterval);
-    } catch (error) {
-      console.error('Error refreshing:', error);
-    } finally {
-      setIsRefreshing(false);
-    }
-  };
+  }, [handleRefresh]);
 
   const formatTime = (seconds: number) => {
     if (seconds < 60) return `${seconds}s`;

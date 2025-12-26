@@ -593,17 +593,8 @@ export function useUserDashboard() {
     }
   }, [account?.address, coreContract]);
 
-  // Auto-refresh data every 30 seconds to keep values up-to-date
-  useEffect(() => {
-    if (!account || !coreContract) return;
-
-    const interval = setInterval(() => {
-      fetchUserMarkets();
-      fetchUserPositions();
-    }, 30000); // Refresh every 30 seconds
-
-    return () => clearInterval(interval);
-  }, [account?.address, coreContract]);
+  // Note: Auto-refresh is now controlled by AutoRefreshBanner component in pages
+  // This ensures refresh only happens at the specified intervals (e.g., 45s for dashboard)
 
   useEffect(() => {
     calculateStats();
