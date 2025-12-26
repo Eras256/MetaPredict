@@ -26,7 +26,7 @@ export default function AdminPage() {
 
         {/* Auto-refresh Banner */}
         <AutoRefreshBanner
-          refreshInterval={20}
+          refreshInterval={60}
           onRefresh={async () => {
             // Refresh admin status data
             window.location.reload();

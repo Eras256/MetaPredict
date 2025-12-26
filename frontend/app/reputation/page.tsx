@@ -145,13 +145,16 @@ export default function ReputationPage() {
 
         {/* Auto-refresh Banner */}
         <AutoRefreshBanner
-          refreshInterval={40}
+          refreshInterval={60}
           onRefresh={async () => {
-            // Refresh reputation data
-            window.location.reload();
+            // Refresh reputation data only if user is not interacting with forms
+            if (!stakeAmount && !unstakeAmount && !isStaking && !isUnstaking) {
+              window.location.reload();
+            }
           }}
           description="Reputation data is automatically refreshed to show your latest staking balance, tier progress, and leaderboard rankings."
           sectionName="Reputation"
+          pauseRefresh={!!(stakeAmount || unstakeAmount || isStaking || isUnstaking || analyzing)}
           className="mb-4 sm:mb-6"
         />
 

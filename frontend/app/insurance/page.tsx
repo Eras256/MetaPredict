@@ -126,6 +126,7 @@ export default function InsurancePage() {
           onRefresh={refresh}
           description="Insurance pool data is automatically refreshed to show the latest pool balance, APY, active markets, and your deposit/withdrawal status."
           sectionName="Insurance Pool"
+          pauseRefresh={activeTab === 'deposit' || activeTab === 'withdraw'}
           className="mb-4 sm:mb-6"
         />
 

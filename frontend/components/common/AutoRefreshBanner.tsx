@@ -11,6 +11,7 @@ interface AutoRefreshBannerProps {
   description: string;
   sectionName: string;
   className?: string;
+  pauseRefresh?: boolean; // Pause auto-refresh when true (e.g., when user is filling forms)
 }
 
 export function AutoRefreshBanner({
@@ -19,20 +20,28 @@ export function AutoRefreshBanner({
   description,
   sectionName,
   className = '',
+  pauseRefresh = false,
 }: AutoRefreshBannerProps) {
   const [timeRemaining, setTimeRemaining] = useState(refreshInterval);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
   const onRefreshRef = useRef(onRefresh);
   const refreshIntervalRef = useRef(refreshInterval);
+  const pauseRefreshRef = useRef(pauseRefresh);
 
   // Keep refs updated
   useEffect(() => {
     onRefreshRef.current = onRefresh;
     refreshIntervalRef.current = refreshInterval;
-  }, [onRefresh, refreshInterval]);
+    pauseRefreshRef.current = pauseRefresh;
+  }, [onRefresh, refreshInterval, pauseRefresh]);
 
   const handleRefresh = useCallback(async () => {
+    // Don't refresh if paused
+    if (pauseRefreshRef.current) {
+      return;
+    }
+
     setIsRefreshing((current) => {
       if (current) return current; // Prevent multiple simultaneous refreshes
       return true;
@@ -53,6 +62,11 @@ export function AutoRefreshBanner({
   useEffect(() => {
     const interval = setInterval(() => {
       setTimeRemaining((prev) => {
+        // Pause countdown if refresh is paused
+        if (pauseRefreshRef.current) {
+          return prev; // Keep current time, don't count down
+        }
+        
         if (prev <= 1) {
           // Trigger refresh when countdown reaches 0
           handleRefresh();
@@ -110,6 +124,11 @@ export function AutoRefreshBanner({
                 </div>
                 <p className="text-xs text-gray-400 leading-relaxed">
                   {description} Refreshes every <strong className="text-purple-300">{formatInterval(refreshInterval)}</strong> to keep data up-to-date.
+                  {pauseRefresh && (
+                    <span className="block mt-1 text-yellow-400">
+                      ⏸️ Auto-refresh paused while you're filling forms
+                    </span>
+                  )}
                 </p>
                 {lastRefresh && (
                   <p className="text-xs text-gray-500 mt-1">

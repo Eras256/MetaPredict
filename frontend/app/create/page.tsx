@@ -313,13 +313,23 @@ export default function CreateMarketPage() {
 
         {/* Auto-refresh Banner */}
         <AutoRefreshBanner
-          refreshInterval={60}
+          refreshInterval={120}
           onRefresh={async () => {
             // Refresh market data to show latest markets for conditional parent selection
-            window.location.reload();
+            // Only refresh if no form fields have values to avoid interrupting user input
+            const hasFormData = binaryQuestion || binaryDescription || binaryResolutionTime ||
+                              conditionalParentId || conditionalQuestion || conditionalResolutionTime ||
+                              subjectiveQuestion || subjectiveDescription || subjectiveResolutionTime;
+            if (!hasFormData) {
+              window.location.reload();
+            }
           }}
           description="Market creation form refreshes to show the latest available markets for conditional market parent selection."
           sectionName="Create Market"
+          pauseRefresh={!!(binaryQuestion || binaryDescription || binaryResolutionTime ||
+                          conditionalParentId || conditionalQuestion || conditionalResolutionTime ||
+                          subjectiveQuestion || subjectiveDescription || subjectiveResolutionTime ||
+                          isCreatingBinary || isCreatingConditional || isCreatingSubjective)}
           className="mb-4 sm:mb-6"
         />
 

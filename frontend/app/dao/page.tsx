@@ -28,6 +28,7 @@ export default function DAOPage() {
   const account = useActiveAccount();
   const [selectedProposal, setSelectedProposal] = useState<number | null>(null);
   const [voteSupport, setVoteSupport] = useState<0 | 1 | 2>(1);
+  const [activeTab, setActiveTab] = useState<string>('active');
   const { proposalIds, isLoading: userProposalsLoading } = useUserProposals();
   const { proposals: allProposals, isLoading: allProposalsLoading, refetch: refetchProposals } = useAllProposals();
   const { vote, isPending: isVoting } = useVoteOnProposal();
@@ -191,10 +192,11 @@ export default function DAOPage() {
           onRefresh={refetchProposals}
           description="DAO proposals and voting data is automatically refreshed to show the latest proposal status, vote counts, and execution state."
           sectionName="DAO Governance"
+          pauseRefresh={isVoting || isExecuting || analyzing !== null || activeTab === 'create' || activeTab === 'expertise'}
           className="mb-4 sm:mb-6"
         />
 
-        <Tabs defaultValue="active" className="space-y-4 sm:space-y-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} defaultValue="active" className="space-y-4 sm:space-y-6">
           <TabsList className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 w-full h-auto gap-1 sm:gap-2">
             <TabsTrigger value="active" className="text-xs sm:text-sm py-2 sm:py-2.5">Active</TabsTrigger>
             <TabsTrigger value="resolved" className="text-xs sm:text-sm py-2 sm:py-2.5">Resolved</TabsTrigger>
