@@ -21,6 +21,7 @@ interface MarketCardProps {
     noOdds?: number;
     totalVolume?: number;
     participants?: number;
+    outcome?: number; // 0=Pending, 1=Yes, 2=No, 3=Invalid
   };
 }
 
@@ -114,14 +115,25 @@ export function MarketCard({ market }: MarketCardProps) {
   const isActive = market.status === MARKET_STATUS.ACTIVE;
   const isCancelled = market.status === MARKET_STATUS.CANCELLED;
   
-  // Determine display status: if expired but not resolved, show "Expired - Pending Resolution"
-  // Only show expired status if market is Active and not cancelled
-  const displayStatus = hasExpired && isActive && !isResolved && !isResolving && !isCancelled
-    ? expiredStatusLabel
-    : statusLabels[market.status as keyof typeof statusLabels];
+  // Check if market is actually resolved by checking outcome
+  // outcome: 0=Pending, 1=Yes, 2=No, 3=Invalid
+  // If outcome is 0 (Pending), the market is not truly resolved even if status says Resolved
+  const isActuallyResolved = isResolved && market.outcome !== undefined && market.outcome !== 0;
+  
+  // Determine display status: prioritize expiration check over contract status
+  // If market has expired but is not actually resolved (outcome is still Pending), show "Expired - Pending Resolution"
+  // This handles cases where the contract status says "Resolved" but outcome is still 0 (Pending)
+  let displayStatus;
+  if (hasExpired && !isActuallyResolved && !isCancelled) {
+    // Market expired but not actually resolved (outcome still Pending) - show expired status
+    displayStatus = expiredStatusLabel;
+  } else {
+    // Use contract status for all other cases
+    displayStatus = statusLabels[market.status as keyof typeof statusLabels];
+  }
   
   // Format time remaining or show "Expired"
-  const timeRemaining = hasExpired && !isResolved && !isCancelled
+  const timeRemaining = hasExpired && !isActuallyResolved && !isCancelled
     ? 'Expired'
     : formatDistanceToNow(new Date(resolutionTimeSeconds * 1000), { addSuffix: true });
   

@@ -271,6 +271,7 @@ export default function MarketsPage() {
                 yesOdds: Math.round(yesOdds),
                 noOdds: Math.round(noOdds),
                 totalVolume: volume,
+                outcome: market.outcome, // Pass outcome to check if market is actually resolved
               }} 
             />
           );
