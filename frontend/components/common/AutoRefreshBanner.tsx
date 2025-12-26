@@ -24,10 +24,17 @@ export function AutoRefreshBanner({
 }: AutoRefreshBannerProps) {
   const [timeRemaining, setTimeRemaining] = useState(refreshInterval);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
+  const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
   const onRefreshRef = useRef(onRefresh);
   const refreshIntervalRef = useRef(refreshInterval);
   const pauseRefreshRef = useRef(pauseRefresh);
+
+  // Only set mounted state on client to avoid hydration mismatch
+  useEffect(() => {
+    setIsMounted(true);
+    setLastRefresh(new Date());
+  }, []);
 
   // Keep refs updated
   useEffect(() => {
@@ -130,7 +137,7 @@ export function AutoRefreshBanner({
                     </span>
                   )}
                 </p>
-                {lastRefresh && (
+                {isMounted && lastRefresh && (
                   <p className="text-xs text-gray-500 mt-1.5 sm:mt-1 break-words">
                     Last updated: {lastRefresh.toLocaleTimeString()}
                   </p>
