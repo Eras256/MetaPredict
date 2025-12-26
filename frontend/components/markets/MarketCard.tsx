@@ -97,27 +97,9 @@ export function MarketCard({ market }: MarketCardProps) {
   
   // Check if market has expired (deadline passed but not resolved)
   // Use strict comparison with current time
-  // Debug: Log expiration check for troubleshooting
   const hasExpired = resolutionTimeSeconds <= currentTime;
   
-  // Debug logging (only in development) - log ALL expired markets for troubleshooting
-  if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
-    if (hasExpired) {
-      console.log(`[MarketCard] Market #${market.id} EXPIRATION CHECK:`, {
-        resolutionTime: resolutionTimeSeconds,
-        currentTime,
-        deadline: deadlineFormatted,
-        currentDate: new Date().toLocaleString(),
-        status: market.status,
-        statusName: ['Active', 'Resolving', 'Resolved', 'Disputed', 'Cancelled'][market.status] || 'Unknown',
-        outcome: market.outcome,
-        outcomeName: market.outcome !== undefined ? ['Pending', 'Yes', 'No', 'Invalid'][market.outcome] : 'Not available',
-        hasExpired,
-        timeDiffSeconds: currentTime - resolutionTimeSeconds,
-        willShowExpired: hasExpired && !isActuallyResolved && !isCancelled,
-      });
-    }
-  }
+  // Get market status flags
   const isResolved = market.status === MARKET_STATUS.RESOLVED;
   const isResolving = market.status === MARKET_STATUS.RESOLVING;
   const isActive = market.status === MARKET_STATUS.ACTIVE;
@@ -135,6 +117,26 @@ export function MarketCard({ market }: MarketCardProps) {
   const hasValidOutcome = hasOutcome && market.outcome !== 0; // 1, 2, or 3
   // Market is actually resolved ONLY if status is Resolved AND has valid outcome (1, 2, or 3)
   const isActuallyResolved = isResolved && hasValidOutcome;
+  
+  // Debug logging (only in development) - log ALL expired markets for troubleshooting
+  if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+    if (hasExpired) {
+      console.log(`[MarketCard] Market #${market.id} EXPIRATION CHECK:`, {
+        resolutionTime: resolutionTimeSeconds,
+        currentTime,
+        deadline: deadlineFormatted,
+        currentDate: new Date().toLocaleString(),
+        status: market.status,
+        statusName: ['Active', 'Resolving', 'Resolved', 'Disputed', 'Cancelled'][market.status] || 'Unknown',
+        outcome: market.outcome,
+        outcomeName: market.outcome !== undefined ? ['Pending', 'Yes', 'No', 'Invalid'][market.outcome] : 'Not available',
+        hasExpired,
+        timeDiffSeconds: currentTime - resolutionTimeSeconds,
+        isActuallyResolved,
+        willShowExpired: hasExpired && !isActuallyResolved && !isCancelled,
+      });
+    }
+  }
   
   // Determine display status: prioritize expiration check over contract status
   // CRITICAL LOGIC: 
