@@ -16,6 +16,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { analyzeReputation } from '@/lib/services/ai/gemini';
 import { toast } from 'sonner';
 import { formatModelName } from '@/lib/utils/model-formatter';
+import { AutoRefreshBanner } from '@/components/common/AutoRefreshBanner';
 
 const tierLabels = {
   0: 'None',
@@ -141,6 +142,18 @@ export default function ReputationPage() {
             Stake BNB, vote on disputes, earn reputation, and unlock NFT badges
           </p>
         </div>
+
+        {/* Auto-refresh Banner */}
+        <AutoRefreshBanner
+          refreshInterval={40}
+          onRefresh={async () => {
+            // Refresh reputation data
+            window.location.reload();
+          }}
+          description="Reputation data is automatically refreshed to show your latest staking balance, tier progress, and leaderboard rankings."
+          sectionName="Reputation"
+          className="mb-4 sm:mb-6"
+        />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
           {/* Reputation Stats */}

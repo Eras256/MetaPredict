@@ -19,6 +19,7 @@ import { defineChain } from 'thirdweb/chains';
 import { CONTRACT_ADDRESSES } from '@/lib/contracts/addresses';
 import InsurancePoolABI from '@/lib/contracts/abi/InsurancePool.json';
 import { client } from '@/lib/config/thirdweb';
+import { AutoRefreshBanner } from '@/components/common/AutoRefreshBanner';
 
 const opBNBTestnet = defineChain({
   id: 5611,
@@ -353,6 +354,15 @@ Respond with a JSON in this format:
             )}
           </div>
         </div>
+
+        {/* Auto-refresh Banner */}
+        <AutoRefreshBanner
+          refreshInterval={30}
+          onRefresh={refresh}
+          description="Markets data is automatically refreshed to show the latest odds, volumes, and market status."
+          sectionName="Markets"
+          className="mb-4 sm:mb-6"
+        />
 
         {/* Trend Analysis Results */}
         {trendAnalysis && (

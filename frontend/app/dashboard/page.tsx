@@ -41,6 +41,7 @@ import { toast } from 'sonner';
 import { PortfolioView } from '@/components/aggregation/PortfolioView';
 import { UserProfile } from '@/components/users/UserProfile';
 import { PendingCrossChainBets } from '@/components/markets/PendingCrossChainBets';
+import { AutoRefreshBanner } from '@/components/common/AutoRefreshBanner';
 
 export default function DashboardPage() {
   const account = useActiveAccount();
@@ -200,6 +201,15 @@ export default function DashboardPage() {
             <span>{formatAddress(account.address)}</span>
           </div>
         </div>
+
+        {/* Auto-refresh Banner */}
+        <AutoRefreshBanner
+          refreshInterval={45}
+          onRefresh={handleRefresh}
+          description="Dashboard data is automatically refreshed to show your latest positions, winnings, and statistics."
+          sectionName="Dashboard"
+          className="mb-4 sm:mb-6"
+        />
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">

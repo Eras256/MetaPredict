@@ -18,6 +18,7 @@ import { toast } from 'sonner';
 import { formatModelName } from '@/lib/utils/model-formatter';
 import { useMarkets } from '@/lib/hooks/useMarkets';
 import { MARKET_STATUS } from '@/lib/config/constants';
+import { AutoRefreshBanner } from '@/components/common/AutoRefreshBanner';
 
 export default function InsurancePage() {
   const [activeTab, setActiveTab] = useState<'stats' | 'deposit' | 'withdraw' | 'claims'>('stats');
@@ -127,6 +128,15 @@ export default function InsurancePage() {
             )}
           </div>
         </motion.div>
+
+        {/* Auto-refresh Banner */}
+        <AutoRefreshBanner
+          refreshInterval={30}
+          onRefresh={refresh}
+          description="Insurance pool data is automatically refreshed to show the latest pool balance, APY, active markets, and your deposit/withdrawal status."
+          sectionName="Insurance Pool"
+          className="mb-4 sm:mb-6"
+        />
 
         {/* Tabs */}
         <div className="flex flex-wrap gap-2 mb-4 sm:mb-6 overflow-x-auto pb-2 -mx-4 sm:mx-0 px-4 sm:px-0">

@@ -23,6 +23,7 @@ import { defineChain } from 'thirdweb/chains';
 import { CONTRACT_ADDRESSES } from '@/lib/contracts/addresses';
 import PREDICTION_MARKET_CORE_ABI from '@/lib/contracts/abi/PredictionMarketCore.json';
 import { client } from '@/lib/config/thirdweb';
+import { AutoRefreshBanner } from '@/components/common/AutoRefreshBanner';
 
 export default function CreateMarketPage() {
   const account = useActiveAccount();
@@ -309,6 +310,18 @@ export default function CreateMarketPage() {
             Create a new prediction market on any future event
           </p>
         </motion.div>
+
+        {/* Auto-refresh Banner */}
+        <AutoRefreshBanner
+          refreshInterval={60}
+          onRefresh={async () => {
+            // Refresh market data to show latest markets for conditional parent selection
+            window.location.reload();
+          }}
+          description="Market creation form refreshes to show the latest available markets for conditional market parent selection."
+          sectionName="Create Market"
+          className="mb-4 sm:mb-6"
+        />
 
         <Tabs defaultValue="binary" className="w-full">
           <TabsList className="grid w-full grid-cols-3 mb-4 sm:mb-6 h-auto">

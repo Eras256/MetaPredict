@@ -22,6 +22,7 @@ import { formatModelName } from '@/lib/utils/model-formatter';
 import { formatAddress } from '@/lib/utils/blockchain';
 import { useActiveAccount } from 'thirdweb/react';
 import { CONTRACT_ADDRESSES } from '@/lib/contracts/addresses';
+import { AutoRefreshBanner } from '@/components/common/AutoRefreshBanner';
 
 export default function DAOPage() {
   const account = useActiveAccount();
@@ -183,6 +184,15 @@ export default function DAOPage() {
             Refresh
           </Button>
         </div>
+
+        {/* Auto-refresh Banner */}
+        <AutoRefreshBanner
+          refreshInterval={50}
+          onRefresh={refetchProposals}
+          description="DAO proposals and voting data is automatically refreshed to show the latest proposal status, vote counts, and execution state."
+          sectionName="DAO Governance"
+          className="mb-4 sm:mb-6"
+        />
 
         <Tabs defaultValue="active" className="space-y-4 sm:space-y-6">
           <TabsList className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 w-full h-auto gap-1 sm:gap-2">

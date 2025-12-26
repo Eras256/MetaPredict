@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { GelatoStatusPanel } from '@/components/gelato/GelatoStatusPanel';
 import { OracleStatusPanel } from '@/components/oracle/OracleStatusPanel';
 import { Settings, Zap, Brain } from 'lucide-react';
+import { AutoRefreshBanner } from '@/components/common/AutoRefreshBanner';
 
 export default function AdminPage() {
   return (
@@ -22,6 +23,18 @@ export default function AdminPage() {
             Monitor system status and automation services
           </p>
         </div>
+
+        {/* Auto-refresh Banner */}
+        <AutoRefreshBanner
+          refreshInterval={20}
+          onRefresh={async () => {
+            // Refresh admin status data
+            window.location.reload();
+          }}
+          description="Admin dashboard is automatically refreshed to show the latest system status, Gelato automation tasks, and Oracle health metrics."
+          sectionName="Admin Dashboard"
+          className="mb-4 sm:mb-6"
+        />
 
         <Tabs defaultValue="status" className="space-y-6">
           <TabsList>

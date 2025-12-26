@@ -1,0 +1,125 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { RefreshCw, Clock, Info } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { GlassCard } from '@/components/effects/GlassCard';
+
+interface AutoRefreshBannerProps {
+  refreshInterval: number; // in seconds
+  onRefresh: () => void | Promise<void>;
+  description: string;
+  sectionName: string;
+  className?: string;
+}
+
+export function AutoRefreshBanner({
+  refreshInterval,
+  onRefresh,
+  description,
+  sectionName,
+  className = '',
+}: AutoRefreshBannerProps) {
+  const [timeRemaining, setTimeRemaining] = useState(refreshInterval);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTimeRemaining((prev) => {
+        if (prev <= 1) {
+          handleRefresh();
+          return refreshInterval;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [refreshInterval]);
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      await onRefresh();
+      setLastRefresh(new Date());
+      setTimeRemaining(refreshInterval);
+    } catch (error) {
+      console.error('Error refreshing:', error);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
+  const formatTime = (seconds: number) => {
+    if (seconds < 60) return `${seconds}s`;
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return secs > 0 ? `${mins}m ${secs}s` : `${mins}m`;
+  };
+
+  const formatInterval = (seconds: number) => {
+    if (seconds < 60) return `${seconds} seconds`;
+    const mins = Math.floor(seconds / 60);
+    if (mins < 60) return `${mins} minute${mins > 1 ? 's' : ''}`;
+    const hours = Math.floor(mins / 60);
+    return `${hours} hour${hours > 1 ? 's' : ''}`;
+  };
+
+  return (
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -10 }}
+        className={className}
+      >
+        <GlassCard className="p-3 sm:p-4 border-purple-500/20 bg-gradient-to-r from-purple-500/5 to-pink-500/5">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div className="flex items-start sm:items-center gap-3 flex-1">
+              <div className="p-2 rounded-lg bg-purple-500/10 border border-purple-500/20">
+                <RefreshCw
+                  className={`w-4 h-4 text-purple-400 ${isRefreshing ? 'animate-spin' : ''}`}
+                />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-xs sm:text-sm font-semibold text-purple-300">
+                    Auto-refresh: {sectionName}
+                  </span>
+                  <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-500/10 border border-purple-500/20">
+                    <Clock className="w-3 h-3 text-purple-400" />
+                    <span className="text-xs text-purple-300 font-medium">
+                      {formatTime(timeRemaining)}
+                    </span>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-400 leading-relaxed">
+                  {description} Refreshes every <strong className="text-purple-300">{formatInterval(refreshInterval)}</strong> to keep data up-to-date.
+                </p>
+                {lastRefresh && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    Last updated: {lastRefresh.toLocaleTimeString()}
+                  </p>
+                )}
+              </div>
+            </div>
+            <button
+              onClick={handleRefresh}
+              disabled={isRefreshing}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/20 hover:border-purple-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <RefreshCw
+                className={`w-3.5 h-3.5 text-purple-400 ${isRefreshing ? 'animate-spin' : ''}`}
+              />
+              <span className="text-xs font-medium text-purple-300 hidden sm:inline">
+                {isRefreshing ? 'Refreshing...' : 'Refresh Now'}
+              </span>
+            </button>
+          </div>
+        </GlassCard>
+      </motion.div>
+    </AnimatePresence>
+  );
+}
+

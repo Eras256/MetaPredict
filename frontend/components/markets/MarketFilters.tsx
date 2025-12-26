@@ -76,7 +76,7 @@ export function MarketFilters({
             </div>
             <div className="min-w-0">
               <p className="text-xs sm:text-sm text-gray-400 truncate">Insured Markets</p>
-              <p className="text-xl sm:text-2xl font-bold text-white truncate">{stats?.insuredMarkets || '0%'}</p>
+              <p className="text-xl sm:text-2xl font-bold text-white truncate">{stats?.insuredMarkets || '0'}</p>
             </div>
           </div>
         </GlassCard>
