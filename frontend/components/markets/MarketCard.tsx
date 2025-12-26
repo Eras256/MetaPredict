@@ -66,37 +66,64 @@ const expiredStatusLabel = {
 };
 
 export function MarketCard({ market }: MarketCardProps) {
-  const [currentTime, setCurrentTime] = useState(Math.floor(Date.now() / 1000));
+  const [currentTime, setCurrentTime] = useState(() => Math.floor(Date.now() / 1000));
   
-  // Update current time every minute to ensure accurate expiration detection
+  // Update current time every 10 seconds to ensure accurate expiration detection
   useEffect(() => {
+    // Set initial time immediately
+    setCurrentTime(Math.floor(Date.now() / 1000));
+    
+    // Update every 10 seconds for more responsive expiration detection
     const interval = setInterval(() => {
       setCurrentTime(Math.floor(Date.now() / 1000));
-    }, 60000); // Update every minute
+    }, 10000); // Update every 10 seconds
     
     return () => clearInterval(interval);
   }, []);
   
   const yesOdds = market.yesOdds || 50;
   const noOdds = market.noOdds || 50;
-  const deadlineDate = new Date(market.resolutionTime * 1000);
+  
+  // Ensure resolutionTime is in seconds (Unix timestamp)
+  // Handle both seconds and milliseconds formats
+  // resolutionTime from contract is in seconds (Unix timestamp)
+  const resolutionTimeSeconds = market.resolutionTime > 1e12 
+    ? Math.floor(market.resolutionTime / 1000) 
+    : Math.floor(market.resolutionTime);
+  
+  const deadlineDate = new Date(resolutionTimeSeconds * 1000);
   const deadlineFormatted = format(deadlineDate, 'MMM dd, yyyy HH:mm');
   
   // Check if market has expired (deadline passed but not resolved)
-  const hasExpired = market.resolutionTime <= currentTime;
+  // Use strict comparison with current time
+  // Debug: Log expiration check for troubleshooting
+  const hasExpired = resolutionTimeSeconds <= currentTime;
+  
+  // Debug logging (only in development)
+  if (process.env.NODE_ENV === 'development' && hasExpired && market.status === MARKET_STATUS.ACTIVE) {
+    console.log(`[MarketCard] Market #${market.id} expired:`, {
+      resolutionTime: resolutionTimeSeconds,
+      currentTime,
+      deadline: deadlineFormatted,
+      status: market.status,
+      hasExpired,
+    });
+  }
   const isResolved = market.status === MARKET_STATUS.RESOLVED;
   const isResolving = market.status === MARKET_STATUS.RESOLVING;
   const isActive = market.status === MARKET_STATUS.ACTIVE;
+  const isCancelled = market.status === MARKET_STATUS.CANCELLED;
   
   // Determine display status: if expired but not resolved, show "Expired - Pending Resolution"
-  const displayStatus = hasExpired && isActive && !isResolved && !isResolving
+  // Only show expired status if market is Active and not cancelled
+  const displayStatus = hasExpired && isActive && !isResolved && !isResolving && !isCancelled
     ? expiredStatusLabel
     : statusLabels[market.status as keyof typeof statusLabels];
   
   // Format time remaining or show "Expired"
-  const timeRemaining = hasExpired && !isResolved
+  const timeRemaining = hasExpired && !isResolved && !isCancelled
     ? 'Expired'
-    : formatDistanceToNow(new Date(market.resolutionTime * 1000), { addSuffix: true });
+    : formatDistanceToNow(new Date(resolutionTimeSeconds * 1000), { addSuffix: true });
   
   // Convert totalVolume from wei to BNB if needed
   // totalVolume is already in BNB from markets/page.tsx, but handle both cases
