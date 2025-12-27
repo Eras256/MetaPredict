@@ -96,6 +96,28 @@ export function usePlaceBet() {
       await waitForReceipt({ client, chain: opBNBTestnet, transactionHash: betHash });
       console.log('✅ Transaction confirmed');
       
+      // Sincronizar apuesta con Supabase
+      try {
+        const { supabaseSync } = await import('@/lib/services/supabaseSync');
+        const user = await supabaseSync.getOrCreateUser(account.address);
+        
+        if (user) {
+          // Obtener shares del contrato (simplificado - en producción obtener del evento)
+          const shares = amountBigInt; // Por ahora usar amount como shares aproximado
+          
+          await supabaseSync.syncBet({
+            marketId,
+            userId: user.id,
+            amount: amountNum,
+            outcome: isYes,
+            shares: Number(shares) / 1e18, // Convertir de wei
+            transactionHash: betHash
+          });
+        }
+      } catch (syncError) {
+        console.warn('Failed to sync bet to Supabase (non-critical):', syncError);
+      }
+      
       // Emitir evento personalizado para actualizar la actividad del mercado
       window.dispatchEvent(new CustomEvent('betPlaced', {
         detail: {

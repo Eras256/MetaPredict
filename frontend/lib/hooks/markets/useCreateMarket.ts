@@ -204,6 +204,24 @@ export function useCreateBinaryMarket() {
       }) as bigint;
       const marketId = Number(marketCounter);
 
+      // Sincronizar con Supabase
+      try {
+        const { supabaseSync } = await import('@/lib/services/supabaseSync');
+        const user = await supabaseSync.getOrCreateUser(account.address);
+        
+        await supabaseSync.syncMarket({
+          marketIdOnChain: marketId,
+          question,
+          description,
+          marketType: 'binary',
+          resolutionTime: new Date(resolutionTime * 1000),
+          createdBy: user?.id,
+          metadata
+        });
+      } catch (syncError) {
+        console.warn('Failed to sync market to Supabase (non-critical):', syncError);
+      }
+
       const txUrl = getTransactionUrl(txHash);
       toast.success(`Binary market created! View transaction: ${formatTxHash(txHash)}`, {
         duration: 10000,
@@ -306,6 +324,33 @@ export function useCreateConditionalMarket() {
       const txHash = result.transactionHash;
       await waitForReceipt({ client, chain: opBNBTestnet, transactionHash: txHash });
 
+      // Get the new market ID by reading the market counter
+      const marketCounter = await readContract({
+        contract,
+        method: 'marketCounter',
+        params: [],
+      }) as bigint;
+      const marketId = Number(marketCounter);
+
+      // Sincronizar con Supabase
+      try {
+        const { supabaseSync } = await import('@/lib/services/supabaseSync');
+        const user = await supabaseSync.getOrCreateUser(account.address);
+        
+        await supabaseSync.syncMarket({
+          marketIdOnChain: marketId,
+          question,
+          description: question, // Conditional markets use question as description
+          marketType: 'conditional',
+          resolutionTime: new Date(resolutionTime * 1000),
+          createdBy: user?.id,
+          metadata,
+          parentMarketId: parentMarketId
+        });
+      } catch (syncError) {
+        console.warn('Failed to sync conditional market to Supabase (non-critical):', syncError);
+      }
+
       const txUrl = getTransactionUrl(txHash);
       toast.success(`Conditional market created! View transaction: ${formatTxHash(txHash)}`, {
         duration: 10000,
@@ -315,7 +360,7 @@ export function useCreateConditionalMarket() {
         },
       });
 
-      return { transactionHash: txHash, receipt: result };
+      return { transactionHash: txHash, receipt: result, marketId };
     } catch (error: any) {
       console.error('Error creating conditional market:', error);
       
@@ -405,6 +450,32 @@ export function useCreateSubjectiveMarket() {
       const txHash = result.transactionHash;
       await waitForReceipt({ client, chain: opBNBTestnet, transactionHash: txHash });
 
+      // Get the new market ID
+      const marketCounter = await readContract({
+        contract,
+        method: 'marketCounter',
+        params: [],
+      }) as bigint;
+      const marketId = Number(marketCounter);
+
+      // Sincronizar con Supabase
+      try {
+        const { supabaseSync } = await import('@/lib/services/supabaseSync');
+        const user = await supabaseSync.getOrCreateUser(account.address);
+        
+        await supabaseSync.syncMarket({
+          marketIdOnChain: marketId,
+          question,
+          description,
+          marketType: 'subjective',
+          resolutionTime: new Date(resolutionTime * 1000),
+          createdBy: user?.id,
+          metadata
+        });
+      } catch (syncError) {
+        console.warn('Failed to sync subjective market to Supabase (non-critical):', syncError);
+      }
+
       const txUrl = getTransactionUrl(txHash);
       toast.success(`Subjective market created! View transaction: ${formatTxHash(txHash)}`, {
         duration: 10000,
@@ -414,7 +485,7 @@ export function useCreateSubjectiveMarket() {
         },
       });
 
-      return { transactionHash: txHash, receipt: result };
+      return { transactionHash: txHash, receipt: result, marketId };
     } catch (error: any) {
       console.error('Error creating subjective market:', error);
       

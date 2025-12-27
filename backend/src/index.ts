@@ -47,6 +47,10 @@ app.use("/api/ai", aiRouter);
 app.use("/api/venus", venusRouter);
 app.use("/api/gelato", gelatoRouter);
 
+// Import insurance router
+import insuranceRouter from "./routes/insurance";
+app.use("/api/insurance", insuranceRouter);
+
 // Error handling
 app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
   logger.error("Unhandled error", { error: err.message, stack: err.stack });

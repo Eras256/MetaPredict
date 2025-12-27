@@ -79,6 +79,9 @@ export default function CreateMarketPage() {
   const [conditionalQuestion, setConditionalQuestion] = useState('');
   const [conditionalResolutionTime, setConditionalResolutionTime] = useState('');
   const [conditionalMetadata, setConditionalMetadata] = useState('');
+  const [conditionalStreamIdPreset, setConditionalStreamIdPreset] = useState('');
+  const [conditionalStreamIdCustom, setConditionalStreamIdCustom] = useState('');
+  const [conditionalTargetPrice, setConditionalTargetPrice] = useState('');
 
   // Subjective Market
   const [subjectiveQuestion, setSubjectiveQuestion] = useState('');
@@ -304,18 +307,49 @@ export default function CreateMarketPage() {
 
     try {
       const resolutionTimestamp = Math.floor(new Date(conditionalResolutionTime).getTime() / 1000);
-      await createConditional(
+      const result = await createConditional(
         parentId,
         conditionalCondition,
         conditionalQuestion,
         resolutionTimestamp,
         conditionalMetadata
       );
+      
+      // Try to configure Stream ID if provided (either preset or custom)
+      const targetPriceValue = conditionalTargetPrice ? parseFloat(conditionalTargetPrice) : undefined;
+      let streamIdToUse: string | null = null;
+
+      // Determine which Stream ID to use
+      if (conditionalStreamIdCustom && conditionalStreamIdCustom.trim() !== '') {
+        // Use custom Stream ID if provided
+        streamIdToUse = conditionalStreamIdCustom.trim();
+      } else if (conditionalStreamIdPreset && conditionalStreamIdPreset !== '' && conditionalStreamIdPreset !== 'none' && conditionalStreamIdPreset !== 'custom') {
+        // Use preset Stream ID
+        const preset = STREAM_ID_PRESETS.find(p => p.value === conditionalStreamIdPreset);
+        if (preset && preset.streamId) {
+          streamIdToUse = preset.streamId;
+        }
+      }
+
+      if (result.marketId && streamIdToUse) {
+        try {
+          await configureStream(result.marketId, streamIdToUse, targetPriceValue);
+          toast.success('Stream ID configured successfully!');
+        } catch (error: any) {
+          // If configuration fails (e.g., user is not owner), show informative message
+          console.error('Failed to configure Stream ID:', error);
+          toast.warning(`Market created successfully, but Stream ID could not be configured: ${error.message}. Please contact admin to configure it.`);
+        }
+      }
+
       setConditionalParentId('');
       setConditionalCondition('');
       setConditionalQuestion('');
       setConditionalResolutionTime('');
       setConditionalMetadata('');
+      setConditionalStreamIdPreset('');
+      setConditionalStreamIdCustom('');
+      setConditionalTargetPrice('');
       toast.success('Conditional market created successfully!');
     } catch (error) {
       // Error already handled by hook
@@ -721,6 +755,83 @@ export default function CreateMarketPage() {
                     onChange={(e) => setConditionalMetadata(e.target.value)}
                     className="w-full text-xs sm:text-base"
                   />
+                </div>
+
+                {/* Chainlink Data Streams Configuration */}
+                <div className="p-5 sm:p-6 rounded-xl bg-gradient-to-br from-blue-500/20 via-blue-600/15 to-purple-500/20 border-2 border-blue-500/30 shadow-lg shadow-blue-500/10 space-y-4 sm:space-y-5">
+                  <div className="flex items-center gap-2.5 sm:gap-3 mb-3 sm:mb-4">
+                    <div className="p-2 rounded-lg bg-blue-500/20 border border-blue-400/30">
+                      <StreamIcon className="w-4 h-4 sm:w-5 sm:h-5 text-blue-300" />
+                    </div>
+                    <div>
+                      <label className="text-sm sm:text-base font-semibold text-blue-200">Chainlink Data Streams</label>
+                      <p className="text-xs text-blue-300/80 mt-0.5">Optional: Enable price validation</p>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-xs sm:text-sm font-semibold text-gray-200 mb-2">
+                        Stream ID <span className="text-gray-500 font-normal">(optional)</span>
+                      </label>
+                      <Select value={conditionalStreamIdPreset} onValueChange={setConditionalStreamIdPreset}>
+                        <SelectTrigger className="w-full bg-white/10 border-2 border-blue-400/30 text-white hover:border-blue-400/50 focus:border-blue-400/70 h-11">
+                          <SelectValue placeholder="Select a Chainlink Data Stream" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-gray-900 border-blue-500/30">
+                          {STREAM_ID_PRESETS.map((stream) => (
+                            <SelectItem 
+                              key={stream.value || 'none'} 
+                              value={stream.value || 'none'}
+                              className="hover:bg-blue-500/20 focus:bg-blue-500/20 cursor-pointer"
+                            >
+                              {stream.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <p className="mt-2 text-xs text-gray-400 leading-relaxed">
+                        Select a Chainlink Data Stream for price validation. Configuration will be completed by admin after market creation.
+                      </p>
+                    </div>
+
+                    {conditionalStreamIdPreset === 'custom' && (
+                      <div className="p-3 sm:p-4 rounded-lg bg-white/5 border border-blue-400/20">
+                        <label className="block text-xs sm:text-sm font-semibold text-gray-200 mb-2">
+                          Custom Stream ID
+                        </label>
+                        <Input
+                          type="text"
+                          placeholder="0x00039d9e45394f473ab1f050a1b963e6b05351e52d71e507509ada0c95ed75b8"
+                          value={conditionalStreamIdCustom}
+                          onChange={(e) => setConditionalStreamIdCustom(e.target.value)}
+                          className="w-full text-xs sm:text-sm font-mono bg-white/5 border-blue-400/30 focus:border-blue-400/50"
+                        />
+                        <p className="mt-2 text-xs text-gray-400">
+                          Enter a valid Chainlink Data Stream ID (bytes32 hex format, 64 characters with 0x prefix)
+                        </p>
+                      </div>
+                    )}
+
+                    {((conditionalStreamIdPreset && conditionalStreamIdPreset !== '' && conditionalStreamIdPreset !== 'none') || conditionalStreamIdCustom !== '') && (
+                      <div className="p-3 sm:p-4 rounded-lg bg-white/5 border border-green-400/20">
+                        <label className="block text-xs sm:text-sm font-semibold text-gray-200 mb-2">
+                          Target Price ($) <span className="text-gray-500 font-normal">(optional)</span>
+                        </label>
+                        <Input
+                          type="number"
+                          placeholder="e.g., 50000"
+                          value={conditionalTargetPrice}
+                          onChange={(e) => setConditionalTargetPrice(e.target.value)}
+                          step="0.01"
+                          className="w-full text-xs sm:text-base bg-white/5 border-green-400/30 focus:border-green-400/50"
+                        />
+                        <p className="mt-2 text-xs text-gray-400">
+                          Set a target price for automatic resolution when the condition is met
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <Button

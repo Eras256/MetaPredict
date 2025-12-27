@@ -21,6 +21,7 @@ const getAddress = (envVar: string | undefined, defaultAddr: `0x${string}`): `0x
     '0x46ca523e51783a378fba0d06d05929652d04b19e', // Core anterior (muy antiguo)
     '0x0bb2643ace44bbb4fdcc3a4fc50eecbe3ab4a76b', // Core anterior (reciente)
     '0x3ee41d06739ab1fb90fb6718ce579e84b00ffa99', // Dirección problemática reportada (posible contrato antiguo)
+    '0x1758d4da0bAd4DB90Dfd56Be259C19cabDcF03f', // Data Streams Integration anterior (con onlyOwner)
   ];
   
   // Si se detecta una dirección antigua, usar automáticamente la correcta sin warnings

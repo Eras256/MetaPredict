@@ -1,5 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { ConsensusService } from '../services/llm/consensus.service';
+import { oracleService } from '../services/oracleService';
+import { optionalAuth } from '../middleware/auth';
 
 const router = Router();
 
@@ -50,12 +52,104 @@ router.post('/resolve', async (req: Request, res: Response) => {
   }
 });
 
-
+// Get oracle status
 router.get('/status', async (req: Request, res: Response) => {
-  res.json({
-    status: 'active',
-    timestamp: Date.now(),
-  });
+  try {
+    const status = await oracleService.getOracleStatus();
+    res.json({
+      status: 'active',
+      ...status,
+      timestamp: Date.now(),
+    });
+  } catch (error: any) {
+    console.error('Error fetching oracle status:', error);
+    res.status(500).json({
+      error: 'Failed to get oracle status',
+      details: error.message,
+    });
+  }
+});
+
+// Request resolution for a market
+router.post('/request-resolution/:marketId', optionalAuth, async (req: Request, res: Response) => {
+  try {
+    const marketId = Number(req.params.marketId);
+    const result = await oracleService.requestResolution(marketId);
+    res.json({ result });
+  } catch (error: any) {
+    console.error('Error requesting resolution:', error);
+    res.status(500).json({
+      error: 'Failed to request resolution',
+      details: error.message,
+    });
+  }
+});
+
+// File dispute
+router.post('/dispute', optionalAuth, async (req: Request, res: Response) => {
+  try {
+    const { marketId, reason } = req.body;
+    const userId = req.user?.id || req.body.userId;
+    
+    if (!marketId || !reason) {
+      return res.status(400).json({ error: 'marketId and reason are required' });
+    }
+    
+    if (!userId) {
+      return res.status(401).json({ error: 'User ID required' });
+    }
+    
+    const dispute = await oracleService.fileDispute(Number(marketId), userId, reason);
+    res.status(201).json({ dispute });
+  } catch (error: any) {
+    console.error('Error filing dispute:', error);
+    res.status(500).json({
+      error: 'Failed to file dispute',
+      details: error.message,
+    });
+  }
+});
+
+// Get disputes
+router.get('/disputes', async (req: Request, res: Response) => {
+  try {
+    const marketId = req.query.marketId ? Number(req.query.marketId) : undefined;
+    const disputes = await oracleService.getDisputes(marketId);
+    res.json({ disputes });
+  } catch (error: any) {
+    console.error('Error fetching disputes:', error);
+    res.status(500).json({
+      error: 'Failed to fetch disputes',
+      details: error.message,
+    });
+  }
+});
+
+// Vote on dispute
+router.post('/disputes/:disputeId/vote', optionalAuth, async (req: Request, res: Response) => {
+  try {
+    const disputeId = Number(req.params.disputeId);
+    const { vote, weight } = req.body;
+    const userId = req.user?.id || req.body.userId;
+    
+    if (!userId || vote === undefined || !weight) {
+      return res.status(400).json({ error: 'userId, vote, and weight are required' });
+    }
+    
+    const result = await oracleService.voteOnDispute(
+      disputeId,
+      userId,
+      Boolean(vote),
+      parseFloat(weight)
+    );
+    res.json({ result });
+  } catch (error: any) {
+    console.error('Error voting on dispute:', error);
+    res.status(500).json({
+      error: 'Failed to vote on dispute',
+      details: error.message,
+    });
+  }
 });
 
 export default router;
