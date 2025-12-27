@@ -67,12 +67,13 @@ contract ChainlinkDataStreamsIntegration is Ownable {
      * @param _marketId ID del mercado
      * @param _streamId ID del stream de Chainlink Data Streams
      * @param _targetPrice Precio objetivo (opcional, para resolución automática)
+     * @dev Permite que cualquier usuario configure el Stream ID para cualquier mercado
      */
     function configureMarketStream(
         uint256 _marketId,
         bytes32 _streamId,
         int256 _targetPrice
-    ) external onlyOwner {
+    ) external {
         marketStreamId[_marketId] = _streamId;
         marketTargetPrice[_marketId] = _targetPrice;
         

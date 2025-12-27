@@ -286,8 +286,8 @@ export function useMarketActivity(marketId: number) {
 
     fetchActivities();
 
-    // Refrescar cada 30 segundos para obtener nuevas actividades en tiempo real
-    const interval = setInterval(fetchActivities, 30000);
+    // Refrescar cada 60 segundos para obtener nuevas actividades
+    const interval = setInterval(fetchActivities, 60000);
 
     return () => clearInterval(interval);
   }, [marketContractAddress, marketId]);

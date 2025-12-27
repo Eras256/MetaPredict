@@ -42,7 +42,7 @@ export function useCurrentOdds(marketId: number) {
     params: [BigInt(marketId)],
     queryOptions: {
       enabled: marketId > 0,
-      refetchInterval: 10000,
+      refetchInterval: 60000,
     },
   });
 
@@ -69,7 +69,7 @@ export function useCurrentOdds(marketId: number) {
     params: [BigInt(marketId)],
     queryOptions: {
       enabled: hasValidMarketContract && marketId > 0,
-      refetchInterval: 10000, // Refetch every 10 seconds for real-time odds
+      refetchInterval: 60000, // Refetch every 60 seconds
     },
   }) as { data: any; isLoading: boolean };
 

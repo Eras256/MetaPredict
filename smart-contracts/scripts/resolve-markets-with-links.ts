@@ -9,7 +9,7 @@ dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 const CONTRACTS = {
   PREDICTION_MARKET_CORE: "0x5eaa77CC135b82c254F1144c48f4d179964fA0b1",
   AI_ORACLE: "0xcc10a98Aa285E7bD16be1Ef8420315725C3dB66c",
-  DATA_STREAMS_INTEGRATION: "0x1758d4da0bAd4DB90Dfd56Be259C19cabDcF03fd",
+  DATA_STREAMS_INTEGRATION: "0xa7128CD3a748EA85aDDE9c69b0d76758c0a477f3",
 };
 
 const EXPLORER_BASE = "https://testnet.opbnbscan.com";

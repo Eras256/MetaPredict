@@ -28,7 +28,7 @@ const contracts = [
   { name: 'Binary Market', address: '0x68aEea03664707f152652F9562868CCF87C0962C' },
   { name: 'Conditional Market', address: '0x547FC8C5680B7c4ed05da93c635B6b9B83e12007' },
   { name: 'Subjective Market', address: '0x9a9c478BFdC45E2612f61726863AC1b6422217Ea' },
-  { name: 'Chainlink Data Streams', address: '0x1758d4da0bAd4DB90Dfd56Be259C19cabDcF03fd' }
+  { name: 'Chainlink Data Streams', address: '0xa7128CD3a748EA85aDDE9c69b0d76758c0a477f3' }
 ];
 
 async function checkVerificationStatus(address: string): Promise<{ verified: boolean; error?: string }> {
@@ -94,6 +94,8 @@ main()
     console.error(error);
     process.exit(1);
   });
+
+
 
 
 

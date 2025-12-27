@@ -220,6 +220,36 @@ class VenusService {
   }
 
   /**
+   * Fallback method to get current market data when historical data is unavailable
+   * @private
+   */
+  private async getHistoricalAPYFallback(vTokenAddress: string): Promise<VenusHistoricalData[]> {
+    try {
+      const market = await this.getMarketByAddress(vTokenAddress);
+      if (market) {
+        const utilizationRate = market.totalBorrows && market.totalSupply
+          ? (parseFloat(market.totalBorrows) / parseFloat(market.totalSupply)) * 100
+          : 0;
+
+        return [
+          {
+            timestamp: Date.now(),
+            supplyApy: market.supplyApy,
+            borrowApy: market.borrowApy,
+            totalSupply: market.totalSupply,
+            totalBorrows: market.totalBorrows,
+            utilizationRate,
+          },
+        ];
+      }
+    } catch (fallbackError) {
+      // Silently ignore fallback errors
+    }
+    // Return empty array if fallback also fails
+    return [];
+  }
+
+  /**
    * Gets historical market data using /markets/history endpoint
    * @see https://docs-v4.venus.io/services/api
    */
@@ -244,10 +274,23 @@ class VenusService {
       const response = await axios.get(`${this.getBaseUrl()}/markets/history`, {
         params,
         timeout: 15000,
+        validateStatus: (status) => status < 500, // Don't throw on 4xx errors
       });
+
+      // Check for 4xx errors (400, 404, etc.)
+      if (response.status >= 400) {
+        console.warn(`[VenusService] Venus API returned status ${response.status} for historical data, using fallback`);
+        // Return fallback data instead of throwing
+        return this.getHistoricalAPYFallback(vTokenAddress);
+      }
 
       // API returns paginated data
       const historyData = response.data?.result || response.data || [];
+      
+      if (!Array.isArray(historyData) || historyData.length === 0) {
+        // No data available, use fallback
+        return this.getHistoricalAPYFallback(vTokenAddress);
+      }
       
       return historyData.map((item: any) => {
         const utilizationRate = item.totalBorrowsMantissa && item.totalSupplyMantissa
@@ -264,30 +307,25 @@ class VenusService {
         };
       });
     } catch (error: any) {
-      console.error("[VenusService] Error fetching historical APY:", error.message);
-      // If endpoint doesn't exist or fails, return current data as fallback
-      try {
-        const market = await this.getMarketByAddress(vTokenAddress);
-        if (market) {
-          const utilizationRate = market.totalBorrows && market.totalSupply
-            ? (parseFloat(market.totalBorrows) / parseFloat(market.totalSupply)) * 100
-            : 0;
-
-          return [
-            {
-              timestamp: Date.now(),
-              supplyApy: market.supplyApy,
-              borrowApy: market.borrowApy,
-              totalSupply: market.totalSupply,
-              totalBorrows: market.totalBorrows,
-              utilizationRate,
-            },
-          ];
+      // Handle network errors, timeouts, etc.
+      if (error.response) {
+        // Axios error with response (4xx, 5xx)
+        const status = error.response.status;
+        if (status === 400 || status === 404) {
+          console.warn(`[VenusService] Venus API returned ${status} for historical data, using fallback`);
+          return this.getHistoricalAPYFallback(vTokenAddress);
         }
-      } catch (fallbackError) {
-        // Ignore fallback error
       }
-      throw new Error(`Failed to fetch historical APY: ${error.message}`);
+      
+      // For network errors, timeouts, etc., try fallback silently
+      if (error.code === 'ECONNREFUSED' || error.code === 'ETIMEDOUT' || error.code === 'ENOTFOUND') {
+        console.warn("[VenusService] Network error fetching historical APY, using fallback");
+        return this.getHistoricalAPYFallback(vTokenAddress);
+      }
+      
+      // For other errors, log as warning and return fallback
+      console.warn("[VenusService] Error fetching historical APY, using fallback:", error.message);
+      return this.getHistoricalAPYFallback(vTokenAddress);
     }
   }
 

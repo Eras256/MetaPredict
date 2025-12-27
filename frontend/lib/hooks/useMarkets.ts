@@ -415,11 +415,11 @@ export function useMarket(marketId: number) {
 
     console.log(`🔄 Market #${marketId} is ${market.status === MARKET_STATUS.ACTIVE ? 'active' : 'resolving'}, starting polling...`);
     
-    // Poll cada 30 segundos para actualizar volumen y participantes en tiempo real
+    // Poll cada 60 segundos para actualizar volumen y participantes
     const pollInterval = setInterval(() => {
-      console.log(`🔄 Polling market #${marketId} for real-time updates...`);
+      console.log(`🔄 Polling market #${marketId} for updates...`);
       fetchMarket();
-    }, 30000); // 30 segundos para actualizaciones en tiempo real
+    }, 60000); // 60 segundos para actualizaciones
 
     return () => {
       console.log(`⏹️ Stopping polling for market #${marketId}`);

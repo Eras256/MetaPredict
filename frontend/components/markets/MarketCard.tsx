@@ -116,6 +116,7 @@ export function MarketCard({ market }: MarketCardProps) {
   const outcomeIsPending = hasOutcome && market.outcome === 0;
   const hasValidOutcome = hasOutcome && market.outcome !== 0; // 1, 2, or 3
   // Market is actually resolved ONLY if status is Resolved AND has valid outcome (1, 2, or 3)
+  // IMPORTANT: Declare this BEFORE any usage, including in console.log
   const isActuallyResolved = isResolved && hasValidOutcome;
   
   // Debug logging (only in development) - log ALL expired markets for troubleshooting
@@ -238,17 +239,17 @@ export function MarketCard({ market }: MarketCardProps) {
               </div>
               <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
                 <div className={`flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-lg border flex-shrink-0 ${
-                  hasExpired && !isResolved 
+                  hasExpired && !isActuallyResolved && !isCancelled
                     ? 'bg-orange-500/10 border-orange-500/20' 
                     : 'bg-white/5 border-white/10'
                 }`}>
                   <Clock className={`w-3 h-3 sm:w-3.5 sm:h-3.5 flex-shrink-0 ${
-                    hasExpired && !isResolved 
+                    hasExpired && !isActuallyResolved && !isCancelled
                       ? 'text-orange-400' 
                       : 'text-purple-400'
                   }`} />
                   <span className={`text-[10px] sm:text-xs font-medium truncate max-w-[120px] sm:max-w-none ${
-                    hasExpired && !isResolved 
+                    hasExpired && !isActuallyResolved && !isCancelled
                       ? 'text-orange-300' 
                       : 'text-gray-300'
                   }`}>

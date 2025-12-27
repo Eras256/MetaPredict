@@ -80,7 +80,7 @@ Real-time price feeds with **sub-second updates** (up to 100ms) for price-based 
 
 </div>
 
-**Contract**: [`ChainlinkDataStreamsIntegration`](https://testnet.opbnbscan.com/address/0x1758d4da0bAd4DB90Dfd56Be259C19cabDcF03fd#code)  
+**Contract**: [`ChainlinkDataStreamsIntegration`](https://testnet.opbnbscan.com/address/0xa7128CD3a748EA85aDDE9c69b0d76758c0a477f3#code)  
 **Verifier Proxy**: [`0x001225Aca0efe49Dbb48233aB83a9b4d177b581A`](https://testnet.opbnbscan.com/address/0x001225Aca0efe49Dbb48233aB83a9b4d177b581A)  
 **Backend URL**: `https://metapredict.fun/api/oracle/resolve` (configured on-chain in AIOracle contract)  
 **Status**: ✅ **Fully configured, tested, and verified with real data**
@@ -292,7 +292,7 @@ See `env.example` for the complete list of variables.
 
 | Contract | Address | Status | Explorer |
 |:--------|:--------|:------:|:--------:|
-| **⚡ Chainlink Data Streams** | `0x1758d4da0bAd4DB90Dfd56Be259C19cabDcF03fd` | ✅ Verified | [View on opBNBScan](https://testnet.opbnbscan.com/address/0x1758d4da0bAd4DB90Dfd56Be259C19cabDcF03fd#code) |
+| **⚡ Chainlink Data Streams** | `0xa7128CD3a748EA85aDDE9c69b0d76758c0a477f3` | ✅ Verified | [View on opBNBScan](https://testnet.opbnbscan.com/address/0xa7128CD3a748EA85aDDE9c69b0d76758c0a477f3#code) |
 | **🔐 Chainlink Verifier Proxy** | `0x001225Aca0efe49Dbb48233aB83a9b4d177b581A` | ✅ Configured | [View on opBNBScan](https://testnet.opbnbscan.com/address/0x001225Aca0efe49Dbb48233aB83a9b4d177b581A) |
 
 ### 🔗 Quick Links

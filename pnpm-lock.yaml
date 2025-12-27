@@ -96,6 +96,9 @@ importers:
 
   frontend:
     dependencies:
+      '@chainlink/data-streams-sdk':
+        specifier: ^1.2.0
+        version: 1.2.0(bufferutil@4.0.9)(dotenv@16.6.1)(utf-8-validate@5.0.10)
       '@google/generative-ai':
         specifier: ^0.24.1
         version: 0.24.1
@@ -892,6 +895,15 @@ packages:
 
   '@chainlink/contracts@0.8.0':
     resolution: {integrity: sha512-nUv1Uxw5Mn92wgLs2bgPYmo8hpdQ3s9jB/lcbdU0LmNOVu0hbfmouVnqwRLa28Ll50q6GczUA+eO0ikNIKLZsA==}
+
+  '@chainlink/data-streams-sdk@1.2.0':
+    resolution: {integrity: sha512-Dsk+v5G48QkYYf6U5VSurehK+r/8xQMLz5mb89X+KPqxnXAaThEZMUiszc/+ciQ40XBKwfE3vx1mTlo1gFVAqg==}
+    engines: {node: '>=20.0.0'}
+    peerDependencies:
+      dotenv: ^16.6.1
+    peerDependenciesMeta:
+      dotenv:
+        optional: true
 
   '@chainlink/functions-toolkit@0.3.2':
     resolution: {integrity: sha512-83SKnDe4E/q7T1ERDKawUkobIYURqS1tfh32xm6Cr1Y/efy+qhcR7wvN95tgTxbk1eNLIX4XFz/2t4AZBBJIow==}
@@ -9986,6 +9998,16 @@ snapshots:
     transitivePeerDependencies:
       - bufferutil
       - ethers
+      - utf-8-validate
+
+  '@chainlink/data-streams-sdk@1.2.0(bufferutil@4.0.9)(dotenv@16.6.1)(utf-8-validate@5.0.10)':
+    dependencies:
+      ethers: 6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+      ws: 8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+    optionalDependencies:
+      dotenv: 16.6.1
+    transitivePeerDependencies:
+      - bufferutil
       - utf-8-validate
 
   '@chainlink/functions-toolkit@0.3.2(bufferutil@4.0.7)(utf-8-validate@6.0.3)':

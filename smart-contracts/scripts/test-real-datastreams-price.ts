@@ -8,7 +8,7 @@ dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 const CONTRACTS = {
   PREDICTION_MARKET_CORE: "0x5eaa77CC135b82c254F1144c48f4d179964fA0b1",
-  DATA_STREAMS_INTEGRATION: "0x1758d4da0bAd4DB90Dfd56Be259C19cabDcF03fd",
+  DATA_STREAMS_INTEGRATION: "0xa7128CD3a748EA85aDDE9c69b0d76758c0a477f3",
 };
 
 async function main() {

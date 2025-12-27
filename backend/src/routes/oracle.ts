@@ -50,6 +50,7 @@ router.post('/resolve', async (req: Request, res: Response) => {
   }
 });
 
+
 router.get('/status', async (req: Request, res: Response) => {
   res.json({
     status: 'active',

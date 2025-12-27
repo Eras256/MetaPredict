@@ -11,6 +11,7 @@
     "verify-all-contracts": "hardhat run scripts/verify-all-contracts.ts --network opBNBTestnet",
     "diagnose-core": "hardhat run scripts/diagnose-core-contract.ts --network opBNBTestnet",
     "redeploy-core": "hardhat run scripts/redeploy-core.ts --network opBNBTestnet",
+    "redeploy:data-streams": "hardhat run scripts/redeploy-data-streams.ts --network opBNBTestnet",
     "compile": "hardhat compile",
     "test": "hardhat test",
     "test:e2e": "hardhat test test/end-to-end.test.ts --network opBNBTestnet",

@@ -322,7 +322,7 @@ vercel env add NEXT_PUBLIC_SUBJECTIVE_MARKET_ADDRESS production
 
 # Variable: NEXT_PUBLIC_DATA_STREAMS_INTEGRATION_ADDRESS
 vercel env add NEXT_PUBLIC_DATA_STREAMS_INTEGRATION_ADDRESS production
-# Valor sugerido/ejemplo: 0x1758d4da0bAd4DB90Dfd56Be259C19cabDcF03fd
+# Valor sugerido/ejemplo: 0xa7128CD3a748EA85aDDE9c69b0d76758c0a477f3
 
 # Variable: NEXT_PUBLIC_USDC_ADDRESS
 vercel env add NEXT_PUBLIC_USDC_ADDRESS production

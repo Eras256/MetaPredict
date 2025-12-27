@@ -6,6 +6,7 @@ import { Shield, TrendingUp, DollarSign, AlertCircle, Brain, Loader2, RefreshCw,
 import { GlassCard } from '@/components/effects/GlassCard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import Link from 'next/link';
 import { InsuranceStats } from '@/components/insurance/InsuranceStats';
 import { DepositPanel } from '@/components/insurance/DepositPanel';
 import { WithdrawPanel } from '@/components/insurance/WithdrawPanel';
@@ -92,31 +93,6 @@ export default function InsurancePage() {
                 Protect your investments with insurance coverage
               </p>
             </div>
-            {activeMarkets && activeMarkets.length > 0 && (
-              <Button
-                onClick={() => {
-                  // Analyze the first active market
-                  if (activeMarkets[0]) {
-                    handleAnalyzeMarketRisk(activeMarkets[0]);
-                  }
-                }}
-                disabled={analyzingRisk || !activeMarkets || activeMarkets.length === 0}
-                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
-                size="lg"
-              >
-                {analyzingRisk ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Analyzing...
-                  </>
-                ) : (
-                  <>
-                    <Brain className="mr-2 h-4 w-4" />
-                    Analyze Market Risk with AI
-                  </>
-                )}
-              </Button>
-            )}
           </div>
         </motion.div>
 
@@ -202,7 +178,7 @@ export default function InsurancePage() {
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-semibold flex items-center gap-2">
                       <Brain className="h-5 w-5 text-purple-400" />
-                      Analyze Market Risk ({activeMarkets.length} active markets)
+                      View ({activeMarkets.length} active markets)
                     </h3>
                     <Button
                       onClick={refresh}
@@ -223,18 +199,14 @@ export default function InsurancePage() {
                             Volume: {((Number(market.yesPool || 0) + Number(market.noPool || 0)) / 1e18).toFixed(4)} BNB
                           </p>
                         </div>
-                        <Button
-                          onClick={() => handleAnalyzeMarketRisk(market)}
-                          disabled={analyzingRisk}
-                          size="sm"
-                          variant="outline"
-                        >
-                          {analyzingRisk ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                          ) : (
-                            'Analyze'
-                          )}
-                        </Button>
+                        <Link href={`/markets/${market.id}`}>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                          >
+                            View
+                          </Button>
+                        </Link>
                       </div>
                     ))}
                   </div>

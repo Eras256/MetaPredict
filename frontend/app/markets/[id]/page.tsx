@@ -315,7 +315,7 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                         <Loader2 className="w-5 h-5 animate-spin text-yellow-400" />
                         <span className="text-yellow-300 font-bold text-base">Resolving...</span>
                       </div>
-                      <span className="text-xs text-gray-400 bg-white/5 px-2 py-1 rounded">Auto-refreshing every 30s</span>
+                      <span className="text-xs text-gray-400 bg-white/5 px-2 py-1 rounded">Auto-refreshing every 60s</span>
                     </div>
                     <p className="text-sm text-gray-300 leading-relaxed">
                       The AI Oracle is processing the resolution. This page will update automatically when complete.

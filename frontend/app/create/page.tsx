@@ -24,6 +24,36 @@ import { CONTRACT_ADDRESSES } from '@/lib/contracts/addresses';
 import PREDICTION_MARKET_CORE_ABI from '@/lib/contracts/abi/PredictionMarketCore.json';
 import { client } from '@/lib/config/thirdweb';
 import { AutoRefreshBanner } from '@/components/common/AutoRefreshBanner';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { TrendingUp as StreamIcon } from 'lucide-react';
+import { useConfigureMarketStream } from '@/lib/hooks/oracle/useChainlinkDataStreams';
+
+// Real Chainlink Data Stream IDs from https://data.chain.link/streams
+const STREAM_IDS = {
+  BTC_USD: '0x00039d9e45394f473ab1f050a1b963e6b05351e52d71e507509ada0c95ed75b8',
+  ETH_USD: '0x000362205e10b3a147d02792eccee483dca6c7b44ecce7012cb8c6e0b68b3ae9',
+  USDT_USD: '0x0003a910a43485e0685ff5d6d366541f5c21150f0634c5b14254392d1a1c06db',
+  BNB_USD: '0x000335fd3f3ffa06cfd9297b97367f77145d7a5f132e84c736cc471dd98621fe',
+  SOL_USD: '0x0003b778d3f6b2ac4991302b89cb313f99a42467d6c9c5f96f57c29c0d2bc24f',
+  USDC_USD: '0x00038f83323b6b08116d1614cf33a9bd71ab5e0abf0c9f1b783a74a43e7bd992',
+  XRP_USD: '0x0003c16c6aed42294f5cb4741f6e59ba2d728f0eae2eb9e6d3f555808c59fc45',
+  DOGE_USD: '0x000356ca64d3b32135e17dc0dc721a645bf50d0303be8ceb2cdca0a50bab8fdc',
+} as const;
+
+// Available Chainlink Data Streams options
+// Users can select a common stream or enter a custom Stream ID
+const STREAM_ID_PRESETS = [
+  { value: '', label: 'None (No Chainlink Data Streams)', streamId: '' },
+  { value: 'BTC_USD', label: 'BTC/USD', streamId: STREAM_IDS.BTC_USD },
+  { value: 'ETH_USD', label: 'ETH/USD', streamId: STREAM_IDS.ETH_USD },
+  { value: 'BNB_USD', label: 'BNB/USD', streamId: STREAM_IDS.BNB_USD },
+  { value: 'SOL_USD', label: 'SOL/USD', streamId: STREAM_IDS.SOL_USD },
+  { value: 'USDC_USD', label: 'USDC/USD', streamId: STREAM_IDS.USDC_USD },
+  { value: 'USDT_USD', label: 'USDT/USD', streamId: STREAM_IDS.USDT_USD },
+  { value: 'XRP_USD', label: 'XRP/USD', streamId: STREAM_IDS.XRP_USD },
+  { value: 'DOGE_USD', label: 'DOGE/USD', streamId: STREAM_IDS.DOGE_USD },
+  { value: 'custom', label: 'Custom Stream ID', streamId: '' },
+] as const;
 
 export default function CreateMarketPage() {
   const account = useActiveAccount();
@@ -32,12 +62,16 @@ export default function CreateMarketPage() {
   const { createMarket: createBinary, isPending: isCreatingBinary } = useCreateBinaryMarket();
   const { createMarket: createConditional, isPending: isCreatingConditional } = useCreateConditionalMarket();
   const { createMarket: createSubjective, isPending: isCreatingSubjective } = useCreateSubjectiveMarket();
+  const { configureStream, isPending: isConfiguringStream } = useConfigureMarketStream();
 
   // Binary Market
   const [binaryQuestion, setBinaryQuestion] = useState('');
   const [binaryDescription, setBinaryDescription] = useState('');
   const [binaryResolutionTime, setBinaryResolutionTime] = useState('');
   const [binaryMetadata, setBinaryMetadata] = useState('');
+  const [binaryStreamIdPreset, setBinaryStreamIdPreset] = useState('');
+  const [binaryStreamIdCustom, setBinaryStreamIdCustom] = useState('');
+  const [binaryTargetPrice, setBinaryTargetPrice] = useState('');
 
   // Conditional Market
   const [conditionalParentId, setConditionalParentId] = useState('');
@@ -151,12 +185,43 @@ export default function CreateMarketPage() {
         return;
       }
       
-      await createBinary(binaryQuestion, binaryDescription, resolutionTimestamp, binaryMetadata);
+      const result = await createBinary(binaryQuestion, binaryDescription, resolutionTimestamp, binaryMetadata);
+      
+      // Try to configure Stream ID if provided (either preset or custom)
+      const targetPriceValue = binaryTargetPrice ? parseFloat(binaryTargetPrice) : undefined;
+      let streamIdToUse: string | null = null;
+
+      // Determine which Stream ID to use
+      if (binaryStreamIdCustom && binaryStreamIdCustom.trim() !== '') {
+        // Use custom Stream ID if provided
+        streamIdToUse = binaryStreamIdCustom.trim();
+      } else if (binaryStreamIdPreset && binaryStreamIdPreset !== '' && binaryStreamIdPreset !== 'none' && binaryStreamIdPreset !== 'custom') {
+        // Use preset Stream ID
+        const preset = STREAM_ID_PRESETS.find(p => p.value === binaryStreamIdPreset);
+        if (preset && preset.streamId) {
+          streamIdToUse = preset.streamId;
+        }
+      }
+
+      if (result.marketId && streamIdToUse) {
+        try {
+          await configureStream(result.marketId, streamIdToUse, targetPriceValue);
+          toast.success('Stream ID configured successfully!');
+        } catch (error: any) {
+          // If configuration fails (e.g., user is not owner), show informative message
+          console.error('Failed to configure Stream ID:', error);
+          toast.warning(`Market created successfully, but Stream ID could not be configured: ${error.message}. Please contact admin to configure it.`);
+        }
+      }
+
       setBinaryQuestion('');
       setBinaryDescription('');
       setBinaryResolutionTime('');
       setBinaryMetadata('');
-      toast.success('Binary market created successfully!');
+      setBinaryStreamIdPreset('');
+      setBinaryStreamIdCustom('');
+      setBinaryTargetPrice('');
+      
       // The 'marketCreated' event is emitted from the hook, which will automatically refresh
     } catch (error) {
       // Error already handled by hook
@@ -489,6 +554,83 @@ export default function CreateMarketPage() {
                     onChange={(e) => setBinaryMetadata(e.target.value)}
                     className="w-full text-xs sm:text-base"
                   />
+                </div>
+
+                {/* Chainlink Data Streams Configuration */}
+                <div className="p-5 sm:p-6 rounded-xl bg-gradient-to-br from-blue-500/20 via-blue-600/15 to-purple-500/20 border-2 border-blue-500/30 shadow-lg shadow-blue-500/10 space-y-4 sm:space-y-5">
+                  <div className="flex items-center gap-2.5 sm:gap-3 mb-3 sm:mb-4">
+                    <div className="p-2 rounded-lg bg-blue-500/20 border border-blue-400/30">
+                      <StreamIcon className="w-4 h-4 sm:w-5 sm:h-5 text-blue-300" />
+                    </div>
+                    <div>
+                      <label className="text-sm sm:text-base font-semibold text-blue-200">Chainlink Data Streams</label>
+                      <p className="text-xs text-blue-300/80 mt-0.5">Optional: Enable price validation</p>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-xs sm:text-sm font-semibold text-gray-200 mb-2">
+                        Stream ID <span className="text-gray-500 font-normal">(optional)</span>
+                      </label>
+                      <Select value={binaryStreamIdPreset} onValueChange={setBinaryStreamIdPreset}>
+                        <SelectTrigger className="w-full bg-white/10 border-2 border-blue-400/30 text-white hover:border-blue-400/50 focus:border-blue-400/70 h-11">
+                          <SelectValue placeholder="Select a Chainlink Data Stream" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-gray-900 border-blue-500/30">
+                          {STREAM_ID_PRESETS.map((stream) => (
+                            <SelectItem 
+                              key={stream.value || 'none'} 
+                              value={stream.value || 'none'}
+                              className="hover:bg-blue-500/20 focus:bg-blue-500/20 cursor-pointer"
+                            >
+                              {stream.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <p className="mt-2 text-xs text-gray-400 leading-relaxed">
+                        Select a Chainlink Data Stream for price validation. Configuration will be completed by admin after market creation.
+                      </p>
+                    </div>
+
+                    {binaryStreamIdPreset === 'custom' && (
+                      <div className="p-3 sm:p-4 rounded-lg bg-white/5 border border-blue-400/20">
+                        <label className="block text-xs sm:text-sm font-semibold text-gray-200 mb-2">
+                          Custom Stream ID
+                        </label>
+                        <Input
+                          type="text"
+                          placeholder="0x00039d9e45394f473ab1f050a1b963e6b05351e52d71e507509ada0c95ed75b8"
+                          value={binaryStreamIdCustom}
+                          onChange={(e) => setBinaryStreamIdCustom(e.target.value)}
+                          className="w-full text-xs sm:text-sm font-mono bg-white/5 border-blue-400/30 focus:border-blue-400/50"
+                        />
+                        <p className="mt-2 text-xs text-gray-400">
+                          Enter a valid Chainlink Data Stream ID (bytes32 hex format, 64 characters with 0x prefix)
+                        </p>
+                      </div>
+                    )}
+
+                    {((binaryStreamIdPreset && binaryStreamIdPreset !== '' && binaryStreamIdPreset !== 'none') || binaryStreamIdCustom !== '') && (
+                      <div className="p-3 sm:p-4 rounded-lg bg-white/5 border border-green-400/20">
+                        <label className="block text-xs sm:text-sm font-semibold text-gray-200 mb-2">
+                          Target Price ($) <span className="text-gray-500 font-normal">(optional)</span>
+                        </label>
+                        <Input
+                          type="number"
+                          placeholder="e.g., 50000"
+                          value={binaryTargetPrice}
+                          onChange={(e) => setBinaryTargetPrice(e.target.value)}
+                          step="0.01"
+                          className="w-full text-xs sm:text-base bg-white/5 border-green-400/30 focus:border-green-400/50"
+                        />
+                        <p className="mt-2 text-xs text-gray-400">
+                          Set a target price for automatic resolution when the condition is met
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <Button

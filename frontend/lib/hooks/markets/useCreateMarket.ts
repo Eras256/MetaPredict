@@ -149,6 +149,13 @@ const PredictionMarketCoreABI = [
     inputs: [],
     outputs: [{ name: '', type: 'address' }],
   },
+  {
+    name: 'marketCounter',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint256' }],
+  },
 ] as const;
 
 export function useCreateBinaryMarket() {
@@ -189,6 +196,14 @@ export function useCreateBinaryMarket() {
       const txHash = result.transactionHash;
       await waitForReceipt({ client, chain: opBNBTestnet, transactionHash: txHash });
 
+      // Get the new market ID by reading the market counter
+      const marketCounter = await readContract({
+        contract,
+        method: 'marketCounter',
+        params: [],
+      }) as bigint;
+      const marketId = Number(marketCounter);
+
       const txUrl = getTransactionUrl(txHash);
       toast.success(`Binary market created! View transaction: ${formatTxHash(txHash)}`, {
         duration: 10000,
@@ -198,7 +213,7 @@ export function useCreateBinaryMarket() {
         },
       });
 
-      return { transactionHash: txHash, receipt: result };
+      return { transactionHash: txHash, receipt: result, marketId };
     } catch (error: any) {
       console.error('Error creating binary market:', error);
       
