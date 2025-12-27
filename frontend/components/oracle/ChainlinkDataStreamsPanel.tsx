@@ -81,19 +81,16 @@ export function ChainlinkDataStreamsPanel({ marketId }: ChainlinkDataStreamsPane
         }
       } else if (errorMessage.includes('credentials not configured')) {
         errorMessage = 
-          'Chainlink Data Streams API credentials are required. ' +
-          'Contact Chainlink to get your API key and secret: https://chain.link/contact?ref_id=datafeeds';
+          'Chainlink Data Streams service is being configured. Price verification will be available soon.';
       } else if (error.response?.status === 401 || errorMessage.includes('authentication')) {
         errorMessage = 
-          'Chainlink Data Streams authentication failed. ' +
-          'Please verify your API_KEY and USER_SECRET are correct. ' +
-          'To get credentials, contact Chainlink: https://chain.link/contact?ref_id=datafeeds';
+          'Chainlink Data Streams authentication failed. Please try again later or contact support if the issue persists.';
       } else if (error.response?.status === 404 || errorMessage.includes('not found')) {
         errorMessage = 
           'Stream ID not found. Please verify the Stream ID is correct and exists on this network.';
       } else if (error.response?.status === 500) {
         errorMessage = 
-          'Server error while fetching report. Please check your Chainlink Data Streams configuration.';
+          'Service temporarily unavailable. Please try again later.';
       }
       
       toast.error(errorMessage);
