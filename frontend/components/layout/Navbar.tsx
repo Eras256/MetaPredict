@@ -32,7 +32,7 @@ import { cn } from '@/lib/utils';
 const navigation = [
   { name: 'Home', href: '/', icon: Home },
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'Vote Now', href: '/docs', icon: Trophy, isVoteButton: true },
+  { name: 'Vote Now', href: '/vote', icon: Trophy, isVoteButton: true },
 ];
 
 // Markets submenu
