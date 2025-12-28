@@ -323,15 +323,15 @@ export default function ReputationPage() {
           </GlassCard>
 
           {/* Staking Panel */}
-          <GlassCard className="p-8">
-            <h2 className="text-2xl font-semibold mb-6 flex items-center gap-2">
-              <Shield className="w-6 h-6 text-green-400" />
+          <GlassCard className="p-4 sm:p-6 md:p-8">
+            <h2 className="text-xl sm:text-2xl font-semibold mb-4 sm:mb-6 flex items-center gap-2">
+              <Shield className="w-5 h-5 sm:w-6 sm:h-6 text-green-400 flex-shrink-0" />
               Stake Reputation
             </h2>
             
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               <div>
-                <label className="text-sm text-gray-400 mb-2 block">Amount (BNB)</label>
+                <label className="text-xs sm:text-sm text-gray-400 mb-1.5 sm:mb-2 block">Amount (BNB)</label>
                 <Input
                   type="number"
                   placeholder="0.00"
@@ -339,15 +339,16 @@ export default function ReputationPage() {
                   onChange={(e) => setStakeAmount(e.target.value)}
                   min="0.1"
                   step="0.01"
+                  className="text-sm sm:text-base"
                 />
-                <p className="text-xs text-gray-500 mt-1">Minimum: 0.1 BNB</p>
+                <p className="text-[10px] sm:text-xs text-gray-500 mt-1">Minimum: 0.1 BNB</p>
               </div>
 
-              <div className="p-4 rounded-lg bg-blue-500/10 border border-blue-500/20">
-                <p className="text-xs text-blue-300 mb-2">
+              <div className="p-3 sm:p-4 rounded-lg bg-blue-500/10 border border-blue-500/20">
+                <p className="text-[10px] sm:text-xs text-blue-300 mb-1.5 sm:mb-2">
                   <strong>Staking Benefits:</strong>
                 </p>
-                <ul className="text-xs text-blue-200 space-y-1 list-disc list-inside">
+                <ul className="text-[10px] sm:text-xs text-blue-200 space-y-0.5 sm:space-y-1 list-disc list-inside">
                   <li>Increases your voting weight in disputes</li>
                   <li>Higher stakes = more influence</li>
                   <li>Unlock tier upgrades and NFT badges</li>
@@ -355,12 +356,12 @@ export default function ReputationPage() {
                 </ul>
               </div>
 
-              <div className="p-4 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
-                <div className="flex items-start gap-2">
-                  <Zap className="w-4 h-4 text-yellow-400 mt-0.5 flex-shrink-0" />
-                  <div>
-                    <p className="text-xs text-yellow-300 font-semibold mb-1">Slashing Warning</p>
-                    <p className="text-xs text-yellow-200">
+              <div className="p-3 sm:p-4 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
+                <div className="flex items-start gap-1.5 sm:gap-2">
+                  <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-yellow-400 mt-0.5 flex-shrink-0" />
+                  <div className="min-w-0">
+                    <p className="text-[10px] sm:text-xs text-yellow-300 font-semibold mb-0.5 sm:mb-1">Slashing Warning</p>
+                    <p className="text-[10px] sm:text-xs text-yellow-200 break-words">
                       Incorrect votes result in a 20% slashing penalty. Vote carefully!
                     </p>
                   </div>
@@ -379,15 +380,15 @@ export default function ReputationPage() {
           </GlassCard>
 
           {/* Unstaking Panel */}
-          <GlassCard className="p-8">
-            <h2 className="text-2xl font-semibold mb-6 flex items-center gap-2">
-              <ArrowDownCircle className="w-6 h-6 text-orange-400" />
+          <GlassCard className="p-4 sm:p-6 md:p-8">
+            <h2 className="text-xl sm:text-2xl font-semibold mb-4 sm:mb-6 flex items-center gap-2">
+              <ArrowDownCircle className="w-5 h-5 sm:w-6 sm:h-6 text-orange-400 flex-shrink-0" />
               Unstake Reputation
             </h2>
             
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               <div>
-                <label className="text-sm text-gray-400 mb-2 block">Amount (BNB)</label>
+                <label className="text-xs sm:text-sm text-gray-400 mb-1.5 sm:mb-2 block">Amount (BNB)</label>
                 <Input
                   type="number"
                   placeholder="0.00"
@@ -396,35 +397,36 @@ export default function ReputationPage() {
                   min="0.0001"
                   step="0.01"
                   max={stakedAmount}
+                  className="text-sm sm:text-base"
                 />
                 <div className="flex items-center justify-between mt-1">
-                  <p className="text-xs text-gray-500">Available: {stakedAmount.toFixed(4)} BNB</p>
+                  <p className="text-[10px] sm:text-xs text-gray-500 truncate mr-2">Available: {stakedAmount.toFixed(4)} BNB</p>
                   <button
                     onClick={() => setUnstakeAmount(stakedAmount.toString())}
-                    className="text-xs text-purple-400 hover:text-purple-300"
+                    className="text-[10px] sm:text-xs text-purple-400 hover:text-purple-300 flex-shrink-0"
                   >
                     Use Max
                   </button>
                 </div>
               </div>
 
-              <div className="p-4 rounded-lg bg-orange-500/10 border border-orange-500/20">
-                <div className="flex items-start gap-2">
-                  <AlertTriangle className="w-4 h-4 text-orange-400 mt-0.5 flex-shrink-0" />
-                  <div>
-                    <p className="text-xs text-orange-300 font-semibold mb-1">Cooldown Period</p>
-                    <p className="text-xs text-orange-200">
+              <div className="p-3 sm:p-4 rounded-lg bg-orange-500/10 border border-orange-500/20">
+                <div className="flex items-start gap-1.5 sm:gap-2">
+                  <AlertTriangle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-orange-400 mt-0.5 flex-shrink-0" />
+                  <div className="min-w-0">
+                    <p className="text-[10px] sm:text-xs text-orange-300 font-semibold mb-0.5 sm:mb-1">Cooldown Period</p>
+                    <p className="text-[10px] sm:text-xs text-orange-200 break-words">
                       You must wait 7 days from your last stake before you can unstake. This is a security period to protect the reputation system.
                     </p>
                   </div>
                 </div>
               </div>
 
-              <div className="p-4 rounded-lg bg-blue-500/10 border border-blue-500/20">
-                <p className="text-xs text-blue-300 mb-2">
+              <div className="p-3 sm:p-4 rounded-lg bg-blue-500/10 border border-blue-500/20">
+                <p className="text-[10px] sm:text-xs text-blue-300 mb-1.5 sm:mb-2">
                   <strong>Unstaking Effects:</strong>
                 </p>
-                <ul className="text-xs text-blue-200 space-y-1 list-disc list-inside">
+                <ul className="text-[10px] sm:text-xs text-blue-200 space-y-0.5 sm:space-y-1 list-disc list-inside">
                   <li>Reduces your voting weight in disputes</li>
                   <li>May downgrade your tier if below threshold</li>
                   <li>You keep your reputation score and NFT badges</li>

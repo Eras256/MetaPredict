@@ -85,7 +85,7 @@ export function Footer() {
               <Link href="/" className="flex items-center space-x-3 mb-4 group">
                 <div className="w-10 h-10 rounded-xl overflow-hidden bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center group-hover:scale-110 transition-transform">
                   <Image 
-                    src="/logos/MINS.png" 
+                    src="/logos/METAPREDICT.png" 
                     alt="MetaPredict Logo" 
                     width={40} 
                     height={40} 

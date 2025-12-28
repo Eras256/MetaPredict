@@ -197,14 +197,16 @@ export default function DAOPage() {
         />
 
         <Tabs value={activeTab} onValueChange={setActiveTab} defaultValue="active" className="space-y-4 sm:space-y-6">
-          <TabsList className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 w-full h-auto gap-1 sm:gap-2">
-            <TabsTrigger value="active" className="text-xs sm:text-sm py-2 sm:py-2.5">Active</TabsTrigger>
-            <TabsTrigger value="resolved" className="text-xs sm:text-sm py-2 sm:py-2.5">Resolved</TabsTrigger>
-            <TabsTrigger value="create" className="text-xs sm:text-sm py-2 sm:py-2.5">Create</TabsTrigger>
-            <TabsTrigger value="expertise" className="text-xs sm:text-sm py-2 sm:py-2.5">Expertise</TabsTrigger>
-            <TabsTrigger value="my-votes" className="text-xs sm:text-sm py-2 sm:py-2.5">My Votes</TabsTrigger>
-            <TabsTrigger value="parameters" className="text-xs sm:text-sm py-2 sm:py-2.5">Parameters</TabsTrigger>
-          </TabsList>
+          <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
+            <TabsList className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 w-full h-auto gap-1 sm:gap-2 min-w-[500px] sm:min-w-0">
+              <TabsTrigger value="active" className="text-[10px] sm:text-xs md:text-sm py-1.5 sm:py-2 md:py-2.5 px-1 sm:px-2">Active</TabsTrigger>
+              <TabsTrigger value="resolved" className="text-[10px] sm:text-xs md:text-sm py-1.5 sm:py-2 md:py-2.5 px-1 sm:px-2">Resolved</TabsTrigger>
+              <TabsTrigger value="create" className="text-[10px] sm:text-xs md:text-sm py-1.5 sm:py-2 md:py-2.5 px-1 sm:px-2">Create</TabsTrigger>
+              <TabsTrigger value="expertise" className="text-[10px] sm:text-xs md:text-sm py-1.5 sm:py-2 md:py-2.5 px-1 sm:px-2">Expertise</TabsTrigger>
+              <TabsTrigger value="my-votes" className="text-[10px] sm:text-xs md:text-sm py-1.5 sm:py-2 md:py-2.5 px-1 sm:px-2">My Votes</TabsTrigger>
+              <TabsTrigger value="parameters" className="text-[10px] sm:text-xs md:text-sm py-1.5 sm:py-2 md:py-2.5 px-1 sm:px-2">Parameters</TabsTrigger>
+            </TabsList>
+          </div>
 
           <TabsContent value="active" className="space-y-6">
             {proposalsLoading ? (
@@ -256,23 +258,23 @@ export default function DAOPage() {
                 };
 
                 return (
-                  <GlassCard key={proposal.id} className="p-6 sm:p-8">
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-3 flex-wrap">
-                          <Badge variant="outline" className="text-xs sm:text-sm">
+                  <GlassCard key={proposal.id} className="p-4 sm:p-6 md:p-8">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-start justify-between mb-3 sm:mb-4 gap-3 sm:gap-0">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+                          <Badge variant="outline" className="text-[10px] sm:text-xs md:text-sm flex-shrink-0">
                             {proposal.type}
                           </Badge>
-                          <Badge className={
+                          <Badge className={`text-[10px] sm:text-xs md:text-sm flex-shrink-0 ${
                             proposal.status === 1 ? 'bg-green-500/20 text-green-300 border-green-500/30' :
                             proposal.status === 2 ? 'bg-blue-500/20 text-blue-300 border-blue-500/30' :
                             proposal.status === 3 ? 'bg-red-500/20 text-red-300 border-red-500/30' :
                             'bg-gray-500/20 text-gray-300 border-gray-500/30'
-                          }>
+                          }`}>
                             {proposal.statusLabel}
                           </Badge>
                           {isUserProposal && (
-                            <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/30">
+                            <Badge className="text-[10px] sm:text-xs md:text-sm bg-purple-500/20 text-purple-300 border-purple-500/30 flex-shrink-0">
                               Your Proposal
                             </Badge>
                           )}
@@ -281,23 +283,25 @@ export default function DAOPage() {
                             disabled={analyzing === proposal.id}
                             size="sm"
                             variant="outline"
-                            className="ml-auto"
+                            className="ml-auto text-[10px] sm:text-xs"
                           >
                             {analyzing === proposal.id ? (
                               <>
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                Analyzing...
+                                <Loader2 className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4 animate-spin" />
+                                <span className="hidden sm:inline">Analyzing...</span>
+                                <span className="sm:hidden">Analyzing</span>
                               </>
                             ) : (
                               <>
-                                <Brain className="mr-2 h-4 w-4" />
-                                Analyze with AI
+                                <Brain className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                                <span className="hidden sm:inline">Analyze with AI</span>
+                                <span className="sm:hidden">AI</span>
                               </>
                             )}
                           </Button>
                         </div>
-                        <h3 className="text-xl sm:text-2xl font-semibold mb-2">{proposal.title || `Proposal #${proposal.id}`}</h3>
-                        <p className="text-gray-400 mb-4 text-sm sm:text-base">{proposal.description || 'No description provided.'}</p>
+                        <h3 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 break-words">{proposal.title || `Proposal #${proposal.id}`}</h3>
+                        <p className="text-gray-400 mb-3 sm:mb-4 text-xs sm:text-sm md:text-base break-words">{proposal.description || 'No description provided.'}</p>
                         
                         {/* Proposer Info */}
                         <div className="flex items-center gap-2 mb-4 text-xs sm:text-sm text-gray-500">
@@ -406,16 +410,17 @@ export default function DAOPage() {
                       </p>
                     </div>
 
-                    <div className="flex flex-col sm:flex-row gap-3">
+                    <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                       <Button
                         onClick={() => {
                           setSelectedProposal(proposal.id);
                           handleVote(proposal.id, 1);
                         }}
                         disabled={isVoting || !account}
-                        className="flex-1"
+                        className="flex-1 gap-1.5 sm:gap-2 text-xs sm:text-sm"
+                        size="sm"
                       >
-                        <CheckCircle className="w-4 h-4 mr-2" />
+                        <CheckCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
                         Vote For
                       </Button>
                       <Button
@@ -425,9 +430,10 @@ export default function DAOPage() {
                         }}
                         disabled={isVoting || !account}
                         variant="destructive"
-                        className="flex-1"
+                        className="flex-1 gap-1.5 sm:gap-2 text-xs sm:text-sm"
+                        size="sm"
                       >
-                        <XCircle className="w-4 h-4 mr-2" />
+                        <XCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
                         Vote Against
                       </Button>
                       <Button
@@ -437,9 +443,10 @@ export default function DAOPage() {
                         }}
                         disabled={isVoting || !account}
                         variant="outline"
-                        className="flex-1"
+                        className="flex-1 gap-1.5 sm:gap-2 text-xs sm:text-sm"
+                        size="sm"
                       >
-                        <Vote className="w-4 h-4 mr-2" />
+                        <Vote className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
                         Abstain
                       </Button>
                     </div>

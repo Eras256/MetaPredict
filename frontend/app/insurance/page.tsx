@@ -192,17 +192,18 @@ export default function InsurancePage() {
                   </div>
                   <div className="space-y-2 max-h-64 overflow-y-auto">
                     {activeMarkets.slice(0, 10).map((market: any) => (
-                      <div key={market.id} className="flex items-center justify-between p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
-                        <div className="flex-1 min-w-0 mr-2">
-                          <p className="text-sm text-gray-300 truncate">{market.question}</p>
-                          <p className="text-xs text-gray-500 mt-1">
+                      <div key={market.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0 p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+                        <div className="flex-1 min-w-0 mr-0 sm:mr-2">
+                          <p className="text-xs sm:text-sm text-gray-300 break-words sm:truncate">{market.question}</p>
+                          <p className="text-[10px] sm:text-xs text-gray-500 mt-1">
                             Volume: {((Number(market.yesPool || 0) + Number(market.noPool || 0)) / 1e18).toFixed(4)} BNB
                           </p>
                         </div>
-                        <Link href={`/markets/${market.id}`}>
+                        <Link href={`/markets/${market.id}`} className="w-full sm:w-auto">
                           <Button
                             size="sm"
                             variant="outline"
+                            className="w-full sm:w-auto text-xs sm:text-sm"
                           >
                             View
                           </Button>

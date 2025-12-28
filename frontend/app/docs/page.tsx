@@ -67,7 +67,7 @@ export default function VotePage() {
             >
               <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center shadow-2xl shadow-purple-500/50">
                 <Image 
-                  src="/logos/MINS.png" 
+                  src="/logos/METAPREDICT.png" 
                   alt="MetaPredict Logo" 
                   width={112} 
                   height={112} 
@@ -110,21 +110,21 @@ export default function VotePage() {
                 duration: 2,
                 repeat: Infinity,
               }}
-              className="mb-8"
+              className="mb-6 sm:mb-8"
             >
-              <a href="https://seedifypredict.com/" target="_blank" rel="noopener noreferrer">
+              <a href="https://seedifypredict.com/" target="_blank" rel="noopener noreferrer" className="block w-full sm:w-auto">
                 <Button 
                   size="lg" 
-                  className="gap-3 text-xl sm:text-2xl px-8 sm:px-12 py-6 sm:py-8 shadow-2xl font-bold"
+                  className="gap-2 sm:gap-3 text-base sm:text-lg md:text-xl lg:text-2xl px-6 sm:px-8 md:px-12 py-4 sm:py-6 md:py-8 shadow-2xl font-bold w-full sm:w-auto"
                   style={{
                     background: 'linear-gradient(135deg, #fbbf24, #ef4444, #8b5cf6, #10b981, #3b82f6)',
                     backgroundSize: '300% 300%',
                     animation: 'gradientShift 3s ease infinite',
                   }}
                 >
-                  <Trophy className="w-6 h-6 sm:w-8 sm:h-8" />
-                  VOTE NOW - IT TAKES 10 SECONDS!
-                  <ArrowRight className="w-6 h-6 sm:w-8 sm:h-8" />
+                  <Trophy className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 flex-shrink-0" />
+                  <span className="break-words">VOTE NOW - IT TAKES 10 SECONDS!</span>
+                  <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 flex-shrink-0" />
                 </Button>
               </a>
             </motion.div>
@@ -167,7 +167,7 @@ export default function VotePage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+          <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8 sm:mb-12">
             {[
               {
                 icon: Brain,
@@ -249,7 +249,7 @@ export default function VotePage() {
       {/* Urgency Section */}
       <section className="py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-red-900/20 via-orange-900/20 to-yellow-900/20">
         <div className="container mx-auto max-w-4xl">
-          <GlassCard className="p-8 md:p-12 text-center border-2 border-red-500/30">
+          <GlassCard className="p-6 sm:p-8 md:p-12 text-center border-2 border-red-500/30">
             <motion.div
               animate={{
                 scale: [1, 1.1, 1],
@@ -259,26 +259,26 @@ export default function VotePage() {
                 repeat: Infinity,
               }}
             >
-              <Target className="w-16 h-16 text-red-400 mx-auto mb-4" />
+              <Target className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 text-red-400 mx-auto mb-3 sm:mb-4" />
             </motion.div>
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3 sm:mb-4 px-2">
               We're So Close to Top 5! 🎯
             </h2>
-            <p className="text-xl text-gray-300 mb-6">
+            <p className="text-lg sm:text-xl text-gray-300 mb-4 sm:mb-6 px-2">
               Every vote brings us closer to victory. <strong className="text-yellow-400">Your support matters!</strong>
             </p>
-            <p className="text-lg text-gray-400 mb-8">
+            <p className="text-base sm:text-lg text-gray-400 mb-6 sm:mb-8 px-2">
               Only the <strong className="text-red-400">Top 5 projects win</strong>. We're currently in Top 20. 
               With your help, we can make it to the top!
             </p>
-            <a href="https://seedifypredict.com/" target="_blank" rel="noopener noreferrer">
+            <a href="https://seedifypredict.com/" target="_blank" rel="noopener noreferrer" className="block w-full sm:w-auto">
               <Button 
                 size="lg" 
-                className="gap-3 text-xl px-10 py-7 bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 shadow-2xl font-bold"
+                className="gap-2 sm:gap-3 text-base sm:text-lg md:text-xl px-6 sm:px-8 md:px-10 py-5 sm:py-6 md:py-7 bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 shadow-2xl font-bold w-full sm:w-auto"
               >
-                <Sparkles className="w-6 h-6" />
-                VOTE NOW - Help Us Win!
-                <Sparkles className="w-6 h-6" />
+                <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0" />
+                <span className="break-words">VOTE NOW - Help Us Win!</span>
+                <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0" />
               </Button>
             </a>
           </GlassCard>
@@ -353,7 +353,7 @@ export default function VotePage() {
       {/* Final CTA Section */}
       <section className="py-16 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto max-w-4xl">
-          <GlassCard className="p-10 md:p-16 text-center relative overflow-hidden border-4 border-yellow-500/50">
+          <GlassCard className="p-6 sm:p-8 md:p-10 lg:p-16 text-center relative overflow-hidden border-4 border-yellow-500/50">
             <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/20 via-red-500/20 to-purple-500/20 animate-pulse" />
             
             <div className="relative z-10">
@@ -367,35 +367,36 @@ export default function VotePage() {
                   repeatDelay: 1,
                 }}
               >
-                <Trophy className="w-20 h-20 text-yellow-400 mx-auto mb-6" />
+                <Trophy className="w-16 h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 text-yellow-400 mx-auto mb-4 sm:mb-6" />
               </motion.div>
               
-              <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-6">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 sm:mb-6 px-2">
                 Ready to Help Us Win? 🏆
               </h2>
               
-              <p className="text-2xl sm:text-3xl text-gray-200 mb-8 font-semibold">
+              <p className="text-xl sm:text-2xl md:text-3xl text-gray-200 mb-6 sm:mb-8 font-semibold px-2">
                 Your vote takes <strong className="text-yellow-400">10 seconds</strong> but means <strong className="text-green-400">everything to us</strong>!
               </p>
               
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
-                <a href="https://seedifypredict.com/" target="_blank" rel="noopener noreferrer">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-6 sm:mb-8 px-2">
+                <a href="https://seedifypredict.com/" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto">
                   <motion.div
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
+                    className="w-full sm:w-auto"
                   >
                     <Button 
                       size="lg" 
-                      className="gap-3 text-xl sm:text-2xl px-10 sm:px-16 py-7 sm:py-9 shadow-2xl font-bold"
+                      className="gap-2 sm:gap-3 text-base sm:text-lg md:text-xl lg:text-2xl px-6 sm:px-8 md:px-10 lg:px-16 py-5 sm:py-6 md:py-7 lg:py-9 shadow-2xl font-bold w-full sm:w-auto"
                       style={{
                         background: 'linear-gradient(135deg, #fbbf24, #ef4444, #8b5cf6, #10b981, #3b82f6)',
                         backgroundSize: '300% 300%',
                         animation: 'gradientShift 2s ease infinite',
                       }}
                     >
-                      <Trophy className="w-7 h-7 sm:w-8 sm:h-8" />
-                      VOTE NOW - IT'S FREE!
-                      <ArrowRight className="w-7 h-7 sm:w-8 sm:h-8" />
+                      <Trophy className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 flex-shrink-0" />
+                      <span className="break-words">VOTE NOW - IT'S FREE!</span>
+                      <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 flex-shrink-0" />
                     </Button>
                   </motion.div>
                 </a>

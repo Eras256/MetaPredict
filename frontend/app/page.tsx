@@ -8,7 +8,7 @@ import {
   Brain, Shield, Zap, TrendingUp, ArrowRight, CheckCircle, 
   Award, ExternalLink, Activity, Trophy, Sparkles, Target, 
   Coins, ArrowRightCircle, FileQuestion, GitBranch, Users,
-  BarChart3, Clock, DollarSign, Lock, Search
+  BarChart3, Clock, DollarSign, Lock, Search, RefreshCw
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { GlassCard } from '@/components/effects/GlassCard';
@@ -173,7 +173,7 @@ export default function HomePage() {
               <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-gradient-to-r from-yellow-500/20 via-orange-500/20 to-red-500/20 border-2 border-yellow-500/50 backdrop-blur-sm shadow-[0_0_30px_rgba(251,191,36,0.3)]">
                 <Trophy className="w-5 h-5 text-yellow-400 animate-pulse" />
                 <span className="text-base sm:text-lg font-bold text-yellow-300">
-                  🏆 Top 20 Finalist • BNB Chain Hackathon
+                  🏆 World's Top 20 Seedify Prediction Markets by BNB Chain
                 </span>
                 <Sparkles className="w-5 h-5 text-yellow-400 animate-pulse" />
               </div>
@@ -188,7 +188,7 @@ export default function HomePage() {
             >
               <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 lg:w-32 lg:h-32 rounded-2xl overflow-hidden bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center shadow-2xl shadow-purple-500/30">
                 <Image 
-                  src="/logos/MINS.png" 
+                  src="/logos/METAPREDICT.png" 
                   alt="MetaPredict Logo" 
                   width={128} 
                   height={128} 
@@ -213,33 +213,33 @@ export default function HomePage() {
             </p>
 
             {/* Primary CTA - Above the fold */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8 px-4">
-              <Link href="/markets">
-                <Button size="lg" className="gap-2 group bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-lg px-8 py-6 shadow-xl">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-6 sm:mb-8 px-4">
+              <Link href="/markets" className="w-full sm:w-auto">
+                <Button size="lg" className="gap-1.5 sm:gap-2 group bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-base sm:text-lg px-6 sm:px-8 py-5 sm:py-6 shadow-xl w-full sm:w-auto">
                   Start Betting Now
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform flex-shrink-0" />
                 </Button>
               </Link>
               
-              <Link href="/create">
-                <Button size="lg" variant="outline" className="border-purple-500/50 text-purple-300 hover:bg-purple-500/10 text-lg px-8 py-6">
+              <Link href="/create" className="w-full sm:w-auto">
+                <Button size="lg" variant="outline" className="border-purple-500/50 text-purple-300 hover:bg-purple-500/10 text-base sm:text-lg px-6 sm:px-8 py-5 sm:py-6 w-full sm:w-auto">
                   Create Market
                 </Button>
               </Link>
             </div>
 
             {/* Trust Indicators - Real features */}
-            <div className="flex flex-wrap items-center justify-center gap-6 mb-8 px-4 text-sm text-gray-400">
-              <div className="flex items-center gap-2">
-                <Zap className="w-4 h-4 text-yellow-400" />
+            <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 mb-6 sm:mb-8 px-4 text-xs sm:text-sm text-gray-400">
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-yellow-400 flex-shrink-0" />
                 <span>Fees under $0.001</span>
               </div>
-              <div className="flex items-center gap-2">
-                <Shield className="w-4 h-4 text-blue-400" />
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <Shield className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-400 flex-shrink-0" />
                 <span>100% insured</span>
               </div>
-              <div className="flex items-center gap-2">
-                <Clock className="w-4 h-4 text-green-400" />
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-400 flex-shrink-0" />
                 <span>Resolves in &lt;1 hour</span>
               </div>
             </div>
@@ -259,13 +259,13 @@ export default function HomePage() {
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.5, delay: 0.5 + index * 0.1 }}
               >
-                <GlassCard className="p-6 text-center hover:scale-105 transition-transform">
-                  <stat.icon className={`w-8 h-8 ${stat.color} mx-auto mb-2`} />
-                  <div className="text-3xl font-bold text-white mb-1">
+                <GlassCard className="p-4 sm:p-5 md:p-6 text-center hover:scale-105 transition-transform">
+                  <stat.icon className={`w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 ${stat.color} mx-auto mb-1.5 sm:mb-2`} />
+                  <div className="text-2xl sm:text-3xl font-bold text-white mb-0.5 sm:mb-1">
                     {stat.value}
                   </div>
-                  <div className="text-xs font-semibold text-gray-300 mb-1">{stat.label}</div>
-                  <div className="text-xs text-gray-500">{stat.description}</div>
+                  <div className="text-[10px] sm:text-xs font-semibold text-gray-300 mb-0.5 sm:mb-1">{stat.label}</div>
+                  <div className="text-[10px] sm:text-xs text-gray-500">{stat.description}</div>
                 </GlassCard>
               </motion.div>
             ))}
@@ -310,16 +310,16 @@ export default function HomePage() {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 viewport={{ once: true }}
               >
-                <GlassCard hover className="p-6 h-full group">
-                  <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
-                    <feature.icon className="w-7 h-7 text-white" />
+                <GlassCard hover className="p-4 sm:p-5 md:p-6 h-full group">
+                  <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center mb-3 sm:mb-4 group-hover:scale-110 transition-transform`}>
+                    <feature.icon className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
                   </div>
                   
-                  <h3 className="text-xl font-semibold text-white mb-3">
+                  <h3 className="text-lg sm:text-xl font-semibold text-white mb-2 sm:mb-3 break-words">
                     {feature.title}
                   </h3>
                   
-                  <p className="text-gray-400 mb-4 text-sm">
+                  <p className="text-gray-400 mb-3 sm:mb-4 text-xs sm:text-sm break-words">
                     {feature.description}
                   </p>
 
@@ -327,9 +327,9 @@ export default function HomePage() {
                     href={feature.link} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-sm text-purple-400 hover:text-purple-300 transition-colors"
+                    className="inline-flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-purple-400 hover:text-purple-300 transition-colors"
                   >
-                    <ExternalLink className="w-4 h-4" />
+                    <ExternalLink className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
                     View Contract
                   </a>
                 </GlassCard>
@@ -368,20 +368,20 @@ export default function HomePage() {
                   viewport={{ once: true }}
                   className="relative"
                 >
-                  <GlassCard hover className="p-8 text-center h-full">
-                    <div className="w-20 h-20 rounded-full bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center text-3xl font-bold text-white shadow-lg shadow-purple-500/30 mb-6 mx-auto">
+                  <GlassCard hover className="p-6 sm:p-7 md:p-8 text-center h-full">
+                    <div className="w-16 h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 rounded-full bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center text-2xl sm:text-2xl md:text-3xl font-bold text-white shadow-lg shadow-purple-500/30 mb-4 sm:mb-5 md:mb-6 mx-auto">
                       {step.step}
                     </div>
                     
-                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center mx-auto mb-6">
-                      <StepIcon className="w-8 h-8 text-white" />
+                    <div className="w-14 h-14 sm:w-15 sm:h-15 md:w-16 md:h-16 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center mx-auto mb-4 sm:mb-5 md:mb-6">
+                      <StepIcon className="w-7 h-7 sm:w-7.5 sm:h-7.5 md:w-8 md:h-8 text-white" />
                     </div>
 
-                    <h3 className="text-2xl font-bold text-white mb-4">
+                    <h3 className="text-xl sm:text-2xl font-bold text-white mb-3 sm:mb-4 break-words">
                       {step.title}
                     </h3>
                     
-                    <p className="text-gray-400 mb-6 text-lg">
+                    <p className="text-gray-400 mb-4 sm:mb-5 md:mb-6 text-base sm:text-lg break-words">
                       {step.description}
                     </p>
 
@@ -403,6 +403,40 @@ export default function HomePage() {
               );
             })}
           </div>
+        </div>
+      </section>
+
+      {/* Market Resolution Info Banner */}
+      <section className="py-8 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            viewport={{ once: true }}
+          >
+            <GlassCard className="p-6 sm:p-8 border-2 border-blue-500/30 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-blue-500/10">
+              <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
+                <div className="flex-shrink-0">
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
+                    <RefreshCw className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg sm:text-xl font-bold text-white mb-2">
+                    Automated Market Resolution
+                  </h3>
+                  <p className="text-sm sm:text-base text-gray-300">
+                    Markets are automatically resolved every <strong className="text-blue-400">30 minutes to 1 hour</strong> through 
+                    GitHub Actions workflows, in addition to our AI consensus oracle, Chainlink price feeds, and DAO governance methods.
+                  </p>
+                </div>
+                <div className="flex-shrink-0">
+                  <GitBranch className="w-8 h-8 sm:w-10 sm:h-10 text-blue-400" />
+                </div>
+              </div>
+            </GlassCard>
+          </motion.div>
         </div>
       </section>
 
@@ -429,16 +463,16 @@ export default function HomePage() {
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                   viewport={{ once: true }}
                 >
-                  <GlassCard hover className="p-8 h-full">
-                    <TypeIcon className="w-12 h-12 text-purple-400 mb-4" />
-                    <h3 className="text-xl font-bold text-white mb-3">
+                  <GlassCard hover className="p-6 sm:p-7 md:p-8 h-full">
+                    <TypeIcon className="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 text-purple-400 mb-3 sm:mb-4 flex-shrink-0" />
+                    <h3 className="text-lg sm:text-xl font-bold text-white mb-2 sm:mb-3 break-words">
                       {type.title}
                     </h3>
-                    <p className="text-gray-400 mb-6">
+                    <p className="text-sm sm:text-base text-gray-400 mb-4 sm:mb-5 md:mb-6 break-words">
                       {type.description}
                     </p>
-                    <div className="p-4 rounded-lg bg-purple-500/10 border border-purple-500/20">
-                      <p className="text-sm text-gray-300 italic">
+                    <div className="p-3 sm:p-4 rounded-lg bg-purple-500/10 border border-purple-500/20">
+                      <p className="text-xs sm:text-sm text-gray-300 italic break-words">
                         "{type.example}"
                       </p>
                     </div>
@@ -453,45 +487,45 @@ export default function HomePage() {
       {/* Final CTA - Conversion-focused */}
       <section className="py-24 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto">
-          <GlassCard className="p-12 text-center relative overflow-hidden border-2 border-purple-500/30">
+          <GlassCard className="p-6 sm:p-8 md:p-10 lg:p-12 text-center relative overflow-hidden border-2 border-purple-500/30">
             <div className="absolute inset-0 bg-gradient-to-br from-purple-600/20 to-pink-600/20" />
             
             <div className="relative z-10">
-              <Trophy className="w-16 h-16 text-yellow-400 mx-auto mb-6" />
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
+              <Trophy className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 text-yellow-400 mx-auto mb-4 sm:mb-5 md:mb-6" />
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-3 sm:mb-4 px-2 break-words">
                 Ready to Start Winning?
               </h2>
               
-              <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
+              <p className="text-base sm:text-lg md:text-xl text-gray-300 mb-6 sm:mb-7 md:mb-8 max-w-2xl mx-auto px-2 break-words">
                 Connect your wallet and start betting with <strong className="text-green-400">100% insurance protection</strong>. <strong className="text-purple-400">115/115 tests passing</strong> | <strong className="text-yellow-400">Top 20 Hackathon Finalist</strong>.
               </p>
               
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <Link href="/markets">
-                  <Button size="lg" className="gap-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-lg px-8 py-6 shadow-xl">
-                    <ArrowRight className="w-5 h-5" />
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 px-2">
+                <Link href="/markets" className="w-full sm:w-auto">
+                  <Button size="lg" className="gap-1.5 sm:gap-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-base sm:text-lg px-6 sm:px-8 py-5 sm:py-6 shadow-xl w-full sm:w-auto">
+                    <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
                     Start Betting Now
                   </Button>
                 </Link>
                 
-                <Link href="/create">
-                  <Button size="lg" variant="outline" className="border-purple-500/50 text-purple-300 hover:bg-purple-500/10 text-lg px-8 py-6">
+                <Link href="/create" className="w-full sm:w-auto">
+                  <Button size="lg" variant="outline" className="border-purple-500/50 text-purple-300 hover:bg-purple-500/10 text-base sm:text-lg px-6 sm:px-8 py-5 sm:py-6 w-full sm:w-auto">
                     Create Your Market
                   </Button>
                 </Link>
               </div>
 
-              <div className="mt-8 flex flex-wrap items-center justify-center gap-6 text-sm text-gray-400">
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-green-400" />
+              <div className="mt-6 sm:mt-7 md:mt-8 flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs sm:text-sm text-gray-400 px-2">
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  <CheckCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-400 flex-shrink-0" />
                   <span>100% Test Coverage</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Shield className="w-4 h-4 text-blue-400" />
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  <Shield className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-400 flex-shrink-0" />
                   <span>Fully Insured</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Brain className="w-4 h-4 text-purple-400" />
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  <Brain className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-purple-400 flex-shrink-0" />
                   <span>5-AI Consensus</span>
                 </div>
               </div>

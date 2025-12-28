@@ -218,17 +218,17 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                   {market?.question || `Market #${marketId}`}
                 </h1>
 
-                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-5 mb-4 sm:mb-6 md:mb-8">
-                <div className={`group p-4 sm:p-5 rounded-xl border backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:shadow-xl ${
+                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3 md:gap-4 lg:gap-5 mb-4 sm:mb-6 md:mb-8">
+                <div className={`group p-3 sm:p-4 md:p-5 rounded-xl border backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:shadow-xl ${
                   hasExpired && !isResolved
                     ? 'bg-gradient-to-br from-orange-500/10 to-red-500/10 border-orange-500/30 hover:border-orange-500/50 hover:shadow-orange-500/20'
                     : 'bg-gradient-to-br from-purple-500/10 to-pink-500/10 border-purple-500/30 hover:border-purple-500/50 hover:shadow-purple-500/20'
                 }`}>
-                  <div className="flex items-center gap-2 text-gray-300 text-xs sm:text-sm mb-2 font-medium">
-                    <Clock className={`w-4 h-4 sm:w-5 sm:h-5 transition-transform group-hover:scale-110 ${hasExpired && !isResolved ? 'text-orange-400' : 'text-purple-400'}`} />
+                  <div className="flex items-center gap-1.5 sm:gap-2 text-gray-300 text-[10px] sm:text-xs md:text-sm mb-1.5 sm:mb-2 font-medium">
+                    <Clock className={`w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 transition-transform group-hover:scale-110 flex-shrink-0 ${hasExpired && !isResolved ? 'text-orange-400' : 'text-purple-400'}`} />
                     <span className="truncate">{hasExpired && !isResolved ? 'Expired' : 'Closes'}</span>
                   </div>
-                  <div className={`font-bold text-base sm:text-lg md:text-xl truncate ${
+                  <div className={`font-bold text-sm sm:text-base md:text-lg lg:text-xl truncate ${
                     hasExpired && !isResolved ? 'text-orange-300' : 'text-white'
                   }`}>
                     {hasExpired && !isResolved 
@@ -237,30 +237,30 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                   </div>
                 </div>
 
-                <div className="group p-4 sm:p-5 rounded-xl bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-500/30 backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-blue-500/20">
-                  <div className="flex items-center gap-2 text-gray-300 text-xs sm:text-sm mb-2 font-medium">
-                    <Users className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400 transition-transform group-hover:scale-110" />
+                <div className="group p-3 sm:p-4 md:p-5 rounded-xl bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-500/30 backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-blue-500/20">
+                  <div className="flex items-center gap-1.5 sm:gap-2 text-gray-300 text-[10px] sm:text-xs md:text-sm mb-1.5 sm:mb-2 font-medium">
+                    <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-blue-400 transition-transform group-hover:scale-110 flex-shrink-0" />
                     <span className="truncate">Participants</span>
                   </div>
-                  <div className="text-white font-bold text-base sm:text-lg md:text-xl">{participantsCount}</div>
+                  <div className="text-white font-bold text-sm sm:text-base md:text-lg lg:text-xl">{participantsCount}</div>
                 </div>
 
-                <div className="group p-4 sm:p-5 rounded-xl bg-gradient-to-br from-green-500/10 to-emerald-500/10 border border-green-500/30 backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-green-500/20">
-                  <div className="flex items-center gap-2 text-gray-300 text-xs sm:text-sm mb-2 font-medium">
-                    <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-green-400 transition-transform group-hover:scale-110" />
+                <div className="group p-3 sm:p-4 md:p-5 rounded-xl bg-gradient-to-br from-green-500/10 to-emerald-500/10 border border-green-500/30 backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-green-500/20">
+                  <div className="flex items-center gap-1.5 sm:gap-2 text-gray-300 text-[10px] sm:text-xs md:text-sm mb-1.5 sm:mb-2 font-medium">
+                    <TrendingUp className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-green-400 transition-transform group-hover:scale-110 flex-shrink-0" />
                     <span className="truncate">Volume</span>
                   </div>
-                  <div className="text-white font-bold text-base sm:text-lg md:text-xl">
+                  <div className="text-white font-bold text-sm sm:text-base md:text-lg lg:text-xl truncate">
                     {market ? `${((Number(market.yesPool || 0) + Number(market.noPool || 0)) / 1e18).toFixed(2)} BNB` : '0.00 BNB'}
                   </div>
                 </div>
 
-                <div className="group p-4 sm:p-5 rounded-xl bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/30 backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-purple-500/20">
-                  <div className="flex items-center gap-2 text-gray-300 text-xs sm:text-sm mb-2 font-medium">
-                    <Brain className="w-4 h-4 sm:w-5 sm:h-5 text-purple-400 transition-transform group-hover:scale-110" />
+                <div className="group p-3 sm:p-4 md:p-5 rounded-xl bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/30 backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-purple-500/20">
+                  <div className="flex items-center gap-1.5 sm:gap-2 text-gray-300 text-[10px] sm:text-xs md:text-sm mb-1.5 sm:mb-2 font-medium">
+                    <Brain className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-purple-400 transition-transform group-hover:scale-110 flex-shrink-0" />
                     <span className="truncate">Oracle</span>
                   </div>
-                  <div className="text-white font-bold text-base sm:text-lg md:text-xl bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">AI 5x</div>
+                  <div className="text-white font-bold text-sm sm:text-base md:text-lg lg:text-xl bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">AI 5x</div>
                 </div>
               </div>
 
@@ -373,9 +373,9 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
             {/* Tabs */}
             <Tabs defaultValue="activity" className="w-full">
               <TabsList className="w-full bg-white/5 backdrop-blur-sm border border-white/10 grid grid-cols-3 h-auto">
-                <TabsTrigger value="activity" className="text-xs sm:text-sm py-2 sm:py-2.5 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500/20 data-[state=active]:to-pink-500/20 data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-purple-400 transition-all">Activity</TabsTrigger>
-                <TabsTrigger value="resolution" className="text-xs sm:text-sm py-2 sm:py-2.5 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500/20 data-[state=active]:to-pink-500/20 data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-purple-400 transition-all">Resolution</TabsTrigger>
-                <TabsTrigger value="info" className="text-xs sm:text-sm py-2 sm:py-2.5 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500/20 data-[state=active]:to-pink-500/20 data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-purple-400 transition-all">Info</TabsTrigger>
+                <TabsTrigger value="activity" className="text-[10px] sm:text-xs md:text-sm py-2 sm:py-2.5 px-1 sm:px-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500/20 data-[state=active]:to-pink-500/20 data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-purple-400 transition-all">Activity</TabsTrigger>
+                <TabsTrigger value="resolution" className="text-[10px] sm:text-xs md:text-sm py-2 sm:py-2.5 px-1 sm:px-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500/20 data-[state=active]:to-pink-500/20 data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-purple-400 transition-all">Resolution</TabsTrigger>
+                <TabsTrigger value="info" className="text-[10px] sm:text-xs md:text-sm py-2 sm:py-2.5 px-1 sm:px-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500/20 data-[state=active]:to-pink-500/20 data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-purple-400 transition-all">Info</TabsTrigger>
               </TabsList>
 
               <TabsContent value="activity" className="mt-6">
@@ -384,8 +384,8 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                   <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-pink-500/5 to-blue-500/5 pointer-events-none" />
                   
                   <div className="relative z-10">
-                    <h3 className="text-xl sm:text-2xl font-bold text-white mb-6 flex items-center gap-3">
-                      <div className="w-1 h-6 bg-gradient-to-b from-purple-400 to-pink-400 rounded-full" />
+                    <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-white mb-4 sm:mb-6 flex items-center gap-2 sm:gap-3">
+                      <div className="w-1 h-5 sm:h-6 bg-gradient-to-b from-purple-400 to-pink-400 rounded-full flex-shrink-0" />
                       Recent Activity
                     </h3>
                     <div className="space-y-4">
@@ -407,42 +407,42 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                         {activities.map((activity) => (
                           <div
                             key={activity.id}
-                            className="group p-5 sm:p-6 rounded-xl bg-gradient-to-br from-white/5 via-purple-500/5 to-pink-500/5 border border-white/10 hover:border-purple-500/40 hover:bg-gradient-to-br hover:from-white/10 hover:via-purple-500/10 hover:to-pink-500/10 transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/20 hover:scale-[1.01] backdrop-blur-sm"
+                            className="group p-4 sm:p-5 md:p-6 rounded-xl bg-gradient-to-br from-white/5 via-purple-500/5 to-pink-500/5 border border-white/10 hover:border-purple-500/40 hover:bg-gradient-to-br hover:from-white/10 hover:via-purple-500/10 hover:to-pink-500/10 transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/20 hover:scale-[1.01] backdrop-blur-sm"
                           >
-                            <div className="flex items-start justify-between gap-4">
-                              <div className="flex items-start gap-3 flex-1 min-w-0">
+                            <div className="flex flex-col sm:flex-row items-start sm:items-start justify-between gap-3 sm:gap-4">
+                              <div className="flex items-start gap-2 sm:gap-3 flex-1 min-w-0">
                                 {activity.type === 'bet' && (
-                                  <div className={`p-3 rounded-xl backdrop-blur-sm shadow-lg transition-transform group-hover:scale-110 ${
+                                  <div className={`p-2 sm:p-3 rounded-xl backdrop-blur-sm shadow-lg transition-transform group-hover:scale-110 flex-shrink-0 ${
                                     activity.isYes 
                                       ? 'bg-gradient-to-br from-green-500/30 to-emerald-500/30 text-green-300 border border-green-500/40 shadow-green-500/20' 
                                       : 'bg-gradient-to-br from-red-500/30 to-rose-500/30 text-red-300 border border-red-500/40 shadow-red-500/20'
                                   }`}>
                                     {activity.isYes ? (
-                                      <TrendingUp className="w-5 h-5" />
+                                      <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5" />
                                     ) : (
-                                      <TrendingDown className="w-5 h-5" />
+                                      <TrendingDown className="w-4 h-4 sm:w-5 sm:h-5" />
                                     )}
                                   </div>
                                 )}
                                 {activity.type === 'resolution' && (
-                                  <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500/30 to-cyan-500/30 text-blue-300 border border-blue-500/40 shadow-lg shadow-blue-500/20 backdrop-blur-sm transition-transform group-hover:scale-110">
-                                    <CheckCircle2 className="w-5 h-5" />
+                                  <div className="p-2 sm:p-3 rounded-xl bg-gradient-to-br from-blue-500/30 to-cyan-500/30 text-blue-300 border border-blue-500/40 shadow-lg shadow-blue-500/20 backdrop-blur-sm transition-transform group-hover:scale-110 flex-shrink-0">
+                                    <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5" />
                                   </div>
                                 )}
                                 {activity.type === 'claim' && (
-                                  <div className="p-3 rounded-xl bg-gradient-to-br from-purple-500/30 to-pink-500/30 text-purple-300 border border-purple-500/40 shadow-lg shadow-purple-500/20 backdrop-blur-sm transition-transform group-hover:scale-110">
-                                    <DollarSign className="w-5 h-5" />
+                                  <div className="p-2 sm:p-3 rounded-xl bg-gradient-to-br from-purple-500/30 to-pink-500/30 text-purple-300 border border-purple-500/40 shadow-lg shadow-purple-500/20 backdrop-blur-sm transition-transform group-hover:scale-110 flex-shrink-0">
+                                    <DollarSign className="w-4 h-4 sm:w-5 sm:h-5" />
                                   </div>
                                 )}
                                 {activity.type === 'resolution_initiated' && (
-                                  <div className="p-3 rounded-xl bg-gradient-to-br from-yellow-500/30 to-amber-500/30 text-yellow-300 border border-yellow-500/40 shadow-lg shadow-yellow-500/20 backdrop-blur-sm transition-transform group-hover:scale-110">
-                                    <Clock className="w-5 h-5" />
+                                  <div className="p-2 sm:p-3 rounded-xl bg-gradient-to-br from-yellow-500/30 to-amber-500/30 text-yellow-300 border border-yellow-500/40 shadow-lg shadow-yellow-500/20 backdrop-blur-sm transition-transform group-hover:scale-110 flex-shrink-0">
+                                    <Clock className="w-4 h-4 sm:w-5 sm:h-5" />
                                   </div>
                                 )}
                                 
                                 <div className="flex-1 min-w-0">
-                                  <div className="flex items-center gap-2 mb-2">
-                                    <span className="text-base font-bold text-white">
+                                  <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-2">
+                                    <span className="text-sm sm:text-base font-bold text-white break-words">
                                       {activity.type === 'bet' && (
                                         <>
                                           <span className={activity.isYes ? 'text-green-400' : 'text-red-400'}>
@@ -469,24 +469,24 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                                   </div>
                                   
                                   {activity.user && (
-                                    <div className="text-xs text-gray-400 mb-2 font-mono bg-white/5 px-2 py-1 rounded inline-block">
+                                    <div className="text-[10px] sm:text-xs text-gray-400 mb-2 font-mono bg-white/5 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded inline-block break-all">
                                       {activity.user.slice(0, 6)}...{activity.user.slice(-4)}
                                     </div>
                                   )}
                                   
                                   {activity.amount && (
-                                    <div className="text-sm text-gray-200 mb-2">
+                                    <div className="text-xs sm:text-sm text-gray-200 mb-2 break-words">
                                       <span className="font-semibold text-white">Amount:</span> <span className="text-green-400 font-bold">{(Number(activity.amount) / 1e18).toFixed(4)} BNB</span>
                                       {activity.shares && (
-                                        <span className="text-gray-400 ml-2 text-xs">
+                                        <span className="text-gray-400 ml-1 sm:ml-2 text-[10px] sm:text-xs">
                                           ({Number(activity.shares) / 1e18} shares)
                                         </span>
                                       )}
                                     </div>
                                   )}
                                   
-                                  <div className="flex items-center gap-3 mt-3 pt-3 border-t border-white/10">
-                                    <span className="text-xs text-gray-400 bg-white/5 px-2 py-1 rounded">
+                                  <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-white/10">
+                                    <span className="text-[10px] sm:text-xs text-gray-400 bg-white/5 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded">
                                       {formatDistanceToNow(new Date(activity.timestamp * 1000), { addSuffix: true })}
                                     </span>
                                     {activity.transactionHash && (
@@ -494,10 +494,10 @@ export default function MarketDetailPage({ params }: { params: Promise<{ id: str
                                         href={`https://testnet.opbnbscan.com/tx/${activity.transactionHash}`}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="text-xs text-purple-400 hover:text-purple-300 flex items-center gap-1.5 bg-purple-500/10 hover:bg-purple-500/20 px-2 py-1 rounded transition-colors border border-purple-500/20 hover:border-purple-500/40"
+                                        className="text-[10px] sm:text-xs text-purple-400 hover:text-purple-300 flex items-center gap-1 sm:gap-1.5 bg-purple-500/10 hover:bg-purple-500/20 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded transition-colors border border-purple-500/20 hover:border-purple-500/40"
                                       >
                                         View TX
-                                        <ExternalLink className="w-3 h-3" />
+                                        <ExternalLink className="w-3 h-3 flex-shrink-0" />
                                       </a>
                                     )}
                                   </div>

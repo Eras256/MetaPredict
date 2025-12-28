@@ -440,38 +440,40 @@ export default function DashboardPage() {
 
         {/* Tabs for Markets, Positions, Portfolio, History, and Claims */}
         <Tabs defaultValue="markets" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="markets" className="gap-2 text-xs">
-              <TrendingUp className="w-4 h-4" />
-              <span className="hidden sm:inline">Markets</span>
-              <span className="sm:hidden">Mkts</span>
-              ({userMarkets.length})
-            </TabsTrigger>
-            <TabsTrigger value="positions" className="gap-2 text-xs">
-              <Target className="w-4 h-4" />
-              <span className="hidden sm:inline">Bets</span>
-              <span className="sm:hidden">Bets</span>
-              ({userPositions.length})
-            </TabsTrigger>
-            <TabsTrigger value="portfolio" className="gap-2 text-xs">
-              <Wallet className="w-4 h-4" />
-              <span className="hidden sm:inline">Portfolio</span>
-              <span className="sm:hidden">Port</span>
-              ({activePositions.length})
-            </TabsTrigger>
-            <TabsTrigger value="history" className="gap-2 text-xs">
-              <Clock className="w-4 h-4" />
-              <span className="hidden sm:inline">History</span>
-              <span className="sm:hidden">Hist</span>
-              ({resolvedPositions.length})
-            </TabsTrigger>
-            <TabsTrigger value="claims" className="gap-2 text-xs">
-              <CheckCircle className="w-4 h-4" />
-              <span className="hidden sm:inline">Claims</span>
-              <span className="sm:hidden">Claims</span>
-              ({pendingWinningsClaims.length + claims.length})
-            </TabsTrigger>
-          </TabsList>
+          <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
+            <TabsList className="grid w-full grid-cols-5 min-w-[500px] sm:min-w-0 h-auto">
+              <TabsTrigger value="markets" className="gap-1 sm:gap-2 text-[10px] sm:text-xs py-2 px-1 sm:px-2">
+                <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                <span className="hidden sm:inline">Markets</span>
+                <span className="sm:hidden">Mkts</span>
+                <span className="hidden xs:inline">({userMarkets.length})</span>
+              </TabsTrigger>
+              <TabsTrigger value="positions" className="gap-1 sm:gap-2 text-[10px] sm:text-xs py-2 px-1 sm:px-2">
+                <Target className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                <span className="hidden sm:inline">Bets</span>
+                <span className="sm:hidden">Bets</span>
+                <span className="hidden xs:inline">({userPositions.length})</span>
+              </TabsTrigger>
+              <TabsTrigger value="portfolio" className="gap-1 sm:gap-2 text-[10px] sm:text-xs py-2 px-1 sm:px-2">
+                <Wallet className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                <span className="hidden sm:inline">Portfolio</span>
+                <span className="sm:hidden">Port</span>
+                <span className="hidden xs:inline">({activePositions.length})</span>
+              </TabsTrigger>
+              <TabsTrigger value="history" className="gap-1 sm:gap-2 text-[10px] sm:text-xs py-2 px-1 sm:px-2">
+                <Clock className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                <span className="hidden sm:inline">History</span>
+                <span className="sm:hidden">Hist</span>
+                <span className="hidden xs:inline">({resolvedPositions.length})</span>
+              </TabsTrigger>
+              <TabsTrigger value="claims" className="gap-1 sm:gap-2 text-[10px] sm:text-xs py-2 px-1 sm:px-2">
+                <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                <span className="hidden sm:inline">Claims</span>
+                <span className="sm:hidden">Claims</span>
+                <span className="hidden xs:inline">({pendingWinningsClaims.length + claims.length})</span>
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
           {/* My Markets Tab */}
           <TabsContent value="markets">
@@ -743,20 +745,20 @@ export default function DashboardPage() {
                   <h3 className="text-lg font-semibold text-white mb-4">Active Positions</h3>
                   <div className="space-y-3">
                     {activePositions.map((position) => (
-                <GlassCard key={position.marketId} className="p-6">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <h3 className="text-xl font-semibold">{position.market?.question || `Market #${position.marketId}`}</h3>
+                <GlassCard key={position.marketId} className="p-4 sm:p-5 md:p-6">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-start justify-between gap-3 sm:gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-2 mb-2">
+                        <h3 className="text-base sm:text-lg md:text-xl font-semibold break-words">{position.market?.question || `Market #${position.marketId}`}</h3>
                         <Badge
                           variant="outline"
-                          className={
+                          className={`text-xs flex-shrink-0 ${
                             position.market?.status === MARKET_STATUS.ACTIVE
                               ? 'border-green-500/30 text-green-400'
                               : position.market?.status === MARKET_STATUS.RESOLVING
                               ? 'border-yellow-500/30 text-yellow-400'
                               : 'border-gray-500/30 text-gray-400'
-                          }
+                          }`}
                         >
                           {position.market?.status === MARKET_STATUS.ACTIVE
                             ? 'Active'
@@ -765,7 +767,7 @@ export default function DashboardPage() {
                             : 'Unknown'}
                         </Badge>
                       </div>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mt-4">
+                      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 text-xs sm:text-sm mt-3 sm:mt-4">
                         <div>
                           <span className="text-gray-400">YES Shares:</span>
                           <span className="ml-2 text-white font-semibold">
@@ -794,17 +796,19 @@ export default function DashboardPage() {
                         )}
                       </div>
                     </div>
-                    <div className="flex flex-col gap-2">
-                      <Link href={`/markets/${position.marketId}`}>
-                        <Button variant="outline" size="sm" className="gap-2">
+                    <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                      <Link href={`/markets/${position.marketId}`} className="flex-1 sm:flex-initial">
+                        <Button variant="outline" size="sm" className="gap-1.5 sm:gap-2 text-xs sm:text-sm w-full sm:w-auto">
                           View Market
-                          <ExternalLink className="w-4 h-4" />
+                          <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4" />
                         </Button>
                       </Link>
                       {position.market?.status === MARKET_STATUS.RESOLVED &&
                         position.potentialPayout > 0 &&
                         !position.claimed && (
-                          <ClaimButton marketId={position.marketId} marketType={position.market?.marketType} />
+                          <div className="flex-1 sm:flex-initial">
+                            <ClaimButton marketId={position.marketId} marketType={position.market?.marketType} />
+                          </div>
                         )}
                     </div>
                   </div>
@@ -835,21 +839,21 @@ export default function DashboardPage() {
               </div>
             ) : resolvedPositions.length > 0 ? (
               resolvedPositions.map((position) => (
-                <GlassCard key={position.marketId} className="p-6">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <h3 className="text-xl font-semibold">{position.market?.question || `Market #${position.marketId}`}</h3>
-                        <Badge variant="outline" className="border-blue-500/30 text-blue-400">
+                <GlassCard key={position.marketId} className="p-4 sm:p-5 md:p-6">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-start justify-between gap-3 sm:gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-2 mb-2">
+                        <h3 className="text-base sm:text-lg md:text-xl font-semibold break-words">{position.market?.question || `Market #${position.marketId}`}</h3>
+                        <Badge variant="outline" className="text-xs border-blue-500/30 text-blue-400 flex-shrink-0">
                           Resolved
                         </Badge>
                         {position.claimed && (
-                          <Badge variant="outline" className="border-green-500/30 text-green-400">
+                          <Badge variant="outline" className="text-xs border-green-500/30 text-green-400 flex-shrink-0">
                             Claimed
                           </Badge>
                         )}
                       </div>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mt-4">
+                      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 text-xs sm:text-sm mt-3 sm:mt-4">
                         <div>
                           <span className="text-gray-400">Total Invested:</span>
                           <span className="ml-2 text-white font-semibold">
@@ -872,17 +876,19 @@ export default function DashboardPage() {
                         </div>
                       </div>
                     </div>
-                    <div className="flex flex-col gap-2">
-                    <Link href={`/markets/${position.marketId}`}>
-                      <Button variant="outline" size="sm" className="gap-2">
+                    <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                    <Link href={`/markets/${position.marketId}`} className="flex-1 sm:flex-initial">
+                      <Button variant="outline" size="sm" className="gap-1.5 sm:gap-2 text-xs sm:text-sm w-full sm:w-auto">
                         View Market
-                        <ExternalLink className="w-4 h-4" />
+                        <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4" />
                       </Button>
                     </Link>
                       {position.market?.status === MARKET_STATUS.RESOLVED &&
                         position.potentialPayout > 0 &&
                         !position.claimed && (
-                          <ClaimButton marketId={position.marketId} marketType={position.market?.marketType} />
+                          <div className="flex-1 sm:flex-initial">
+                            <ClaimButton marketId={position.marketId} marketType={position.market?.marketType} />
+                          </div>
                         )}
                     </div>
                   </div>
@@ -915,11 +921,11 @@ export default function DashboardPage() {
                     </h3>
                     <div className="space-y-3">
                       {pendingWinningsClaims.map((position) => (
-                        <GlassCard key={`winnings-${position.marketId}`} className="p-6">
-                          <div className="flex items-start justify-between gap-4">
-                            <div className="flex-1">
-                              <h3 className="text-xl font-semibold mb-2">{position.market?.question || `Market #${position.marketId}`}</h3>
-                              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+                        <GlassCard key={`winnings-${position.marketId}`} className="p-4 sm:p-5 md:p-6">
+                          <div className="flex flex-col sm:flex-row items-start sm:items-start justify-between gap-3 sm:gap-4">
+                            <div className="flex-1 min-w-0">
+                              <h3 className="text-base sm:text-lg md:text-xl font-semibold mb-2 break-words">{position.market?.question || `Market #${position.marketId}`}</h3>
+                              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 text-xs sm:text-sm">
                                 <div>
                                   <span className="text-gray-400">Market ID:</span>
                                   <span className="ml-2 text-white font-semibold">#{position.marketId}</span>
@@ -938,12 +944,14 @@ export default function DashboardPage() {
                                 </div>
                               </div>
                             </div>
-                            <div className="flex flex-col gap-2">
-                              <ClaimButton marketId={position.marketId} marketType={position.market?.marketType} />
-                              <Link href={`/markets/${position.marketId}`}>
-                                <Button variant="outline" size="sm" className="gap-2">
+                            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                              <div className="flex-1 sm:flex-initial">
+                                <ClaimButton marketId={position.marketId} marketType={position.market?.marketType} />
+                              </div>
+                              <Link href={`/markets/${position.marketId}`} className="flex-1 sm:flex-initial">
+                                <Button variant="outline" size="sm" className="gap-1.5 sm:gap-2 text-xs sm:text-sm w-full sm:w-auto">
                                   View Market
-                                  <ExternalLink className="w-4 h-4" />
+                                  <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4" />
                                 </Button>
                               </Link>
                             </div>
@@ -963,11 +971,11 @@ export default function DashboardPage() {
                     </h3>
                     <div className="space-y-3">
                       {claims.map((claim) => (
-                <GlassCard key={claim.id} className="p-6">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1">
-                      <h3 className="text-xl font-semibold mb-2">{claim.question}</h3>
-                      <div className="grid grid-cols-2 gap-4 text-sm">
+                <GlassCard key={claim.id} className="p-4 sm:p-5 md:p-6">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-start justify-between gap-3 sm:gap-4">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-base sm:text-lg md:text-xl font-semibold mb-2 break-words">{claim.question}</h3>
+                      <div className="grid grid-cols-2 sm:grid-cols-2 gap-3 sm:gap-4 text-xs sm:text-sm">
                         <div>
                           <span className="text-gray-400">Market ID:</span>
                           <span className="ml-2 text-white font-semibold">#{claim.marketId}</span>
@@ -990,8 +998,8 @@ export default function DashboardPage() {
                         </div>
                       </div>
                     </div>
-                    <Link href="/insurance">
-                      <Button variant="outline" size="sm">
+                    <Link href="/insurance" className="w-full sm:w-auto">
+                      <Button variant="outline" size="sm" className="w-full sm:w-auto gap-1.5 sm:gap-2 text-xs sm:text-sm">
                         Claim Insurance
                       </Button>
                     </Link>

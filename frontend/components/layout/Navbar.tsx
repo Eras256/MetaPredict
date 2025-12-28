@@ -81,7 +81,7 @@ export function Navbar() {
               <Link href="/" className="flex items-center space-x-1.5 sm:space-x-2 md:space-x-3 group flex-shrink-0 min-w-0">
                 <div className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-xl overflow-hidden bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0">
                   <Image 
-                    src="/logos/MINS.png" 
+                    src="/logos/METAPREDICT.png" 
                     alt="MetaPredict Logo" 
                     width={40} 
                     height={40} 
