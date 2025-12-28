@@ -27,7 +27,7 @@ const stats = [
 ];
 
 // Core features - concise with contract links
-const coreFeaturesData = useMemo(() => [
+const getCoreFeatures = () => [
   {
     icon: Brain,
     title: 'Multi-AI Oracle Consensus',
@@ -98,7 +98,7 @@ const coreFeaturesData = useMemo(() => [
     gradient: 'from-pink-500 to-rose-500',
     link: getContractLink(CONTRACT_ADDRESSES.OMNI_ROUTER)
   }
-], []);
+];
 
 // Simplified how it works - 3 clear steps
 const howItWorks = [
@@ -148,6 +148,9 @@ const marketTypes = [
 ];
 
 export default function HomePage() {
+  // Memoize core features inside component
+  const coreFeaturesData = useMemo(() => getCoreFeatures(), []);
+  
   return (
     <div className="relative">
       {/* Hero Section - Optimized for Conversion */}
