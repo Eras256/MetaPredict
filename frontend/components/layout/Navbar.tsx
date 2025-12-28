@@ -19,6 +19,7 @@ import {
   Home,
   ChevronDown,
   LayoutDashboard,
+  FileText,
 } from 'lucide-react';
 import { useActiveAccount } from 'thirdweb/react';
 import { client, chains } from '@/lib/config/thirdweb';
@@ -30,6 +31,7 @@ import { cn } from '@/lib/utils';
 const navigation = [
   { name: 'Home', href: '/', icon: Home },
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+  { name: 'Docs', href: '/docs', icon: FileText },
 ];
 
 // Markets submenu
