@@ -7,7 +7,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Trophy, CheckCircle, Shield, Brain, Zap, Activity, 
   ExternalLink, ArrowRight, Clock, Users, TrendingUp,
-  Award, Star, Heart, Target, AlertCircle, Sparkles
+  Award, Star, Heart, Target, AlertCircle, Sparkles,
+  LogIn, Wallet, FileText, GitBranch, Lock, RefreshCw,
+  BarChart3, FileCheck, Eye, Vote
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { GlassCard } from '@/components/effects/GlassCard';
@@ -155,80 +157,102 @@ export default function VotePage() {
         </div>
       </section>
 
-      {/* Why Vote Section - Persuasive Reasons */}
+      {/* Official Voting Steps Section */}
       <section className="py-12 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto max-w-7xl">
           <div className="text-center mb-12">
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
-              Why Vote for <span className="text-purple-400">MetaPredict</span>?
+              Predict Hackathon Winners
             </h2>
-            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              We're not just another project. We're <strong className="text-yellow-400">revolutionizing prediction markets</strong> with cutting-edge AI technology.
+            <p className="text-xl sm:text-2xl text-gray-300 max-w-3xl mx-auto font-semibold">
+              Earn <span className="text-yellow-400">IMO Allocations</span> by voting for your top 5 projects
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8 sm:mb-12">
-            {[
-              {
-                icon: Brain,
-                title: 'World\'s First 5-AI Oracle',
-                description: 'Revolutionary multi-AI consensus system. No other prediction market has this.',
-                emoji: '🧠',
-                gradient: 'from-purple-500 to-pink-500',
-              },
-              {
-                icon: Shield,
-                title: '100% Money-Back Guarantee',
-                description: 'If our oracle fails, you get FULL refund. We\'re the ONLY platform with this protection.',
-                emoji: '🛡️',
-                gradient: 'from-blue-500 to-cyan-500',
-              },
-              {
-                icon: Zap,
-                title: 'Production Ready NOW',
-                description: '115/115 tests passing. All contracts verified. We\'re LIVE and working.',
-                emoji: '⚡',
-                gradient: 'from-yellow-500 to-orange-500',
-              },
-              {
-                icon: Award,
-                title: 'Top 20 Finalist',
-                description: 'We beat hundreds of projects. Now help us reach Top 5!',
-                emoji: '🏆',
-                gradient: 'from-green-500 to-emerald-500',
-              },
-              {
-                icon: TrendingUp,
-                title: 'Innovation Leader',
-                description: 'Reputation NFTs, Conditional Markets, Cross-Chain Aggregation - we have it all.',
-                emoji: '🚀',
-                gradient: 'from-indigo-500 to-purple-500',
-              },
-              {
-                icon: Heart,
-                title: 'Built for the Community',
-                description: 'Free tier AI models. Ultra-low fees. We care about YOU, not profits.',
-                emoji: '❤️',
-                gradient: 'from-pink-500 to-rose-500',
-              },
-            ].map((reason, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-              >
-                <GlassCard hover className="p-6 h-full group">
-                  <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${reason.gradient} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform text-3xl`}>
-                    {reason.emoji}
+          {/* Voting Steps */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+            >
+              <GlassCard hover className="p-6 sm:p-8 h-full border-2 border-blue-500/30">
+                <div className="flex items-start gap-4 mb-4">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center flex-shrink-0 text-2xl font-bold text-white">
+                    1
                   </div>
-                  <h3 className="text-xl font-bold text-white mb-3">{reason.title}</h3>
-                  <p className="text-gray-300">{reason.description}</p>
-                </GlassCard>
-              </motion.div>
-            ))}
+                  <div className="flex-1">
+                    <h3 className="text-xl sm:text-2xl font-bold text-white mb-3 flex items-center gap-2">
+                      <LogIn className="w-6 h-6 text-blue-400" />
+                      Connect & Vote
+                    </h3>
+                    <p className="text-gray-300 text-base sm:text-lg leading-relaxed">
+                      Connect your <strong className="text-blue-400">X account</strong>, vote for your <strong className="text-purple-400">top 5 hackathon projects</strong>, and submit your <strong className="text-green-400">0x wallet</strong>.
+                    </p>
+                  </div>
+                </div>
+              </GlassCard>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+            >
+              <GlassCard hover className="p-6 sm:p-8 h-full border-2 border-yellow-500/30">
+                <div className="flex items-start gap-4 mb-4">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center flex-shrink-0 text-2xl font-bold text-white">
+                    2
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-xl sm:text-2xl font-bold text-white mb-3 flex items-center gap-2">
+                      <TrendingUp className="w-6 h-6 text-yellow-400" />
+                      Earn Rewards
+                    </h3>
+                    <p className="text-gray-300 text-base sm:text-lg leading-relaxed">
+                      Higher <strong className="text-yellow-400">Kaito scores</strong> mean higher voting power and <strong className="text-green-400">bigger allocations</strong> if you predict winners right.
+                    </p>
+                  </div>
+                </div>
+              </GlassCard>
+            </motion.div>
           </div>
+
+          {/* Cardify Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="mb-12"
+          >
+            <GlassCard className="p-6 sm:p-8 border-2 border-purple-500/30 bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-purple-500/10">
+              <div className="flex flex-col md:flex-row items-center gap-6">
+                <div className="flex-shrink-0">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+                    <FileText className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
+                  </div>
+                </div>
+                <div className="flex-1 text-center md:text-left">
+                  <h3 className="text-2xl sm:text-3xl font-bold text-white mb-3">
+                    Cardify - AI Prediction Cards
+                  </h3>
+                  <p className="text-gray-300 text-base sm:text-lg mb-4">
+                    Generate a unique <strong className="text-purple-400">AI-powered trading card</strong> featuring your profile and top 5 project predictions. 
+                  </p>
+                  <a href="https://seedifypredict.com/" target="_blank" rel="noopener noreferrer">
+                    <Button className="gap-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
+                      <LogIn className="w-4 h-4" />
+                      Login with X to Generate Card
+                      <ArrowRight className="w-4 h-4" />
+                    </Button>
+                  </a>
+                </div>
+              </div>
+            </GlassCard>
+          </motion.div>
 
           {/* Secondary CTA */}
           <div className="text-center">
@@ -243,6 +267,174 @@ export default function VotePage() {
               </Button>
             </a>
           </div>
+        </div>
+      </section>
+
+      {/* Initial Milestones Offering (IMO) Section */}
+      <section className="py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-purple-900/10 to-transparent">
+        <div className="container mx-auto max-w-7xl">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
+              Initial Milestones Offering
+            </h2>
+            <p className="text-xl text-gray-300 max-w-4xl mx-auto">
+              <strong className="text-purple-400">IMO</strong> is designed to align funding, delivery, and accountability.
+            </p>
+          </div>
+
+          {/* IMO Overview */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="mb-12"
+          >
+            <GlassCard className="p-6 sm:p-8 border-2 border-green-500/30">
+              <div className="text-center mb-6">
+                <Lock className="w-12 h-12 sm:w-16 sm:h-16 text-green-400 mx-auto mb-4" />
+                <p className="text-lg sm:text-xl text-gray-300 leading-relaxed max-w-4xl mx-auto">
+                  Instead of releasing funds upfront, <strong className="text-green-400">IMO ties capital and token vesting</strong> to clearly defined milestones, 
+                  verified through <strong className="text-purple-400">AI-powered oracles</strong>, <strong className="text-blue-400">dispute resolution</strong>, 
+                  and <strong className="text-yellow-400">community governance</strong>.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
+                <GlassCard className="p-4 text-center bg-blue-500/10 border border-blue-500/20">
+                  <Shield className="w-8 h-8 text-blue-400 mx-auto mb-2" />
+                  <h4 className="font-bold text-white mb-2">Builders Protected</h4>
+                  <p className="text-sm text-gray-400">Get first part of funding and unlock funds as milestones are achieved</p>
+                </GlassCard>
+                <GlassCard className="p-4 text-center bg-green-500/10 border border-green-500/20">
+                  <CheckCircle className="w-8 h-8 text-green-400 mx-auto mb-2" />
+                  <h4 className="font-bold text-white mb-2">Investors Protected</h4>
+                  <p className="text-sm text-gray-400">Protected if milestones are not met</p>
+                </GlassCard>
+                <GlassCard className="p-4 text-center bg-purple-500/10 border border-purple-500/20">
+                  <Brain className="w-8 h-8 text-purple-400 mx-auto mb-2" />
+                  <h4 className="font-bold text-white mb-2">Real-World Ready</h4>
+                  <p className="text-sm text-gray-400">Designed for delays, pivots, disputes, and real-world outcomes</p>
+                </GlassCard>
+              </div>
+            </GlassCard>
+          </motion.div>
+
+          {/* How IMO Works - Steps */}
+          <div className="mb-12">
+            <h3 className="text-2xl sm:text-3xl font-bold text-white mb-8 text-center">
+              How It Works
+            </h3>
+            <div className="space-y-4">
+              {[
+                {
+                  step: 1,
+                  title: 'Project Selection & Milestone Definition',
+                  description: 'Projects define a milestone roadmap reviewed against Seedify\'s Milestone Guidelines and approved through community voting before fundraising begins.',
+                  icon: FileCheck,
+                  color: 'from-blue-500 to-cyan-500',
+                },
+                {
+                  step: 2,
+                  title: 'Fundraising & Escrow',
+                  description: 'Non-TGE funds and tokens are locked in 3rd party escrow with multisig protections. Only the portion tied to a completed milestone can be released.',
+                  icon: Lock,
+                  color: 'from-green-500 to-emerald-500',
+                },
+                {
+                  step: 3,
+                  title: 'Milestone Delivery & Evidence',
+                  description: 'When a milestone deadline arrives, the project submits verifiable evidence of completion.',
+                  icon: FileText,
+                  color: 'from-purple-500 to-pink-500',
+                },
+                {
+                  step: 4,
+                  title: 'AI-Assisted Oracle Verification',
+                  description: 'AI-powered oracles evaluate evidence against pre-approved conditions. They provide structured analysis — not final decisions.',
+                  icon: Brain,
+                  color: 'from-indigo-500 to-purple-500',
+                },
+                {
+                  step: 5,
+                  title: 'Seedify Review & Transparency',
+                  description: 'Seedify reviews oracle findings, adds contextual analysis, and publishes a transparent report for the community.',
+                  icon: Eye,
+                  color: 'from-yellow-500 to-orange-500',
+                },
+                {
+                  step: 6,
+                  title: 'DAO Decision',
+                  description: 'DAO voters make the final call: release funds, deny and refund, or approve partial releases when justified.',
+                  icon: Vote,
+                  color: 'from-red-500 to-rose-500',
+                },
+                {
+                  step: 7,
+                  title: 'Repeat Until Completion',
+                  description: 'This process repeats for every milestone until all are completed or the project is terminated.',
+                  icon: RefreshCw,
+                  color: 'from-teal-500 to-cyan-500',
+                },
+              ].map((item, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, x: index % 2 === 0 ? -20 : 20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                >
+                  <GlassCard hover className="p-5 sm:p-6">
+                    <div className="flex items-start gap-4">
+                      <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br ${item.color} flex items-center justify-center flex-shrink-0 text-xl sm:text-2xl font-bold text-white`}>
+                        {item.step}
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <item.icon className="w-5 h-5 sm:w-6 sm:h-6 text-purple-400 flex-shrink-0" />
+                          <h4 className="text-lg sm:text-xl font-bold text-white">{item.title}</h4>
+                        </div>
+                        <p className="text-gray-300 text-sm sm:text-base">{item.description}</p>
+                      </div>
+                    </div>
+                  </GlassCard>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+
+          {/* Designed for Real-World Complexity */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <GlassCard className="p-6 sm:p-8 border-2 border-yellow-500/30 bg-gradient-to-r from-yellow-500/10 to-orange-500/10">
+              <h3 className="text-2xl sm:text-3xl font-bold text-white mb-6 text-center">
+                Designed for Real-World Complexity
+              </h3>
+              <p className="text-gray-300 text-center mb-6 text-base sm:text-lg">
+                IMO explicitly supports these scenarios through structured community votes:
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                {[
+                  'Milestone delays',
+                  'Partial releases',
+                  'Strategic pivots',
+                  'Early delivery',
+                  'Disputes & appeals',
+                ].map((scenario, index) => (
+                  <div key={index} className="flex items-center gap-2 p-3 rounded-lg bg-purple-500/10 border border-purple-500/20">
+                    <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0" />
+                    <span className="text-gray-300 font-medium">{scenario}</span>
+                  </div>
+                ))}
+              </div>
+              <p className="text-gray-400 text-sm text-center mt-6 italic">
+                A full protocol specification and edge-case framework will be published. IMO was designed with real-world complexity in mind — 
+                balancing decentralization, accountability, and operational practicality.
+              </p>
+            </GlassCard>
+          </motion.div>
         </div>
       </section>
 
