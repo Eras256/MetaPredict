@@ -207,6 +207,25 @@ export const marketService = {
     return data;
   },
 
+  async updateMarketOutcome(marketId: number, outcome: 'yes' | 'no' | 'invalid') {
+    const { data, error } = await supabase
+      .from('markets')
+      .update({
+        outcome,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', marketId)
+      .select()
+      .single();
+    
+    if (error) {
+      console.error('Error updating market outcome:', error);
+      throw error;
+    }
+    
+    return data;
+  },
+
   async getMarketResolution(marketId: number) {
     const { data, error } = await supabase
       .from('resolutions')

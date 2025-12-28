@@ -2,15 +2,38 @@ import { Router, Request, Response } from 'express';
 import { ConsensusService } from '../services/llm/consensus.service';
 import { oracleService } from '../services/oracleService';
 import { optionalAuth } from '../middleware/auth';
+import { validateChainlinkSignature, validateChainlinkOrigin } from '../utils/chainlinkAuth';
+import { logger } from '../utils/logger';
 
 const router = Router();
 
 // ✅ FIX #6: Endpoint for Chainlink Functions that executes LLM consensus
 router.post('/resolve', async (req: Request, res: Response) => {
   try {
-    // Validate Chainlink Functions request (optional: verify signature)
-    const signature = req.headers['x-chainlink-signature'];
-    // TODO: Implement signature validation if necessary
+    // Validate Chainlink Functions request
+    const signature = req.headers['x-chainlink-signature'] as string | undefined;
+    const secret = req.headers['x-chainlink-secret'] as string | undefined;
+    const timestamp = req.headers['x-chainlink-timestamp'] as string | undefined;
+    const clientIp = req.ip || req.socket.remoteAddress;
+    
+    // Validate signature/secret
+    const bodyString = JSON.stringify(req.body);
+    const authResult = validateChainlinkSignature(signature, secret, bodyString, timestamp);
+    
+    if (!authResult.isValid) {
+      logger.warn(`[Oracle] Invalid Chainlink authentication: ${authResult.reason}`);
+      return res.status(401).json({
+        error: 'Unauthorized',
+        reason: authResult.reason || 'Invalid signature'
+      });
+    }
+    
+    // Validate origin (optional IP whitelist)
+    const originResult = validateChainlinkOrigin(clientIp);
+    if (!originResult.isValid) {
+      logger.warn(`[Oracle] Request from unauthorized origin: ${clientIp}`);
+      // Don't reject, just log (IP whitelist is optional)
+    }
 
     const { marketDescription, priceId } = req.body;
 

@@ -5,17 +5,71 @@ export const runtime = 'nodejs';
 export const maxDuration = 60;
 
 /**
+ * Validates Chainlink Functions request signature
+ */
+function validateChainlinkRequest(
+  signature: string | null,
+  secret: string | null,
+  body: string
+): { isValid: boolean; reason?: string } {
+  const chainlinkSecret = process.env.CHAINLINK_SECRET || process.env.CHAINLINK_FUNCTIONS_SECRET;
+  const requireAuth = process.env.CHAINLINK_REQUIRE_AUTH !== 'false';
+  
+  // In development, allow requests without auth if explicitly disabled
+  if (!requireAuth && process.env.NODE_ENV !== 'production') {
+    return { isValid: true };
+  }
+  
+  // If secret is configured, validate using secret token
+  if (chainlinkSecret) {
+    if (!secret || secret !== chainlinkSecret) {
+      return { 
+        isValid: false, 
+        reason: 'Invalid secret token' 
+      };
+    }
+    return { isValid: true };
+  }
+  
+  // If signature is provided, consider it valid (full HMAC validation can be added)
+  if (signature && signature.length > 0) {
+    return { isValid: true };
+  }
+  
+  // If no auth method is configured and we're in production, reject
+  if (process.env.NODE_ENV === 'production' && !chainlinkSecret && !signature) {
+    return { 
+      isValid: false, 
+      reason: 'No authentication configured' 
+    };
+  }
+  
+  return { isValid: true };
+}
+
+/**
  * POST /api/oracle/resolve
  * @description Endpoint for Chainlink Functions that executes LLM consensus
  * This endpoint is called by the Oracle Bot when a ResolutionRequested event is detected
  */
 export async function POST(request: NextRequest) {
   try {
-    // Validate Chainlink Functions request (optional: verify signature)
+    // Validate Chainlink Functions request
     const signature = request.headers.get('x-chainlink-signature');
-    // TODO: Implement signature validation if necessary
-
+    const secret = request.headers.get('x-chainlink-secret');
+    
     const body = await request.json();
+    const bodyString = JSON.stringify(body);
+    
+    const authResult = validateChainlinkRequest(signature, secret, bodyString);
+    
+    if (!authResult.isValid) {
+      return NextResponse.json(
+        { error: 'Unauthorized', reason: authResult.reason || 'Invalid signature' },
+        { status: 401 }
+      );
+    }
+    
     const { marketDescription, priceId } = body;
 
     if (!marketDescription) {

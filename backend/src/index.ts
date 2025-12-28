@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import path from "path";
 import { logger } from "./utils/logger";
+import { validateBackendEnvVars } from "./utils/envValidation";
 import { oracleBot } from "./bots/oracleBot";
 
 // Routes
@@ -17,6 +18,15 @@ import gelatoRouter from "./routes/gelato";
 
 // Load .env from root directory (2 levels up from src/)
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
+
+// Validate environment variables on startup
+try {
+  validateBackendEnvVars();
+} catch (error: any) {
+  logger.error(`[Startup] Environment validation failed: ${error.message}`);
+  logger.error('[Startup] Please check your .env file and ensure all required variables are set');
+  process.exit(1);
+}
 
 const app = express();
 const PORT = process.env.PORT || 3001;

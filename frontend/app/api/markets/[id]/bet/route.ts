@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { marketService } from '@/lib/services/marketService';
+import { getAuthenticatedUser } from '@/lib/middleware/auth';
 import { z } from 'zod';
 
 export const runtime = 'nodejs';
@@ -8,7 +9,7 @@ export const maxDuration = 60;
 const placeBetSchema = z.object({
   amount: z.number().positive(),
   outcome: z.boolean(),
-  userId: z.string().optional(), // From auth middleware
+  userId: z.string().optional(), // Fallback if auth fails
 });
 
 /**
@@ -22,10 +23,18 @@ export async function POST(
   try {
     const { id } = await params;
     const body = await request.json();
-    const { amount, outcome, userId } = placeBetSchema.parse(body);
+    const { amount, outcome, userId: bodyUserId } = placeBetSchema.parse(body);
     
-    // TODO: Get userId from auth middleware
-    const finalUserId = userId || "anonymous";
+    // Get userId from auth middleware
+    const auth = await getAuthenticatedUser(request);
+    const finalUserId = auth.userId || bodyUserId;
+    
+    if (!finalUserId) {
+      return NextResponse.json(
+        { error: "Authentication required. Please provide userId or authenticate." },
+        { status: 401 }
+      );
+    }
     
     const bet = await marketService.placeBet(id, finalUserId, amount, outcome);
     return NextResponse.json({ bet });
@@ -36,8 +45,16 @@ export async function POST(
         { status: 400 }
       );
     }
+    
+    if (error.message === 'Authentication required') {
+      return NextResponse.json(
+        { error: error.message },
+        { status: 401 }
+      );
+    }
+    
     return NextResponse.json(
-      { error: "Failed to place bet" },
+      { error: "Failed to place bet", details: error.message },
       { status: 500 }
     );
   }
