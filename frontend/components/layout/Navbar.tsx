@@ -20,6 +20,7 @@ import {
   ChevronDown,
   LayoutDashboard,
   FileText,
+  Trophy,
 } from 'lucide-react';
 import { useActiveAccount } from 'thirdweb/react';
 import { client, chains } from '@/lib/config/thirdweb';
@@ -31,7 +32,7 @@ import { cn } from '@/lib/utils';
 const navigation = [
   { name: 'Home', href: '/', icon: Home },
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'Docs', href: '/docs', icon: FileText },
+  { name: 'Vote Now', href: '/docs', icon: Trophy, isVoteButton: true },
 ];
 
 // Markets submenu
@@ -99,6 +100,57 @@ export function Navbar() {
               <div className="hidden lg:flex items-center space-x-0.5 xl:space-x-1 flex-shrink-0">
                 {navigation.map((item) => {
                   const isActive = pathname === item.href || (item.href === '/' && pathname === '/');
+                  const isVoteButton = (item as any).isVoteButton;
+                  
+                  if (isVoteButton) {
+                    return (
+                      <Link key={item.name} href={item.href} className="flex-shrink-0">
+                        <motion.div
+                          animate={{
+                            background: [
+                              'linear-gradient(135deg, #fbbf24, #f59e0b)',
+                              'linear-gradient(135deg, #ef4444, #dc2626)',
+                              'linear-gradient(135deg, #8b5cf6, #7c3aed)',
+                              'linear-gradient(135deg, #10b981, #059669)',
+                              'linear-gradient(135deg, #3b82f6, #2563eb)',
+                              'linear-gradient(135deg, #fbbf24, #f59e0b)',
+                            ],
+                          }}
+                          transition={{
+                            duration: 3,
+                            repeat: Infinity,
+                            ease: 'linear',
+                          }}
+                          className="rounded-lg p-[2px]"
+                        >
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className={cn(
+                              "gap-1.5 transition-all duration-200 text-xs xl:text-sm px-2 xl:px-3 font-bold relative overflow-hidden",
+                              "bg-gray-900 text-white hover:bg-gray-800"
+                            )}
+                          >
+                            <motion.span
+                              animate={{
+                                color: ['#fbbf24', '#ef4444', '#8b5cf6', '#10b981', '#3b82f6', '#fbbf24'],
+                              }}
+                              transition={{
+                                duration: 2,
+                                repeat: Infinity,
+                                ease: 'linear',
+                              }}
+                              className="flex items-center gap-1.5"
+                            >
+                              <item.icon className="w-3.5 h-3.5 xl:w-4 xl:h-4" />
+                              {item.name}
+                            </motion.span>
+                          </Button>
+                        </motion.div>
+                      </Link>
+                    );
+                  }
+                  
                   return (
                     <Link key={item.name} href={item.href} className="flex-shrink-0">
                       <Button
@@ -206,6 +258,57 @@ export function Navbar() {
               <div className="hidden md:flex lg:hidden items-center space-x-1">
                 {navigation.map((item) => {
                   const isActive = pathname === item.href || (item.href === '/' && pathname === '/');
+                  const isVoteButton = (item as any).isVoteButton;
+                  
+                  if (isVoteButton) {
+                    return (
+                      <Link key={item.name} href={item.href}>
+                        <motion.div
+                          animate={{
+                            background: [
+                              'linear-gradient(135deg, #fbbf24, #f59e0b)',
+                              'linear-gradient(135deg, #ef4444, #dc2626)',
+                              'linear-gradient(135deg, #8b5cf6, #7c3aed)',
+                              'linear-gradient(135deg, #10b981, #059669)',
+                              'linear-gradient(135deg, #3b82f6, #2563eb)',
+                              'linear-gradient(135deg, #fbbf24, #f59e0b)',
+                            ],
+                          }}
+                          transition={{
+                            duration: 3,
+                            repeat: Infinity,
+                            ease: 'linear',
+                          }}
+                          className="rounded-lg p-[2px]"
+                        >
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className={cn(
+                              "gap-1 transition-all duration-200 px-1.5 sm:px-2 font-bold",
+                              "bg-gray-900 text-white hover:bg-gray-800"
+                            )}
+                          >
+                            <motion.span
+                              animate={{
+                                color: ['#fbbf24', '#ef4444', '#8b5cf6', '#10b981', '#3b82f6', '#fbbf24'],
+                              }}
+                              transition={{
+                                duration: 2,
+                                repeat: Infinity,
+                                ease: 'linear',
+                              }}
+                              className="flex items-center gap-1"
+                            >
+                              <item.icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                              <span className="text-xs">{item.name}</span>
+                            </motion.span>
+                          </Button>
+                        </motion.div>
+                      </Link>
+                    );
+                  }
+                  
                   return (
                     <Link key={item.name} href={item.href}>
                       <Button
@@ -298,6 +401,56 @@ export function Navbar() {
               {/* Main Navigation */}
               {navigation.map((item) => {
                 const isActive = pathname === item.href || (item.href === '/' && pathname === '/');
+                const isVoteButton = (item as any).isVoteButton;
+                
+                if (isVoteButton) {
+                  return (
+                    <Link key={item.name} href={item.href} onClick={() => setMobileMenuOpen(false)}>
+                      <motion.div
+                        animate={{
+                          background: [
+                            'linear-gradient(135deg, #fbbf24, #f59e0b)',
+                            'linear-gradient(135deg, #ef4444, #dc2626)',
+                            'linear-gradient(135deg, #8b5cf6, #7c3aed)',
+                            'linear-gradient(135deg, #10b981, #059669)',
+                            'linear-gradient(135deg, #3b82f6, #2563eb)',
+                            'linear-gradient(135deg, #fbbf24, #f59e0b)',
+                          ],
+                        }}
+                        transition={{
+                          duration: 3,
+                          repeat: Infinity,
+                          ease: 'linear',
+                        }}
+                        className="rounded-lg p-[2px] w-full"
+                      >
+                        <Button
+                          variant="ghost"
+                          className={cn(
+                            "w-full justify-start gap-2 sm:gap-3 text-sm sm:text-base font-bold",
+                            "bg-gray-900 text-white hover:bg-gray-800"
+                          )}
+                        >
+                          <motion.span
+                            animate={{
+                              color: ['#fbbf24', '#ef4444', '#8b5cf6', '#10b981', '#3b82f6', '#fbbf24'],
+                            }}
+                            transition={{
+                              duration: 2,
+                              repeat: Infinity,
+                              ease: 'linear',
+                            }}
+                            className="flex items-center gap-2 sm:gap-3"
+                          >
+                            <item.icon className="w-4 h-4 sm:w-5 sm:h-5" />
+                            {item.name}
+                          </motion.span>
+                        </Button>
+                      </motion.div>
+                    </Link>
+                  );
+                }
+                
                 return (
                   <Link key={item.name} href={item.href} onClick={() => setMobileMenuOpen(false)}>
                     <Button
