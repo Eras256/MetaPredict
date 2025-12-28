@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { MessageCircle, ExternalLink, Brain, Code, Shield, Zap, Activity, Globe } from 'lucide-react';
 import { GlassCard } from '@/components/effects/GlassCard';
 import { CONTRACT_ADDRESSES } from '@/lib/contracts/addresses';
@@ -80,8 +81,14 @@ export function Footer() {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 md:gap-8 mb-6 md:mb-8">
             <div className="col-span-1 sm:col-span-2 md:col-span-3 lg:col-span-2">
               <Link href="/" className="flex items-center space-x-3 mb-4 group">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <Brain className="w-6 h-6 text-white" />
+                <div className="w-10 h-10 rounded-xl overflow-hidden bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <Image 
+                    src="/logos/MINS.png" 
+                    alt="MetaPredict Logo" 
+                    width={40} 
+                    height={40} 
+                    className="w-full h-full object-contain p-1"
+                  />
                 </div>
                 <div className="flex flex-col">
                   <span className="text-xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">

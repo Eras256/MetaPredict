@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -75,8 +76,15 @@ export function Navbar() {
           <div className="max-w-7xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8">
             <div className="flex items-center justify-between h-14 sm:h-16 min-w-0">
               <Link href="/" className="flex items-center space-x-1.5 sm:space-x-2 md:space-x-3 group flex-shrink-0 min-w-0">
-                <div className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0">
-                  <Brain className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-6 md:h-6 text-white" />
+                <div className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-xl overflow-hidden bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0">
+                  <Image 
+                    src="/logos/MINS.png" 
+                    alt="MetaPredict Logo" 
+                    width={40} 
+                    height={40} 
+                    className="w-full h-full object-contain p-0.5"
+                    priority
+                  />
                 </div>
                 <div className="flex flex-col min-w-0">
                   <span className="text-sm sm:text-base md:text-lg lg:text-xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent truncate">
