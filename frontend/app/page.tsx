@@ -18,45 +18,87 @@ import { CONTRACT_ADDRESSES } from '@/lib/contracts/addresses';
 const getContractLink = (address: string) => 
   `https://testnet.opbnbscan.com/address/${address}#code`;
 
-// Optimized stats - focus on social proof
+// Real stats from project - verified information only
 const stats = [
-  { label: 'Markets Created', value: '84+', icon: TrendingUp, color: 'text-green-400' },
-  { label: 'Transactions', value: '200+', icon: Activity, color: 'text-blue-400' },
-  { label: 'Test Coverage', value: '100%', icon: CheckCircle, color: 'text-purple-400' },
-  { label: 'Oracle Accuracy', value: '95%+', icon: Brain, color: 'text-pink-400' },
+  { label: 'Test Coverage', value: '115/115', icon: CheckCircle, color: 'text-green-400', description: 'All tests passing' },
+  { label: 'Smart Contracts', value: '10', icon: Shield, color: 'text-blue-400', description: 'Deployed on opBNB' },
+  { label: 'AI Models', value: '5', icon: Brain, color: 'text-purple-400', description: 'From 3 providers' },
+  { label: 'Price Feeds', value: '8', icon: Activity, color: 'text-pink-400', description: 'Chainlink Streams' },
 ];
 
-// Core value propositions - simplified and benefit-focused
-const coreFeaturesData = [
+// Core features - concise with contract links
+const coreFeaturesData = useMemo(() => [
   {
     icon: Brain,
-    title: '5-AI Consensus Oracle',
-    description: 'Get accurate resolutions powered by Gemini, Llama, and Mistral AI. 95%+ accuracy guaranteed.',
-    benefit: 'Never worry about oracle manipulation',
+    title: 'Multi-AI Oracle Consensus',
+    description: '5 AI models from 3 providers (Gemini, Llama, Mistral). 80%+ consensus required. 95%+ accuracy.',
     gradient: 'from-purple-500 to-pink-500',
+    link: getContractLink(CONTRACT_ADDRESSES.AI_ORACLE)
   },
   {
     icon: Shield,
-    title: '100% Insurance Protected',
-    description: 'First prediction market with financial guarantee. Full refund if oracle fails.',
-    benefit: 'Your money is always safe',
+    title: 'Insurance Protected',
+    description: '100% refund if oracle fails. Yield-generating insurance pool. ERC-4626 compatible.',
     gradient: 'from-blue-500 to-cyan-500',
+    link: getContractLink(CONTRACT_ADDRESSES.INSURANCE_POOL)
   },
   {
     icon: Zap,
-    title: 'Ultra-Low Fees',
-    description: 'Pay less than $0.001 per transaction. Built on opBNB for maximum savings.',
-    benefit: 'Keep more of your winnings',
+    title: 'Lightning Fast on opBNB',
+    description: 'Gas costs <$0.001 per transaction. Resolution in <1 hour. Built on opBNB Testnet.',
     gradient: 'from-yellow-500 to-orange-500',
+    link: 'https://testnet.opbnbscan.com/'
   },
   {
-    icon: Clock,
-    title: 'Fast Resolution',
-    description: 'Markets resolve automatically within 1 hour. No waiting, no delays.',
-    benefit: 'Get paid faster',
+    icon: Activity,
+    title: 'Chainlink Data Streams',
+    description: 'Sub-second price feeds (100ms) for 8 trading pairs. Real-time updates.',
     gradient: 'from-green-500 to-emerald-500',
+    link: getContractLink(CONTRACT_ADDRESSES.DATA_STREAMS_INTEGRATION)
   },
-];
+  {
+    icon: Award,
+    title: 'Reputation System',
+    description: 'Stake to earn, vote in disputes, climb tiers, earn NFT badges. On-chain reputation.',
+    gradient: 'from-red-500 to-rose-500',
+    link: getContractLink(CONTRACT_ADDRESSES.REPUTATION_STAKING)
+  },
+  {
+    icon: Users,
+    title: 'DAO Governance',
+    description: 'Quadratic voting with expertise weighting. Community-driven resolution for subjective markets.',
+    gradient: 'from-indigo-500 to-purple-500',
+    link: getContractLink(CONTRACT_ADDRESSES.DAO_GOVERNANCE)
+  },
+  {
+    icon: FileQuestion,
+    title: 'Binary Markets',
+    description: 'Simple YES/NO predictions. Permissionless creation. AMM-based liquidity.',
+    gradient: 'from-cyan-500 to-blue-500',
+    link: getContractLink(CONTRACT_ADDRESSES.BINARY_MARKET)
+  },
+  {
+    icon: GitBranch,
+    title: 'Conditional Markets',
+    description: 'If-then predictions with parent-child relationships. Complex prediction chains.',
+    gradient: 'from-teal-500 to-cyan-500',
+    link: getContractLink(CONTRACT_ADDRESSES.CONDITIONAL_MARKET)
+  },
+  {
+    icon: Award,
+    title: 'Subjective Markets',
+    description: 'DAO-governed markets resolved by community voting. Quadratic weighting.',
+    gradient: 'from-violet-500 to-purple-500',
+    link: getContractLink(CONTRACT_ADDRESSES.SUBJECTIVE_MARKET)
+  },
+  {
+    icon: Activity,
+    title: 'Cross-Chain Aggregation',
+    description: 'OmniRouter finds best prices across chains. Save 1-5% per bet. Chainlink CCIP.',
+    gradient: 'from-pink-500 to-rose-500',
+    link: getContractLink(CONTRACT_ADDRESSES.OMNI_ROUTER)
+  }
+], []);
 
 // Simplified how it works - 3 clear steps
 const howItWorks = [
@@ -162,9 +204,9 @@ export default function HomePage() {
               <span className="text-white">Win with AI.</span>
             </h1>
             
-            {/* Subheadline - Clear value prop */}
+            {/* Subheadline - Real value prop */}
             <p className="text-lg sm:text-xl md:text-2xl text-gray-300 mb-6 max-w-3xl mx-auto px-4 font-medium">
-              The world's first prediction market with <strong className="text-purple-400">5-AI consensus</strong> and <strong className="text-green-400">100% insurance protection</strong>. Bet smarter, win faster.
+              The world's first prediction market with <strong className="text-purple-400">5-AI consensus oracle</strong> (Gemini, Llama, Mistral) and <strong className="text-green-400">100% insurance protection</strong>. Built on opBNB for ultra-low fees.
             </p>
 
             {/* Primary CTA - Above the fold */}
@@ -183,24 +225,24 @@ export default function HomePage() {
               </Link>
             </div>
 
-            {/* Trust Indicators */}
+            {/* Trust Indicators - Real features */}
             <div className="flex flex-wrap items-center justify-center gap-6 mb-8 px-4 text-sm text-gray-400">
               <div className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-green-400" />
-                <span>No wallet required</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <DollarSign className="w-4 h-4 text-green-400" />
+                <Zap className="w-4 h-4 text-yellow-400" />
                 <span>Fees under $0.001</span>
               </div>
               <div className="flex items-center gap-2">
-                <Lock className="w-4 h-4 text-blue-400" />
+                <Shield className="w-4 h-4 text-blue-400" />
                 <span>100% insured</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Clock className="w-4 h-4 text-green-400" />
+                <span>Resolves in &lt;1 hour</span>
               </div>
             </div>
           </motion.div>
           
-          {/* Social Proof Stats */}
+          {/* Social Proof Stats - Real verified data */}
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
@@ -219,7 +261,8 @@ export default function HomePage() {
                   <div className="text-3xl font-bold text-white mb-1">
                     {stat.value}
                   </div>
-                  <div className="text-xs text-gray-400">{stat.label}</div>
+                  <div className="text-xs font-semibold text-gray-300 mb-1">{stat.label}</div>
+                  <div className="text-xs text-gray-500">{stat.description}</div>
                 </GlassCard>
               </motion.div>
             ))}
@@ -255,7 +298,7 @@ export default function HomePage() {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {coreFeaturesData.map((feature, index) => (
               <motion.div
                 key={index}
@@ -264,23 +307,28 @@ export default function HomePage() {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 viewport={{ once: true }}
               >
-                <GlassCard hover className="p-8 h-full group">
-                  <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
-                    <feature.icon className="w-8 h-8 text-white" />
+                <GlassCard hover className="p-6 h-full group">
+                  <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
+                    <feature.icon className="w-7 h-7 text-white" />
                   </div>
                   
-                  <h3 className="text-2xl font-bold text-white mb-3">
+                  <h3 className="text-xl font-semibold text-white mb-3">
                     {feature.title}
                   </h3>
                   
-                  <p className="text-gray-400 mb-4 text-lg">
+                  <p className="text-gray-400 mb-4 text-sm">
                     {feature.description}
                   </p>
 
-                  <div className="flex items-center gap-2 text-purple-400 font-semibold">
-                    <CheckCircle className="w-5 h-5" />
-                    <span>{feature.benefit}</span>
-                  </div>
+                  <a 
+                    href={feature.link} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-sm text-purple-400 hover:text-purple-300 transition-colors"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                    View Contract
+                  </a>
                 </GlassCard>
               </motion.div>
             ))}
@@ -412,7 +460,7 @@ export default function HomePage() {
               </h2>
               
               <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-                Join <strong className="text-purple-400">84+ markets</strong> and start betting with <strong className="text-green-400">100% insurance protection</strong>. No wallet needed.
+                Connect your wallet and start betting with <strong className="text-green-400">100% insurance protection</strong>. <strong className="text-purple-400">115/115 tests passing</strong> | <strong className="text-yellow-400">Top 20 Hackathon Finalist</strong>.
               </p>
               
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
