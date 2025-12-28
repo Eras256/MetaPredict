@@ -2,6 +2,7 @@
 
 import { useMemo } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { Brain, Shield, Zap, TrendingUp, Lock, Users, ArrowRight, CheckCircle, BarChart3, Globe, Award, Link2, ExternalLink, Activity, Trophy, Sparkles, Target, TrendingDown, Search, Coins, ArrowRightCircle, FileQuestion, GitBranch, Network } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -183,6 +184,25 @@ export default function HomePage() {
               <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
               <span className="text-sm text-purple-300">Live on opBNB Testnet (Chain ID: 5611)</span>
             </div>
+            
+            {/* Logo */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              className="mb-6 sm:mb-8 flex justify-center"
+            >
+              <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 lg:w-32 lg:h-32 rounded-2xl overflow-hidden bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center shadow-2xl shadow-purple-500/30">
+                <Image 
+                  src="/logos/MINS.png" 
+                  alt="MetaPredict Logo" 
+                  width={128} 
+                  height={128} 
+                  className="w-full h-full object-contain p-2 sm:p-3"
+                  priority
+                />
+              </div>
+            </motion.div>
             
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-4 sm:mb-6 leading-tight px-2">
               <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-clip-text text-transparent">MetaPredict.fun</span>
