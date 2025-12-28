@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { MessageCircle, ExternalLink, Brain, Code, Shield, Zap, Activity, Globe } from 'lucide-react';
@@ -9,57 +10,6 @@ import { CONTRACT_ADDRESSES } from '@/lib/contracts/addresses';
 // Helper function to generate opBNBScan link
 const getContractLink = (address: string) => 
   `https://testnet.opbnbscan.com/address/${address}#code`;
-
-const footerLinks = {
-  product: [
-    { name: 'Markets', href: '/markets' },
-    { name: 'Create Market', href: '/create' },
-    { name: 'Insurance Pool', href: '/insurance' },
-    { name: 'Reputation', href: '/reputation' },
-    { name: 'DAO Governance', href: '/dao' },
-  ],
-  contracts: [
-    { 
-      name: 'Prediction Market Core', 
-      href: getContractLink(CONTRACT_ADDRESSES.CORE_CONTRACT),
-      external: true 
-    },
-    { 
-      name: 'AI Oracle', 
-      href: getContractLink(CONTRACT_ADDRESSES.AI_ORACLE),
-      external: true 
-    },
-    { 
-      name: 'Insurance Pool', 
-      href: getContractLink(CONTRACT_ADDRESSES.INSURANCE_POOL),
-      external: true 
-    },
-    { 
-      name: 'Chainlink Data Streams', 
-      href: getContractLink(CONTRACT_ADDRESSES.DATA_STREAMS_INTEGRATION),
-      external: true 
-    },
-    { 
-      name: 'View All Contracts', 
-      href: 'https://testnet.opbnbscan.com/',
-      external: true 
-    },
-  ],
-  resources: [
-    { name: 'opBNBScan Explorer', href: 'https://testnet.opbnbscan.com/', external: true },
-    { name: 'Chainlink Docs', href: 'https://docs.chain.link/', external: true },
-    { name: 'opBNB Docs', href: 'https://docs.bnbchain.org/bnb-opbnb/overview/', external: true },
-  ],
-  community: [
-    { name: 'X', href: 'https://x.com/metapredictbnb', external: true },
-    { name: 'Telegram', href: 'https://t.me/metapredictbnb', external: true },
-  ],
-  legal: [
-    { name: 'Terms of Service', href: '/terms' },
-    { name: 'Privacy Policy', href: '/privacy' },
-    { name: 'Disclaimer', href: '/disclaimer' },
-  ],
-};
 
 const socials = [
   { icon: Globe, href: 'https://x.com/metapredictbnb', label: 'X' },
@@ -74,6 +24,58 @@ const techStack = [
 ];
 
 export function Footer() {
+  // Calculate footerLinks inside component to avoid hydration mismatch
+  const footerLinks = useMemo(() => ({
+    product: [
+      { name: 'Markets', href: '/markets' },
+      { name: 'Create Market', href: '/create' },
+      { name: 'Insurance Pool', href: '/insurance' },
+      { name: 'Reputation', href: '/reputation' },
+      { name: 'DAO Governance', href: '/dao' },
+    ],
+    contracts: [
+      { 
+        name: 'Prediction Market Core', 
+        href: getContractLink(CONTRACT_ADDRESSES.CORE_CONTRACT),
+        external: true 
+      },
+      { 
+        name: 'AI Oracle', 
+        href: getContractLink(CONTRACT_ADDRESSES.AI_ORACLE),
+        external: true 
+      },
+      { 
+        name: 'Insurance Pool', 
+        href: getContractLink(CONTRACT_ADDRESSES.INSURANCE_POOL),
+        external: true 
+      },
+      { 
+        name: 'Chainlink Data Streams', 
+        href: getContractLink(CONTRACT_ADDRESSES.DATA_STREAMS_INTEGRATION),
+        external: true 
+      },
+      { 
+        name: 'View All Contracts', 
+        href: 'https://testnet.opbnbscan.com/',
+        external: true 
+      },
+    ],
+    resources: [
+      { name: 'opBNBScan Explorer', href: 'https://testnet.opbnbscan.com/', external: true },
+      { name: 'Chainlink Docs', href: 'https://docs.chain.link/', external: true },
+      { name: 'opBNB Docs', href: 'https://docs.bnbchain.org/bnb-opbnb/overview/', external: true },
+    ],
+    community: [
+      { name: 'X', href: 'https://x.com/metapredictbnb', external: true },
+      { name: 'Telegram', href: 'https://t.me/metapredictbnb', external: true },
+    ],
+    legal: [
+      { name: 'Terms of Service', href: '/terms' },
+      { name: 'Privacy Policy', href: '/privacy' },
+      { name: 'Disclaimer', href: '/disclaimer' },
+    ],
+  }), []);
+
   return (
     <footer className="relative mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

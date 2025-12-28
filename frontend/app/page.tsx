@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Brain, Shield, Zap, TrendingUp, Lock, Users, ArrowRight, CheckCircle, BarChart3, Globe, Award, Link2, ExternalLink, Activity, Trophy, Sparkles, Target, TrendingDown, Search, Coins, ArrowRightCircle, FileQuestion, GitBranch, Network } from 'lucide-react';
@@ -10,79 +11,6 @@ import { CONTRACT_ADDRESSES } from '@/lib/contracts/addresses';
 // Helper function to generate opBNBScan link
 const getContractLink = (address: string) => 
   `https://testnet.opbnbscan.com/address/${address}#code`;
-
-const features = [
-  {
-    icon: Brain,
-    title: 'Multi-AI Oracle Consensus',
-    description: '5 AI models from 3 providers working in sequential priority: Gemini (1st - ultra-fast, free), Llama (2nd), Mistral (3rd), Llama (4th), Gemini (5th). 80%+ consensus required. Automatic fallback ensures 95%+ accuracy.',
-    gradient: 'from-purple-500 to-pink-500',
-    link: getContractLink(CONTRACT_ADDRESSES.AI_ORACLE)
-  },
-  {
-    icon: Shield,
-    title: 'Insurance Protected (ERC-4626 Compatible)',
-    description: 'First prediction market with financial guarantee. 100% refund if oracle fails. Yield-generating insurance pool with native BNB. All deposits and yields transparent on-chain.',
-    gradient: 'from-blue-500 to-cyan-500',
-    link: getContractLink(CONTRACT_ADDRESSES.INSURANCE_POOL)
-  },
-  {
-    icon: Zap,
-    title: 'Lightning Fast on opBNB',
-    description: 'Resolution in <1 hour. Gas costs <$0.001 per transaction. Built on opBNB Testnet (Chain ID: 5611). Gasless UX with Thirdweb Embedded Wallets.',
-    gradient: 'from-yellow-500 to-orange-500',
-    link: 'https://testnet.opbnbscan.com/'
-  },
-  {
-    icon: Activity,
-    title: 'Chainlink Data Streams',
-    description: 'Sub-second price feeds (up to 100ms) for 8 trading pairs: BTC/USD, ETH/USD, BNB/USD, USDT/USD, SOL/USD, XRP/USD, USDC/USD, DOGE/USD. Real-time updates for price-based predictions. All Stream IDs verified and tested.',
-    gradient: 'from-green-500 to-emerald-500',
-    link: getContractLink(CONTRACT_ADDRESSES.DATA_STREAMS_INTEGRATION)
-  },
-  {
-    icon: Award,
-    title: 'Reputation System',
-    description: 'Stake to earn, vote in disputes, climb tiers, earn NFT badges. Economic incentives for honesty. On-chain reputation as tradeable assets.',
-    gradient: 'from-red-500 to-rose-500',
-    link: getContractLink(CONTRACT_ADDRESSES.REPUTATION_STAKING)
-  },
-  {
-    icon: Users,
-    title: 'DAO Governance',
-    description: 'Quadratic voting with expertise weighting. Community-driven resolution for subjective markets. Transparent on-chain governance.',
-    gradient: 'from-indigo-500 to-purple-500',
-    link: getContractLink(CONTRACT_ADDRESSES.DAO_GOVERNANCE)
-  },
-  {
-    icon: FileQuestion,
-    title: 'Binary Markets',
-    description: 'Simple YES/NO predictions on any future event. Permissionless market creation with customizable resolution times. AMM-based liquidity ensures always-available trading.',
-    gradient: 'from-cyan-500 to-blue-500',
-    link: getContractLink(CONTRACT_ADDRESSES.BINARY_MARKET)
-  },
-  {
-    icon: GitBranch,
-    title: 'Conditional Markets',
-    description: 'If-then predictions that depend on parent market outcomes. Create complex prediction chains and conditional logic. Perfect for multi-event scenarios and cascading predictions.',
-    gradient: 'from-teal-500 to-cyan-500',
-    link: getContractLink(CONTRACT_ADDRESSES.CONDITIONAL_MARKET)
-  },
-  {
-    icon: Award,
-    title: 'Subjective Markets',
-    description: 'DAO-governed markets for opinion-based questions. Resolved through community voting with quadratic weighting. Ideal for subjective questions requiring expert judgment.',
-    gradient: 'from-violet-500 to-purple-500',
-    link: getContractLink(CONTRACT_ADDRESSES.SUBJECTIVE_MARKET)
-  },
-  {
-    icon: Network,
-    title: 'Cross-Chain Aggregation',
-    description: 'OmniRouter enables cross-chain price aggregation via Chainlink CCIP. Save 1-5% per bet by finding best prices across chains. Secure cross-chain messaging with automatic price discovery.',
-    gradient: 'from-pink-500 to-rose-500',
-    link: getContractLink(CONTRACT_ADDRESSES.OMNI_ROUTER)
-  }
-];
 
 const stats = [
   { label: 'Hackathon Ranking', value: 'Top 20', prefix: '', suffix: '', description: 'Global Finalist' },
@@ -149,6 +77,80 @@ const marketTypes = [
 ];
 
 export default function HomePage() {
+  // Calculate features inside component to avoid hydration mismatch
+  const features = useMemo(() => [
+    {
+      icon: Brain,
+      title: 'Multi-AI Oracle Consensus',
+      description: '5 AI models from 3 providers working in sequential priority: Gemini (1st - ultra-fast, free), Llama (2nd), Mistral (3rd), Llama (4th), Gemini (5th). 80%+ consensus required. Automatic fallback ensures 95%+ accuracy.',
+      gradient: 'from-purple-500 to-pink-500',
+      link: getContractLink(CONTRACT_ADDRESSES.AI_ORACLE)
+    },
+    {
+      icon: Shield,
+      title: 'Insurance Protected (ERC-4626 Compatible)',
+      description: 'First prediction market with financial guarantee. 100% refund if oracle fails. Yield-generating insurance pool with native BNB. All deposits and yields transparent on-chain.',
+      gradient: 'from-blue-500 to-cyan-500',
+      link: getContractLink(CONTRACT_ADDRESSES.INSURANCE_POOL)
+    },
+    {
+      icon: Zap,
+      title: 'Lightning Fast on opBNB',
+      description: 'Resolution in <1 hour. Gas costs <$0.001 per transaction. Built on opBNB Testnet (Chain ID: 5611). Gasless UX with Thirdweb Embedded Wallets.',
+      gradient: 'from-yellow-500 to-orange-500',
+      link: 'https://testnet.opbnbscan.com/'
+    },
+    {
+      icon: Activity,
+      title: 'Chainlink Data Streams',
+      description: 'Sub-second price feeds (up to 100ms) for 8 trading pairs: BTC/USD, ETH/USD, BNB/USD, USDT/USD, SOL/USD, XRP/USD, USDC/USD, DOGE/USD. Real-time updates for price-based predictions. All Stream IDs verified and tested.',
+      gradient: 'from-green-500 to-emerald-500',
+      link: getContractLink(CONTRACT_ADDRESSES.DATA_STREAMS_INTEGRATION)
+    },
+    {
+      icon: Award,
+      title: 'Reputation System',
+      description: 'Stake to earn, vote in disputes, climb tiers, earn NFT badges. Economic incentives for honesty. On-chain reputation as tradeable assets.',
+      gradient: 'from-red-500 to-rose-500',
+      link: getContractLink(CONTRACT_ADDRESSES.REPUTATION_STAKING)
+    },
+    {
+      icon: Users,
+      title: 'DAO Governance',
+      description: 'Quadratic voting with expertise weighting. Community-driven resolution for subjective markets. Transparent on-chain governance.',
+      gradient: 'from-indigo-500 to-purple-500',
+      link: getContractLink(CONTRACT_ADDRESSES.DAO_GOVERNANCE)
+    },
+    {
+      icon: FileQuestion,
+      title: 'Binary Markets',
+      description: 'Simple YES/NO predictions on any future event. Permissionless market creation with customizable resolution times. AMM-based liquidity ensures always-available trading.',
+      gradient: 'from-cyan-500 to-blue-500',
+      link: getContractLink(CONTRACT_ADDRESSES.BINARY_MARKET)
+    },
+    {
+      icon: GitBranch,
+      title: 'Conditional Markets',
+      description: 'If-then predictions that depend on parent market outcomes. Create complex prediction chains and conditional logic. Perfect for multi-event scenarios and cascading predictions.',
+      gradient: 'from-teal-500 to-cyan-500',
+      link: getContractLink(CONTRACT_ADDRESSES.CONDITIONAL_MARKET)
+    },
+    {
+      icon: Award,
+      title: 'Subjective Markets',
+      description: 'DAO-governed markets for opinion-based questions. Resolved through community voting with quadratic weighting. Ideal for subjective questions requiring expert judgment.',
+      gradient: 'from-violet-500 to-purple-500',
+      link: getContractLink(CONTRACT_ADDRESSES.SUBJECTIVE_MARKET)
+    },
+    {
+      icon: Network,
+      title: 'Cross-Chain Aggregation',
+      description: 'OmniRouter enables cross-chain price aggregation via Chainlink CCIP. Save 1-5% per bet by finding best prices across chains. Secure cross-chain messaging with automatic price discovery.',
+      gradient: 'from-pink-500 to-rose-500',
+      link: getContractLink(CONTRACT_ADDRESSES.OMNI_ROUTER)
+    }
+  ], []);
+
   return (
     <div className="relative">
       {/* Hero Section */}
